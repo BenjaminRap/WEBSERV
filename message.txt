@@ -1,0 +1,56 @@
+An http message looks like this : 
+
+Request :
+
+POST /users HTTP/1.1                     ___________  -> Start Line
+Host: example.com                                   \
+Content-Type: application/x-www-form-urlencoded       -> Header
+Content-Length: 50                       ___________/
+                                                      -> Empty Line
+name=FirstName%20LastName&email=bsmth%40example.com   -> Body
+
+Response :
+
+HTTP/1.1 403 Forbidden                   ___________  -> Start Line
+Server: Apache                                      \
+Content-Type: text/application                        -> Header
+Content-Length: 600                      ___________/
+                                         ___________  -> Empty Line
+<!DOCTYPE html>                                     \
+<html>                                                -> Body
+</html>                                  ___________/
+
+The header and body is optionnal
+
+Request :
+
+Start Line : <method> <request-target> <protocol>
+ex : POST /users HTTP/1.1
+
+Header : <key> : <value>
+	Request Header : Add context to a request
+	Representation Header : If there is a body, add information for the server to retreive the original form of the data
+ex :                          ____
+	Host: example.com/listener    \
+	User-Agent: curl/8.6.0         -> Request Headers
+	Accept: */*     ______________/ 
+	Content-Type: application/json --> Representation Headers
+	Content-Length: 345 ___________/
+
+Headers are case-insensitive
+
+Body :
+ex : 
+{
+  "firstName": "Brian",
+  "lastName": "Smith",
+  "email": "bsmth@example.com",
+  "more": "data"
+}
+Can be anything
+Patch, POST and PUT have a body, but not GET.
+
+Response:
+Start Line : <protocol> <status-code> <status-text>
+
+The rest is the same as the Request
