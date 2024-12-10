@@ -1,0 +1,50 @@
+http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
+ex : http://github.com/BenjaminRap/WEBSERV
+default port : 80
+
+the url is case insensitive
+
+unreserved  = ALPHA | DIGIT | - | . | _ | ~
+
+reserved    = gen-delims | sub-delims
+
+gen-delims  =
+	: Separate the schema from the rest : http://github.com | the host from the port : http://github.com:80 | separate auth values : http://user:password@github.com
+	/ Separate the path segments : http://github.com/BenjaminRap/WEBSERV || double prefix the authority : http://github.com
+	? Prefix the request parameters : http://github.com?id=15
+	# Prefix a fragment identifier : http://github.com#section1 : represents only a part of the ressource
+	[] Surround IPv6 addresses
+	@ Separate auth values from the host : http://user:password@example.com
+
+sub-delims  =
+	! Define a priority : http://github.com!important
+	$
+	& Separate multiple parameter in a query : http://github.com?item=test&price=15
+	'
+	() Add contextual information : http://github.com(version:1.0)
+	* A joker : http://githib.com/search?id=*
+	+ Encode a space in in a query : http://github.com/search?q=hello+world
+	, Separate elements in a list : http://github.com/search?list=item1,item2,item3
+	; Same as &
+	= Associate a key to a value in query
+
+Those reserved characters, (and others) can always be user with an escaped encoding :
+% hex hex
+ex : http://github.com = http://%67ithub.com
+
+  foo://example.com:8042/over/there?name=ferret#nose
+  \_/   \______________/\_________/ \_________/ \__/
+   |           |            |            |        |
+scheme     authority       path        query   fragment
+   |   _____________________|__
+  / \ /                        \
+  urn:example:animal:ferret:nose
+
+authority   = [ userinfo "@" ] host [ ":" port ]
+
+
+userinfo    = *( unreserved / %-encoded / sub-delims / ":" )
+The user of user:password is deprecated
+
+From an url, the serveur only receive : the method, the path, the host and the query
+ex : GET /over/ther?name=ferret Host: example.com:8080
