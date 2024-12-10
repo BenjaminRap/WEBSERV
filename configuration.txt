@@ -1,0 +1,106 @@
+nginx ex :
+# Définit un serveur HTTP principal
+server {
+    # Hôte et port sur lesquels ce serveur écoute
+    listen 192.168.1.10:8080;  # Hôte et port spécifiques
+    listen [::1]:8080;         # Support IPv6 (facultatif)
+    
+    # Définit les noms de domaine gérés par ce serveur
+    server_name www.example.com example.com;
+
+    # Si aucune autre route ne correspond, ce serveur est le par défaut
+    default_server;
+
+    # Limite la taille du corps des requêtes
+    client_max_body_size 5M;
+
+    # Configuration des pages d'erreur par défaut
+    error_page 404 /custom_404.html;
+    error_page 500 502 503 504 /custom_50x.html;
+
+    location /custom_404.html {
+        root /var/www/error_pages;
+        internal;
+    }
+
+    location /custom_50x.html {
+        root /var/www/error_pages;
+        internal;
+    }
+
+    # Exemple de route avec restrictions sur les méthodes HTTP
+    location /api {
+        if ($request_method !~ ^(GET|POST)$) {
+            return 405; # Méthode non autorisée
+        }
+
+        root /var/www/api;
+        index index.html;
+    }
+
+    # Redirection HTTP
+    location /redirect-me {
+        return 301 https://new-destination.example.com;
+    }
+
+    # Gestion de la recherche dans un répertoire
+    location /kapouet {
+        root /tmp/www;  # Racine des fichiers
+        autoindex on;   # Active le listing des répertoires
+        index index.html;
+    }
+
+    # Désactive le listing pour cette route
+    location /no-listing {
+        root /var/www/no-listing;
+        autoindex off;
+        index index.html;
+    }
+
+    # Exécution de CGI pour les fichiers avec une extension spécifique
+    location ~ \.php$ {
+        # Utilise FastCGI pour exécuter le CGI
+        include fastcgi_params;
+        fastcgi_pass unix:/run/php/php7.4-fpm.sock;  # Exemple avec PHP-FPM
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+
+    # Autoriser les uploads de fichiers
+    location /upload {
+        root /var/www/uploads;
+        client_body_temp_path /tmp/nginx_uploads; # Répertoire temporaire pour les données
+        client_max_body_size 10M;
+
+        # Assure-toi que le fichier est écrit avant de répondre
+        dav_methods PUT POST;
+        create_full_put_path on;
+    }
+
+    # Définit un fichier par défaut pour les requêtes vers des répertoires
+    location / {
+        root /var/www/html;
+        index index.html index.htm;
+    }
+}
+
+# Un autre serveur avec une configuration par défaut différente
+server {
+    listen 0.0.0.0:80;
+    server_name _;  # Utilisé pour capturer tout le reste
+
+    root /var/www/default;
+    index index.html;
+}
+
+explanation of all configuration :
+    host : the ip on which the server is listening : 127.0.0.1 if local, 0.0.0.0 by default and to listen to all.
+	port : default 80.Wrote on the same line as the host on the nignx configuration. We may not do that
+	server_names : to differentiate all the servers listening on the ip
+	default error page : pages returned on an error
+	limit clien height body : self explanatory
+	routes : 
+		list of accepted http methods : other methods will be returned a forbidden error
+		http redirection : redirection to another page with a code of 3XX
+		root : the path /test will be search at root/test
+		directory listing : 

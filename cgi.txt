@@ -1,0 +1,6 @@
+CGI stands for Common Gateway Interface.
+It allows the server to execute script, with execve, and in a fork.
+It can execute any languages, but they has to be installed in the server side,
+and, if they need one, the interpreter need to be written at the file start : #!/bin/bash
+These executables should be in a restricted folder to prevent security breach.
+An user should be modifying, adding a script.

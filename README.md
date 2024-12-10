@@ -8,6 +8,14 @@ url : see url.txt
 
 http message : see message.txt
 
+methods :
+	GET and POST : https://www.w3schools.com/tags/ref_httpmethods.asp
+	DELETE : https://developer.mozilla.org/fr/docs/Web/HTTP/Methods/DELETE
+
+cgi: see cgi.txt
+
+configuration : see configuration.txt
+
 https://datatracker.ietf.org/doc/html/rfc3986 : URL RFC
 http://abcdrfc.free.fr/rfc-vf/pdf/rfc2616.pdf : http/1.1 RFC
 https://www.geeksforgeeks.org/fork-system-call/ : fork
