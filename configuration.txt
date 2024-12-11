@@ -103,4 +103,13 @@ explanation of all configuration :
 		list of accepted http methods : other methods will be returned a forbidden error
 		http redirection : redirection to another page with a code of 3XX
 		root : the path /test will be search at root/test
-		directory listing : 
+		directory listing : list the content of a directory
+		default file for directory : If directory listing is enabled, shows the content, otherwise, an error page
+		execute cgi based on file extension with POST and GET : when one of those methods ask for a file with the
+			extension, execute the script in a fork and execve.
+		make the route accept uploaded files : Create a route, accepting POST, that create a new file with the body content
+		configure where they should be saved : same thing as root in a route
+		do you wonder what cgi is : see cgi.txt
+		
+
+
