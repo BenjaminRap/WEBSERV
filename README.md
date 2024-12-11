@@ -1,8 +1,8 @@
 # WEBSERV
 42 project - WebServ
 
-see flow-cgart.png
-![Alt text](documentation/flow-chart.png "Flow Chart")
+see flow-chart.png
+![Alt text](./documentation/flow-chart.png "Flow Chart")
 
 HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
 ex : HTTP/1.1
