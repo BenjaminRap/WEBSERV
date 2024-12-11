@@ -8,9 +8,6 @@ server {
     # Définit les noms de domaine gérés par ce serveur
     server_name www.example.com example.com;
 
-    # Si aucune autre route ne correspond, ce serveur est le par défaut
-    default_server;
-
     # Limite la taille du corps des requêtes
     client_max_body_size 5M;
 
@@ -61,7 +58,7 @@ server {
     location ~ \.php$ {
         # Utilise FastCGI pour exécuter le CGI
         include fastcgi_params;
-        fastcgi_pass unix:/run/php/php7.4-fpm.sock;  # Exemple avec PHP-FPM
+        fastcgi_pass php-fpm:9000;  # Exemple avec PHP-FPM
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
@@ -69,12 +66,6 @@ server {
     # Autoriser les uploads de fichiers
     location /upload {
         root /var/www/uploads;
-        client_body_temp_path /tmp/nginx_uploads; # Répertoire temporaire pour les données
-        client_max_body_size 10M;
-
-        # Assure-toi que le fichier est écrit avant de répondre
-        dav_methods PUT POST;
-        create_full_put_path on;
     }
 
     # Définit un fichier par défaut pour les requêtes vers des répertoires

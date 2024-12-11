@@ -1,0 +1,29 @@
+services:
+  php-fpm:
+    build: ./php-fpm/
+    networks:
+      - docker-network
+    volumes:
+      - website:/app/
+  nginx:
+    depends_on:
+      - php-fpm
+    build: ./nginx/
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      - docker-network
+    volumes:
+      - website:/app/
+volumes:
+  website:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../website
+      o: bind
+networks:
+  docker-network:
+    name: docker-network
+    driver: bridge
