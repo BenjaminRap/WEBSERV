@@ -4,3 +4,5 @@ It can execute any languages, but they has to be installed in the server side,
 and, if they need one, the interpreter need to be written at the file start : #!/bin/bash
 These executables should be in a restricted folder to prevent security breach.
 An user should be modifying, adding a script.
+We can also execute differents executable, based on the file extension
+A script cgi needs somme environment variables : https://fr.wikipedia.org/wiki/Variables_d%27environnement_CGI
