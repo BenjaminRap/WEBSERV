@@ -15,5 +15,5 @@ If it is chunked, it has to be unchunked before using.
 
 The header is encoded in byte, but the body can be encoding in others way : content-encoding describe that.
 
-a single \R is an error
+a single \r is an error
 a single \n may be recognize as a line terminator, ignoring preceeding \r (check nginx)
