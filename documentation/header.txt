@@ -1,0 +1,12 @@
+un header looks like : 
+key : value
+THe value can be a list
+ex :
+	Accept-Language: fr, en, fr-ca
+Each elements of this list can have attributes, separated by a ;
+ex:
+	Accept-Language: fr; q=0.9, en; q=0.1; charset=UTF-8
+
+Not every headers can be a list or have attributes
+
+Set-cookie and Authorization has special writing
