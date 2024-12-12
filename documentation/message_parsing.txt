@@ -1,0 +1,19 @@
+HTTP-message   =	[ empty-line ]
+					start-line \r\n
+                   *( field-line \r\n )
+                   \r\n
+                   [ message-body ]
+
+It may have an empty line (or multiples, check nginx)
+parse the start-line into a structure
+parse the headers into a hash map
+empty line
+parse body if indicated in the header
+
+A body is indicated by a content-length or Transfer-Encoding: chunked
+If it is chunked, it has to be unchunked before using.
+
+The header is encoded in byte, but the body can be encoding in others way : content-encoding describe that.
+
+a single \R is an error
+a single \n may be recognize as a line terminator, ignoring preceeding \r (check nginx)
