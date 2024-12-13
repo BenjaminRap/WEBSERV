@@ -10,8 +10,8 @@ services:
       - php-fpm
     build: ./nginx/
     ports:
-      - "80:80"
-      - "8080:8080"
+      - "7070:80"
+      - "9090:8080"
     networks:
       - docker-network
     volumes:
