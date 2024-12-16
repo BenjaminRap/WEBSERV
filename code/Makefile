@@ -38,7 +38,7 @@ all: $(NAME)
 $(NAME): $(OBJS) $(MAKEFILE)
 	$(CC) $(FLAGS) $(INCLUDES) $(OBJS) -o $@
 
-$(OBJS_DIR)%.o: $(SRCS)
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
 	@mkdir -p $(@D)
 	@mkdir -p $(DEPS_DIR)$(dir $*)
 	$(CC) $(FLAGS) $(INCLUDES) -MP -MMD -MF $(DEPS_DIR)$*.d -c $< -o $@
