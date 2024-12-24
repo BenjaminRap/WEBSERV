@@ -12,8 +12,8 @@
 struct SRedirection
 {
 public:
-	ushort		responseStatusCode;
-	std::string	url;
+	unsigned short	responseStatusCode;
+	std::string		url;
 };
 
 /// @brief This structure describe the uploads behaviour

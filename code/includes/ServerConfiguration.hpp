@@ -11,14 +11,14 @@
 class ServerConfiguration
 {
 public:
-	std::string						host;
-	ushort							port;
-	std::vector<std::string>		serverNames;
+	std::string								host;
+	unsigned short							port;
+	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.
-	std::map<ushort, std::string>	errorPages;
-	size_t							maxClientBodySize;
-	std::vector<Route>				routes;
+	std::map<unsigned short, std::string>	errorPages;
+	size_t									maxClientBodySize;
+	std::vector<Route>						routes;
 };
 
 #endif // !SERVER_CONFIGURATION_HPP
