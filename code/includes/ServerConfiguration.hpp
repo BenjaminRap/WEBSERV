@@ -7,6 +7,7 @@
 
 # include "Route.hpp"
 
+/// @brief The configuration specific for each server
 class ServerConfiguration
 {
 private:
