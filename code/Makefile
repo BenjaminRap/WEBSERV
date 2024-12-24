@@ -1,9 +1,12 @@
 NAME			:=	WebServ
 CC				:=	c++
 MAKEFILE		:=	Makefile
+CONFIG			:=	config.mk
 ifndef NOFLAGS
 	FLAGS		:=	-Wall -Werror -Wextra -g -std=c++98
 endif
+
+include $(CONFIG)
 
 HEADERS_DIR		:=	includes/
 
@@ -12,7 +15,7 @@ TEMPLATES_DIR	:=	templates/
 INCLUDES		:=	-I$(HEADERS_DIR) -I$(TEMPLATES_DIR)
 
 SRCS_DIR		:=	srcs/
-SRCS_FILES		:=	
+SRCS_FILES		:=	$(SOCKET)
 SRCS			:=	$(addprefix $(SRCS_DIR), $(SRCS_FILES))
 ifndef MAIN
 	SRCS_FILES	+=	main.cpp
