@@ -38,10 +38,10 @@ DEPS			:=	$(addprefix $(DEPS_DIR), $(DEPS_FILES))
 # RULES
 all: $(NAME)
 
-$(NAME): $(OBJS) $(MAKEFILE)
+$(NAME): $(OBJS) $(MAKEFILE) $(MAKEFILE) $(CONFIG)
 	$(CC) $(FLAGS) $(INCLUDES) $(OBJS) -o $@
 
-$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp $(MAKEFILE) $(CONFIG)
 	@mkdir -p $(@D)
 	@mkdir -p $(DEPS_DIR)$(dir $*)
 	$(CC) $(FLAGS) $(INCLUDES) -MP -MMD -MF $(DEPS_DIR)$*.d -c $< -o $@
