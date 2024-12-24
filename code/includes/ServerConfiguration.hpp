@@ -14,6 +14,8 @@ private:
 	std::string						host;
 	ushort							port;
 	std::vector<std::string>		serverNames;
+	/// @brief ushort : error code, std::string, page path
+	/// Associate an error with a page, returned to the client.
 	std::map<ushort, std::string>	errorPages;
 	size_t							maxClientBodySize;
 	std::vector<Route>				routes;
