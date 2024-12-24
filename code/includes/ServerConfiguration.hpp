@@ -10,7 +10,7 @@
 /// @brief The configuration specific for each server
 class ServerConfiguration
 {
-private:
+public:
 	std::string						host;
 	ushort							port;
 	std::vector<std::string>		serverNames;

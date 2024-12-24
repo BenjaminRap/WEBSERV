@@ -11,6 +11,7 @@
 /// It also has the url in which it redirects the request. ex : https://other-url
 struct SRedirection
 {
+public:
 	ushort		responseStatusCode;
 	std::string	url;
 };
@@ -20,6 +21,7 @@ struct SRedirection
 /// with the content of the body.
 struct SUploads
 {
+public:
 	bool		acceptUploads;
 	std::string	path;
 };
@@ -27,7 +29,7 @@ struct SUploads
 /// @brief This class describe a route, a server can have multiples routes or none.
 class Route
 {
-private:
+public:
 	std::vector<EMethods>	acceptedMethods;
 	SRedirection			redirection;
 	/// @brief Define a directory or a file from where the file should be searched,

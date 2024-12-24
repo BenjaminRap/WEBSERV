@@ -10,7 +10,7 @@
 /// configuration
 class Configuration
 {
-private:
+public:
 	std::vector<ServerConfiguration>	serverConfigurations;
 };
 
