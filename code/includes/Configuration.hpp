@@ -8,10 +8,8 @@
 /// @brief This class describe all the configuration parsed from the configuration
 /// file. This program should process multiples 'servers', each having their own
 /// configuration
-class Configuration
+class Configuration : std::vector<ServerConfiguration>
 {
-public:
-	std::vector<ServerConfiguration>	serverConfigurations;
 };
 
 #endif // !CONFIGURATION_HPP
