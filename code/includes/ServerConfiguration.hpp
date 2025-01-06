@@ -11,7 +11,7 @@
 class ServerConfiguration
 {
 public:
-	std::string								host;
+	uint32_t								host;
 	unsigned short							port;
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
