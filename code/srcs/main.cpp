@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string.h>
+#include <errno.h>
 
 #include "Configuration.hpp"
 #include "socketCommunication.hpp"
@@ -13,5 +15,6 @@ int	main(void)
 	serverConf.host = 0;
 	serverConf.port = 8080;
 	conf.push_back(serverConf);
-	handleIOEvents(conf);
+	if (handleIOEvents(conf) == -1)
+		strerror(errno);
 }

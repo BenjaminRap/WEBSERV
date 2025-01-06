@@ -10,13 +10,13 @@
  * it should not be closed.
  * Set the event to EPOLLIN.
  */
-void	addSTDIN(int epfd)
+int	addSTDIN(int epfd)
 {
 	epoll_event	event;
 
 	event.events = EPOLLIN;
 	event.data.fd = STDIN_FILENO;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &event);
+	return (epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &event));
 }
 
 /**
@@ -42,7 +42,7 @@ void	cleanup(std::vector<int> fds, int epfd, epoll_event *events)
  * @throw Can throw on a allocation failure
  * @param conf The configuration, it won't be changed
  */
-void	handleIOEvents(const Configuration &conf)
+int	handleIOEvents(const Configuration &conf)
 {
 	int					epfd;
 	std::vector<int>	fds;
@@ -53,13 +53,22 @@ void	handleIOEvents(const Configuration &conf)
 	events = new epoll_event[conf.maxEvents]();
 	epfd = epoll_create(1);
 	if (epfd == -1)
-		return ;
+	{
+		delete [] events;
+		return (-1);
+	}
 	createAllServerSockets(conf, epfd, fds);
 	stop = false;
-	addSTDIN(epfd);
+	if (addSTDIN(epfd) == -1)
+	{
+		cleanup(fds, epfd, events);
+		return (-1);
+	}
 	while (!stop)
 	{
 		nfds = epoll_wait(epfd, events, conf.maxEvents, -1);
+		if (nfds == -1)
+			break ;
 		for (int i = 0; i < nfds; i++)
 		{
 			if (events[i].data.fd == STDIN_FILENO)
@@ -70,4 +79,5 @@ void	handleIOEvents(const Configuration &conf)
 		}
 	}
 	cleanup(fds, epfd, events);
+	return (0);
 }

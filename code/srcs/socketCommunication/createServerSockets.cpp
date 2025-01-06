@@ -18,7 +18,7 @@ static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
 	const std::vector<std::string>	&server_names = serverConf.serverNames;
 
 	std::cerr << strerror(errno);
-	std::cerr << "Can't listen to server :" << serverConf.host << ":" << serverConf.port;
+	std::cerr << ", can't listen to server :" << serverConf.host << ":" << serverConf.port;
 	for (std::vector<std::string>::const_iterator ci = server_names.begin(); ci < server_names.end(); ci++)
 	{
 		std::cerr << " " << *ci;
@@ -90,6 +90,11 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int
 		fds.push_back(fd);
 		event.data.fd = fd;
 		event.events = EPOLLIN | EPOLLOUT | EPOLLET;
-		epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);
+		if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
+		{
+			close(fd);
+			std::cerr << "epoll_ctl()";
+			printCreateServerSocketError(serverConf);
+		}
 	}
 }

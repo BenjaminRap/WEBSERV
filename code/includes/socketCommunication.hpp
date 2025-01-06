@@ -4,7 +4,7 @@
 class Configuration;
 
 void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int> fds);
-void	handleIOEvents(const Configuration &conf);
+int		handleIOEvents(const Configuration &conf);
 void	bzero(char *value, size_t size);
 
 #endif // !SOCKET_COMMUNICATION
