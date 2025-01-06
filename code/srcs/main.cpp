@@ -9,12 +9,20 @@ int	main(void)
 {
 	Configuration		conf;
 	ServerConfiguration	serverConf;
+	int					ret;
+	int					previousRet;
 
 	conf.maxEvents = 500;
 	conf.maxConnectionBySocket = 100;
 	serverConf.host = 0;
 	serverConf.port = 8080;
 	conf.push_back(serverConf);
-	if (handleIOEvents(conf) == -1)
-		strerror(errno);
+	ret = 1;
+	while(ret != 0)
+	{
+		ret = handleIOEvents(conf);
+		if (ret == -1 && previousRet != -1)
+			strerror(errno);
+		previousRet = ret;
+	}
 }
