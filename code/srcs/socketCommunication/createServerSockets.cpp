@@ -72,7 +72,7 @@ int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
  * @param conf The configuration, it will not be changed.
  * @param epfd The epoll fd, used to add socket to its interest list.
  */
-void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int> fds)
+void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int> &fds)
 {
 	int			fd;
 	epoll_event	event;
@@ -87,7 +87,6 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int
 			printCreateServerSocketError(serverConf);
 			continue ;
 		}
-		fds.push_back(fd);
 		event.data.fd = fd;
 		event.events = EPOLLIN | EPOLLOUT | EPOLLET;
 		if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
@@ -95,6 +94,8 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int
 			close(fd);
 			std::cerr << "epoll_ctl()";
 			printCreateServerSocketError(serverConf);
+			continue ;
 		}
+		fds.push_back(fd);
 	}
 }
