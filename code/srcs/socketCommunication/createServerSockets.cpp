@@ -28,6 +28,20 @@ static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
 }
 
 /**
+ * @brief Bind the fd to the host, port and family specified in the serverConf
+ */
+static int	bindToAddress(int fd, const ServerConfiguration &serverConf)
+{
+	sockaddr_in	addr;
+
+	bzero((char *)&addr, sizeof(sockaddr_in));
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(serverConf.port);
+	return (bind(fd, (const sockaddr *)&addr, sizeof(addr)));
+}
+
+/**
  * @brief Create a server socket, a socket used only to listen to connection creation request.
  * It create a socket, bind the host, port and family(IPV4 or IPV6), set the socket to
  * listen and return the fd.
@@ -39,7 +53,6 @@ static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
 int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
 {
 	int			fd;
-	sockaddr_in	addr;
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1)
@@ -47,11 +60,7 @@ int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
 		std::cerr << "socket() : ";
 		return (-1);
 	}
-	bzero((char *)&addr, sizeof(sockaddr_in));
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(serverConf.port);
-	if (bind(fd, (const sockaddr *)&addr, sizeof(addr)) < 0)
+	if (bindToAddress(fd, serverConf) == -1)
 	{
 		std::cerr << "bind() : ";
 		close(fd);
