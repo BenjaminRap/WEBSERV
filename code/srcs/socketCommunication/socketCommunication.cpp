@@ -16,10 +16,10 @@ void	cleanup(std::vector<SocketData> socketsData, int epfd, epoll_event *events)
 	for (std::vector<SocketData>::const_iterator ci = socketsData.begin(); ci < socketsData.end(); ci++)
 	{
 		fd = (*ci).getFd();
-		epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-		close(fd);
+		checkError(epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
+		checkError(close(fd), -1, "close() : ");
 	}
-	close(epfd);
+	checkError(close(epfd), -1, "close() :");
 	delete [] events;
 }
 
@@ -41,10 +41,10 @@ int	handleIOEvents(const Configuration &conf)
 	epoll_event				*events;
 	int						nfds;
 
-	if (std::signal(SIGINT, signalHandler) == SIG_ERR)
+	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
 		return (-1);
 	events = new epoll_event[conf.maxEvents]();
-	epfd = epoll_create(1);
+	epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (epfd == -1)
 	{
 		delete [] events;

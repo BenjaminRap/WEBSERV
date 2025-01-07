@@ -6,20 +6,18 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "Configuration.hpp"
 #include "SocketData.hpp"
+#include "socketCommunication.hpp"
 
 /**
- * @brief Print a message if the creation of a server socket failed 'Errnor Message'
+ * @brief Print a message if the creation of a server socket failed
  * : Can't listen to server : host:port server_name1 servername2 ...
- * Where errno message is written by the strerror function.
  */
 static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
 {
 	const std::vector<std::string>	&server_names = serverConf.serverNames;
 
-	std::cerr << strerror(errno);
-	std::cerr << ", can't listen to server :" << serverConf.host << ":" << serverConf.port;
+	std::cerr << "can't listen to server :" << serverConf.host << ":" << serverConf.port;
 	for (std::vector<std::string>::const_iterator ci = server_names.begin(); ci < server_names.end(); ci++)
 	{
 		std::cerr << " " << *ci;
@@ -50,34 +48,42 @@ static int	bindToAddress(int fd, const ServerConfiguration &serverConf)
  * on that value, like the host and port.
  * @param maxConnection The max number of connection this socket will listen to.
  */
-int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
+static int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
 {
 	int			fd;
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (fd == -1)
+	if (checkError(fd, -1, "socket() : ") == -1)
 	{
-		std::cerr << "socket() : ";
 		return (-1);
 	}
-	if (bindToAddress(fd, serverConf) == -1)
+	if (checkError(bindToAddress(fd, serverConf), -1, "bind() :") == -1
+		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
-		std::cerr << "bind() : ";
-		close(fd);
-		return (-1);
-	}
-	if (listen(fd, maxConnection) == -1)
-	{
-		std::cerr << "listen() : ";
 		close(fd);
 		return (-1);
 	}
 	return (fd);
 }
 
-void	printHello(int fd)
+static void	printHello(int fd)
 {
 	std::cout << "Hello :" << fd << std::endl;
+}
+
+static int	addFdToListeners(int fd, int epfd, std::vector<SocketData> &socketsData, uint32_t events)
+{
+	epoll_event	event;
+
+	socketsData.push_back(SocketData(fd, printHello));
+	event.data.ptr = &socketsData.back();
+	event.events = events;
+	if (checkError(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
+	{
+		socketsData.pop_back();
+		return (-1);
+	}
+	return (0);
 }
 
 /**
@@ -90,7 +96,6 @@ void	printHello(int fd)
 void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<SocketData> &socketsData)
 {
 	int			fd;
-	epoll_event	event;
 
 	for (Configuration::const_iterator ci = conf.begin(); ci < conf.end(); ci++)
 	{
@@ -98,20 +103,11 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<Soc
 
 		fd = createServerSocket(serverConf, conf.maxConnectionBySocket);
 		if (fd == -1)
-		{
 			printCreateServerSocketError(serverConf);
-			continue ;
-		}
-		socketsData.push_back(SocketData(fd, printHello));
-		event.data.ptr = &socketsData.back();
-		event.events = EPOLLIN | EPOLLOUT | EPOLLET;
-		if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
+		else if (addFdToListeners(fd, epfd, socketsData, EPOLLIN | EPOLLET) == -1)
 		{
 			close(fd);
-			socketsData.pop_back();
-			std::cerr << "epoll_ctl()";
 			printCreateServerSocketError(serverConf);
-			continue ;
 		}
 	}
 }

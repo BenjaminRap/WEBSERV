@@ -12,4 +12,6 @@ void	bzero(char *value, size_t size);
 int		getSignalStatus();
 void	signalHandler(int signal);
 
+#include "errorCheck.tpp"
+
 #endif // !SOCKET_COMMUNICATION
