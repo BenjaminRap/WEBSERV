@@ -16,8 +16,9 @@
 static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
 {
 	const std::vector<std::string>	&server_names = serverConf.serverNames;
+	const Host						&host = serverConf.host;
 
-	std::cerr << "can't listen to server :" << serverConf.host << ":" << serverConf.port;
+	std::cerr << "can't listen to server :" << host.address << ":" << host.port;
 	for (std::vector<std::string>::const_iterator ci = server_names.begin(); ci < server_names.end(); ci++)
 	{
 		std::cerr << " " << *ci;
@@ -28,14 +29,14 @@ static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
 /**
  * @brief Bind the fd to the host, port and family specified in the serverConf
  */
-static int	bindToAddress(int fd, const ServerConfiguration &serverConf)
+static int	bindToAddress(int fd, const Host &host)
 {
 	sockaddr_in	addr;
 
 	bzero((char *)&addr, sizeof(sockaddr_in));
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(serverConf.port);
+	addr.sin_addr.s_addr = htonl(host.address);
+	addr.sin_family = host.family;
+	addr.sin_port = htons(host.port);
 	return (bind(fd, (const sockaddr *)&addr, sizeof(addr)));
 }
 
@@ -48,7 +49,7 @@ static int	bindToAddress(int fd, const ServerConfiguration &serverConf)
  * on that value, like the host and port.
  * @param maxConnection The max number of connection this socket will listen to.
  */
-static int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
+static int	createServerSocket(const Host &host, int maxConnection)
 {
 	int			fd;
 
@@ -57,7 +58,7 @@ static int	createServerSocket(const ServerConfiguration &serverConf, int maxConn
 	{
 		return (-1);
 	}
-	if (checkError(bindToAddress(fd, serverConf), -1, "bind() :") == -1
+	if (checkError(bindToAddress(fd, host), -1, "bind() :") == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
 		close(fd);
@@ -101,7 +102,7 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<Soc
 	{
 		const ServerConfiguration	&serverConf = *ci;
 
-		fd = createServerSocket(serverConf, conf.maxConnectionBySocket);
+		fd = createServerSocket(serverConf.host, conf.maxConnectionBySocket);
 		if (fd == -1)
 			printCreateServerSocketError(serverConf);
 		else if (addFdToListeners(fd, epfd, socketsData, EPOLLIN | EPOLLET) == -1)

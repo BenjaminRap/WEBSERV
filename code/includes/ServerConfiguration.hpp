@@ -4,15 +4,24 @@
 # include <string>
 # include <map>
 # include <vector>
-#include <stdint.h>
+# include <stdint.h>
+# include <bits/sockaddr.h>
 
 # include "Route.hpp"
+
+struct Host
+{
+	uint32_t	address;
+	sa_family_t	family;
+	uint16_t	port;
+};
+
 
 /// @brief The configuration specific for each server
 class ServerConfiguration
 {
 public:
-	uint32_t								host;
+	Host									host;
 	uint16_t								port;
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
