@@ -59,16 +59,16 @@ static int	createServerSocket(const Host &host, int maxConnection)
 	return (fd);
 }
 
-static void	printHello(int fd)
+static void	printHello(int fd, void *data)
 {
-	std::cout << "Hello :" << fd << std::endl;
+	std::cout << "Hello, fd : " << fd << ", epfd : " << *(int *)data << std::endl;
 }
 
 static int	addFdToListeners(int fd, int epfd, std::vector<SocketData> &socketsData, uint32_t events)
 {
 	epoll_event	event;
 
-	socketsData.push_back(SocketData(fd, printHello));
+	socketsData.push_back(SocketData(fd, (void *)&epfd, printHello));
 	event.data.ptr = &socketsData.back();
 	event.events = events;
 	if (checkError(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
