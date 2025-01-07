@@ -13,17 +13,9 @@
  * @brief Print a message if the creation of a server socket failed
  * : Can't listen to server : host:port server_name1 servername2 ...
  */
-static void	printCreateServerSocketError(const ServerConfiguration &serverConf)
+static void	printCreateServerSocketError(const Host &host)
 {
-	const std::vector<std::string>	&server_names = serverConf.serverNames;
-	const Host						&host = serverConf.host;
-
-	std::cerr << "can't listen to server :" << host.address << ":" << host.port;
-	for (std::vector<std::string>::const_iterator ci = server_names.begin(); ci < server_names.end(); ci++)
-	{
-		std::cerr << " " << *ci;
-	}
-	std::cerr << std::endl;
+	std::cerr << "can't listen to server :" << host.address << ":" << host.port << std::endl;
 }
 
 /**
@@ -98,17 +90,17 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<Soc
 {
 	int			fd;
 
-	for (Configuration::const_iterator ci = conf.begin(); ci < conf.end(); ci++)
+	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
-		const ServerConfiguration	&serverConf = *ci;
+		const Host	&host = (*ci).first;
 
-		fd = createServerSocket(serverConf.host, conf.maxConnectionBySocket);
+		fd = createServerSocket(host, conf.maxConnectionBySocket);
 		if (fd == -1)
-			printCreateServerSocketError(serverConf);
+			printCreateServerSocketError(host);
 		else if (addFdToListeners(fd, epfd, socketsData, EPOLLIN | EPOLLET) == -1)
 		{
 			close(fd);
-			printCreateServerSocketError(serverConf);
+			printCreateServerSocketError(host);
 		}
 	}
 }

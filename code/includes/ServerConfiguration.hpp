@@ -14,6 +14,10 @@ struct Host
 	uint32_t	address;
 	sa_family_t	family;
 	uint16_t	port;
+
+	Host(uint32_t address, sa_family_t family, uint16_t port);
+
+	bool	operator<(const Host &host) const;
 };
 
 
@@ -21,14 +25,14 @@ struct Host
 class ServerConfiguration
 {
 public:
-	Host									host;
-	uint16_t								port;
+	Host									*host;
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize;
 	std::vector<Route>						routes;
+
 };
 
 #endif // !SERVER_CONFIGURATION_HPP
