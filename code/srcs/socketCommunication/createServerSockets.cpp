@@ -6,8 +6,8 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "SocketData.hpp"
 #include "socketCommunication.hpp"
+#include "SocketsHandler.hpp"
 
 /**
  * @brief Print a message if the creation of a server socket failed
@@ -59,32 +59,28 @@ static int	createServerSocket(const Host &host, int maxConnection)
 	return (fd);
 }
 
-static void	printHello(int fd, void *data)
+static void	SayHello(int fd, void *data)
 {
-	std::cout << "Hello, fd : " << fd << ", epfd : " << *(int *)data << std::endl;
+	(void)data;
+	std::cout << "Hello : " << fd << std::endl;
 }
 
-static int	addFdToListeners(int fd, int epfd, std::vector<SocketData> &socketsData, uint32_t events)
+static void	acceptConnection(int fd, void *data)
 {
-	epoll_event	event;
+	int				newConnectionFd;
+	sockaddr_in		addr;
+	socklen_t		addrLength;
+	SocketsHandler	*socketsHandler;
 
-	try
-	{
-		socketsData.push_back(SocketData(fd, (void *)&epfd, printHello));
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "push_back() : " << e.what() << std::endl;
-		return (-1);
-	}
-	event.data.ptr = &socketsData.back();
-	event.events = events;
-	if (checkError(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
-	{
-		socketsData.pop_back();
-		return (-1);
-	}
-	return (0);
+	addrLength = sizeof(addr);
+	newConnectionFd = accept(fd, (sockaddr *)&addr, &addrLength);
+	if (checkError(fd, -1, "accept() : ") == -1)
+		return ;
+	socketsHandler = (SocketsHandler *)data;
+	if (socketsHandler->addFdToListeners(newConnectionFd, SayHello, NULL, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP) == -1)
+		std::cerr << "Can't accept new connection" << std::endl;
+	else
+		std::cout << "Accepted a new connection : " << std::endl;
 }
 
 /**
@@ -94,9 +90,10 @@ static int	addFdToListeners(int fd, int epfd, std::vector<SocketData> &socketsDa
  * @param conf The configuration, it will not be changed.
  * @param epfd The epoll fd, used to add socket to its interest list.
  */
-void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<SocketData> &socketsData)
+void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler)
 {
-	int			fd;
+	int				fd;
+	const uint32_t	events = EPOLLIN | EPOLLET;
 
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
@@ -105,7 +102,7 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<Soc
 		fd = createServerSocket(host, conf.maxConnectionBySocket);
 		if (fd == -1)
 			printCreateServerSocketError(host);
-		else if (addFdToListeners(fd, epfd, socketsData, EPOLLIN | EPOLLET) == -1)
+		else if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)
 		{
 			close(fd);
 			printCreateServerSocketError(host);

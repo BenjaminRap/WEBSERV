@@ -1,10 +1,9 @@
-#include <sys/epoll.h>
 #include <unistd.h>
 #include <iostream>
 #include <csignal>
 
 #include "socketCommunication.hpp"
-#include "SocketData.hpp"
+#include "SocketsHandler.hpp"
 
 /**
  * @brief Close all the fds and remove the fds of the interest list.
@@ -36,32 +35,20 @@ bool	stop = false;
  */
 void	handleIOEvents(const Configuration &conf)
 {
-	int						epfd;
-	std::vector<SocketData>	socketsData;
-	epoll_event				*events;
+	SocketsHandler			socketsHandler(conf.maxEvents);
 	int						nfds;
 
 	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
 		return ;
-	events = new(std::nothrow) epoll_event[conf.maxEvents]();
-	if (events == NULL)
-		return ;
-	epfd = checkError(epoll_create(1), -1, "epoll_create() :");
-	if (epfd == -1)
-	{
-		delete [] events;
-		return ;
-	}
-	createAllServerSockets(conf, epfd, socketsData);
+	createAllServerSockets(conf, socketsHandler);
 	while (getSignalStatus() == NO_SIGNAL)
 	{
-		nfds = epoll_wait(epfd, events, conf.maxEvents, -1);
+		nfds = socketsHandler.epollWaitForEvent(); 
 		if (nfds == -1)
 			break ;
 		for (int i = 0; i < nfds; i++)
 		{
-			((SocketData *)events[i].data.ptr)->callback();
+			socketsHandler.callSocketCallback(i);
 		}
 	}
-	cleanup(socketsData, epfd, events);
 }

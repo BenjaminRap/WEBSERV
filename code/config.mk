@@ -2,7 +2,8 @@ SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							SocketData.cpp			\
-							signals.cpp
+							signals.cpp				\
+							SocketsHandler.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
