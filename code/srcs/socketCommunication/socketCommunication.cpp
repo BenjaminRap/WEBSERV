@@ -34,7 +34,7 @@ bool	stop = false;
  * @throw Can throw on a allocation failure
  * @param conf The configuration, it won't be changed
  */
-int	handleIOEvents(const Configuration &conf)
+void	handleIOEvents(const Configuration &conf)
 {
 	int						epfd;
 	std::vector<SocketData>	socketsData;
@@ -42,13 +42,13 @@ int	handleIOEvents(const Configuration &conf)
 	int						nfds;
 
 	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-		return (-1);
+		return ;
 	events = new epoll_event[conf.maxEvents]();
 	epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (epfd == -1)
 	{
 		delete [] events;
-		return (-1);
+		return ;
 	}
 	createAllServerSockets(conf, epfd, socketsData);
 	while (getSignalStatus() == NO_SIGNAL)
@@ -62,5 +62,4 @@ int	handleIOEvents(const Configuration &conf)
 		}
 	}
 	cleanup(socketsData, epfd, events);
-	return (0);
 }

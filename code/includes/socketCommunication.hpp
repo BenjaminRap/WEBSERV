@@ -7,7 +7,7 @@
 class SocketData;
 
 void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<SocketData> &socketsData);
-int		handleIOEvents(const Configuration &conf);
+void	handleIOEvents(const Configuration &conf);
 void	bzero(char *value, size_t size);
 int		getSignalStatus();
 void	signalHandler(int signal);
