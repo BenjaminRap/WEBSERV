@@ -9,7 +9,8 @@ private:
 public:
 	SocketData(int fd, void (&callback)(int fd));
 
-	void	callBack();
+	void	callback() const;
+	int		getFd() const;
 };
 
 #endif // !SOCKET_DATA

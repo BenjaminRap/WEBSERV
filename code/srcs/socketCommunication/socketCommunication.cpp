@@ -4,16 +4,20 @@
 #include <csignal>
 
 #include "socketCommunication.hpp"
+#include "SocketData.hpp"
 
 /**
  * @brief Close all the fds and remove the fds of the interest list.
  */
-void	cleanup(std::vector<int> fds, int epfd, epoll_event *events)
+void	cleanup(std::vector<SocketData> socketsData, int epfd, epoll_event *events)
 {
-	for (std::vector<int>::const_iterator ci = fds.begin(); ci < fds.end(); ci++)
+	int	fd;
+
+	for (std::vector<SocketData>::const_iterator ci = socketsData.begin(); ci < socketsData.end(); ci++)
 	{
-		epoll_ctl(epfd, EPOLL_CTL_DEL, *ci, NULL);
-		close(*ci);
+		fd = (*ci).getFd();
+		epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+		close(fd);
 	}
 	close(epfd);
 	delete [] events;
@@ -32,10 +36,10 @@ bool	stop = false;
  */
 int	handleIOEvents(const Configuration &conf)
 {
-	int					epfd;
-	std::vector<int>	fds;
-	epoll_event			*events;
-	int					nfds;
+	int						epfd;
+	std::vector<SocketData>	socketsData;
+	epoll_event				*events;
+	int						nfds;
 
 	if (std::signal(SIGINT, signalHandler) == SIG_ERR)
 		return (-1);
@@ -46,7 +50,7 @@ int	handleIOEvents(const Configuration &conf)
 		delete [] events;
 		return (-1);
 	}
-	createAllServerSockets(conf, epfd, fds);
+	createAllServerSockets(conf, epfd, socketsData);
 	while (getSignalStatus() == NO_SIGNAL)
 	{
 		nfds = epoll_wait(epfd, events, conf.maxEvents, -1);
@@ -54,8 +58,9 @@ int	handleIOEvents(const Configuration &conf)
 			break ;
 		for (int i = 0; i < nfds; i++)
 		{
+			((SocketData *)events[i].data.ptr)->callback();
 		}
 	}
-	cleanup(fds, epfd, events);
+	cleanup(socketsData, epfd, events);
 	return (0);
 }

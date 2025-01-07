@@ -4,7 +4,12 @@ SocketData::SocketData(int fd, void (&callback)(int fd)) : _fd(fd), _callback(ca
 {
 }
 
-void	SocketData::callBack()
+void	SocketData::callback() const
 {
 	this->_callback(this->_fd);
+}
+
+int	SocketData::getFd() const
+{
+	return (this->_fd);
 }

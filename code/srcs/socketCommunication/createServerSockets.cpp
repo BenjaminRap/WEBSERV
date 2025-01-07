@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "Configuration.hpp"
+#include "SocketData.hpp"
 
 /**
  * @brief Print a message if the creation of a server socket failed 'Errnor Message'
@@ -65,6 +66,11 @@ int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
 	return (fd);
 }
 
+void	printHello(int fd)
+{
+	std::cout << "Hello :" << fd << std::endl;
+}
+
 /**
  * @brief Create a server socket for each server configuration of the conf variable.
  * It does not crash on error, instead print an error message with the function name,
@@ -72,7 +78,7 @@ int	createServerSocket(const ServerConfiguration &serverConf, int maxConnection)
  * @param conf The configuration, it will not be changed.
  * @param epfd The epoll fd, used to add socket to its interest list.
  */
-void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int> &fds)
+void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<SocketData> &socketsData)
 {
 	int			fd;
 	epoll_event	event;
@@ -87,15 +93,16 @@ void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int
 			printCreateServerSocketError(serverConf);
 			continue ;
 		}
-		event.data.fd = fd;
+		socketsData.push_back(SocketData(fd, printHello));
+		event.data.ptr = &socketsData.back();
 		event.events = EPOLLIN | EPOLLOUT | EPOLLET;
 		if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event) == -1)
 		{
 			close(fd);
+			socketsData.pop_back();
 			std::cerr << "epoll_ctl()";
 			printCreateServerSocketError(serverConf);
 			continue ;
 		}
-		fds.push_back(fd);
 	}
 }

@@ -4,7 +4,9 @@
 # define NO_SIGNAL -1
 # include "Configuration.hpp"
 
-void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<int> &fds);
+class SocketData;
+
+void	createAllServerSockets(const Configuration &conf, int epfd, std::vector<SocketData> &socketsData);
 int		handleIOEvents(const Configuration &conf);
 void	bzero(char *value, size_t size);
 int		getSignalStatus();
