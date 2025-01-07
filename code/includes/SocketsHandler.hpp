@@ -1,7 +1,7 @@
 #ifndef SOCKETS_HANDLER
 # define SOCKETS_HANDLER
 
-# include <vector>
+# include <list>
 # include <sys/epoll.h>
 
 # include "SocketData.hpp"
@@ -9,7 +9,7 @@
 class SocketsHandler
 {
 private:
-	std::vector<SocketData>	_socketsData;
+	std::list<SocketData>	_socketsData;
 	int						_epfd;
 	epoll_event				*_events;
 	int						_maxEvents;
@@ -20,7 +20,8 @@ public:
 
 	int		epollWaitForEvent();
 	int		addFdToListeners(int fd, void (&callback)(int fd, void *data), void *data, uint32_t events);
-	void	callSocketCallback(size_t index);
+	void	callSocketCallback(size_t eventIndex);
+	bool	closeIfConnectionStopped(size_t eventIndex);
 };
 
 #endif // !SOCKETS_HANDLER

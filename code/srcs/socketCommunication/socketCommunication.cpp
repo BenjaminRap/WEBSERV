@@ -6,25 +6,6 @@
 #include "SocketsHandler.hpp"
 
 /**
- * @brief Close all the fds and remove the fds of the interest list.
- */
-void	cleanup(std::vector<SocketData> socketsData, int epfd, epoll_event *events)
-{
-	int	fd;
-
-	for (std::vector<SocketData>::const_iterator ci = socketsData.begin(); ci < socketsData.end(); ci++)
-	{
-		fd = (*ci).getFd();
-		checkError(epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
-		checkError(close(fd), -1, "close() : ");
-	}
-	checkError(close(epfd), -1, "close() :");
-	delete [] events;
-}
-
-bool	stop = false;
-
-/**
  * @brief Create a server socket for all server configurations, they listen for
  * new connection request.
  * Then use poll to check if the fds can be written / ridden.
@@ -48,7 +29,8 @@ void	handleIOEvents(const Configuration &conf)
 			break ;
 		for (int i = 0; i < nfds; i++)
 		{
-			socketsHandler.callSocketCallback(i);
+			if (!socketsHandler.closeIfConnectionStopped(i))
+				socketsHandler.callSocketCallback(i);
 		}
 	}
 }
