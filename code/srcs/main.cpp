@@ -18,5 +18,5 @@ int	main(void)
 	{
 		handleIOEvents(conf);
 	}
-	return (128 + getSignalStatus());
+	return (getReturnCodeWithSignal());
 }

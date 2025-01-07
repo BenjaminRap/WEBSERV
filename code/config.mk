@@ -2,7 +2,7 @@ SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							SocketData.cpp			\
-							serverInterruption.cpp
+							signals.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 CONFIGURATION_DIR		:=	configuration/

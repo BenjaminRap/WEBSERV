@@ -11,6 +11,7 @@ void	handleIOEvents(const Configuration &conf);
 void	bzero(char *value, size_t size);
 int		getSignalStatus();
 void	signalHandler(int signal);
+int		getReturnCodeWithSignal();
 
 #include "errorCheck.tpp"
 

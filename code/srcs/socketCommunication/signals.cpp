@@ -23,3 +23,8 @@ int	getSignalStatus()
 {
 	return (signalStatus);
 }
+
+int	getReturnCodeWithSignal()
+{
+	return (128 + signalStatus);
+}
