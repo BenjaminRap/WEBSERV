@@ -5,9 +5,8 @@
 
 #include "socketCommunication.hpp"
 
-int	main(void)
+void	initializeConfiguration(Configuration &conf)
 {
-	Configuration						conf;
 	Host								host(0, AF_INET, 8080);
 	std::vector<ServerConfiguration>	serverConfigurations;
 
@@ -16,6 +15,19 @@ int	main(void)
 	conf[host] = serverConfigurations;
 	conf[host].push_back(ServerConfiguration());
 	conf[host][0].host = &host;
+}
+
+/**
+ * @brief Create a mostly uninitialize Configuration and call the function to
+ * handle write and read request. It call the handleIoEvents till he receive a signal.
+ * @throw This function may throw
+ * @return Return the signal + 128
+ */
+int	main(void)
+{
+	Configuration	conf;
+
+	initializeConfiguration(conf);
 	while(getSignalStatus() == NO_SIGNAL)
 	{
 		handleIOEvents(conf);

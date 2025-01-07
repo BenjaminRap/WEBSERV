@@ -43,7 +43,9 @@ void	handleIOEvents(const Configuration &conf)
 
 	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
 		return ;
-	events = new epoll_event[conf.maxEvents]();
+	events = new(std::nothrow) epoll_event[conf.maxEvents]();
+	if (events == NULL)
+		return ;
 	epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (epfd == -1)
 	{

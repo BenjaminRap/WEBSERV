@@ -68,7 +68,15 @@ static int	addFdToListeners(int fd, int epfd, std::vector<SocketData> &socketsDa
 {
 	epoll_event	event;
 
-	socketsData.push_back(SocketData(fd, (void *)&epfd, printHello));
+	try
+	{
+		socketsData.push_back(SocketData(fd, (void *)&epfd, printHello));
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "push_back() : " << e.what() << std::endl;
+		return (-1);
+	}
 	event.data.ptr = &socketsData.back();
 	event.events = events;
 	if (checkError(epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
