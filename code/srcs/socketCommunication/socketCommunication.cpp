@@ -1,23 +1,9 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <iostream>
+#include <csignal>
 
-#include "Configuration.hpp"
 #include "socketCommunication.hpp"
-
-/**
- * @brief Add the STDIN to the epoll interest fds, but not to the fds vector, because
- * it should not be closed.
- * Set the event to EPOLLIN.
- */
-int	addSTDIN(int epfd)
-{
-	epoll_event	event;
-
-	event.events = EPOLLIN;
-	event.data.fd = STDIN_FILENO;
-	return (epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &event));
-}
 
 /**
  * @brief Close all the fds and remove the fds of the interest list.
@@ -32,6 +18,8 @@ void	cleanup(std::vector<int> fds, int epfd, epoll_event *events)
 	close(epfd);
 	delete [] events;
 }
+
+bool	stop = false;
 
 /**
  * @brief Create a server socket for all server configurations, they listen for
@@ -48,8 +36,9 @@ int	handleIOEvents(const Configuration &conf)
 	std::vector<int>	fds;
 	epoll_event			*events;
 	int					nfds;
-	bool				stop;
 
+	if (std::signal(SIGINT, signalHandler) == SIG_ERR)
+		return (-1);
 	events = new epoll_event[conf.maxEvents]();
 	epfd = epoll_create(1);
 	if (epfd == -1)
@@ -58,24 +47,13 @@ int	handleIOEvents(const Configuration &conf)
 		return (-1);
 	}
 	createAllServerSockets(conf, epfd, fds);
-	stop = false;
-	if (addSTDIN(epfd) == -1)
-	{
-		cleanup(fds, epfd, events);
-		return (-1);
-	}
-	while (!stop)
+	while (getSignalStatus() == NO_SIGNAL)
 	{
 		nfds = epoll_wait(epfd, events, conf.maxEvents, -1);
 		if (nfds == -1)
 			break ;
 		for (int i = 0; i < nfds; i++)
 		{
-			if (events[i].data.fd == STDIN_FILENO)
-			{
-				stop = true;
-				break ;
-			}
 		}
 	}
 	cleanup(fds, epfd, events);
