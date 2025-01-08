@@ -16,9 +16,9 @@ SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
 }
 
 /**
- * @brief Create a socketData by copying ref.The ref iterator isn't copied and this
+ * @brief Create a SocketData by copying ref.The ref iterator isn't copied and this
  * new SocketData need a setIterator call.
- * @param ref The SocketData to copy from
+ * @param ref The SocketData to copy from.
  */
 SocketData::SocketData(const SocketData& ref)
 	:_fd(ref._fd), _data(ref._data), _callback(ref._callback), _iterator(), _isIteratorSet(false)
@@ -31,7 +31,7 @@ SocketData::~SocketData(void)
 
 
 /**
- * @brief Call the callback variable with the fd and data as parameters.
+ * @brief Execute the callback variable with the _fd and _data as parameters.
  */
 void	SocketData::callback() const
 {
@@ -47,10 +47,10 @@ int	SocketData::getFd() const
 }
 
 /**
- * @brief return the iterator pointing to this object in the SocketHandler SocketData
+ * @brief Return the iterator pointing to this object in the SocketHandler _socketsData
  * list.
- * @throw If the iterator asn't been set with the setIterator function, throw
- * a std::log_error
+ * @throw If the iterator hasn't been set with the setIterator function, throw
+ * a std::logic_error.
  * @return A const reference on the iterator pointing to this object.
  */
 const std::list<SocketData>::iterator	&SocketData::getIterator() const
@@ -62,12 +62,12 @@ const std::list<SocketData>::iterator	&SocketData::getIterator() const
 }
 
 /**
- * @brief Set the iterator of this socketData to a copy of the iterator passed
- * as argument.This function should be called if you want to remove this socket
+ * @brief Set the _iterator of this SocketData to a copy of the iterator passed
+ * as argument. This function should be called if you want to remove this socket
  * later.
  * If the iterator has already been set, print an error.
- * If the SocketData pointed by isn't this class, print an error.
- * @param iterator The iterator that points to this SocketData
+ * If the SocketData pointed by the iterator isn't this class, print an error.
+ * @param iterator The iterator that points to this SocketData.
  */
 void	SocketData::setIterator(const std::list<SocketData>::iterator &iterator)
 {

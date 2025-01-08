@@ -10,8 +10,7 @@
 #include "SocketsHandler.hpp"
 
 /**
- * @brief Print a message if the creation of a server socket failed
- * : Can't listen to server : host:port server_name1 servername2 ...
+ * @brief Print the message : 'Can't listen to server : host:port'.
  */
 static void	printCreateServerSocketError(const Host &host)
 {
@@ -19,7 +18,9 @@ static void	printCreateServerSocketError(const Host &host)
 }
 
 /**
- * @brief Bind the fd to the address, port and family specified in the host
+ * @brief Bind the fd to the address, port and family specified in the host.
+ * @param fd The fd of the socket to bind the address to.
+ * @param host The structure that contains, the address, port and family.
  * @return Return 0 on success and -1 on error.
  */
 static int	bindToAddress(int fd, const Host &host)
@@ -34,9 +35,9 @@ static int	bindToAddress(int fd, const Host &host)
 }
 
 /**
- * @brief Set the socket SO_REUSEADDR option depending on reuseAddr
- * @param fd the fd of the socket to set the SO_REUSEADDR option.
- * @param reuseAddr true if the addresse can be reused shortly after, false otherwise.
+ * @brief Set the socket SO_REUSEADDR option depending on reuseAddr.
+ * @param fd The fd of the socket to set the SO_REUSEADDR option to.
+ * @param reuseAddr True if the address can be reused shortly after, false otherwise.
  * Setting it to true can bring bugs but prevent the bind() : address already in use
  * error.
  * @return Return 0 on success and -1 on error, with an error message printed
@@ -57,10 +58,10 @@ static int	setReusableAddr(int fd, bool reuseAddr)
  * It create a socket, bind the host, port and family(IPV4 or IPV6), set the socket to
  * listen and return the fd.
  * If an error occur, the socket will be closed and the function return -1.
- * @param Host The configuration of the socket addr.
+ * @param Host The configuration of the socket host (sockaddr).
  * @param maxConnection The max number of connection this socket will listen to.
- * @param reuseAddr a boolean to determine if the addresse can be reused just after
- * the socket being closed.Otherwise there is a delay.
+ * @param reuseAddr A boolean to determine if the address can be reused just after
+ * the socket being closed. Otherwise there is a delay (TIME_WAIT).
  */
 static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr)
 {
@@ -80,10 +81,10 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 }
 
 /**
- * @brief Read the fd until it receive eof or and error.It prints in the terminal
+ * @brief Read the fd until it receive eof or an error.It prints in the terminal
  * what it has received.
- * @param fd The fd of a socket to listen to
- * @param data unused data
+ * @param fd The fd of a socket to listen to.
+ * @param data Unused data.
  */
 static void	writeReceived(int fd, void *data)
 {
@@ -140,9 +141,9 @@ static void	acceptConnection(int fd, void *data)
 /**
  * @brief Create a server socket for each host of the conf variable.
  * It does not crash on error, instead print an error message with the function name,
- * and the server informations.
+ * a error message depending on errno and the server informations.
  * @param conf The configuration, it will not be changed.
- * @param socketsHandler The class that will be usezd to add sockets to the epoll
+ * @param socketsHandler The class that will be used to add sockets to the epoll
  * interest list.
  */
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler)

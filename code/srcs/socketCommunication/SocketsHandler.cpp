@@ -8,10 +8,9 @@ bool SocketsHandler::_instanciated = false;
 /**
  * @brief Create a SocketHandler, allocate the event array and create the epoll fd.
  * This class can only has one instance.
- * @param maxEvents The size of the events array
+ * @param maxEvents The size of the events array.
  * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
- * failed (std::exception) or if an instance of this class already has an
- * instance (std::logic_error).
+ * failed (std::exception) or this class already has an instance (std::logic_error).
  */
 SocketsHandler::SocketsHandler(unsigned int maxEvents) : _maxEvents(maxEvents), _eventsCount(0)
 {
@@ -45,7 +44,7 @@ SocketsHandler::~SocketsHandler()
 /**
  * @brief Close a socket and remove if from the epoll interest list. It does not
  * remove it from The _socketsData list.
- * @param fd The fd of the socket to close
+ * @param fd The fd of the socket to close.
  */
 void	SocketsHandler::closeSocket(int fd)
 {
@@ -71,14 +70,15 @@ int	SocketsHandler::epollWaitForEvent()
 }
 
 /**
- * @brief Add the fd to the epoll listener and set the event events and data.ptr
- * with a SocketData.
+ * @brief Add the fd to the epoll listener, set the event.events and event.data.ptr
+ * to a SocketData.
  * @param fd The fd of the socket to add to listeners, it will also be passed
  * to the callback function.
- * @param callback It is used as a parameter of the SocketData, when the epoll_wait
- * see a read/write, we can get the SocketData and callback from the event.data.ptr.
- * @param data A data that will be passed to the callback
- * @param the events used to create the epoll_event variable
+ * @param callback It is used as a parameter of the SocketData constructor, when
+ * the epoll_wait see a read/write, we can get the SocketData callback from
+ * the event.data.ptr.
+ * @param data A data that will be passed to the callback.
+ * @param events The events used to create the epoll_event variable
  * @return 0 on success, -1 on error and an error message written in the terminal.
  */
 int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data), void *data, uint32_t events)
@@ -107,9 +107,9 @@ int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data
 }
 
 /**
- * @brief Call the callback of the socket, in the epoll events at eventIndex
+ * @brief Call the callback of the socket, in the epoll events at eventIndex.
  * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
- * is the result of epoll_wait or epollWaitForEvent
+ * is the result of epoll_wait or epollWaitForEvent function.
  */
 void	SocketsHandler::callSocketCallback(size_t eventIndex)
 {
@@ -126,7 +126,7 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex)
  * @brief If the socket at eventIndex has an EPOLLHUP or EPOLLRDHUP event, close it
  * and remove it from the _socketsData list.
  * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
- * is the result of epoll_wait or epollWaitForEvent
+ * is the result of epoll_wait or epollWaitForEvent function.
  * @return true if the connection is closed, false otherwise.
  */
 bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)

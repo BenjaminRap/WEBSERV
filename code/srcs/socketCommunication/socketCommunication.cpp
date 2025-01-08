@@ -6,13 +6,11 @@
 #include "SocketsHandler.hpp"
 
 /**
- * @brief Create a server socket for all server configurations, they listen for
- * new connection request.
- * Then use poll to check if the fds can be written / ridden.
- * On a stdin input, close clean up and quit.
- * For now the error aren't taken into account.
- * @throw Can throw on a allocation failure
- * @param conf The configuration, it won't be changed
+ * @brief Create a server socket for hosts, they listen for new connection requests.
+ * Then use epoll to check if the fds can be written / read.
+ * @throw Can throw a std::bad_alloc, std::logic_error and std::exception, all coming
+ * from the SocketsHandler constructor.
+ * @param conf The configuration, it won't be changed.
  */
 void	handleIOEvents(const Configuration &conf)
 {
