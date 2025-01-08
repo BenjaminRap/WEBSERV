@@ -3,7 +3,12 @@
 #include "SocketsHandler.hpp"
 #include "socketCommunication.hpp"
 
-SocketsHandler::SocketsHandler(int maxEvents) : _maxEvents(maxEvents), _eventsCount(0)
+/**
+ * @brief Create a SocketHandler, allocate the event array and create the epoll fd
+ * @param maxEvents The size of the events array
+ * @throw Throw an error if the allocation or epoll_create failed.
+ */
+SocketsHandler::SocketsHandler(unsigned int maxEvents) : _maxEvents(maxEvents), _eventsCount(0)
 {
 	_events = new epoll_event[maxEvents]();
 	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
@@ -14,6 +19,9 @@ SocketsHandler::SocketsHandler(int maxEvents) : _maxEvents(maxEvents), _eventsCo
 	}
 }
 
+/**
+ * @brief Free the events array, close the sockets and close the epoll fd.
+ */
 SocketsHandler::~SocketsHandler()
 {
 	for (std::list<SocketData>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
@@ -36,6 +44,10 @@ void	SocketsHandler::closeSocket(int fd)
 	std::cout << "Closing socket,fd : " << fd << std::endl;
 }
 
+/**
+ * @brief Call epoll_wait with the SocketHandler variables and return its result;
+ * @return The number of events, or -1 on error;
+ */
 int	SocketsHandler::epollWaitForEvent()
 {
 	int	nfds;
@@ -48,6 +60,17 @@ int	SocketsHandler::epollWaitForEvent()
 	return (nfds);
 }
 
+/**
+ * @brief Add the fd to the epoll listener and set the event events and data.ptr
+ * with a SocketData.
+ * @param fd The fd of the socket to add to listeners, it will also be passed
+ * to the callback function.
+ * @param callback It is used as a parameter of the SocketData, when the epoll_wait
+ * see a read/write, we can get the SocketData and callback from the event.data.ptr.
+ * @param data A data that will be passed to the callback
+ * @param the events used to create the epoll_event variable
+ * @return 0 on success, -1 on error and an error message written in the terminal.
+ */
 int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data), void *data, uint32_t events)
 {
 	epoll_event	event;
@@ -73,6 +96,11 @@ int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data
 	return (0);
 }
 
+/**
+ * @brief Call the callback of the socket, in the epoll events at eventIndex
+ * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
+ * is the result of epoll_wait or epollWaitForEvent
+ */
 void	SocketsHandler::callSocketCallback(size_t eventIndex)
 {
 	if (eventIndex >= _eventsCount)
@@ -84,7 +112,13 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex)
 	socketData.callback();
 }
 
-
+/**
+ * @brief If the socket at eventIndex has an EPOLLHUP or EPOLLRDHUP event, close it
+ * and remove it from the _socketsData list.
+ * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
+ * is the result of epoll_wait or epollWaitForEvent
+ * @return true if the connection is closed, false otherwise.
+ */
 bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 {
 	int			fd;

@@ -12,12 +12,12 @@ private:
 	std::list<SocketData>	_socketsData;
 	int						_epfd;
 	epoll_event				*_events;
-	int						_maxEvents;
+	unsigned int			_maxEvents;
 	size_t					_eventsCount;
 
 	void					closeSocket(int fd);
 public:
-	SocketsHandler(int maxEvents);
+	SocketsHandler(unsigned int maxEvents);
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
