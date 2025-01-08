@@ -18,11 +18,11 @@ SRCS_DIR		:=	srcs/
 SRCS_FILES		:=	$(CONFIGURATION) $(SOCKET) $(UTILS)
 SRCS			:=	$(addprefix $(SRCS_DIR), $(SRCS_FILES))
 ifndef MAIN
-	SRCS_FILES	+=	main.cpp
-	SRCS		+= $(SRCS_DIR)main.cpp
+SRCS_FILES		+=	main.cpp
+SRCS			+= $(SRCS_DIR)main.cpp
 else
-	SRCS_FILES	+= $(notdir $(MAIN))
-	SRCS		+= $(MAIN)
+SRCS_FILES		+= $(notdir $(MAIN))
+SRCS			+= $(MAIN)
 endif
 
 # OBJECTS GENERAL
@@ -45,6 +45,14 @@ $(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp $(MAKEFILE) $(CONFIG)
 	@mkdir -p $(@D)
 	@mkdir -p $(DEPS_DIR)$(dir $*)
 	$(CC) $(FLAGS) $(INCLUDES) -MP -MMD -MF $(DEPS_DIR)$*.d -c $< -o $@
+
+ifdef MAIN
+MAIN_OBJECT	:=	$(basename $(notdir $(MAIN))).o
+$(OBJS_DIR)$(MAIN_OBJECT): $(MAIN) $(MAKEFILE) $(CONFIG)
+	@mkdir -p $(@D)
+	@mkdir -p $(DEPS_DIR)$(dir $*)
+	$(CC) $(FLAGS) $(INCLUDES) -MP -MMD -MF $(DEPS_DIR)$*.d -c $< -o $@
+endif
 
 -include $(DEPS)
 

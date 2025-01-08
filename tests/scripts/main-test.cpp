@@ -11,9 +11,9 @@ std::string	test(int value)
 void	verify(bool test)
 {
 	if (test)
-		printf("\033[0;32mOK\033[0m\n");
+		std::cout << "\033[0;32mOK\033[0m\n";
 	else
-		printf("\033[0;31mKO\033[0m\n");
+		std::cout << "\033[0;31mKO\033[0m\n";
 }
 
 int	main(void)
