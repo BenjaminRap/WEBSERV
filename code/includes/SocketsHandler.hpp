@@ -14,6 +14,8 @@ private:
 	epoll_event				*_events;
 	int						_maxEvents;
 	size_t					_eventsCount;
+
+	void					closeSocket(const SocketData &socketData);
 public:
 	SocketsHandler(int maxEvents);
 	~SocketsHandler();

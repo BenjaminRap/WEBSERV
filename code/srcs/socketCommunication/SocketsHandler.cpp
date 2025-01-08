@@ -16,16 +16,22 @@ SocketsHandler::SocketsHandler(int maxEvents) : _maxEvents(maxEvents), _eventsCo
 
 SocketsHandler::~SocketsHandler()
 {
-	int	fd;
-
 	for (std::list<SocketData>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
-		fd = (*ci).getFd();
-		checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
-		checkError(close(fd), -1, "close() : ");
+		closeSocket(*ci);
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
+}
+
+void	SocketsHandler::closeSocket(const SocketData &socketData)
+{
+	int								fd;
+
+	fd = socketData.getFd();
+	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
+	checkError(close(fd), -1, "close() : ");
+	//_socketsData.erase(socketData.getIterator());
 }
 
 int	SocketsHandler::epollWaitForEvent()
@@ -42,21 +48,20 @@ int	SocketsHandler::epollWaitForEvent()
 
 int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data), void *data, uint32_t events)
 {
-	epoll_event						event;
-	// std::list<SocketData>::iterator	*lastElementIterator;
+	epoll_event	event;
 
 	try
 	{
-		_socketsData.push_back(SocketData(fd, data, callback));
+		_socketsData.push_front(SocketData(fd, data, callback));
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << "push_back() : " << e.what() << std::endl;
+		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (-1);
 	}
-	// lastElementIterator = &(--_socketsData.end());
-	// event.data.ptr = lastElementIterator;
-	event.data.ptr = &(_socketsData.back());
+	SocketData	&socketData = _socketsData.front();
+	socketData.setIterator(_socketsData.begin());
+	event.data.ptr = &(socketData);
 	event.events = events;
 	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
 	{
@@ -68,15 +73,11 @@ int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data
 
 void	SocketsHandler::callSocketCallback(size_t eventIndex)
 {
-	// std::list<SocketData>::iterator	*iterator;
-
 	if (eventIndex >= _eventsCount)
 	{
 		std::cerr << "SocketsHandler callSocketCallback method was called with a wrong index" << std::endl;
 		return ;
 	}
-	// iterator = static_cast<std::list<SocketData>::iterator *>(_events[eventIndex].data.ptr);
-	// SocketData	&socketData = **iterator;
 	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
 	socketData.callback();
 }
@@ -84,9 +85,6 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex)
 
 bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 {
-	// std::list<SocketData>::iterator	*iterator;
-	int			fd;
-
 	if (eventIndex >= _eventsCount)
 	{
 		std::cerr << "SocketsHandler closeIfConnectionStopped method was called with a wrong index" << std::endl;
@@ -94,12 +92,8 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	}
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP)) == false)
 		return (false);
-	// iterator = static_cast<std::list<SocketData>::iterator *>(_events[eventIndex].data.ptr);
-	// SocketData	&socketData = **iterator;
-	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
-	fd = socketData.getFd();
-	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
-	checkError(close(fd), -1, "close() : ");
-	// _socketsData.erase(*iterator);
+	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+	closeSocket(socketData);
+	_socketsData.erase(socketData.getIterator());
 	return (true);
 }
