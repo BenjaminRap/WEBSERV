@@ -13,6 +13,8 @@
 SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
 	: _fd(fd), _data(data), _callback(callback), _iterator(), _isIteratorSet(false)
 {
+	if (fd <= 3)
+		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 }
 
 /**

@@ -1,6 +1,8 @@
 #ifndef SOCKET_DATA
 # define SOCKET_DATA
 
+# include <list>
+
 /**
  * @brief Represents all the data needed by a fd : the _callback function that
  * will be executed when the fd receive an event, its _iterator to remove itself
