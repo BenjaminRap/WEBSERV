@@ -15,7 +15,7 @@ TEMPLATES_DIR	:=	templates/
 INCLUDES		:=	-I$(HEADERS_DIR) -I$(TEMPLATES_DIR)
 
 SRCS_DIR		:=	srcs/
-SRCS_FILES		:=	$(SOCKET)
+SRCS_FILES		:=	$(SOCKET) $(CONFIGURATION)
 SRCS			:=	$(addprefix $(SRCS_DIR), $(SRCS_FILES))
 ifndef MAIN
 	SRCS_FILES	+=	main.cpp

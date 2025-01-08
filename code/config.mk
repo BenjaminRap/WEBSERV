@@ -4,5 +4,5 @@ SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
 CONFIGURATION_FILES		:=	Configuration.cpp	\
-							ServerConfiguration.cpp
-CONFIGURATION			:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
+							ServerConfiguration.cpp 
+CONFIGURATION			:=	$(addprefix $(CONFIGURATION_DIR), $(CONFIGURATION_FILES))
