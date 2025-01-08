@@ -1,5 +1,19 @@
 #include "ServerConfiguration.hpp"
 
+ServerConfiguration::ServerConfiguration(uint32_t host, uint16_t port, std::vector<std::string> serverNames, \
+					std::map<unsigned short, std::string> errorPages, \
+					size_t maxClientBodySize, std::vector<Route> routes) : \
+					host(host), port(port), serverNames(serverNames), errorPages(errorPages), \
+					maxClientBodySize(maxClientBodySize), routes(routes)
+{
+	return ;
+}
+
+ServerConfiguration::~ServerConfiguration(void)
+{
+	return ;
+}
+
 const uint32_t					&ServerConfiguration::getHost(void) const
 {
 	return (this->host);
