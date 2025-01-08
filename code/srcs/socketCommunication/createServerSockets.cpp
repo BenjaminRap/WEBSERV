@@ -78,9 +78,12 @@ static void	acceptConnection(int fd, void *data)
 		return ;
 	socketsHandler = (SocketsHandler *)data;
 	if (socketsHandler->addFdToListeners(newConnectionFd, SayHello, NULL, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP) == -1)
+	{
 		std::cerr << "Can't accept new connection" << std::endl;
+		checkError(close(newConnectionFd), -1, "close() : ");
+	}
 	else
-		std::cout << "Accepted a new connection : " << std::endl;
+		std::cout << "Accepted a new connection, fd : " << newConnectionFd << std::endl;
 }
 
 /**
