@@ -29,23 +29,6 @@ SocketsHandler::SocketsHandler(unsigned int maxEvents) : _maxEvents(maxEvents), 
 }
 
 /**
- * @brief Shouldn't be called
- */
-SocketsHandler::SocketsHandler(void)
-{
-	std::cerr << "The default constructor of SocketsHandler shouldn't be called" << std::endl;
-}
-
-/**
- * @brief Shouldn't be called
- */
-SocketsHandler::SocketsHandler(const SocketsHandler& ref)
-{
-	(void)ref;
-	std::cerr << "The copy constructor of SocketsHandler shouldn't be called" << std::endl;
-}
-
-/**
  * @brief Free the events array, close the sockets and close the epoll fd.
  */
 SocketsHandler::~SocketsHandler()
@@ -57,14 +40,6 @@ SocketsHandler::~SocketsHandler()
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
-}
-
-
-SocketsHandler&			SocketsHandler::operator=(const SocketsHandler &ref)
-{
-	(void)ref;
-	std::cerr << "The assignment operator of SocketsHandler shouldn't be called" << std::endl;
-	return (*this);
 }
 
 /**
