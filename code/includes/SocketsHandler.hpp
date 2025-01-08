@@ -15,7 +15,7 @@ private:
 	int						_maxEvents;
 	size_t					_eventsCount;
 
-	void					closeSocket(const SocketData &socketData);
+	void					closeSocket(int fd);
 public:
 	SocketsHandler(int maxEvents);
 	~SocketsHandler();

@@ -18,17 +18,19 @@ SocketsHandler::~SocketsHandler()
 {
 	for (std::list<SocketData>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
-		closeSocket(*ci);
+		closeSocket((*ci).getFd());
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
 }
 
-void	SocketsHandler::closeSocket(const SocketData &socketData)
+/**
+ * @brief Close a socket and remove if from the epoll interest list. It does not
+ * remove it from The _socketsData list.
+ * @param fd The fd of the socket to close
+ */
+void	SocketsHandler::closeSocket(int fd)
 {
-	int								fd;
-
-	fd = socketData.getFd();
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	checkError(close(fd), -1, "close() : ");
 	std::cout << "Closing socket,fd : " << fd << std::endl;
@@ -85,6 +87,9 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex)
 
 bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 {
+	int			fd;
+	SocketData	*socketData;
+
 	if (eventIndex >= _eventsCount)
 	{
 		std::cerr << "SocketsHandler closeIfConnectionStopped method was called with a wrong index" << std::endl;
@@ -92,12 +97,13 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	}
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP)) == false)
 		return (false);
-	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
-	closeSocket(socketData);
-	std::cout << "A connection stopped, fd : " << socketData.getFd() << std::endl;
+	socketData = static_cast<SocketData *>(_events[eventIndex].data.ptr);
+	fd = socketData->getFd();
+	closeSocket(fd);
+	std::cout << "A connection stopped, fd : " << fd << std::endl;
 	try
 	{
-		_socketsData.erase(socketData.getIterator());
+		_socketsData.erase(socketData->getIterator());
 	}
 	catch(const std::exception& e)
 	{
