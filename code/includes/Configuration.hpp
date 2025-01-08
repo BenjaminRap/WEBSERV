@@ -15,6 +15,6 @@ class Configuration : public std::vector<ServerConfiguration>
 	Configuration(void);
 	Configuration(std::string path);
 	~Configuration(void);
-};
+}
 
 #endif // !CONFIGURATION_HPP
