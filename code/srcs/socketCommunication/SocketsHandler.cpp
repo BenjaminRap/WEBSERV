@@ -3,20 +3,46 @@
 #include "SocketsHandler.hpp"
 #include "socketCommunication.hpp"
 
+bool SocketsHandler::_instanciated = false;
+
 /**
- * @brief Create a SocketHandler, allocate the event array and create the epoll fd
+ * @brief Create a SocketHandler, allocate the event array and create the epoll fd.
+ * This class can only has one instance.
  * @param maxEvents The size of the events array
- * @throw Throw an error if the allocation or epoll_create failed.
+ * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
+ * failed (std::exception) or if an instance of this class already has an
+ * instance (std::logic_error).
  */
 SocketsHandler::SocketsHandler(unsigned int maxEvents) : _maxEvents(maxEvents), _eventsCount(0)
 {
+	if (SocketsHandler::_instanciated == true)
+		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
+	SocketsHandler::_instanciated = true;
 	_events = new epoll_event[maxEvents]();
 	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (_epfd == -1)
 	{
+		delete [] _events;
 		throw std::exception();
 		return ;
 	}
+}
+
+/**
+ * @brief Shouldn't be called
+ */
+SocketsHandler::SocketsHandler(void)
+{
+	std::cerr << "The default constructor of SocketsHandler shouldn't be called" << std::endl;
+}
+
+/**
+ * @brief Shouldn't be called
+ */
+SocketsHandler::SocketsHandler(const SocketsHandler& ref)
+{
+	(void)ref;
+	std::cerr << "The copy constructor of SocketsHandler shouldn't be called" << std::endl;
 }
 
 /**
@@ -24,12 +50,21 @@ SocketsHandler::SocketsHandler(unsigned int maxEvents) : _maxEvents(maxEvents), 
  */
 SocketsHandler::~SocketsHandler()
 {
+	SocketsHandler::_instanciated = false;
 	for (std::list<SocketData>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
 		closeSocket((*ci).getFd());
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
+}
+
+
+SocketsHandler&			SocketsHandler::operator=(const SocketsHandler &ref)
+{
+	(void)ref;
+	std::cerr << "The assignment operator of SocketsHandler shouldn't be called" << std::endl;
+	return (*this);
 }
 
 /**
