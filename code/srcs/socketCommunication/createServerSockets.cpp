@@ -74,7 +74,7 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 		|| checkError(bindToAddress(fd, host), -1, "bind() :") == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
-		close(fd);
+		checkError(close(fd), -1, "close() : ");
 		return (-1);
 	}
 	return (fd);
