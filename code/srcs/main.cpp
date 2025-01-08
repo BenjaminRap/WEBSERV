@@ -2,8 +2,10 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/socket.h>
+#include <cstdlib>
 
 #include "socketCommunication.hpp"
+#include <csignal>
 
 void	initializeConfiguration(Configuration &conf)
 {
@@ -28,6 +30,8 @@ int	main(void)
 {
 	Configuration	conf;
 
+	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+		return (EXIT_FAILURE);
 	initializeConfiguration(conf);
 	while(getSignalStatus() == NO_SIGNAL)
 	{

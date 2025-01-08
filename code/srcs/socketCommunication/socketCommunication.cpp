@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <iostream>
-#include <csignal>
 
 #include "socketCommunication.hpp"
 #include "SocketsHandler.hpp"
@@ -17,8 +16,6 @@ void	handleIOEvents(const Configuration &conf)
 	SocketsHandler			socketsHandler(conf.maxEvents);
 	int						nfds;
 
-	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-		return ;
 	createAllServerSockets(conf, socketsHandler);
 	while (getSignalStatus() == NO_SIGNAL)
 	{
