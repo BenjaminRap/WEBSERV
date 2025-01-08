@@ -15,7 +15,7 @@ public:
 	void									callback() const;
 	int										getFd() const;
 	const std::list<SocketData>::iterator	&getIterator() const;
-	void									setIterator(std::list<SocketData>::iterator iterator);
+	void									setIterator(const std::list<SocketData>::iterator &iterator);
 };
 
 #endif // !SOCKET_DATA

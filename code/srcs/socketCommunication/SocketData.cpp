@@ -6,21 +6,38 @@
 #include "SocketData.hpp"
 #include "socketCommunication.hpp"
 
+/**
+ * @brief Create a SocketData, it does not create the fd, add itself to the SocketsHandler
+ * list nor add itself to the interest list.Those actions are done by the SocketsHandler.
+ */
 SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
 	: _fd(fd), _data(data), _callback(callback), _iterator(), _isIteratorSet(false)
 {
 }
 
+/**
+ * @brief Call the callback variable with the fd and data as parameters.
+ */
 void	SocketData::callback() const
 {
 	this->_callback(this->_fd, this->_data);
 }
 
+/**
+ * @return The fd of the socket.
+ */
 int	SocketData::getFd() const
 {
 	return (this->_fd);
 }
 
+/**
+ * @brief return the iterator pointing to this object in the SocketHandler SocketData
+ * list.
+ * @throw If the iterator asn't been set with the setIterator function, throw
+ * a std::log_error
+ * @return A const reference on the iterator pointing to this object.
+ */
 const std::list<SocketData>::iterator	&SocketData::getIterator() const
 {
 	if (_isIteratorSet)
@@ -29,11 +46,24 @@ const std::list<SocketData>::iterator	&SocketData::getIterator() const
 		throw std::logic_error("SocketData getIterator() function with a unitialized iterator");
 }
 
-void	SocketData::setIterator(std::list<SocketData>::iterator iterator)
+/**
+ * @brief Set the iterator of this socketData to a copy of the iterator passed
+ * as argument.This function should be called if you want to remove this socket
+ * later.
+ * If the iterator has already been set, print an error.
+ * If the SocketData pointed by isn't this class, print an error.
+ * @param iterator The iterator that points to this SocketData
+ */
+void	SocketData::setIterator(const std::list<SocketData>::iterator &iterator)
 {
 	if (_isIteratorSet)
 	{
-		std::cerr << "Error : try setting an iterator twice" << std::endl;
+		std::cerr << "Error : trying to set an iterator twice" << std::endl;
+		return ;
+	}
+	if (&(*iterator) != this)
+	{
+		std::cerr << "Error : trying to set the iterator with an iterator pointing to the wrong SocketData" << std::endl;
 		return ;
 	}
 	_isIteratorSet = true;
