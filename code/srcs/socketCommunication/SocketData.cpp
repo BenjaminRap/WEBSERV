@@ -16,6 +16,21 @@ SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
 }
 
 /**
+ * @brief Create a socketData by copying ref.The ref iterator isn't copied and this
+ * new SocketData need a setIterator call.
+ * @param ref The SocketData to copy from
+ */
+SocketData::SocketData(const SocketData& ref)
+	:_fd(ref._fd), _data(ref._data), _callback(ref._callback), _iterator(), _isIteratorSet(false)
+{
+}
+
+SocketData::~SocketData(void)
+{
+}
+
+
+/**
  * @brief Call the callback variable with the fd and data as parameters.
  */
 void	SocketData::callback() const
