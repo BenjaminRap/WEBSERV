@@ -8,6 +8,7 @@ private:
 	void							*_data;
 	void							(&_callback)(int fd, void *data);
 	std::list<SocketData>::iterator	_iterator;
+	bool							_isIteratorSet;
 public:
 	SocketData(int fd, void *data, void (&callback)(int fd, void *data));
 

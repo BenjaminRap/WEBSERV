@@ -7,7 +7,7 @@
 #include "socketCommunication.hpp"
 
 SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
-	: _fd(fd), _data(data), _callback(callback), _iterator()
+	: _fd(fd), _data(data), _callback(callback), _iterator(), _isIteratorSet(false)
 {
 }
 
@@ -23,10 +23,19 @@ int	SocketData::getFd() const
 
 const std::list<SocketData>::iterator	&SocketData::getIterator() const
 {
-	return (this->_iterator);
+	if (_isIteratorSet)
+		return (this->_iterator);
+	else
+		throw std::logic_error("SocketData getIterator() function with a unitialized iterator");
 }
 
 void	SocketData::setIterator(std::list<SocketData>::iterator iterator)
 {
+	if (_isIteratorSet)
+	{
+		std::cerr << "Error : try setting an iterator twice" << std::endl;
+		return ;
+	}
+	_isIteratorSet = true;
 	this->_iterator = iterator;
 }
