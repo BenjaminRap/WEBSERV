@@ -6,15 +6,37 @@
 
 # include "SocketData.hpp"
 
+/**
+ * @brief Manage the epoll functions,to add or remove fd to interest list and
+ * execute the socket callback on event
+ */
 class SocketsHandler
 {
 private:
+	/**
+	 * @brief true if there is an instance of this class
+	 */
 	static bool				_instanciated;
 
+	/**
+	 * @brief A list of the SocketData that are in the epoll intrested list
+	 */
 	std::list<SocketData>	_socketsData;
+	/**
+	 * @brief The epoll fd
+	 */
 	int						_epfd;
+	/**
+	 * @brief the events array that will be passed at epoll_wait
+	 */
 	epoll_event				*_events;
+	/**
+	 * @brief The length of the _events array
+	 */
 	unsigned int			_maxEvents;
+	/**
+	 * @brief The count of events detected by the epoll_wait function
+	 */
 	size_t					_eventsCount;
 
 	SocketsHandler(const SocketsHandler& ref);

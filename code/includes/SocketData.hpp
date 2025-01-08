@@ -1,13 +1,33 @@
 #ifndef SOCKET_DATA
 # define SOCKET_DATA
 
+/**
+ * @brief Represents all the data needed by a fd, the callback function when
+ * the fd receive an event, its iterator to remove itself from the SocketsHandler
+ * list and the _data that will be passed to the callback functions.
+ */
 class SocketData
 {
 private:
+	/**
+	 * @brief The fd of the socket, it will be passed to the callback function
+	 */
 	int								_fd;
+	/**
+	 * @brief The data that will be passed to the callback function
+	 */
 	void							*_data;
+	/**
+	 * @brief The function that will be called when the epoll_wait detects an event
+	 */
 	void							(&_callback)(int fd, void *data);
+	/**
+	 * @brief The iterator of this SocketData in the SocketsHandler list
+	 */
 	std::list<SocketData>::iterator	_iterator;
+	/**
+	 * @brief True if the setIterator has been called with a good argument
+	 */
 	bool							_isIteratorSet;
 
 	SocketData(void);
