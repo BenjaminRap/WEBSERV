@@ -36,7 +36,6 @@ private :
 	std::vector<Route>						routes;
 
 	ServerConfiguration(void);
-
 };
 
 #endif // !SERVER_CONFIGURATION_HPP
