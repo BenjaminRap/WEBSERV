@@ -68,10 +68,27 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 	return (fd);
 }
 
-static void	SayHello(int fd, void *data)
+static void	writeReceived(int fd, void *data)
 {
+	char	buffer[8];
+	ssize_t	rd;
+
 	(void)data;
-	std::cout << "Hello : " << fd << std::endl;
+	while (true)
+	{
+		rd = recv(fd, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
+		if (rd == -1 && errno != EAGAIN)
+		{
+			std::cerr << "recv() : " << strerror(errno) << std::endl;
+			return ;
+		}
+		if (rd <= 0)
+		{
+			return ;
+		}
+		buffer[rd] = '\0';
+		std::cout << buffer;
+	}
 }
 
 static void	acceptConnection(int fd, void *data)
@@ -86,7 +103,7 @@ static void	acceptConnection(int fd, void *data)
 	if (checkError(fd, -1, "accept() : ") == -1)
 		return ;
 	socketsHandler = (SocketsHandler *)data;
-	if (socketsHandler->addFdToListeners(newConnectionFd, SayHello, NULL, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP) == -1)
+	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, NULL, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP) == -1)
 	{
 		std::cerr << "Can't accept new connection" << std::endl;
 		checkError(close(newConnectionFd), -1, "close() : ");
