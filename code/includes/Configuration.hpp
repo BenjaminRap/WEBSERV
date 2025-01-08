@@ -11,6 +11,7 @@ class Configuration : public std::map<Host, std::vector<ServerConfiguration> >
 public:
 	int					maxConnectionBySocket;
 	int					maxEvents;
+	bool				reuseAddr;
 };
 
 #endif // !CONFIGURATION_HPP

@@ -32,6 +32,16 @@ static int	bindToAddress(int fd, const Host &host)
 	return (bind(fd, (const sockaddr *)&addr, sizeof(addr)));
 }
 
+int	setReusableAddr(int fd, bool reuseAddr)
+{
+	int	reusable = reuseAddr ? 1 : 0;
+	int	returnValue;
+
+	returnValue = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reusable, sizeof(int));
+	checkError(returnValue, -1, "setsockopt() : ");
+	return (returnValue);
+}
+
 /**
  * @brief Create a server socket, a socket used only to listen to connection creation request.
  * It create a socket, bind the host, port and family(IPV4 or IPV6), set the socket to
@@ -41,16 +51,15 @@ static int	bindToAddress(int fd, const Host &host)
  * on that value, like the host and port.
  * @param maxConnection The max number of connection this socket will listen to.
  */
-static int	createServerSocket(const Host &host, int maxConnection)
+static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr)
 {
 	int			fd;
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (checkError(fd, -1, "socket() : ") == -1)
-	{
 		return (-1);
-	}
-	if (checkError(bindToAddress(fd, host), -1, "bind() :") == -1
+	if (setReusableAddr(fd, reuseAddr) == -1
+		|| checkError(bindToAddress(fd, host), -1, "bind() :") == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
 		close(fd);
@@ -102,7 +111,7 @@ void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHa
 	{
 		const Host	&host = (*ci).first;
 
-		fd = createServerSocket(host, conf.maxConnectionBySocket);
+		fd = createServerSocket(host, conf.maxConnectionBySocket, conf.reuseAddr);
 		if (fd == -1)
 			printCreateServerSocketError(host);
 		else if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)
