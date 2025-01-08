@@ -23,7 +23,7 @@ public :
 	const std::vector<std::string>	&getServerNames(void) const;
 	const std::string				&getErrorPage(unsigned short error) const;
 	const size_t					&getMaxClientBodySize(void) const;
-	std::vector<Route>				&getRoutes(void);
+	const std::vector<Route>		&getRoutes(void);
 
 private :
 	uint32_t								host;
@@ -34,6 +34,8 @@ private :
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize;
 	std::vector<Route>						routes;
+
+	ServerConfiguration(void);
 
 };
 

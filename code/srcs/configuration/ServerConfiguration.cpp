@@ -39,7 +39,7 @@ const size_t					&ServerConfiguration::getMaxClientBodySize(void) const
 	return (this->maxClientBodySize);
 }
 
-std::vector<Route>				&ServerConfiguration::getRoutes(void)
+const std::vector<Route>		&ServerConfiguration::getRoutes(void)
 {
 	return (this->routes);
 }
