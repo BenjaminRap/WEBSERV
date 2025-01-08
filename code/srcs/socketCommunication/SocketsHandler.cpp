@@ -31,7 +31,6 @@ void	SocketsHandler::closeSocket(const SocketData &socketData)
 	fd = socketData.getFd();
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	checkError(close(fd), -1, "close() : ");
-	//_socketsData.erase(socketData.getIterator());
 }
 
 int	SocketsHandler::epollWaitForEvent()
@@ -95,5 +94,6 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
 	closeSocket(socketData);
 	_socketsData.erase(socketData.getIterator());
+	std::cout << "A connection stopped" << std::endl;
 	return (true);
 }

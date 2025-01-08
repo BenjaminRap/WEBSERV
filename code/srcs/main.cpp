@@ -30,7 +30,14 @@ int	main(void)
 	initializeConfiguration(conf);
 	while(getSignalStatus() == NO_SIGNAL)
 	{
-		handleIOEvents(conf);
+		try
+		{
+			handleIOEvents(conf);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
 	}
 	return (getReturnCodeWithSignal());
 }
