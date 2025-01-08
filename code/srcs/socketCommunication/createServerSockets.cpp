@@ -19,7 +19,8 @@ static void	printCreateServerSocketError(const Host &host)
 }
 
 /**
- * @brief Bind the fd to the host, port and family specified in the serverConf
+ * @brief Bind the fd to the address, port and family specified in the host
+ * @return Return 0 on success and -1 on error.
  */
 static int	bindToAddress(int fd, const Host &host)
 {
@@ -32,7 +33,16 @@ static int	bindToAddress(int fd, const Host &host)
 	return (bind(fd, (const sockaddr *)&addr, sizeof(addr)));
 }
 
-int	setReusableAddr(int fd, bool reuseAddr)
+/**
+ * @brief Set the socket SO_REUSEADDR option depending on reuseAddr
+ * @param fd the fd of the socket to set the SO_REUSEADDR option.
+ * @param reuseAddr true if the addresse can be reused shortly after, false otherwise.
+ * Setting it to true can bring bugs but prevent the bind() : address already in use
+ * error.
+ * @return Return 0 on success and -1 on error, with an error message printed
+ * in the terminal.
+ */
+static int	setReusableAddr(int fd, bool reuseAddr)
 {
 	int	reusable = reuseAddr ? 1 : 0;
 	int	returnValue;
@@ -47,9 +57,10 @@ int	setReusableAddr(int fd, bool reuseAddr)
  * It create a socket, bind the host, port and family(IPV4 or IPV6), set the socket to
  * listen and return the fd.
  * If an error occur, the socket will be closed and the function return -1.
- * @param serverConf The configuration of a server, the socket informations will depends
- * on that value, like the host and port.
+ * @param Host The configuration of the socket addr.
  * @param maxConnection The max number of connection this socket will listen to.
+ * @param reuseAddr a boolean to determine if the addresse can be reused just after
+ * the socket being closed.Otherwise there is a delay.
  */
 static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr)
 {
@@ -68,6 +79,12 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 	return (fd);
 }
 
+/**
+ * @brief Read the fd until it receive eof or and error.It prints in the terminal
+ * what it has received.
+ * @param fd The fd of a socket to listen to
+ * @param data unused data
+ */
 static void	writeReceived(int fd, void *data)
 {
 	char	buffer[8];
@@ -91,6 +108,14 @@ static void	writeReceived(int fd, void *data)
 	}
 }
 
+/**
+ * @brief Accept a connection request, sent to fd, add it to the epoll interest
+ * list and add a SocketData node.
+ * The socket that will be created has the writeReceived function as callback.
+ * @param fd The fd of the serverSocket that received a connection request.
+ * @param data This pointer will be casted as a socketsHandler *, and will be used
+ * to add it to the epoll interest list and socketsData list.
+ */
 static void	acceptConnection(int fd, void *data)
 {
 	int				newConnectionFd;
@@ -113,11 +138,12 @@ static void	acceptConnection(int fd, void *data)
 }
 
 /**
- * @brief Create a server socket for each server configuration of the conf variable.
+ * @brief Create a server socket for each host of the conf variable.
  * It does not crash on error, instead print an error message with the function name,
  * and the server informations.
  * @param conf The configuration, it will not be changed.
- * @param epfd The epoll fd, used to add socket to its interest list.
+ * @param socketsHandler The class that will be usezd to add sockets to the epoll
+ * interest list.
  */
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler)
 {
