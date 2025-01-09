@@ -5,6 +5,7 @@
 #include "Configuration.hpp"
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler);
+void	bzero(char *value, size_t size);
 
 void	verify(bool test)
 {
@@ -56,10 +57,9 @@ void	createAndDestroyMultipleInstance()
 	verify(true);
 }
 
-void	addServerConfiguration(uint32_t address, sa_family_t family, uint16_t port, Configuration &conf)
+void	addServerConfiguration(Host host, Configuration &conf)
 {
 
-	Host								host(address, family, port);
 	std::vector<ServerConfiguration>	serverConfigurations;
 	conf[host] = serverConfigurations;
 	conf[host].push_back(ServerConfiguration());
@@ -79,8 +79,8 @@ void	bindTwiceSameHost()
 
 	printInfo("Try listening twice to the same host");
 	InitializeConf(conf);
-	addServerConfiguration(0, AF_INET, 8080, conf);
-	addServerConfiguration(0, AF_INET, 8080, conf);
+	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
+	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 
 	SocketsHandler						socketsHandler(conf.maxEvents);
 
@@ -92,11 +92,13 @@ void	bindTwiceSameHost()
 void	bindTwiceSameHostWithDiffIpFamily()
 {
 	Configuration						conf;
+	uint8_t								addr[16];
 
+	bzero((char *)addr, sizeof(addr));
 	printInfo("Try listening twice to the same host with different if family");
 	InitializeConf(conf);
-	addServerConfiguration(0, AF_INET, 8080, conf);
-	addServerConfiguration(0, AF_INET6, 8080, conf);
+	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
+	addServerConfiguration(Host(addr, (in_port_t)8080), conf);
 
 	SocketsHandler						socketsHandler(conf.maxEvents);
 
