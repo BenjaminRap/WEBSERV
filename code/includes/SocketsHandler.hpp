@@ -1,5 +1,5 @@
-#ifndef SOCKETS_HANDLER
-# define SOCKETS_HANDLER
+#ifndef SOCKETS_HANDLER_HPP
+# define SOCKETS_HANDLER_HPP
 
 # include <list>
 # include <sys/epoll.h>
@@ -56,4 +56,4 @@ public:
 	bool			closeIfConnectionStopped(size_t eventIndex);
 };
 
-#endif // !SOCKETS_HANDLER
+#endif // !SOCKETS_HANDLER_HPP

@@ -1,5 +1,5 @@
-#ifndef SOCKET_DATA
-# define SOCKET_DATA
+#ifndef SOCKET_DATA_HPP
+# define SOCKET_DATA_HPP
 
 # include <list>
 
@@ -47,4 +47,4 @@ public:
 	void									setIterator(const std::list<SocketData>::iterator &iterator);
 };
 
-#endif // !SOCKET_DATA
+#endif // !SOCKET_DATA_HPP

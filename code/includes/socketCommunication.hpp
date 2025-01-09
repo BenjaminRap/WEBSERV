@@ -1,5 +1,5 @@
-#ifndef SOCKET_COMMUNICATION
-# define SOCKET_COMMUNICATION
+#ifndef SOCKET_COMMUNICATION_HPP
+# define SOCKET_COMMUNICATION_HPP
 
 # define NO_SIGNAL -1
 # include "Configuration.hpp"
@@ -18,4 +18,4 @@ void	acceptConnection(int fd, void *data);
 
 #include "errorCheck.tpp"
 
-#endif // !SOCKET_COMMUNICATION
+#endif // !SOCKET_COMMUNICATION_HPP

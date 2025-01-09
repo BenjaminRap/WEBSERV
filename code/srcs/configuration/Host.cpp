@@ -1,7 +1,7 @@
 #include <cstring>
 #include <stdexcept>
 
-#include "ServerConfiguration.hpp"
+#include "Host.hpp"
 
 bool	Host::operator<(const Host& host) const
 {
