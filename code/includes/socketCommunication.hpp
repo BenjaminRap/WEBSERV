@@ -12,6 +12,9 @@ void	bzero(char *value, size_t size);
 int		getSignalStatus();
 void	signalHandler(int signal);
 int		getReturnCodeWithSignal();
+int		setReusableAddr(int fd, bool reuseAddr);
+int		setIPV6Only(int fd, bool isIPV6Only);
+void	acceptConnection(int fd, void *data);
 
 #include "errorCheck.tpp"
 
