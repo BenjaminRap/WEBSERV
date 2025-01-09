@@ -14,24 +14,48 @@
  */
 static void	printCreateServerSocketError(const Host &host)
 {
-	std::cerr << "can't listen to server :" << host.address << ":" << host.port << std::endl;
+	std::cerr << "can't listen to server ";
+	if (host.family == AF_INET)
+	{
+		std::cerr << host.addr.ipv4.sin_addr.s_addr;
+		std::cerr << ":" << host.addr.ipv4.sin_port << std::endl;
+	}
+	else
+	{
+		for (size_t i = 0; i < 16; i++)
+		{
+			std::cerr << host.addr.ipv6.sin6_addr.__in6_u.__u6_addr8[i];
+		}
+		std::cerr << ":" << host.addr.ipv6.sin6_port << std::endl;
+	}
 }
 
 /**
  * @brief Bind the fd to the address, port and family specified in the host.
  * @param fd The fd of the socket to bind the address to.
  * @param host The structure that contains, the address, port and family.
- * @return Return 0 on success and -1 on error.
+ * @return Return 0 on success and -1 on error with an error message.
  */
 static int	bindToAddress(int fd, const Host &host)
 {
-	sockaddr_in	addr;
+	const sockaddr_in	*addr;
+	const sockaddr_in6	*addr6;
+	int					returnValue;
 
-	bzero((char *)&addr, sizeof(sockaddr_in));
-	addr.sin_addr.s_addr = htonl(host.address);
-	addr.sin_family = host.family;
-	addr.sin_port = htons(host.port);
-	return (bind(fd, (const sockaddr *)&addr, sizeof(addr)));
+	if (host.family == AF_INET)
+	{
+		addr = &host.addr.ipv4;
+		returnValue = bind(fd, (const sockaddr *)addr, sizeof(sockaddr_in));
+		return (checkError(returnValue, -1, "bind() : "));
+	}
+	if (host.family == AF_INET6)
+	{
+		addr6 = &host.addr.ipv6;
+		returnValue = bind(fd, (const sockaddr *)addr6, sizeof(sockaddr_in6));
+		return (checkError(returnValue, -1, "bind() : "));
+	}
+	std::cerr << "bindToAddress called with an unsupported or invalid family" << std::endl;
+	return (-1);
 }
 
 /**
@@ -67,11 +91,11 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 {
 	int			fd;
 
-	fd = socket(AF_INET, SOCK_STREAM, 0);
+	fd = socket(host.family, SOCK_STREAM, 0);
 	if (checkError(fd, -1, "socket() : ") == -1)
 		return (-1);
 	if (setReusableAddr(fd, reuseAddr) == -1
-		|| checkError(bindToAddress(fd, host), -1, "bind() :") == -1
+		|| bindToAddress(fd, host) == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
 		checkError(close(fd), -1, "close() : ");

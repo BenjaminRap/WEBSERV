@@ -9,7 +9,7 @@
 
 void	initializeConfiguration(Configuration &conf)
 {
-	Host								host(0, AF_INET, 8080);
+	Host								host((in_addr_t)0, (in_port_t)8080);
 	std::vector<ServerConfiguration>	serverConfigurations;
 
 	conf.maxEvents = 500;

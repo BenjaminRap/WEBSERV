@@ -6,16 +6,24 @@
 # include <vector>
 # include <stdint.h>
 # include <bits/sockaddr.h>
+# include <netinet/in.h>
 
 # include "Route.hpp"
 
+union sockaddr_in_u
+{
+	sockaddr_in		ipv4;
+	sockaddr_in6	ipv6;
+};
+
 struct Host
 {
-	uint32_t	address;
-	sa_family_t	family;
-	uint16_t	port;
+	sa_family_t		family;
+	sockaddr_in_u	addr;
+	
 
-	Host(uint32_t address, sa_family_t family, uint16_t port);
+	Host(in_addr_t addrIPV4, in_port_t port);
+	Host(uint8_t addrIPV6[16], in_port_t port);
 
 	bool	operator<(const Host &host) const;
 };
