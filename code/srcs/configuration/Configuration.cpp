@@ -15,6 +15,9 @@ Configuration::Configuration(void)
 		throw std::logic_error("Error : Trying to instanciate a Configuration multiples times");
 	_instanciated = true;
 
+	// uint8_t								ip[16];
+	// bzero((char *)ip, sizeof(ip));
+	// Host								host(ip, (in_port_t)8080);
 	Host								host((in_addr_t)0, (in_port_t)8080);
 	std::vector<ServerConfiguration>	serverConfigurations;
 
