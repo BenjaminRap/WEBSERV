@@ -20,6 +20,12 @@ void	printInfo(std::string infos)
 	std::cout << "\033[0;35m" << infos << "\033[0m\n" << std::endl;
 }
 
+void	callback(int fd, void *data)
+{
+	(void)fd;
+	(void)data;
+}
+
 void	tryCreatingMultipleInstance()
 {
 	SocketsHandler	socketsHandler(100);
@@ -63,14 +69,6 @@ void	addServerConfiguration(Host host, Configuration &conf)
 	std::vector<ServerConfiguration>	serverConfigurations;
 	conf[host] = serverConfigurations;
 	conf[host].push_back(ServerConfiguration());
-	conf[host].back().host = &host;
-}
-
-void	InitializeConf(Configuration &conf)
-{
-	conf.maxEvents = 500;
-	conf.maxConnectionBySocket = 100;
-	conf.reuseAddr = true;
 }
 
 void	bindTwiceSameHost()
@@ -78,11 +76,10 @@ void	bindTwiceSameHost()
 	Configuration						conf;
 
 	printInfo("Try listening twice to the same host");
-	InitializeConf(conf);
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 
-	SocketsHandler						socketsHandler(conf.maxEvents);
+	SocketsHandler						socketsHandler(conf.getMaxEvents());
 
 	std::cout << "\033[0;35m" << "Shouldn't output an error message, because map has unique key, map size = " << conf.size() << "\033[0m\n" << std::endl;
 	createAllServerSockets(conf, socketsHandler);
@@ -97,12 +94,11 @@ void	bindTwiceSameHostWithDiffIpFamily()
 
 	bzero((char *)addr, sizeof(addr));
 	printInfo("Try listening twice to the same host with different ip family");
-	InitializeConf(conf);
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 	addServerConfiguration(Host(addr, (in_port_t)8080), conf);
 
 
-	SocketsHandler						socketsHandler(conf.maxEvents);
+	SocketsHandler						socketsHandler(conf.getMaxEvents());
 
 	printInfo("Shouldn't output an error message if IPV6Only is set");
 	createAllServerSockets(conf, socketsHandler);
@@ -123,6 +119,32 @@ void	tryPassingAWrongIPV6Array()
 	verify(true);
 }
 
+void	addWrongFdToListeners()
+{
+	Configuration	conf;
+	SocketsHandler	socketsHandler(conf.getMaxEvents());
+
+	printInfo("Try passing an fd to listeners that is inferior to 4");
+	printInfo("Should output an error");
+	socketsHandler.addFdToListeners(1, callback, NULL, EPOLLIN);
+	verify(true);
+	printInfo("Try passing an fd to listeners that isn't open");
+	printInfo("Should output an error");
+	socketsHandler.addFdToListeners(10, callback, NULL, EPOLLIN);
+	verify(true);
+}
+
+void	ExecuteCallbackWithIndexTooBig()
+{
+	Configuration	conf;
+	SocketsHandler	socketsHandler(conf.getMaxEvents());
+
+	printInfo("Try executing callSocketCallback with an index too big");
+	printInfo("Should output an error");
+	socketsHandler.callSocketCallback(5);
+	verify(true);
+}
+
 int	main(void)
 {
 	tryCreatingMultipleInstance();
@@ -130,4 +152,6 @@ int	main(void)
 	bindTwiceSameHost();
 	bindTwiceSameHostWithDiffIpFamily();
 	tryPassingAWrongIPV6Array();
+	addWrongFdToListeners();
+	ExecuteCallbackWithIndexTooBig();
 }
