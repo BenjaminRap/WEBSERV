@@ -39,24 +39,28 @@ static void	printCreateServerSocketError(const Host &host)
  */
 static int	bindToAddress(int fd, const Host &host)
 {
-	const sockaddr_in	*addr;
-	const sockaddr_in6	*addr6;
-	int					returnValue;
+	const sockaddr		*addr;
+	socklen_t			addrLen;
 
-	if (host.family == AF_INET)
+	switch (host.family)
 	{
-		addr = &host.addr.ipv4;
-		returnValue = bind(fd, (const sockaddr *)addr, sizeof(sockaddr_in));
-		return (checkError(returnValue, -1, "bind() : "));
+	case AF_INET:
+		addr = (const sockaddr *)&host.addr.ipv4;
+		addrLen = sizeof(sockaddr_in);
+		break ;
+	case AF_INET6:
+		addr = (const sockaddr *)&host.addr.ipv6;
+		addrLen = sizeof(sockaddr_in6);
+		break ;
+	case AF_UNIX:
+		addr = (const sockaddr *)&host.addr.unixAddr;
+		addrLen = sizeof(sockaddr_un);
+		break ;
+	default:
+		std::cerr << "bindToAddress called with an unsupported or invalid family" << std::endl;
+		return (-1);
 	}
-	if (host.family == AF_INET6)
-	{
-		addr6 = &host.addr.ipv6;
-		returnValue = bind(fd, (const sockaddr *)addr6, sizeof(sockaddr_in6));
-		return (checkError(returnValue, -1, "bind() : "));
-	}
-	std::cerr << "bindToAddress called with an unsupported or invalid family" << std::endl;
-	return (-1);
+	return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
 }
 
 /**
