@@ -11,6 +11,11 @@ void	verify(bool test)
 		std::cout << "\033[0;31mKO\033[0m\n";
 }
 
+void	printInfo(std::string infos)
+{
+	std::cout << "\033[0;35m" << infos << "\033[0m\n" << std::endl;
+}
+
 void	callback(int fd, void *data)
 {
 	(void)fd;
@@ -19,7 +24,7 @@ void	callback(int fd, void *data)
 
 void	checkInvalidArgument(int minFd)
 {
-	std::cout << "Try creating SocketData with invalid socket" << std::endl;
+	printInfo("Try creating SocketData with invalid socket");
 
 	for (int i = minFd - 1; i > -3; i--)
 	{
@@ -41,7 +46,7 @@ void	tryGettingUnsetIterator()
 {
 	SocketData	socketData(4, (void *)NULL, callback);
 
-	std::cout << "Try getting an unset iterator" << std::endl;
+	printInfo("Try getting an unset iterator");
 	try
 	{
 		socketData.getIterator();
@@ -57,10 +62,10 @@ void	TrySettingWrongIterator()
 {
 	std::list<SocketData>	socketsData;
 
-	std::cout << "Try setting the wrong iterator" << std::endl;
+	printInfo("Try setting the wrong iterator");
 	socketsData.push_front(SocketData(4, (void *)NULL, callback));
 	socketsData.push_front(SocketData(5, (void *)NULL, callback));
-	std::cout << "Should output an error message :";
+	printInfo("Should output an error message :");
 	socketsData.back().setIterator(socketsData.begin());
 }
 
@@ -68,9 +73,9 @@ void	trySettingIteratorTwice()
 {
 	std::list<SocketData>	socketsData;
 
-	std::cout << "try setting an iterator twice" << std::endl;
+	printInfo("try setting an iterator twice");
 	socketsData.push_front(SocketData(4, (void *)NULL, callback));
-	std::cout << "Should output an error message :";
+	printInfo("Should output an error message :");
 	socketsData.front().setIterator(socketsData.begin());
 	socketsData.front().setIterator(socketsData.begin());
 }
@@ -79,7 +84,7 @@ void	tryUsingIterator()
 {
 	std::list<SocketData>	socketsData;
 
-	std::cout << "try using an iterator" << std::endl;
+	printInfo("try using an iterator");
 	socketsData.push_front(SocketData(4, (void *)NULL, callback));
 	socketsData.front().setIterator(socketsData.begin());
 	socketsData.erase(socketsData.front().getIterator());
