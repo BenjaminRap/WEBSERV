@@ -23,7 +23,7 @@ struct Host
 	
 
 	Host(in_addr_t addrIPV4, in_port_t port);
-	Host(uint8_t addrIPV6[16], in_port_t port);
+	Host(uint8_t (&addrIPV6)[16], in_port_t port);
 
 	bool	operator<(const Host &host) const;
 };

@@ -19,7 +19,7 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) : family(AF_INET)
 	addr.sin_port = htons(port);
 }
 
-Host::Host(uint8_t	addrIPV6[16], in_port_t port) : family(AF_INET6)
+Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) : family(AF_INET6)
 {
 	sockaddr_in6	&addr = this->addr.ipv6;
 
