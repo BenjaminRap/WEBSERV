@@ -14,10 +14,11 @@
  */
 int	main(void)
 {
-	Configuration	conf;
-
 	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
 		return (EXIT_FAILURE);
+
+	Configuration	conf;
+
 	while(getSignalStatus() == NO_SIGNAL)
 	{
 		try
