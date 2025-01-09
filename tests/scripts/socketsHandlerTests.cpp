@@ -94,16 +94,32 @@ void	bindTwiceSameHostWithDiffIpFamily()
 	Configuration						conf;
 	uint8_t								addr[16];
 
+
 	bzero((char *)addr, sizeof(addr));
-	printInfo("Try listening twice to the same host with different if family");
+	printInfo("Try listening twice to the same host with different ip family");
 	InitializeConf(conf);
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 	addServerConfiguration(Host(addr, (in_port_t)8080), conf);
 
+
 	SocketsHandler						socketsHandler(conf.maxEvents);
 
-	std::cout << "\033[0;35m" << "Shouldn't output an error message, because map has unique key, map size = " << conf.size() << "\033[0m\n" << std::endl;
+	printInfo("Shouldn't output an error message if IPV6Only is set");
 	createAllServerSockets(conf, socketsHandler);
+	verify(true);
+}
+
+void	tryPassingAWrongIPV6Array()
+{
+	// uint8_t								*addr2;
+	// uint8_t								addr3[8];
+	// uint8_t								addr4[32];
+	// Configuration						conf;
+
+	std::cout << "Try passing a wrong ipv6 array (doesn't compile, see test main)" << std::endl;
+	// addServerConfiguration(Host(addr2, (in_port_t)8080), conf);
+	// addServerConfiguration(Host(addr3, (in_port_t)8080), conf);
+	// addServerConfiguration(Host(addr4, (in_port_t)8080), conf);
 	verify(true);
 }
 
@@ -113,4 +129,5 @@ int	main(void)
 	createAndDestroyMultipleInstance();
 	bindTwiceSameHost();
 	bindTwiceSameHostWithDiffIpFamily();
+	tryPassingAWrongIPV6Array();
 }
