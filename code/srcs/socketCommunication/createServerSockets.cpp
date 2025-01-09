@@ -30,6 +30,7 @@ static void	printCreateServerSocketError(const Host &host)
 	}
 }
 
+
 /**
  * @brief Bind the fd to the address, port and family specified in the host.
  * @param fd The fd of the socket to bind the address to.
@@ -69,10 +70,26 @@ static int	bindToAddress(int fd, const Host &host)
  */
 static int	setReusableAddr(int fd, bool reuseAddr)
 {
-	int	reusable = reuseAddr ? 1 : 0;
-	int	returnValue;
+	const int	reusable = reuseAddr ? 1 : 0;
+	const int	returnValue = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reusable, sizeof(int));
 
-	returnValue = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reusable, sizeof(int));
+	checkError(returnValue, -1, "setsockopt() : ");
+	return (returnValue);
+}
+
+/**
+ * @brief Sett the IPV6_V6ONLY socket option depending on isIPV6Only.
+ * @param fd The fd of the socket to set the IPV6_V6Only option to.
+ * @param isIPV6Only True if this socket can only listen to IPV6, false if it 
+ * can listen to both IpV6 and IPV4.
+ * @return Return 0 on success and -1 on error, with an error message printed in
+ * the terminal.
+ */
+static int	setIPV6Only(int fd, bool isIPV6Only)
+{
+	const int	ipv6Only = isIPV6Only ? 1 : 0;
+	const int	returnValue = setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&ipv6Only, sizeof(int));
+
 	checkError(returnValue, -1, "setsockopt() : ");
 	return (returnValue);
 }
@@ -95,6 +112,7 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 	if (checkError(fd, -1, "socket() : ") == -1)
 		return (-1);
 	if (setReusableAddr(fd, reuseAddr) == -1
+		|| (host.family == AF_INET6 && setIPV6Only(fd, true) == -1)
 		|| bindToAddress(fd, host) == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
