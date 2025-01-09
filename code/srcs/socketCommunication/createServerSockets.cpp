@@ -56,7 +56,7 @@ void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHa
 	{
 		const Host	&host = (*ci).first;
 
-		fd = createServerSocket(host, conf.maxConnectionBySocket, conf.reuseAddr);
+		fd = createServerSocket(host, conf.getMaxConnectionBySocket(), conf.getReuseAddr());
 		if (fd == -1)
 			continue ;
 		if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)

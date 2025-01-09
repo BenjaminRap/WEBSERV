@@ -3,7 +3,7 @@
 #include "SocketsHandler.hpp"
 #include "socketCommunication.hpp"
 
-bool SocketsHandler::_instanciated = false;
+bool	SocketsHandler::_instanciated = false;
 
 /**
  * @brief Create a SocketHandler, allocate the event array and create the epoll fd.

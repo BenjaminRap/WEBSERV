@@ -9,10 +9,23 @@
 /// configuration
 class Configuration : public std::map<Host, std::vector<ServerConfiguration> >
 {
+private:
+	static bool		_instanciated;
+
+	int				_maxConnectionBySocket;
+	unsigned int	_maxEvents;
+	bool			_reuseAddr;
+
+	Configuration(const Configuration& ref);
+
+	Configuration&	operator=(const Configuration& ref);	
 public:
-	int				maxConnectionBySocket;
-	unsigned int	maxEvents;
-	bool			reuseAddr;
+	Configuration(void);
+	~Configuration(void);
+	
+	int				getMaxConnectionBySocket(void) const;
+	unsigned int	getMaxEvents(void) const;
+	bool			getReuseAddr(void) const;
 };
 
 #endif // !CONFIGURATION_HPP

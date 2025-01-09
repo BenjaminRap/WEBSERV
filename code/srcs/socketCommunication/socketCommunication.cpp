@@ -13,7 +13,7 @@
  */
 void	handleIOEvents(const Configuration &conf)
 {
-	SocketsHandler			socketsHandler(conf.maxEvents);
+	SocketsHandler			socketsHandler(conf.getMaxEvents());
 	int						nfds;
 
 	createAllServerSockets(conf, socketsHandler);
