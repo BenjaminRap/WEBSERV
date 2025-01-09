@@ -16,7 +16,6 @@ void	initializeConfiguration(Configuration &conf)
 	conf.maxConnectionBySocket = 100;
 	conf[host] = serverConfigurations;
 	conf[host].push_back(ServerConfiguration());
-	conf[host][0].host = &host;
 	conf.reuseAddr = true;
 }
 

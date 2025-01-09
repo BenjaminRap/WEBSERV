@@ -33,7 +33,6 @@ struct Host
 class ServerConfiguration
 {
 public:
-	Host									*host;
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.
