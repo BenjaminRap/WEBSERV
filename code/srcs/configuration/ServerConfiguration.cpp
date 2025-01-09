@@ -1,4 +1,5 @@
 #include <cstring>
+#include <stdexcept>
 
 #include "ServerConfiguration.hpp"
 
@@ -32,4 +33,15 @@ Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) : family(AF_INET6)
 	addr.sin6_port = htons(port);
 	addr.sin6_flowinfo = 0;
 	addr.sin6_scope_id = 0;
+}
+
+Host::Host(std::string &path) : family(AF_UNIX)
+{
+	sockaddr_un	&addr = this->addr.unixAddr;
+
+	if (path.size() >= sizeof(addr.sun_path))
+		throw std::invalid_argument("The path is too long");
+	bzero(&this->addr, sizeof(sockaddr_in_u));
+	addr.sun_family = AF_UNIX;
+	std::memcpy(addr.sun_path, path.c_str(), path.size());
 }
