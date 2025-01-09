@@ -10,60 +10,6 @@
 #include "SocketsHandler.hpp"
 
 /**
- * @brief Print the message : 'Can't listen to server : host:port'.
- */
-static void	printCreateServerSocketError(const Host &host)
-{
-	std::cerr << "can't listen to server ";
-	if (host.family == AF_INET)
-	{
-		std::cerr << host.addr.ipv4.sin_addr.s_addr;
-		std::cerr << ":" << host.addr.ipv4.sin_port << std::endl;
-	}
-	else
-	{
-		for (size_t i = 0; i < 16; i++)
-		{
-			std::cerr << host.addr.ipv6.sin6_addr.__in6_u.__u6_addr8[i];
-		}
-		std::cerr << ":" << host.addr.ipv6.sin6_port << std::endl;
-	}
-}
-
-
-/**
- * @brief Bind the fd to the address, port and family specified in the host.
- * @param fd The fd of the socket to bind the address to.
- * @param host The structure that contains, the address, port and family.
- * @return Return 0 on success and -1 on error with an error message.
- */
-static int	bindToAddress(int fd, const Host &host)
-{
-	const sockaddr		*addr;
-	socklen_t			addrLen;
-
-	switch (host.family)
-	{
-	case AF_INET:
-		addr = (const sockaddr *)&host.addr.ipv4;
-		addrLen = sizeof(sockaddr_in);
-		break ;
-	case AF_INET6:
-		addr = (const sockaddr *)&host.addr.ipv6;
-		addrLen = sizeof(sockaddr_in6);
-		break ;
-	case AF_UNIX:
-		addr = (const sockaddr *)&host.addr.unixAddr;
-		addrLen = sizeof(sockaddr_un);
-		break ;
-	default:
-		std::cerr << "bindToAddress called with an unsupported or invalid family" << std::endl;
-		return (-1);
-	}
-	return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
-}
-
-/**
  * @brief Create a server socket, a socket used only to listen to connection creation request.
  * It create a socket, bind the host, port and family(IPV4 or IPV6), set the socket to
  * listen and return the fd.
@@ -76,13 +22,15 @@ static int	bindToAddress(int fd, const Host &host)
 static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr)
 {
 	int			fd;
+	sa_family_t	family;
 
-	fd = socket(host.family, SOCK_STREAM, 0);
+	family = host.getFamily();
+	fd = socket(family, SOCK_STREAM, 0);
 	if (checkError(fd, -1, "socket() : ") == -1)
 		return (-1);
 	if (setReusableAddr(fd, reuseAddr) == -1
-		|| (host.family == AF_INET6 && setIPV6Only(fd, true) == -1)
-		|| bindToAddress(fd, host) == -1
+		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1)
+		|| host.bindFdToHost(fd) == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
 		checkError(close(fd), -1, "close() : ");
@@ -110,11 +58,8 @@ void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHa
 
 		fd = createServerSocket(host, conf.maxConnectionBySocket, conf.reuseAddr);
 		if (fd == -1)
-			printCreateServerSocketError(host);
-		else if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)
-		{
+			continue ;
+		if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)
 			close(fd);
-			printCreateServerSocketError(host);
-		}
 	}
 }
