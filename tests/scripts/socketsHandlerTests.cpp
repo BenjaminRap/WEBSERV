@@ -1,22 +1,28 @@
 #include <iostream>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <cstring>
+#include <cstdio>
 
 #include "SocketsHandler.hpp"
 #include "Configuration.hpp"
 
 #include "utils.cpp"
 
+#define PATH_TO_TESTS "../tests/scripts/"
+
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler);
 void	bzero(char *value, size_t size);
 
 void	tryCreatingMultipleInstance()
 {
-	SocketsHandler	socketsHandler(100);
+	const Configuration	conf;
+	SocketsHandler		socketsHandler(conf);
 
 	printInfo("Try creating multiples instance");
 	try
 	{
-		SocketsHandler	socketsHandler2(100);
+		SocketsHandler	socketsHandler2(conf);
 	}
 	catch(const std::exception& e)
 	{
@@ -25,7 +31,7 @@ void	tryCreatingMultipleInstance()
 	}
 	try
 	{
-		SocketsHandler	socketsHandler2(100);
+		SocketsHandler	socketsHandler2(conf);
 	}
 	catch(const std::exception& e)
 	{
@@ -36,12 +42,14 @@ void	tryCreatingMultipleInstance()
 
 void	createAndDestroyMultipleInstance()
 {
+	const Configuration	conf;
+
 	printInfo("try creating and destroying multiple instances");
 	{
-		SocketsHandler	socketsHandler(100);
+		SocketsHandler	socketsHandler(conf);
 	}
 	{
-		SocketsHandler	socketsHandler(100);
+		SocketsHandler	socketsHandler(conf);
 	}
 	verify(true);
 }
@@ -56,13 +64,13 @@ void	addServerConfiguration(Host host, Configuration &conf)
 
 void	bindTwiceSameHost()
 {
-	Configuration						conf;
+	Configuration	conf;
 
 	printInfo("Try listening twice to the same host");
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 
-	SocketsHandler						socketsHandler(conf.getMaxEvents());
+	SocketsHandler						socketsHandler(conf);
 
 	std::cout << "\033[0;35m" << "Shouldn't output an error message, because map has unique key, map size = " << conf.size() << "\033[0m\n" << std::endl;
 	createAllServerSockets(conf, socketsHandler);
@@ -74,14 +82,13 @@ void	bindTwiceSameHostWithDiffIpFamily()
 	Configuration						conf;
 	uint8_t								addr[16];
 
-
 	bzero((char *)addr, sizeof(addr));
 	printInfo("Try listening twice to the same host with different ip family");
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 	addServerConfiguration(Host(addr, (in_port_t)8080), conf);
 
 
-	SocketsHandler						socketsHandler(conf.getMaxEvents());
+	SocketsHandler						socketsHandler(conf);
 
 	printInfo("Shouldn't output an error message if IPV6Only is set");
 	createAllServerSockets(conf, socketsHandler);
@@ -104,8 +111,8 @@ void	tryPassingAWrongIPV6Array()
 
 void	addWrongFdToListeners()
 {
-	Configuration	conf;
-	SocketsHandler	socketsHandler(conf.getMaxEvents());
+	const Configuration	conf;
+	SocketsHandler		socketsHandler(conf);
 
 	printInfo("Try passing an fd to listeners that is inferior to 4");
 	printInfo("Should output an error");
@@ -117,15 +124,122 @@ void	addWrongFdToListeners()
 	verify(true);
 }
 
-void	ExecuteCallbackWithIndexTooBig()
+void	executeCallbackWithIndexTooBig()
 {
-	Configuration	conf;
-	SocketsHandler	socketsHandler(conf.getMaxEvents());
+	const Configuration	conf;
+	SocketsHandler		socketsHandler(conf);
 
 	printInfo("Try executing callSocketCallback with an index too big");
 	printInfo("Should output an error");
 	socketsHandler.callSocketCallback(5);
 	verify(true);
+}
+
+void	bindUnixSocketWithWrongFd()
+{
+	Configuration	conf;
+	SocketsHandler	socketsHandler(conf);
+	std::string		path(PATH_TO_TESTS);
+
+	path += "test.sock";
+	Host			host(path);
+
+	printInfo("Try binding a wrong fd");
+	printInfo("Should output an error");
+	socketsHandler.bindFdToHost(-1, host);
+	verify(true);
+}
+
+void	creatingUnixSocketWithExistingFile()
+{
+	Configuration	conf;
+	SocketsHandler	socketsHandler(conf);
+	std::string		path(PATH_TO_TESTS);
+
+	path += "unixSocketsTests/test.txt";
+	Host			host(path);
+
+	printInfo("Try creating a unix socket with an existing file");
+	printInfo("Should output an error");
+	socketsHandler.bindFdToHost(-1, host);
+	verify(true);
+}
+
+void	creatingUnixSocketWithExistingDirectory()
+{
+	Configuration	conf;
+	SocketsHandler	socketsHandler(conf);
+	std::string		path(PATH_TO_TESTS);
+
+	path += "unixSocketsTests/";
+	Host			host(path);
+
+	printInfo("Try creating a unix socket with an existing directory");
+	printInfo("Should output an error");
+	socketsHandler.bindFdToHost(-1, host);
+	verify(true);
+}
+
+void	creatingUnixSocketInNoRightFolder()
+{
+	Configuration	conf;
+	SocketsHandler	socketsHandler(conf);
+	std::string		path(PATH_TO_TESTS);
+
+	path += "unixSocketsTests/noRight/test.sock";
+	Host			host(path);
+
+	printInfo("Try creating a unix socket in a directory with no right");
+	printInfo("Should output an error");
+	socketsHandler.bindFdToHost(-1, host);
+	verify(true);
+}
+
+void	creatingUnixSocketWithExistingSocket()
+{
+	Configuration		conf;
+	SocketsHandler		socketsHandler(conf);
+	std::string			path(PATH_TO_TESTS);
+	path += "unixSocketsTests/test.sock";
+	int					firstSocket;
+	int					secondSocket;
+	struct sockaddr_un	addr;
+
+	firstSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+	secondSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+	addr.sun_family = AF_UNIX;
+	std::memcpy(addr.sun_path, path.c_str(), path.size() + 1);
+	bind(firstSocket, (const sockaddr *)&addr, sizeof(sockaddr_un));
+
+	Host			host(path);
+
+	printInfo("Try creating a unix with an existing socket");
+	printInfo("Shouldn't output an error, even though the file is deleted, previous connection to the first socket aren't closed, the first socket close when there is no more connection");
+	socketsHandler.bindFdToHost(secondSocket, host);
+	verify(true);
+	close(firstSocket);
+	close(secondSocket);
+	std::remove(path.c_str());
+}
+
+void	creatingUnixSocketWithNothing()
+{
+	Configuration		conf;
+	SocketsHandler		socketsHandler(conf);
+	std::string			path(PATH_TO_TESTS);
+	path += "unixSocketsTests/test.sock";
+	int					secondSocket;
+
+	secondSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+
+	Host			host(path);
+
+	printInfo("Try creating a unix with a path that points to nothing");
+	printInfo("Shouldn't output an error");
+	socketsHandler.bindFdToHost(secondSocket, host);
+	verify(true);
+	close(secondSocket);
+	std::remove(path.c_str());
 }
 
 int	main(void)
@@ -136,5 +250,11 @@ int	main(void)
 	bindTwiceSameHostWithDiffIpFamily();
 	tryPassingAWrongIPV6Array();
 	addWrongFdToListeners();
-	ExecuteCallbackWithIndexTooBig();
+	executeCallbackWithIndexTooBig();
+	bindUnixSocketWithWrongFd();
+	creatingUnixSocketWithExistingFile();
+	creatingUnixSocketWithExistingDirectory();
+	creatingUnixSocketInNoRightFolder();
+	creatingUnixSocketWithExistingSocket();
+	creatingUnixSocketWithNothing();
 }
