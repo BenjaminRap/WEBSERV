@@ -50,7 +50,7 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler)
 {
 	int				fd;
-	const uint32_t	events = EPOLLIN | EPOLLET;
+	const uint32_t	events = EPOLLIN | EPOLLET | EPOLLERR | EPOLLHUP;
 
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{

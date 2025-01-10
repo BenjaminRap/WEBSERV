@@ -53,7 +53,7 @@ void	acceptConnection(int fd, void *data)
 	if (checkError(fd, -1, "accept() : ") == -1)
 		return ;
 	socketsHandler = (SocketsHandler *)data;
-	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, NULL, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP) == -1)
+	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, NULL, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR) == -1)
 	{
 		std::cerr << "Can't accept new connection" << std::endl;
 		checkError(close(newConnectionFd), -1, "close() : ");

@@ -24,8 +24,8 @@ void	handleIOEvents(const Configuration &conf)
 			break ;
 		for (int i = 0; i < nfds; i++)
 		{
-			if (!socketsHandler.closeIfConnectionStopped(i))
-				socketsHandler.callSocketCallback(i);
+			socketsHandler.callSocketCallback(i);
+			socketsHandler.closeIfConnectionStopped(i);
 		}
 	}
 }

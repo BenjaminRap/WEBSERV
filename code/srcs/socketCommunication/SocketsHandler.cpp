@@ -144,6 +144,8 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 		std::cerr << "SocketsHandler callSocketCallback method was called with a wrong index" << std::endl;
 		return ;
 	}
+	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
+		return ;
 	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
 	socketData.callback();
 }
@@ -165,7 +167,7 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 		std::cerr << "SocketsHandler closeIfConnectionStopped method was called with a wrong index" << std::endl;
 		return (false);		
 	}
-	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP)) == false)
+	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
 		return (false);
 	socketData = static_cast<SocketData *>(_events[eventIndex].data.ptr);
 	fd = socketData->getFd();
