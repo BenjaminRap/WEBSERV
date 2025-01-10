@@ -48,18 +48,28 @@ main(int argc, char *argv[])
 
 	/* Send arguments. */
 
-	while (true)
+	// while (true)
+	// {
+	// 	r = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
+	// 	if (r <= 0)
+	// 		break ;
+	// 	buffer[r] = '\0';
+	// 	w = write(data_socket, buffer, r + 1);
+	// 	if (w == -1) {
+	// 		perror("write() : ");
+	// 		break;
+	// 	}
+	// }
+
+	for (size_t i = 1; i < argc; i++)
 	{
-		r = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
-		if (r <= 0)
-			break ;
-		buffer[r] = '\0';
-		w = write(data_socket, buffer, r + 1);
+		w = write(data_socket, argv[i], strlen(argv[i]) + 1);
 		if (w == -1) {
 			perror("write() : ");
 			break;
 		}
 	}
+	
 
 	/* Request result. */
 
