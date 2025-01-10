@@ -75,33 +75,33 @@ Host::~Host(void)
 }
 
 /**
- * @brief Bind the fd to this host
- * @return 0 on success or -1 on error with an error message in the terminal.
+ * @brief Get the sockaddr and length of the sockaddr structure. It is useful
+ * for bind().
+ * @param outAddr The variable in which to store the address (const sockaddr *).
+ * @throw If outAddr is pointing to NULL or if this Host family is unsupported,
+ * throw a std::logic_error.
+ * @return The length of the sockaddr structure. It can
+ * be sizeof(sockaddr_in), sizeof(sockaddr_in6) or sizeof(sockaddr_un), depending
+ * on this Host family.
  */
-int	Host::bindFdToHost(int fd) const
+socklen_t	Host::getAddrInfo(const sockaddr ** outAddr) const
 {
-	const sockaddr		*addr;
-	socklen_t			addrLen;
-
+	if (outAddr == NULL)
+		throw std::logic_error("Host::getAddrInfo called with a pointer on NULL");
 	switch (_family)
 	{
 	case AF_INET:
-		addr = (const sockaddr *)&_addr.ipv4;
-		addrLen = sizeof(sockaddr_in);
-		break ;
+		*outAddr = (const sockaddr *)&_addr.ipv4;
+		return (sizeof(sockaddr_in));
 	case AF_INET6:
-		addr = (const sockaddr *)&_addr.ipv6;
-		addrLen = sizeof(sockaddr_in6);
-		break ;
+		*outAddr = (const sockaddr *)&_addr.ipv6;
+		return (sizeof(sockaddr_in6));
 	case AF_UNIX:
-		addr = (const sockaddr *)&_addr.unixAddr;
-		addrLen = sizeof(sockaddr_un);
-		break ;
+		*outAddr = (const sockaddr *)&_addr.unixAddr;
+		return (sizeof(sockaddr_un));
 	default:
-		std::cerr << "bindToAddress called with an unsupported or invalid family" << std::endl;
-		return (-1);
+		throw std::logic_error("A host instance has an unsupported or wrong family");
 	}
-	return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
 }
 
 /**

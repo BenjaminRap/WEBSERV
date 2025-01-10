@@ -43,7 +43,7 @@ public:
 
 	bool		operator<(const Host &host) const;
 
-	int			bindFdToHost(int fd) const;
+	socklen_t	getAddrInfo(const sockaddr ** outAddr) const;
 	sa_family_t	getFamily(void) const;
 };
 

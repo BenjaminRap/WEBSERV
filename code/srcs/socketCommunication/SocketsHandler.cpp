@@ -1,23 +1,45 @@
 #include <unistd.h>
+#include <sys/stat.h>
+#include <cstdio>
 
 #include "SocketsHandler.hpp"
 #include "socketCommunication.hpp"
 
+static int		removeSocketIfExists(const char sun_path[108]);
+static int	bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove);
+
 bool	SocketsHandler::_instanciated = false;
 
 /**
+ * @brief Return the count of AF_UNIX family in the confiurations hosts.
+ */
+static size_t getUnixSocketCount(const Configuration &conf)
+{
+	size_t	unixAddrCount = 0;
+
+	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
+	{
+		if ((*ci).first.getFamily() == AF_UNIX)
+			unixAddrCount++;
+	}
+	return (unixAddrCount);
+}
+
+/**
  * @brief Create a SocketHandler, allocate the event array and create the epoll fd.
+ * It also create a vector of sockets path to destroy, its size is the number of
+ * unix socket hosts in the Configuration class.
  * This class can only has one instance.
- * @param maxEvents The size of the events array.
+ * @param conf The SocketsHandler use the configuration to initialize its variables.
  * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
  * failed (std::exception) or this class already has an instance (std::logic_error).
  */
-SocketsHandler::SocketsHandler(unsigned int maxEvents) : _maxEvents(maxEvents), _eventsCount(0)
+SocketsHandler::SocketsHandler(const Configuration &conf) : _maxEvents(conf.getMaxEvents()), _eventsCount(0), _socketsToRemove(getUnixSocketCount(conf))
 {
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
 	SocketsHandler::_instanciated = true;
-	_events = new epoll_event[maxEvents]();
+	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (_epfd == -1)
 	{
@@ -39,6 +61,10 @@ SocketsHandler::~SocketsHandler()
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
+	for (std::vector<std::string>::iterator ci = _socketsToRemove.begin(); ci != _socketsToRemove.end(); ci++)
+	{
+		removeSocketIfExists((*ci).c_str());
+	}
 }
 
 /**
@@ -111,7 +137,7 @@ int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data
  * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
  * is the result of epoll_wait or epollWaitForEvent function.
  */
-void	SocketsHandler::callSocketCallback(size_t eventIndex)
+void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 {
 	if (eventIndex >= _eventsCount)
 	{
@@ -154,4 +180,91 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 		std::cerr << e.what() << std::endl;
 	}
 	return (true);
+}
+
+
+/**
+ * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
+ * delete the socket at the host.sun_path, recreate a socket and add the socket
+ * path to the SocketsHandler _socketsToRemove vector.
+ * @param The fd to bind, should be a socket fd.
+ * @param host The host whose address will be used to bind the socket.
+ * @return 0 on success, -1 on error with an error message printed in the terminal.
+ */
+int	SocketsHandler::bindFdToHost(int fd, const Host& host)
+{
+	socklen_t		addrLen;
+	const sockaddr	*addr;
+	sa_family_t		family;
+
+	family = host.getFamily();
+	try
+	{
+		addrLen = host.getAddrInfo(&addr);
+		if (family == AF_UNIX)
+			return (bindUnixSocket(fd, addr, addrLen, _socketsToRemove));
+		return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return (-1);
+	}
+}
+
+/**
+ * @brief Remove the sockets at sun_path.
+ * @param sun_path The path of the socket in the file system.
+ * @return If the sockets is removed or there is no sockets, returns 0. On
+ * error, return -1 and print an error message in the terminal.
+ */
+static int		removeSocketIfExists(const char sun_path[108])
+{
+	struct stat fileInfos;
+
+	if (stat(sun_path, &fileInfos) == -1)
+	{
+		if (errno == ENOENT)
+			return (0);
+		std::cerr << "stat() : " << strerror(errno) << std::endl;
+		return (-1);
+	}
+	if ((fileInfos.st_mode & S_IFMT) != S_IFSOCK)
+	{
+		std::cerr << "Error : The file entered for the unix socket exists and isn't a unix socket file" << std::endl;
+		return (-1);
+	}
+	if (std::remove(sun_path) != 0)
+	{
+		std::cerr << "remove () : " << strerror(errno) << std::endl;
+		return (-1);
+	}
+	return (0);
+}
+
+/**
+ * @brief Remove a preexisting socket, call bind and add the socket path to the
+ * socketsToRemove vector.
+ * @param fd The fd to bind, it should be a socket fd.
+ * @param addr A pointer on the sockaddr structure who describe the address to
+ * listen to.
+ * @param addrLen The size of the addr structure (!= sizeof(sockaddr))
+ * @param socketsToRemove The vector in which the socket path will be added
+ * if the host family is AF_UNIX.
+ * @throw It should not throw because the socketsToRemove vector should have a
+ * preallocated size big enough. If the vector as been wrongly initialize it can
+ * throw an std::bad_alloc.
+ * @return 0 on success, -1 on eror with an error message printed in the terminal.
+ */
+static int	bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove)
+{
+	const sockaddr_un	*addrUnix;
+
+	addrUnix = (const sockaddr_un *)addr;
+	if (removeSocketIfExists(addrUnix->sun_path) == -1)
+		return (-1);
+	if (checkError(bind(fd, addr, addrLen), -1, "bind() : "))
+		return (-1);
+	socketsToRemove.push_back(addrUnix->sun_path);
+	return (0);
 }

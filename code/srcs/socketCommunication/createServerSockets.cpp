@@ -19,7 +19,7 @@
  * @param reuseAddr A boolean to determine if the address can be reused just after
  * the socket being closed. Otherwise there is a delay (TIME_WAIT).
  */
-static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr)
+static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr, SocketsHandler &socketsHandler)
 {
 	int			fd;
 	sa_family_t	family;
@@ -30,7 +30,7 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 		return (-1);
 	if (setReusableAddr(fd, reuseAddr) == -1
 		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1)
-		|| host.bindFdToHost(fd) == -1
+		|| socketsHandler.bindFdToHost(fd, host) == -1
 		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
 	{
 		checkError(close(fd), -1, "close() : ");
@@ -56,7 +56,7 @@ void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHa
 	{
 		const Host	&host = (*ci).first;
 
-		fd = createServerSocket(host, conf.getMaxConnectionBySocket(), conf.getReuseAddr());
+		fd = createServerSocket(host, conf.getMaxConnectionBySocket(), conf.getReuseAddr(), socketsHandler);
 		if (fd == -1)
 			continue ;
 		if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)
