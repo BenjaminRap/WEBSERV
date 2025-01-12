@@ -2,6 +2,7 @@
 # define CONFIGURATION_HPP
 
 # include <vector>
+# include <map>
 # include <algorithm>
 # include <iostream>
 # include <fstream>
@@ -12,6 +13,10 @@
 
 # define DEFAULT_CONFIG_PATH "../documentation/configuration.txt"
 # define WSPACE "\t\n\v\f\r "
+
+# define SEP_WSPACE "\t\n\v\f\r ;"
+
+# define DIGITS "0123456789"
 
 void	ft_readfile(const char *path, std::string &buff);
 
@@ -165,6 +170,56 @@ class Configuration
 			std::string error;
 	};
 
+	class MissingErrorPageException : public std::exception
+	{
+		public:
+			MissingErrorPageException(size_t line) : line(line), error(errorMsg()) {}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error: Missing error page\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~MissingErrorPageException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+	};
+
+	class WrongServerNameException : public std::exception
+	{
+		public:
+			WrongServerNameException(size_t line, std::string def) : line(line), def(def)
+			{
+				error = errorMsg();
+			}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Wrong server name: " + def + "\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~WrongServerNameException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+			std::string def;
+	};
+
 	private :
 
 	std::vector<ServerConfiguration>	ServerConfigurations;
@@ -176,6 +231,9 @@ class Configuration
 	short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len);
 	void	parse_ip(std::string &file, size_t &i, size_t &line, uint32_t &host);
 	void	parse_port(std::string &file, size_t &i, size_t &line, uint16_t &port);
+	void	parse_maxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
+	void	parse_servername(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames);
+	void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages);
 
 	Configuration(void);
 };
