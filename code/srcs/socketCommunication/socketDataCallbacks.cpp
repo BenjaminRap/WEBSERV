@@ -12,13 +12,13 @@
  */
 static void	writeReceived(int fd, void *data)
 {
-	char	buffer[8];
-	ssize_t	rd;
-
 	(void)data;
 	while (true)
 	{
-		rd = recv(fd, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
+		char			buffer[8];
+
+		const ssize_t	rd = recv(fd, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
+
 		if (rd == -1 && errno != EAGAIN)
 		{
 			std::cerr << "recv() : " << strerror(errno) << std::endl;
