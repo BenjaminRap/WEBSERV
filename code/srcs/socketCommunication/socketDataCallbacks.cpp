@@ -1,8 +1,16 @@
-#include <sys/socket.h>
-#include <SocketsHandler.hpp>
-#include <unistd.h>
+#include <errno.h>                  // for errno, EAGAIN
+#include <netinet/in.h>             // for sockaddr_in
+#include <stdint.h>                 // for uint32_t
+#include <string.h>                 // for strerror, NULL
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLET, EPOLLHUP, EPOLLIN
+#include <sys/socket.h>             // for accept, recv, MSG_DONTWAIT, sockl...
+#include <sys/types.h>              // for ssize_t
+#include <unistd.h>                 // for close
+#include <SocketsHandler.hpp>       // for SocketsHandler
+#include <iostream>                 // for basic_ostream, operator<<, endl
+#include <string>                   // for char_traits, basic_string
 
-#include "socketCommunication.hpp"
+#include "socketCommunication.hpp"  // for acceptConnection
 
 /**
  * @brief Read the fd until it receive eof or an error.It prints in the terminal

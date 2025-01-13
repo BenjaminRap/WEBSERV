@@ -7,8 +7,9 @@
 # include <string>
 
 # include "SocketData.hpp"
-# include "Host.hpp"
-# include "Configuration.hpp"
+
+class Configuration;
+class Host;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and

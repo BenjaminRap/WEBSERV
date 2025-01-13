@@ -1,9 +1,26 @@
-#include <unistd.h>
-#include <sys/stat.h>
-#include <cstdio>
+#include <errno.h>             // for errno, ENOENT
+#include <stdint.h>            // for uint32_t
+#include <string.h>            // for strerror
+#include <sys/epoll.h>         // for epoll_event, epoll_ctl, epoll_create
+#include <sys/socket.h>        // for bind, socklen_t, AF_UNIX
+#include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
+#include <sys/un.h>            // for sockaddr_un, sa_family_t
+#include <unistd.h>            // for close
+#include <cstdio>              // for size_t, remove, NULL
+#include <exception>           // for exception
+#include <iostream>            // for basic_ostream, operator<<, endl, cerr
+#include <list>                // for list, operator!=, _List_const_iterator
+#include <map>                 // for operator!=, _Rb_tree_const_iterator
+#include <stdexcept>           // for logic_error
+#include <string>              // for basic_string, char_traits, string
+#include <utility>             // for pair
+#include <vector>              // for vector
 
-#include "SocketsHandler.hpp"
+#include "Configuration.hpp"   // for Configuration
 #include "socketCommunication.hpp"
+#include "Host.hpp"            // for Host
+#include "SocketData.hpp"      // for SocketData
+#include "SocketsHandler.hpp"  // for SocketsHandler
 
 static int		removeSocketIfExists(const char sun_path[108]);
 static int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove);

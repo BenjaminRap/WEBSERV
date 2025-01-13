@@ -1,8 +1,6 @@
-#include <unistd.h>
-#include <iostream>
-
-#include "socketCommunication.hpp"
-#include "SocketsHandler.hpp"
+#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "socketCommunication.hpp"  // for createAllServerSockets, getSignal...
+class Configuration;
 
 /**
  * @brief Create a server socket for hosts, they listen for new connection requests.

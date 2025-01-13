@@ -2,9 +2,9 @@
 # define SOCKET_COMMUNICATION_HPP
 
 # define NO_SIGNAL -1
-# include "Configuration.hpp"
 
 class SocketsHandler;
+class Configuration;
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &SocketsHandler);
 void	handleIOEvents(const Configuration &conf);

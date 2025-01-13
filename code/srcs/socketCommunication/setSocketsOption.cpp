@@ -1,6 +1,8 @@
-#include <sys/socket.h>
+#include <netinet/in.h>             // for IPPROTO_IPV6, IPV6_V6ONLY
+#include <sys/socket.h>             // for setsockopt, SOL_SOCKET, SO_REUSEADDR
+#include <string>                   // for basic_string
 
-#include "socketCommunication.hpp"
+#include "socketCommunication.hpp"  // for setIPV6Only, setReusableAddr
 
 /**
  * @brief Set the socket SO_REUSEADDR option depending on reuseAddr.

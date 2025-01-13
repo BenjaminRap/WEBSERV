@@ -1,5 +1,9 @@
 NAME			:=	WebServ
+ifdef iwyu
+CC				:=	iwyu
+else
 CC				:=	c++
+endif
 MAKEFILE		:=	Makefile
 CONFIG			:=	config.mk
 ifndef NOFLAGS

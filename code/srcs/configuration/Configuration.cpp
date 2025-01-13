@@ -1,6 +1,12 @@
-#include <stdexcept>
+#include <netinet/in.h>             // for in_addr_t, in_port_t
+#include <map>                      // for map
+#include <stdexcept>                // for logic_error
+#include <string>                   // for basic_string
+#include <vector>                   // for vector
 
-#include "Configuration.hpp"
+#include "Configuration.hpp"        // for Configuration
+#include "Host.hpp"                 // for Host
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
 
 bool	Configuration::_instanciated = false;
 

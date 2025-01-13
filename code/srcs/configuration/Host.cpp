@@ -1,9 +1,14 @@
-#include <cstring>
-#include <stdexcept>
-#include <iostream>
+#include <arpa/inet.h>   // for htons, htonl
+#include <netinet/in.h>  // for sockaddr_in6, sockaddr_in, in_port_t, in6_addr
+#include <stdint.h>      // for uint8_t
+#include <strings.h>     // for bzero
+#include <sys/socket.h>  // for AF_INET, AF_INET6, AF_UNIX, socklen_t
+#include <sys/un.h>      // for sockaddr_un, sa_family_t
+#include <cstring>       // for memcmp, memcpy, NULL, size_t
+#include <stdexcept>     // for logic_error, invalid_argument
+#include <string>        // for basic_string, string
 
-#include "Host.hpp"
-#include "socketCommunication.hpp"
+#include "Host.hpp"      // for Host
 
 /**
  * @brief Compare two host, first by their family, then by their addr value.

@@ -1,10 +1,9 @@
-#include <cstddef>
-#include <list>
-#include <sys/epoll.h>
-#include <unistd.h>
+#include <iostream>        // for basic_ostream, operator<<, basic_ios, cerr
+#include <list>            // for list
+#include <stdexcept>       // for invalid_argument, logic_error
+#include <string>          // for char_traits, basic_string
 
-#include "SocketData.hpp"
-#include "socketCommunication.hpp"
+#include "SocketData.hpp"  // for SocketData
 
 /**
  * @brief Create a SocketData, it does not create the fd, add itself to the SocketsHandler

@@ -1,13 +1,16 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/epoll.h>
-#include <string.h>
-#include <iostream>
-#include <errno.h>
-#include <unistd.h>
+#include <stdint.h>                 // for uint32_t
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLET, EPOLLHUP, EPOLLIN
+#include <sys/socket.h>             // for listen, socket, AF_INET6, SOCK_ST...
+#include <sys/un.h>                 // for sa_family_t
+#include <unistd.h>                 // for close
+#include <map>                      // for operator!=, _Rb_tree_const_iterator
+#include <string>                   // for basic_string
+#include <utility>                  // for pair
 
-#include "socketCommunication.hpp"
-#include "SocketsHandler.hpp"
+#include "Configuration.hpp"        // for Configuration
+#include "Host.hpp"                 // for Host
+#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "socketCommunication.hpp"  // for setIPV6Only, setReusableAddr, acc...
 
 /**
  * @brief Create a server socket, a socket used only to listen to connection creation request.

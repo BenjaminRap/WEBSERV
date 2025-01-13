@@ -1,11 +1,11 @@
-#include <iostream>
-#include <string.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <cstdlib>
-#include <csignal>
+#include <csignal>                  // for signal, SIG_ERR, SIGINT
+#include <cstdlib>                  // for EXIT_FAILURE
+#include <exception>                // for exception
+#include <iostream>                 // for char_traits, basic_ostream, opera...
+#include <string>                   // for basic_string
 
-#include "socketCommunication.hpp"
+#include "Configuration.hpp"        // for Configuration
+#include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
 
 /**
  * @brief Create a mostly uninitialize Configuration and call the function to
