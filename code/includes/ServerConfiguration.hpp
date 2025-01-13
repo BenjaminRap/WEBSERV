@@ -21,7 +21,6 @@ public:
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize;
 	std::vector<Route>						routes;
-
 };
 
 #endif // !SERVER_CONFIGURATION_HPP
