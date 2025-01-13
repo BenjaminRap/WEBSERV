@@ -1,7 +1,4 @@
-#include <string>
-#include <errno.h>
-#include <cstring>
-#include <iostream>
+#include "socketCommunication.hpp"
 
 /**
  * @brief Check if the value is the same as the error value. If true, print the
@@ -11,7 +8,7 @@
  * @return Return value
  */
 template <typename ReturnType>
-ReturnType	checkError(ReturnType value, ReturnType error, std::string errorPrefix)
+ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix)
 {
 	if (value == error)
 		std::cerr << errorPrefix << strerror(errno) << std::endl;

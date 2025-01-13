@@ -3,6 +3,11 @@
 
 # define NO_SIGNAL -1
 
+# include <string>
+# include <iostream>
+# include <cstring>
+# include <errno.h>
+
 class SocketsHandler;
 class Configuration;
 
@@ -14,6 +19,9 @@ int		getReturnCodeWithSignal();
 int		setReusableAddr(int fd, bool reuseAddr);
 int		setIPV6Only(int fd, bool isIPV6Only);
 void	acceptConnection(int fd, void *data);
+
+template <typename ReturnType>
+ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);
 
 #include "errorCheck.tpp"
 
