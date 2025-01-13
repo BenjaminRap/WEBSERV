@@ -10,8 +10,12 @@
  * @brief Create a SocketData, it does not create the fd, add itself to the SocketsHandler
  * list nor add itself to the interest list.Those actions are done by the SocketsHandler.
  */
-SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
-	: _fd(fd), _data(data), _callback(callback), _iterator(), _isIteratorSet(false)
+SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data)) :
+	_fd(fd),
+	_data(data),
+	_callback(callback),
+	_iterator(),
+	_isIteratorSet(false)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
@@ -22,8 +26,12 @@ SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data))
  * new SocketData need a setIterator call.
  * @param ref The SocketData to copy from.
  */
-SocketData::SocketData(const SocketData& ref)
-	:_fd(ref._fd), _data(ref._data), _callback(ref._callback), _iterator(), _isIteratorSet(false)
+SocketData::SocketData(const SocketData& ref) :
+	_fd(ref._fd),
+	_data(ref._data),
+	_callback(ref._callback),
+	_iterator(),
+	_isIteratorSet(false)
 {
 }
 

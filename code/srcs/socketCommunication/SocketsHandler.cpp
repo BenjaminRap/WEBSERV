@@ -6,7 +6,7 @@
 #include "socketCommunication.hpp"
 
 static int		removeSocketIfExists(const char sun_path[108]);
-static int	bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove);
+static int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove);
 
 bool	SocketsHandler::_instanciated = false;
 
@@ -35,7 +35,10 @@ static size_t getUnixSocketCount(const Configuration &conf)
  * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
  * failed (std::exception) or this class already has an instance (std::logic_error).
  */
-SocketsHandler::SocketsHandler(const Configuration &conf) : _maxEvents(conf.getMaxEvents()), _eventsCount(0), _socketsToRemove(getUnixSocketCount(conf))
+SocketsHandler::SocketsHandler(const Configuration &conf) :
+	_maxEvents(conf.getMaxEvents()),
+	_eventsCount(0),
+	_socketsToRemove(getUnixSocketCount(conf))
 {
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");

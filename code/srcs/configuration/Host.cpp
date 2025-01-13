@@ -21,7 +21,8 @@ bool	Host::operator<(const Host& host) const
  * @param addrIPV4 The address to listen to, in an IPV4 format
  * @param port The port to listen to.
  */
-Host::Host(in_addr_t addrIPV4, in_port_t port) : _family(AF_INET)
+Host::Host(in_addr_t addrIPV4, in_port_t port) :
+	_family(AF_INET)
 {
 	sockaddr_in	&addr = this->_addr.ipv4;
 
@@ -36,7 +37,8 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) : _family(AF_INET)
  * @param addrIPV4 The address to listen to, in an IPV6 format
  * @param port The port to listen to.
  */
-Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) : _family(AF_INET6)
+Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) :
+	_family(AF_INET6)
 {
 	sockaddr_in6	&addr = this->_addr.ipv6;
 
@@ -55,7 +57,8 @@ Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) : _family(AF_INET6)
  * @brief Create an host object, with an unix family.
  * @param path The path to the unix endpoint.
  */
-Host::Host(const std::string &path) : _family(AF_UNIX)
+Host::Host(const std::string &path) :
+	_family(AF_UNIX)
 {
 	sockaddr_un	&addr = this->_addr.unixAddr;
 
