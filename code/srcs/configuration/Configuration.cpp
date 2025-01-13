@@ -3,6 +3,7 @@
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string
 #include <vector>                   // for vector
+#include <cstring>
 
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
@@ -22,7 +23,7 @@ Configuration::Configuration(void)
 	_instanciated = true;
 
 	// uint8_t								ip[16];
-	// bzero((char *)ip, sizeof(ip));
+	// std::memset((char *)ip, '\0', sizeof(ip));
 	// const Host								host(ip, (in_port_t)8080);
 
 	const Host								host((in_addr_t)0, (in_port_t)8080);

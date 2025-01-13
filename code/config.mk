@@ -12,7 +12,3 @@ CONFIGURATION_DIR		:=	configuration/
 CONFIGURATION_FILES		:=	Host.cpp	\
 							Configuration.cpp
 CONFIGURATION			:=	$(addprefix $(CONFIGURATION_DIR), $(CONFIGURATION_FILES))
-
-UTILS_DIR				:=	utils/
-UTILS_FILES				:=	bzero.cpp
-UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))

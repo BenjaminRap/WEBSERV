@@ -1,10 +1,9 @@
 #include <arpa/inet.h>   // for htons, htonl
 #include <netinet/in.h>  // for sockaddr_in6, sockaddr_in, in_port_t, in6_addr
 #include <stdint.h>      // for uint8_t
-#include <strings.h>     // for bzero
 #include <sys/socket.h>  // for AF_INET, AF_INET6, AF_UNIX, socklen_t
 #include <sys/un.h>      // for sockaddr_un, sa_family_t
-#include <cstring>       // for memcmp, memcpy, NULL, size_t
+#include <cstring>       // for memcmp, memcpy, NULL, size_t, memset
 #include <stdexcept>     // for logic_error, invalid_argument
 #include <string>        // for basic_string, string
 
@@ -31,7 +30,7 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
 {
 	sockaddr_in	&addr = this->_addr.ipv4;
 
-	bzero(&this->_addr, sizeof(sockaddr_in_u));
+	std::memset(&this->_addr, '\0', sizeof(sockaddr_in_u));
 	addr.sin_addr.s_addr = htonl(addrIPV4);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
@@ -47,7 +46,7 @@ Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) :
 {
 	sockaddr_in6	&addr = this->_addr.ipv6;
 
-	bzero(&this->_addr, sizeof(sockaddr_in_u));
+	std::memset(&this->_addr, '\0', sizeof(sockaddr_in_u));
 	for (size_t i = 0; i < 16; i++)
 	{
 		addr.sin6_addr.__in6_u.__u6_addr8[i] = addrIPV6[i];
@@ -69,7 +68,7 @@ Host::Host(const std::string &path) :
 
 	if (path.size() >= sizeof(addr.sun_path))
 		throw std::invalid_argument("The path is too long");
-	bzero(&this->_addr, sizeof(sockaddr_in_u));
+	std::memset(&this->_addr, '\0', sizeof(sockaddr_in_u));
 	addr.sun_family = AF_UNIX;
 	std::memcpy(addr.sun_path, path.c_str(), path.size());
 }

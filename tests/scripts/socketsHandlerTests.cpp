@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sys/socket.h>
+#include <strings.h>
 #include <unistd.h>
 #include <cstring>
 #include <cstdio>
@@ -12,7 +13,6 @@
 #define PATH_TO_TESTS "../tests/scripts/"
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler);
-void	bzero(char *value, size_t size);
 
 void	tryCreatingMultipleInstance()
 {
@@ -82,7 +82,7 @@ void	bindTwiceSameHostWithDiffIpFamily()
 	Configuration						conf;
 	uint8_t								addr[16];
 
-	bzero((char *)addr, sizeof(addr));
+	std::memset((char *)addr, '\0', sizeof(addr));
 	printInfo("Try listening twice to the same host with different ip family");
 	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
 	addServerConfiguration(Host(addr, (in_port_t)8080), conf);
