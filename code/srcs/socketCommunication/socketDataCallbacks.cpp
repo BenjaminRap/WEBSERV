@@ -1,15 +1,15 @@
-#include <errno.h>                  // for errno, EAGAIN
 #include <netinet/in.h>             // for sockaddr_in
-#include <stdint.h>                 // for uint32_t
 #include <string.h>                 // for strerror, NULL
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLET, EPOLLHUP, EPOLLIN
 #include <sys/socket.h>             // for accept, recv, MSG_DONTWAIT, sockl...
 #include <sys/types.h>              // for ssize_t
+#include <stdint.h>                  // for uint32_t
+#include <cerrno>                  // for errno, EAGAIN
 #include <unistd.h>                 // for close
-#include <SocketsHandler.hpp>       // for SocketsHandler
 #include <iostream>                 // for basic_ostream, operator<<, endl
 #include <string>                   // for char_traits, basic_string
 
+#include <SocketsHandler.hpp>       // for SocketsHandle"
 #include "socketCommunication.hpp"  // for acceptConnection
 
 /**

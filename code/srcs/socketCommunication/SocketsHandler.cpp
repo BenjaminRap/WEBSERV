@@ -1,11 +1,11 @@
-#include <errno.h>             // for errno, ENOENT
-#include <stdint.h>            // for uint32_t
-#include <string.h>            // for strerror
 #include <sys/epoll.h>         // for epoll_event, epoll_ctl, epoll_create
 #include <sys/socket.h>        // for bind, socklen_t, AF_UNIX
 #include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
 #include <sys/un.h>            // for sockaddr_un, sa_family_t
 #include <unistd.h>            // for close
+#include <stdint.h>            // for uint32_t
+#include <cerrno>              // for errno, ENOENT
+#include <cstring>             // for strerror
 #include <cstdio>              // for size_t, remove, NULL
 #include <exception>           // for exception
 #include <iostream>            // for basic_ostream, operator<<, endl, cerr

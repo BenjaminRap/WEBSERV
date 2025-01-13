@@ -3,10 +3,10 @@
 
 # define NO_SIGNAL -1
 
+# include <cerrno>
 # include <string>
 # include <iostream>
 # include <cstring>
-# include <errno.h>
 
 class SocketsHandler;
 class Configuration;
@@ -23,6 +23,6 @@ void	acceptConnection(int fd, void *data);
 template <typename ReturnType>
 ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);
 
-#include "errorCheck.tpp"
+# include "errorCheck.tpp"
 
 #endif // !SOCKET_COMMUNICATION_HPP
