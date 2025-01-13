@@ -25,13 +25,13 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
 	sa_family_t	family;
 
 	family = host.getFamily();
-	fd = socket(family, SOCK_STREAM, 0);
+	fd = socket(family, SOCK_STREAM, 0); // create a socket
 	if (checkError(fd, -1, "socket() : ") == -1)
 		return (-1);
-	if (setReusableAddr(fd, reuseAddr) == -1
-		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1)
-		|| socketsHandler.bindFdToHost(fd, host) == -1
-		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1)
+	if (setReusableAddr(fd, reuseAddr) == -1 // set the address reusable without delay
+		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1) // set the IPV6 sockets to only listen to IPV6
+		|| socketsHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
+		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1) // set the socket to listening
 	{
 		checkError(close(fd), -1, "close() : ");
 		return (-1);
