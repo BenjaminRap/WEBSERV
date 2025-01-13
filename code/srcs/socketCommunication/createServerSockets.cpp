@@ -22,8 +22,7 @@
 static int	createServerSocket
 (
 	const Host &host,
-	int maxConnection,
-	bool reuseAddr,
+	const Configuration	&conf,
 	SocketsHandler &socketsHandler
 )
 {
@@ -32,10 +31,10 @@ static int	createServerSocket
 
 	if (checkError(fd, -1, "socket() : ") == -1)
 		return (-1);
-	if (setReusableAddr(fd, reuseAddr) == -1 // set the address reusable without delay
+	if (setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
 		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1) // set the IPV6 sockets to only listen to IPV6
 		|| socketsHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
-		|| checkError(listen(fd, maxConnection), -1, "listen() : ") == -1) // set the socket to listening
+		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ") == -1) // set the socket to listening
 	{
 		checkError(close(fd), -1, "close() : ");
 		return (-1);
@@ -62,7 +61,7 @@ void	createAllServerSockets
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
 		const Host	&host = (*ci).first;
-		const int	fd = createServerSocket(host, conf.getMaxConnectionBySocket(), conf.getReuseAddr(), socketsHandler);
+		const int	fd = createServerSocket(host, conf, socketsHandler);
 
 		if (fd == -1)
 			continue ;
