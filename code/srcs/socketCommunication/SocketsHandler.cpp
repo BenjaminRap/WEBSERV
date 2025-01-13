@@ -110,7 +110,13 @@ int	SocketsHandler::epollWaitForEvent()
  * @param events The events used to create the epoll_event variable
  * @return 0 on success, -1 on error and an error message written in the terminal.
  */
-int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data), void *data, uint32_t events)
+int	SocketsHandler::addFdToListeners
+(
+	int fd,
+	void (&callback)(int fd, void *data),
+	void *data,
+	uint32_t events
+)
 {
 	epoll_event	event;
 
@@ -262,7 +268,13 @@ static int		removeSocketIfExists(const char sun_path[108])
  * throw an std::bad_alloc.
  * @return 0 on success, -1 on eror with an error message printed in the terminal.
  */
-static int	bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove)
+static int	bindUnixSocket
+(
+	int fd,
+	const sockaddr *addr,
+	socklen_t addrLen,
+	std::vector<std::string> &socketsToRemove
+)
 {
 	const sockaddr_un	*addrUnix;
 

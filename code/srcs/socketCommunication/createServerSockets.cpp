@@ -19,7 +19,13 @@
  * @param reuseAddr A boolean to determine if the address can be reused just after
  * the socket being closed. Otherwise there is a delay (TIME_WAIT).
  */
-static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr, SocketsHandler &socketsHandler)
+static int	createServerSocket
+(
+	const Host &host,
+	int maxConnection,
+	bool reuseAddr,
+	SocketsHandler &socketsHandler
+)
 {
 	const sa_family_t	family = host.getFamily();
 	const int			fd = socket(family, SOCK_STREAM, 0);
@@ -45,7 +51,11 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
  * @param socketsHandler The class that will be used to add sockets to the epoll
  * interest list.
  */
-void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler)
+void	createAllServerSockets
+(
+	const Configuration &conf,
+	SocketsHandler &socketsHandler
+)
 {
 	const uint32_t	events = EPOLLIN | EPOLLET | EPOLLERR | EPOLLHUP;
 
