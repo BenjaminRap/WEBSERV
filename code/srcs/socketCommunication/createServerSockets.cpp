@@ -45,7 +45,7 @@ static int	createServerSocket
 /**
  * @brief Create a server socket for each host of the conf variable.
  * It does not crash on error, instead print an error message with the function name,
- * a error message depending on errno and the server informations.
+ * a error message depending on errno.
  * @param conf The configuration, it will not be changed.
  * @param socketsHandler The class that will be used to add sockets to the epoll
  * interest list.
