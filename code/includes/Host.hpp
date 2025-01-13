@@ -37,7 +37,7 @@ private:
 public:
 	Host(in_addr_t addrIPV4, in_port_t port);
 	Host(uint8_t (&addrIPV6)[16], in_port_t port);
-	Host(std::string &path);
+	Host(const std::string &path);
 	Host(const Host &ref);
 	~Host(void);
 

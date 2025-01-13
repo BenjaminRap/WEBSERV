@@ -21,11 +21,9 @@
  */
 static int	createServerSocket(const Host &host, int maxConnection, bool reuseAddr, SocketsHandler &socketsHandler)
 {
-	int			fd;
-	sa_family_t	family;
+	const sa_family_t	family = host.getFamily();
+	const int			fd = socket(family, SOCK_STREAM, 0);
 
-	family = host.getFamily();
-	fd = socket(family, SOCK_STREAM, 0); // create a socket
 	if (checkError(fd, -1, "socket() : ") == -1)
 		return (-1);
 	if (setReusableAddr(fd, reuseAddr) == -1 // set the address reusable without delay
@@ -49,14 +47,13 @@ static int	createServerSocket(const Host &host, int maxConnection, bool reuseAdd
  */
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler)
 {
-	int				fd;
 	const uint32_t	events = EPOLLIN | EPOLLET | EPOLLERR | EPOLLHUP;
 
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
 		const Host	&host = (*ci).first;
+		const int	fd = createServerSocket(host, conf.getMaxConnectionBySocket(), conf.getReuseAddr(), socketsHandler);
 
-		fd = createServerSocket(host, conf.getMaxConnectionBySocket(), conf.getReuseAddr(), socketsHandler);
 		if (fd == -1)
 			continue ;
 		if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)

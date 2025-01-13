@@ -15,8 +15,9 @@ bool	SocketsHandler::_instanciated = false;
  */
 static size_t getUnixSocketCount(const Configuration &conf)
 {
-	size_t	unixAddrCount = 0;
+	size_t	unixAddrCount;
 
+	unixAddrCount = 0;
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
 		if ((*ci).first.getFamily() == AF_UNIX)
@@ -85,9 +86,8 @@ void	SocketsHandler::closeSocket(int fd)
  */
 int	SocketsHandler::epollWaitForEvent()
 {
-	int	nfds;
+	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
 
-	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
 	if (nfds == -1)
 		_eventsCount = 0;
 	else
@@ -121,6 +121,7 @@ int	SocketsHandler::addFdToListeners(int fd, void (&callback)(int fd, void *data
 		return (-1);
 	}
 	SocketData	&socketData = _socketsData.front();
+
 	socketData.setIterator(_socketsData.begin());
 	event.data.ptr = &(socketData);
 	event.events = events;
@@ -146,7 +147,8 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+
 	socketData.callback();
 }
 
@@ -159,8 +161,6 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
  */
 bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 {
-	int			fd;
-	SocketData	*socketData;
 
 	if (eventIndex >= _eventsCount)
 	{
@@ -169,13 +169,14 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	}
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
 		return (false);
-	socketData = static_cast<SocketData *>(_events[eventIndex].data.ptr);
-	fd = socketData->getFd();
+	const SocketData	&socketData = *static_cast<SocketData *>(_events[eventIndex].data.ptr);
+	const int	fd = socketData.getFd();
+
 	closeSocket(fd);
 	std::cout << "A connection stopped, fd : " << fd << std::endl;
 	try
 	{
-		_socketsData.erase(socketData->getIterator());
+		_socketsData.erase(socketData.getIterator());
 	}
 	catch(const std::exception& e)
 	{
@@ -195,14 +196,14 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
  */
 int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 {
-	socklen_t		addrLen;
 	const sockaddr	*addr;
-	sa_family_t		family;
 
-	family = host.getFamily();
+	const sa_family_t	family = host.getFamily();
+
 	try
 	{
-		addrLen = host.getAddrInfo(&addr);
+		const socklen_t	addrLen = host.getAddrInfo(&addr);
+	
 		if (family == AF_UNIX)
 			return (bindUnixSocket(fd, addr, addrLen, _socketsToRemove));
 		return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));

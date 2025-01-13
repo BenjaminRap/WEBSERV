@@ -17,14 +17,13 @@ Configuration::Configuration(void)
 
 	// uint8_t								ip[16];
 	// bzero((char *)ip, sizeof(ip));
-	// Host								host(ip, (in_port_t)8080);
+	// const Host								host(ip, (in_port_t)8080);
 
-	// Host								host((in_addr_t)0, (in_port_t)8080);
+	const Host								host((in_addr_t)0, (in_port_t)8080);
 
-	std::string							unixSocketPath("/tmp/test.sock");
-	Host								host(unixSocketPath);
-
-	std::vector<ServerConfiguration>	serverConfigurations;
+	// const std::string						unixSocketPath("/tmp/test.sock");
+	// const Host								host(unixSocketPath);
+	const std::vector<ServerConfiguration>	serverConfigurations;
 
 	_maxEvents = 500;
 	_maxConnectionBySocket = 100;

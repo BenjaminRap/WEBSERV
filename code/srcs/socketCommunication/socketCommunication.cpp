@@ -14,12 +14,12 @@
 void	handleIOEvents(const Configuration &conf)
 {
 	SocketsHandler			socketsHandler(conf);
-	int						nfds;
 
 	createAllServerSockets(conf, socketsHandler);
 	while (getSignalStatus() == NO_SIGNAL)
 	{
-		nfds = socketsHandler.epollWaitForEvent(); 
+		const int	nfds = socketsHandler.epollWaitForEvent(); 
+
 		if (nfds == -1)
 			break ;
 		for (int i = 0; i < nfds; i++)

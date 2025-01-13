@@ -55,7 +55,7 @@ Host::Host(uint8_t	(&addrIPV6)[16], in_port_t port) : _family(AF_INET6)
  * @brief Create an host object, with an unix family.
  * @param path The path to the unix endpoint.
  */
-Host::Host(std::string &path) : _family(AF_UNIX)
+Host::Host(const std::string &path) : _family(AF_UNIX)
 {
 	sockaddr_un	&addr = this->_addr.unixAddr;
 
