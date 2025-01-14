@@ -11,7 +11,7 @@ services:
     build: ./nginx/
     ports:
       - "7070:80"
-      - "9090:8080"
+      - "8181:8181"
     networks:
       - docker-network
     volumes:
