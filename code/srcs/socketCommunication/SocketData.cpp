@@ -29,7 +29,7 @@ SocketData::~SocketData(void)
  */
 void	SocketData::callback() const
 {
-	this->_callback(this->_fd, this->_data);
+	this->_callback(*this, this->_data);
 }
 
 /**

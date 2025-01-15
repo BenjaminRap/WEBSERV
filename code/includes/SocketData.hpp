@@ -24,7 +24,7 @@ private:
 	/**
 	 * @brief The function that will be called when the epoll_wait detects an event.
 	 */
-	void							(&_callback)(int fd, void *data);
+	void							(&_callback)(const SocketData &socketData, void *data);
 	/**
 	 * @brief The iterator of this SocketData in the SocketsHandler list.
 	 */
@@ -39,7 +39,7 @@ private:
 	SocketData&	operator=(const SocketData& ref);
 public:
 	template <typename T> 
-	SocketData(int fd, T &data, void (&callback)(int fd, T *data));
+	SocketData(int fd, T &data, void (&callback)(const SocketData &socketData, T *data));
 	SocketData(const SocketData &ref);
 	~SocketData(void);
 

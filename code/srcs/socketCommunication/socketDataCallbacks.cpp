@@ -18,8 +18,10 @@
  * @param fd The fd of a socket to listen to.
  * @param data Unused data.
  */
-static void	writeReceived(int fd, SocketsHandler *socketsHandler)
+static void	writeReceived(const SocketData &socketData, SocketsHandler *socketsHandler)
 {
+	const int	fd = socketData.getFd();
+
 	(void)socketsHandler;
 	while (true)
 	{
@@ -49,12 +51,13 @@ static void	writeReceived(int fd, SocketsHandler *socketsHandler)
  * @param data This pointer will be casted as a socketsHandler *, and will be used
  * to add it to the epoll interest list and socketsData list.
  */
-void	acceptConnection(int fd, SocketsHandler *socketsHandler)
+void	acceptConnection(const SocketData &socketData, SocketsHandler *socketsHandler)
 {
 	sockaddr_in		addr;
 	socklen_t		addrLength;
 
 	addrLength = sizeof(addr);
+	const int				fd = socketData.getFd();
 	const uint32_t			events = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
 	const int 				newConnectionFd = accept(fd, (sockaddr *)&addr, &addrLength);
 
