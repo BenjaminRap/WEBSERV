@@ -2,6 +2,7 @@
 # define SOCKET_DATA_HPP
 
 # include <list>
+# include <stdexcept>
 
 /**
  * @brief Represents all the data needed by a fd : the _callback function that
@@ -37,7 +38,8 @@ private:
 
 	SocketData&	operator=(const SocketData& ref);
 public:
-	SocketData(int fd, void *data, void (&callback)(int fd, void *data));
+	template <typename T> 
+	SocketData(int fd, T *data, void (&callback)(int fd, T *data));
 	SocketData(const SocketData &ref);
 	~SocketData(void);
 
@@ -46,5 +48,7 @@ public:
 	const std::list<SocketData>::iterator	&getIterator() const;
 	void									setIterator(const std::list<SocketData>::iterator &iterator);
 };
+
+# include "SocketData.tpp"
 
 #endif // !SOCKET_DATA_HPP

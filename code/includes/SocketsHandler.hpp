@@ -5,8 +5,10 @@
 # include <sys/epoll.h>
 # include <vector>
 # include <string>
+# include <iostream>
 
 # include "SocketData.hpp"
+#include <socketCommunication.hpp>
 
 class Configuration;
 class Host;
@@ -63,10 +65,13 @@ public:
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
-	int		addFdToListeners(int fd, void (&callback)(int fd, void *data), void *data, uint32_t events);
+	template <typename T>
+	int		addFdToListeners(int fd, void (&callback)(int fd, T *data), T *data, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);
 };
+
+# include "SocketsHandler.tpp"
 
 #endif // !SOCKETS_HANDLER_HPP

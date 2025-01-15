@@ -18,7 +18,7 @@ void	signalHandler(int signal);
 int		getReturnCodeWithSignal();
 int		setReusableAddr(int fd, bool reuseAddr);
 int		setIPV6Only(int fd, bool isIPV6Only);
-void	acceptConnection(int fd, void *data);
+void	acceptConnection(int fd, SocketsHandler *socketsHandler);
 
 template <typename ReturnType>
 ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);

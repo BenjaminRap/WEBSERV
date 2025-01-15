@@ -49,7 +49,7 @@ static void	writeReceived(int fd, void *data)
  * @param data This pointer will be casted as a socketsHandler *, and will be used
  * to add it to the epoll interest list and socketsData list.
  */
-void	acceptConnection(int fd, void *data)
+void	acceptConnection(int fd, SocketsHandler *socketsHandler)
 {
 	sockaddr_in		addr;
 	socklen_t		addrLength;
@@ -57,11 +57,10 @@ void	acceptConnection(int fd, void *data)
 	addrLength = sizeof(addr);
 	const uint32_t			events = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
 	const int 				newConnectionFd = accept(fd, (sockaddr *)&addr, &addrLength);
-	SocketsHandler* const	socketsHandler = (SocketsHandler *)data;
 
 	if (checkError(fd, -1, "accept() : ") == -1)
 		return ;
-	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, NULL, events) == -1)
+	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, (void *)0, events) == -1)
 	{
 		std::cerr << "Can't accept new connection" << std::endl;
 		checkError(close(newConnectionFd), -1, "close() : ");

@@ -1,24 +1,10 @@
 #include <iostream>        // for basic_ostream, operator<<, basic_ios, cerr
 #include <list>            // for list
-#include <stdexcept>       // for invalid_argument, logic_error
+#include <stdexcept>       // logic_error
 #include <string>          // for char_traits, basic_string
 
 #include "SocketData.hpp"  // for SocketData
 
-/**
- * @brief Create a SocketData, it does not create the fd, add itself to the SocketsHandler
- * list nor add itself to the interest list.Those actions are done by the SocketsHandler.
- */
-SocketData::SocketData(int fd, void *data, void (&callback)(int fd, void *data)) :
-	_fd(fd),
-	_data(data),
-	_callback(callback),
-	_iterator(),
-	_isIteratorSet(false)
-{
-	if (fd <= 3)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
-}
 
 /**
  * @brief Create a SocketData by copying ref.The ref iterator isn't copied and this
@@ -37,7 +23,6 @@ SocketData::SocketData(const SocketData& ref) :
 SocketData::~SocketData(void)
 {
 }
-
 
 /**
  * @brief Execute the callback variable with the _fd and _data as parameters.

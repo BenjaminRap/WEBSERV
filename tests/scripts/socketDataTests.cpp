@@ -13,7 +13,7 @@ void	checkInvalidArgument(int minFd)
 	{
 		try
 		{
-			SocketData	socketData(i, (void *)NULL, callback);
+			SocketData	socketData(i, (void *)0, callback);
 			verify(false);
 		}
 		catch(const std::exception& e)
@@ -27,7 +27,7 @@ void	checkInvalidArgument(int minFd)
 
 void	tryGettingUnsetIterator()
 {
-	SocketData	socketData(4, (void *)NULL, callback);
+	SocketData	socketData(4, (void *)0, callback);
 
 	printInfo("Try getting an unset iterator");
 	try
@@ -46,8 +46,8 @@ void	TrySettingWrongIterator()
 	std::list<SocketData>	socketsData;
 
 	printInfo("Try setting the wrong iterator");
-	socketsData.push_front(SocketData(4, (void *)NULL, callback));
-	socketsData.push_front(SocketData(5, (void *)NULL, callback));
+	socketsData.push_front(SocketData(4, (void *)0, callback));
+	socketsData.push_front(SocketData(5, (void *)0, callback));
 	printInfo("Should output an error message :");
 	socketsData.back().setIterator(socketsData.begin());
 }
@@ -57,7 +57,7 @@ void	trySettingIteratorTwice()
 	std::list<SocketData>	socketsData;
 
 	printInfo("try setting an iterator twice");
-	socketsData.push_front(SocketData(4, (void *)NULL, callback));
+	socketsData.push_front(SocketData(4, (void *)0, callback));
 	printInfo("Should output an error message :");
 	socketsData.front().setIterator(socketsData.begin());
 	socketsData.front().setIterator(socketsData.begin());
@@ -68,7 +68,7 @@ void	tryUsingIterator()
 	std::list<SocketData>	socketsData;
 
 	printInfo("try using an iterator");
-	socketsData.push_front(SocketData(4, (void *)NULL, callback));
+	socketsData.push_front(SocketData(4, (void *)0, callback));
 	socketsData.front().setIterator(socketsData.begin());
 	socketsData.erase(socketsData.front().getIterator());
 	verify(socketsData.size() == 0);
