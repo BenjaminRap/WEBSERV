@@ -39,7 +39,7 @@ private:
 	SocketData&	operator=(const SocketData& ref);
 public:
 	template <typename T> 
-	SocketData(int fd, T *data, void (&callback)(int fd, T *data));
+	SocketData(int fd, T &data, void (&callback)(int fd, T *data));
 	SocketData(const SocketData &ref);
 	~SocketData(void);
 

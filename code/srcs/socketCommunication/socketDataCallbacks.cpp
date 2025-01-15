@@ -18,9 +18,9 @@
  * @param fd The fd of a socket to listen to.
  * @param data Unused data.
  */
-static void	writeReceived(int fd, void *data)
+static void	writeReceived(int fd, SocketsHandler *socketsHandler)
 {
-	(void)data;
+	(void)socketsHandler;
 	while (true)
 	{
 		char			buffer[8];
@@ -60,7 +60,7 @@ void	acceptConnection(int fd, SocketsHandler *socketsHandler)
 
 	if (checkError(fd, -1, "accept() : ") == -1)
 		return ;
-	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, (void *)0, events) == -1)
+	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, *socketsHandler, events) == -1)
 	{
 		std::cerr << "Can't accept new connection" << std::endl;
 		checkError(close(newConnectionFd), -1, "close() : ");

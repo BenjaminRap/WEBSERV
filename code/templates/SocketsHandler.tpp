@@ -17,7 +17,7 @@ int	SocketsHandler::addFdToListeners
 (
 	int fd,
 	void (&callback)(int fd, T *data),
-	T *data,
+	T &data,
 	uint32_t events
 )
 {

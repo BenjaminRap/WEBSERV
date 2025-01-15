@@ -68,7 +68,7 @@ void	createAllServerSockets
 
 		if (fd == -1)
 			continue ;
-		if (socketsHandler.addFdToListeners(fd, acceptConnection, &socketsHandler, events) == -1)
+		if (socketsHandler.addFdToListeners(fd, acceptConnection, socketsHandler, events) == -1)
 			close(fd);
 	}
 }
