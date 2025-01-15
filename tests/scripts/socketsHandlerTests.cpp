@@ -113,14 +113,16 @@ void	addWrongFdToListeners()
 {
 	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
+	int					data;
 
+	data = 0;
 	printInfo("Try passing an fd to listeners that is inferior to 4");
 	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(1, callback, (void *)0, EPOLLIN);
+	socketsHandler.addFdToListeners(1, callback, data, EPOLLIN);
 	verify(true);
 	printInfo("Try passing an fd to listeners that isn't open");
 	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(10, callback, (void *)0, EPOLLIN);
+	socketsHandler.addFdToListeners(10, callback, data, EPOLLIN);
 	verify(true);
 }
 
