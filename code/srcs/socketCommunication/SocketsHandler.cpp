@@ -59,7 +59,6 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 {
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
-	SocketsHandler::_instanciated = true;
 	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (_epfd == -1)
@@ -68,6 +67,7 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 		throw std::exception();
 		return ;
 	}
+	SocketsHandler::_instanciated = true;
 }
 
 /**

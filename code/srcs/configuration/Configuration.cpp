@@ -20,7 +20,6 @@ Configuration::Configuration(void)
 {
 	if (_instanciated)
 		throw std::logic_error("Error : Trying to instanciate a Configuration multiples times");
-	_instanciated = true;
 
 	// uint8_t								ip[16];
 	// std::memset((char *)ip, '\0', sizeof(ip));
@@ -37,6 +36,7 @@ Configuration::Configuration(void)
 	(*this)[host] = serverConfigurations;
 	(*this)[host].push_back(ServerConfiguration());
 	_reuseAddr = true;
+	Configuration::_instanciated = true;
 }
 
 /**
@@ -44,7 +44,7 @@ Configuration::Configuration(void)
  */
 Configuration::~Configuration(void)
 {
-	_instanciated = false;
+	Configuration::_instanciated = false;
 }
 
 /**
