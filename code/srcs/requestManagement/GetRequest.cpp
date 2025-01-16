@@ -6,7 +6,7 @@
 #define FILE	2
 #define NF		3
 
-int							isDirOrFile(std::string path, GetRequest& get);
+int							isDirOrFile(const std::string& path, GetRequest& get);
 bool						checkPath(std::string path);
 std::string					checkType(const std::string& path, GetRequest& get);
 std::vector<std::string>	ls(std::string path);
@@ -15,30 +15,28 @@ std::string					buildPage(std::vector<std::string> files, const std::string& pat
 void						directoryCase(GetRequest& get);
 void						fixUrl(GetRequest& get, const std::string& url);
 
-/*
- * - Comparaison entre URL et Route
- * 		- Si == alors replace URL par route
- * 			- Set variable en fonction, auto-index, etc ...
- * 		- Sinon continue normal.
-*/
-
 GetRequest::GetRequest(const std::string& url)
 {
 	int			temp;
+	std::string	root;
 
 	this->code = 0;
 	this->_index = 0;
 	this->_isDirectory = true;
 	this->_autoIndex = true;
+	root = "./unitTest"; // a connecter | Si route non preciser, "."par defaut
 
 	fixUrl(*this, url);
+//	Si root find, agis comme alias
+//	if (!root.empty()) // Uniquement si rien est found.
+	setUrl(root + this->_url);
 	temp = isDirOrFile(this->_url, *this);
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == FILE)
 		setResponse(200, this->_url);
 	else
-		setResponse(404, "404/page"); //  page a trouver.
+		setResponse(404, "404/page"); // a connecter
 }
 
 GetRequest::GetRequest()

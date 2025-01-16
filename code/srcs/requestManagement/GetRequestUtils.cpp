@@ -85,7 +85,7 @@ std::string	checkType(const std::string& path, GetRequest& get)
 	return (temp);
 }
 
-int	isDirOrFile(std::string path, GetRequest& get)
+int	isDirOrFile(const std::string& path, GetRequest& get)
 {
 	struct stat		stats;
 
@@ -95,7 +95,6 @@ int	isDirOrFile(std::string path, GetRequest& get)
 		return (DIRE);
 	}
 	std::memset(&stats, 0, sizeof(stats));
-	path.erase(0, 1);
 	get.setIsDirectory(false);
 	if (stat(path.c_str(), &stats) == -1)
 		return (NF);
@@ -108,17 +107,16 @@ int	isDirOrFile(std::string path, GetRequest& get)
 		return (FILE);
 }
 
-std::vector<std::string>	ls(std::string path)
+std::vector<std::string>	ls(const std::string& path)
 {
 	DIR							*dw;
 	struct dirent				*res;
 	std::vector<std::string>	files;
 
-	path = "." + path;
 	dw = opendir(path.c_str());
 	if (!dw)
 	{
-		files.push_back("Error while opening dir " + path);
+		files.push_back("Error");
 		return (files);
 	}
 	while ((res = readdir(dw)))
@@ -130,15 +128,17 @@ std::vector<std::string>	ls(std::string path)
 std::string	buildPage(std::vector<std::string> files, const std::string& path)
 {
 	std::string result;
+	size_t size;
 
+	size = files.size();
 	result = "<html>\n<head><title>Index of ";
 	result += path;
 	result += "</title></head>\n<body>\n<h1>Index of";
 	result += path;
 	result += "</h1><hr><pre><a href=\"../\">../</a>\n";
-	for (unsigned long i = 0; i < files.size(); i++)
+	for (unsigned long i = 0; i < size; i++)
 	{
-		while ((files[i] == ".." || files[i] == ".") && i < files.size())
+		while ( i < size && (files[i] == ".." || files[i] == "."))
 			i++;
 		result+= "<a href=\"";
 		result+= files[i];
@@ -150,21 +150,43 @@ std::string	buildPage(std::vector<std::string> files, const std::string& path)
 	return (result);
 }
 
+bool findIndex(GetRequest& get, std::vector<std::string> indexs)
+{
+	size_t size;
+
+	size = indexs.size();
+	for (unsigned long i = 0; i < size; i++)
+	{
+		if (isDirOrFile(get.getUrl() + indexs[i], get) == FILE)
+		{
+			get.setResponse(200, get.getUrl() + indexs[i]);
+			return (true);
+		}
+	}
+	return (false);
+}
+
 void	directoryCase(GetRequest& get)
 {
 	std::vector<std::string>	files;
+	std::vector<std::string>	indexs;
+
+	indexs.push_back("index.html"); // a connecter
+	indexs.push_back("main.cpp"); // a connecter
 
 	get.setUrl(checkType(get.getUrl(), get));
 	if (get.code == 301)
 		return;
-	if (isDirOrFile(get.getUrl() + "index.html", get) == FILE)
-	{
-		get.setResponse(200, get.getUrl() + "index.html");
+	if (findIndex(get, indexs))
 		return;
-	}
 	if (get.getAutoIndex())
 	{
 		files = ls(get.getUrl());
+		if (files[0] == "Error")
+		{
+			get.setResponse(403, "Forbidden");
+			return ;
+		}
 		get.file = buildPage(files, get.getUrl());
 	}
 	else
