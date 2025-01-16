@@ -1,7 +1,8 @@
 #include <string>
 /**
- * @brief This class treat a `GET` request. The construtor do everthing and the result is store in : - std::string file
- * and - int code.
+ * This class treat a GET request. The construtor do everthing and the result is store in :
+ * - std::string file
+ * - int code.
  */
 class GetRequest
 {
