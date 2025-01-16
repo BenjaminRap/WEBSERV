@@ -27,9 +27,9 @@ SocketData::~SocketData(void)
 /**
  * @brief Execute the callback variable with the _fd and _data as parameters.
  */
-void	SocketData::callback() const
+void	SocketData::callback(uint32_t events) const
 {
-	this->_callback(*this, this->_data);
+	this->_callback(*this, this->_data, events);
 }
 
 /**

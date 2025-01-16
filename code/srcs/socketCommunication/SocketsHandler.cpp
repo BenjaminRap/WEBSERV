@@ -131,7 +131,7 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 		return ;
 	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
 
-	socketData.callback();
+	socketData.callback(_events[eventIndex].events);
 }
 
 /**

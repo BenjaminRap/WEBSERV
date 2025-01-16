@@ -16,7 +16,7 @@ template <typename T>
 int	SocketsHandler::addFdToListeners
 (
 	int fd,
-	void (&callback)(const SocketData &socketData, T *data),
+	void (&callback)(const SocketData &socketData, T *data, uint32_t events),
 	T &data,
 	uint32_t events
 )

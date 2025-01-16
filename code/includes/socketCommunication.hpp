@@ -3,6 +3,7 @@
 
 # define NO_SIGNAL -1
 
+# include <stdint.h>
 # include <cerrno>
 # include <string>
 # include <iostream>
@@ -19,7 +20,7 @@ void	signalHandler(int signal);
 int		getReturnCodeWithSignal();
 int		setReusableAddr(int fd, bool reuseAddr);
 int		setIPV6Only(int fd, bool isIPV6Only);
-void	acceptConnection(const SocketData& socketData, SocketsHandler *socketsHandler);
+void	acceptConnection(const SocketData& socketData, SocketsHandler *socketsHandler, uint32_t events);
 
 template <typename ReturnType>
 ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);

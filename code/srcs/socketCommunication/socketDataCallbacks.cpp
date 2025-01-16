@@ -18,29 +18,13 @@
  * @param fd The fd of a socket to listen to.
  * @param data Unused data.
  */
-static void	writeReceived(const SocketData &socketData, SocketsHandler *socketsHandler)
+static void	processRequests(const SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
 {
 	const int	fd = socketData.getFd();
 
 	(void)socketsHandler;
-	while (true)
-	{
-		char			buffer[8];
-
-		const ssize_t	rd = recv(fd, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
-
-		if (rd == -1 && errno != EAGAIN)
-		{
-			std::cerr << "recv() : " << strerror(errno) << std::endl;
-			return ;
-		}
-		if (rd <= 0)
-		{
-			return ;
-		}
-		buffer[rd] = '\0';
-		std::cout << buffer;
-	}
+	(void)fd;
+	(void)events;
 }
 
 /**
@@ -51,19 +35,21 @@ static void	writeReceived(const SocketData &socketData, SocketsHandler *socketsH
  * @param data This pointer will be casted as a socketsHandler *, and will be used
  * to add it to the epoll interest list and socketsData list.
  */
-void	acceptConnection(const SocketData &socketData, SocketsHandler *socketsHandler)
+void	acceptConnection(const SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
 {
 	sockaddr_in		addr;
 	socklen_t		addrLength;
 
-	addrLength = sizeof(addr);
-	const int				fd = socketData.getFd();
-	const uint32_t			events = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
-	const int 				newConnectionFd = accept(fd, (sockaddr *)&addr, &addrLength);
-
-	if (checkError(fd, -1, "accept() : ") == -1)
+	if (!(events & EPOLLIN))
 		return ;
-	if (socketsHandler->addFdToListeners(newConnectionFd, writeReceived, *socketsHandler, events) == -1)
+	addrLength = sizeof(addr);
+	const int		fd = socketData.getFd();
+	const uint32_t	newConnectionEvents = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
+	const int 		newConnectionFd = accept(fd, (sockaddr *)&addr, &addrLength);
+
+	if (checkError(newConnectionFd, -1, "accept() : ") == -1)
+		return ;
+	if (socketsHandler->addFdToListeners(newConnectionFd, processRequests, *socketsHandler, newConnectionEvents) == -1)
 	{
 		std::cerr << "Can't accept new connection" << std::endl;
 		checkError(close(newConnectionFd), -1, "close() : ");
