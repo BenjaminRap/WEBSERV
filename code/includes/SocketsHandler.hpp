@@ -66,7 +66,7 @@ public:
 
 	int		epollWaitForEvent();
 	template <typename T>
-	int		addFdToListeners(int fd, void (&callback)(const SocketData &socketData, T *data, uint32_t events), T &data, uint32_t events);
+	int		addFdToListeners(int fd, void (&callback)(SocketData &socketData, T *data, uint32_t events), T &data, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);

@@ -12,19 +12,17 @@
 #include <SocketsHandler.hpp>       // for SocketsHandle"
 #include "socketCommunication.hpp"  // for acceptConnection
 
-/**
- * @brief Read the fd until it receive eof or an error.It prints in the terminal
- * what it has received.
- * @param fd The fd of a socket to listen to.
- * @param data Unused data.
- */
-static void	processRequests(const SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
+static void	processRequests(SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
 {
-	const int	fd = socketData.getFd();
-
 	(void)socketsHandler;
-	(void)fd;
-	(void)events;
+	if (events & EPOLLOUT)
+	{
+		socketData.setCanWrite(true);
+	}
+	if (events & EPOLLIN)
+	{
+
+	}
 }
 
 /**
@@ -35,7 +33,7 @@ static void	processRequests(const SocketData &socketData, SocketsHandler *socket
  * @param data This pointer will be casted as a socketsHandler *, and will be used
  * to add it to the epoll interest list and socketsData list.
  */
-void	acceptConnection(const SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
+void	acceptConnection(SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
 {
 	sockaddr_in		addr;
 	socklen_t		addrLength;

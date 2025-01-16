@@ -129,7 +129,7 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
 
 	socketData.callback(_events[eventIndex].events);
 }

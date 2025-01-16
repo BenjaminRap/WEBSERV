@@ -25,7 +25,7 @@ private:
 	/**
 	 * @brief The function that will be called when the epoll_wait detects an event.
 	 */
-	void							(&_callback)(const SocketData &socketData, void *data, uint32_t events);
+	void							(&_callback)(SocketData &socketData, void *data, uint32_t events);
 	/**
 	 * @brief The iterator of this SocketData in the SocketsHandler list.
 	 */
@@ -34,20 +34,26 @@ private:
 	 * @brief True if the setIterator has been called with a good argument.
 	 */
 	bool							_isIteratorSet;
+	/**
+	 * @brief True if we can write in the socket. It is set true when we get a
+	 * EPOLLOUT, but false when there is a EAGAIN.
+	 */
+	bool							_canWrite;
 
 	SocketData(void);
 
 	SocketData&	operator=(const SocketData& ref);
 public:
 	template <typename T> 
-	SocketData(int fd, T &data, void (&callback)(const SocketData &socketData, T *data, uint32_t events));
+	SocketData(int fd, T &data, void (&callback)(SocketData &socketData, T *data, uint32_t events));
 	SocketData(const SocketData &ref);
 	~SocketData(void);
 
-	void									callback(uint32_t events) const;
+	void									callback(uint32_t events);
 	int										getFd() const;
 	const std::list<SocketData>::iterator	&getIterator() const;
 	void									setIterator(const std::list<SocketData>::iterator &iterator);
+	void									setCanWrite(bool canWrite);
 };
 
 # include "SocketData.tpp"

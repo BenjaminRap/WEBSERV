@@ -27,7 +27,7 @@ SocketData::~SocketData(void)
 /**
  * @brief Execute the callback variable with the _fd and _data as parameters.
  */
-void	SocketData::callback(uint32_t events) const
+void	SocketData::callback(uint32_t events)
 {
 	this->_callback(*this, this->_data, events);
 }
@@ -77,4 +77,9 @@ void	SocketData::setIterator(const std::list<SocketData>::iterator &iterator)
 	}
 	_isIteratorSet = true;
 	this->_iterator = iterator;
+}
+
+void	SocketData::setCanWrite(bool canWrite)
+{
+	_canWrite = canWrite;
 }
