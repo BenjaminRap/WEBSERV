@@ -75,6 +75,7 @@ const SUploads					&Route::getUploads(void) const
 std::ostream & operator<<(std::ostream & o, Route const & rhs)
 {
 	const std::vector<std::string>	&index = rhs.getIndex();
+	const std::vector<EMethods> 	&acceptedMethods = rhs.getAcceptedMethods();
 
     o << "auto_index :" << rhs.getAutoIndex() << std::endl;
 	o << "root :" << rhs.getRoot() << std::endl;
@@ -82,6 +83,17 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	for (size_t i = 0; i < index.size(); i++)
 	{
 		o << index[i] << " ";
+	}
+	o << std::endl;
+	o << "accepted methods :";
+	for (size_t i = 0; i < acceptedMethods.size(); i++)
+	{
+		if (acceptedMethods[i] == GET)
+			o << "GET ";
+		else if (acceptedMethods[i] == POST)
+			o << "POST ";
+		else if (acceptedMethods[i] == DELETE)
+			o << "DELETE ";
 	}
 	o << std::endl;
     return (o);

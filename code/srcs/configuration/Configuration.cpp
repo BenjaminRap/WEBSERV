@@ -257,48 +257,22 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 		if (file.substr(i, 4) == "root")
 		{
 			i += 4;
-			skip_wspace(file, i, line);
-			root = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
-			i = file.find_first_of(SEP_WSPACE, i);
-			skip_wspace(file, i, line);
-			if (file[i] != ';')
-				throw (MissingSemiColonException(line));
-			i++;
+			parse_route_root(file, i, line, root);
 		}
 		else if (file.substr(i, 9) == "autoindex")
 		{
 			i += 9;
-			skip_wspace(file, i, line);
-			if (file.substr(i, 2) == "on")
-			{
-				auto_index = true;
-				i += 2;
-			}
-			else if (file.substr(i, 3) == "off")
-			{
-				auto_index = false;
-				i += 3;
-			}
-			else
-				throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
-			skip_wspace(file, i, line);
+			parse_route_autoindex(file, i, line, auto_index);
 		}
 		else if (file.substr(i, 5) == "index")
 		{
 			i += 5;
-			while (i < file.size() && file[i] != ';')
-			{
-				skip_wspace(file, i, line);
-				index.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
-				i = file.find_first_of(SEP_WSPACE, i);
-			}
-			if (file[i] != ';')
-				throw (MissingSemiColonException(line));
-			i++;
+			parse_route_index(file, i, line, index);
 		}
 		else if (file.substr(i, 14) == "request_method")
 		{
 			i += 14;
+			parse_route_accepted_method(file, i, line, acceptedMethods);
 		}
 		else if (file.substr(i, 6) == "return")
 		{
@@ -312,5 +286,81 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 	}
 	if (file[i] != '}')
 		throw (MissingSemiColonException(line));
+	if (acceptedMethods.empty())
+	{
+		acceptedMethods.push_back(GET);
+		acceptedMethods.push_back(POST);
+		acceptedMethods.push_back(DELETE);
+	}
 	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, directoryListing, directoryFile, cgiFileExtension, uploads)));
+}
+
+void	Configuration::parse_route_root(std::string &file, size_t &i, size_t &line, std::string &root)
+{
+	skip_wspace(file, i, line);
+	root = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i = file.find_first_of(SEP_WSPACE, i);
+	skip_wspace(file, i, line);
+	if (file[i] != ';')
+		throw (MissingSemiColonException(line));
+	i++;
+}
+
+void	Configuration::parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &auto_index)
+{
+	skip_wspace(file, i, line);
+	if (file.substr(i, 2) == "on")
+	{
+		auto_index = true;
+		i += 2;
+	}
+	else if (file.substr(i, 3) == "off")
+	{
+		auto_index = false;
+		i += 3;
+	}
+	else
+		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+	skip_wspace(file, i, line);
+}
+
+void	Configuration::parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index)
+{
+	while (i < file.size() && file[i] != ';')
+	{
+		skip_wspace(file, i, line);
+		index.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
+		i = file.find_first_of(SEP_WSPACE, i);
+	}
+	if (file[i] != ';')
+		throw (MissingSemiColonException(line));
+	i++;
+}
+
+void	Configuration::parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods)
+{
+	while (i < file.size() && file[i] != ';')
+	{
+		skip_wspace(file, i, line);
+		if (file.substr(i, 3) == "GET")
+		{
+			i += 3;
+			acceptedMethods.push_back(GET);
+		}
+		else if (file.substr(i, 4) == "POST")
+		{
+			i += 4;
+			acceptedMethods.push_back(POST);
+		}
+		else if (file.substr(i, 6) == "DELETE")
+		{
+			i += 6;
+			acceptedMethods.push_back(DELETE);
+		}
+		else if (file[i] != ';')
+			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+	}
+	if (file[i] != ';')
+		throw (MissingSemiColonException(line));
+	i++;
 }
