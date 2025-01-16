@@ -30,23 +30,52 @@ public:
 class Route
 {
 public:
-	std::vector<EMethods>	acceptedMethods;
-	SRedirection			redirection;
+	Route(	std::vector<EMethods> acceptedMethods, \
+			SRedirection redirection, \
+			std::vector<std::string> index, \
+			bool auto_index, \
+			std::string root, \
+			bool directoryListing, \
+			std::string directoryFile, \
+			std::string cgiFileExtension, \
+			SUploads	uploads);
+	
+	~Route(void);
+
+	const std::vector<EMethods>		&getAcceptedMethods(void) const;
+	const SRedirection				&getRedirection(void) const;
+	const std::vector<std::string>	&getIndex(void) const;
+	const bool						&getAutoIndex(void) const;
+	const std::string				&getRoot(void) const;
+	const bool						&getDirectoryListing(void) const;
+	const std::string				&getDirectoryFile(void) const;
+	const std::string				&getCgiFileExtension(void) const;
+	const SUploads					&getUploads(void) const;
+
+private:
+	std::vector<EMethods>		acceptedMethods;
+	SRedirection				redirection;
+	std::vector<std::string>	index;
+	bool						auto_index;
 	/// @brief Define a directory or a file from where the file should be searched,
 	/// (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
 	/// /tmp/www/pouic/toto/pouet).
-
-	std::string				root;
+	std::string					root;
 	/// @brief If a get method ask for a directory, return a list of all elements
 	/// in this directory.
-	bool					directoryListing;
+	bool						directoryListing;
 	/// @brief The file returned if the get method ask for a directory.
-	std::string				directoryFile;
+	std::string					directoryFile;
 	/// @brief if a file, at this route has this file extension, it will call the
 	/// cgi.
-	std::string				cgiFileExtension;
-	SUploads				uploads;
+	std::string					cgiFileExtension;
+	SUploads					uploads;
+
+	Route(void);
+
 };
+
+std::ostream & operator<<(std::ostream & o, Route const & rhs);
 
 #endif // !ROUTE_HPP
 

@@ -29,14 +29,13 @@ void	Configuration::parse_file(std::string &file)
 		skip_wspace(file, i, line);
 		if (file[i] == '#')
 			skip_line(file, i, line);
-		else if (file.substr(i, 6) == "server") // 6 = "server" length
+		else if (file.substr(i, 6) == "server")
 		{
 			i += 6;
 			skip_wspace(file, i , line);
 			if (file[i] != '{')
 				throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
-			else
-				parse_server(file, i, line);
+			parse_server(file, i, line);
 		}
 		else
 			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
@@ -50,7 +49,7 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 	std::vector<std::string>				serverNames;
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize = 0;
-	// std::vector<Route>						routes;
+	std::map<std::string, Route>			routes;
 
 	i++;
 	while (i < file.size() && file[i] != '}')
@@ -58,7 +57,7 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 		skip_wspace(file, i, line);
 		if (file[i] == '#')
 			skip_line(file, i, line);
-		else if (file.substr(i, 6) == "listen") // 6 = "listen" length
+		else if (file.substr(i, 6) == "listen")
 		{
 			i += 6;
 			if (host || port)
@@ -85,7 +84,11 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 		{
 			i += 10;
 			parse_errorpages(file, i, line, errorPages);
-
+		}
+		else if (file.substr(i, 8) == "location")
+		{
+			i += 8;
+			parse_route(file, i, line, routes);
 			//----------print server config--------------//		
 			std::cout << "host:" << (host >> 24) << ((host << 8) >> 24) << ((host << 16) >> 24) << ((host << 24) >> 24) << std::endl;
 			std::cout << "port:" << port << std::endl;
@@ -100,6 +103,11 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 			for (std::map<unsigned short, std::string>::iterator it = errorPages.begin(); it != errorPages.end(); it++)
 			{
 				std::cout << it->first << " : " << it->second << std::endl;
+    		}
+			std::cout << std::endl << "Routes :" << std::endl;
+			for (std::map<std::string, Route>::iterator it = routes.begin(); it != routes.end(); it++)
+			{
+				std::cout << it->first << ":" << std::endl << it->second << std::endl;
     		}
 			//----------print server config--------------//
 		}
@@ -136,7 +144,7 @@ short	Configuration::real_atoi(std::string &file, size_t &i, size_t &line, short
 		len++;
 	}
 	if (nb > max || nb < 0)
-		throw (WrongIpFormatException(line));
+		throw (ParsedNumberOutOfRangeException(line));
 	return (nb);
 }
 
@@ -200,22 +208,109 @@ void	Configuration::parse_servername(std::string &file, size_t &i, size_t &line,
 void	Configuration::parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages)
 {
 	std::vector<unsigned short>	errors;
-	std::string			error_page;
+	std::string					error_page;
 	
 	skip_wspace(file, i, line);
 	while (std::isdigit(file[i]))
 	{
 		errors.push_back(real_atoi(file, i, line, 999, 3));
-				skip_wspace(file, i, line);
+		skip_wspace(file, i, line);
 	}
 	if (file[i] != '/')
 		throw (MissingErrorPageException(line));
-	error_page = file.substr(i, file.find(';', i) - i);
-	i = file.find(';', i);
+	error_page = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i = file.find_first_of(SEP_WSPACE, i);
+	skip_wspace(file, i, line);
 	if (file[i] != ';')
 		throw (MissingSemiColonException(line));
 	for (std::vector<unsigned short>::iterator it = errors.begin(); it != errors.end(); it++)
 	{
 		errorPages.insert(std::make_pair(*it, error_page));
 	}
+}
+
+void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
+{
+	std::vector<EMethods>		acceptedMethods;
+	std::vector<std::string>	index;
+	SRedirection				redirection;
+	std::string					path;
+	std::string					root;
+	bool						directoryListing = false;
+	bool						auto_index;
+	std::string					directoryFile;
+	std::string					cgiFileExtension;
+	SUploads					uploads;
+
+	skip_wspace(file, i, line);
+	if (file[i] != '/')
+		throw (PathNotFoundException(line));
+	path = file.substr(i, file.find_first_of(SEP_WSPACE_ARG, i) - i);
+	i = file.find_first_of(SEP_WSPACE_ARG, i);
+	skip_wspace(file, i, line);
+	if (file[i] != '{')
+		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+	i++;
+	while (i < file.size() && file[i] != '}')
+	{
+		skip_wspace(file, i, line);
+		if (file.substr(i, 4) == "root")
+		{
+			i += 4;
+			skip_wspace(file, i, line);
+			root = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+			i = file.find_first_of(SEP_WSPACE, i);
+			skip_wspace(file, i, line);
+			if (file[i] != ';')
+				throw (MissingSemiColonException(line));
+			i++;
+		}
+		else if (file.substr(i, 9) == "autoindex")
+		{
+			i += 9;
+			skip_wspace(file, i, line);
+			if (file.substr(i, 2) == "on")
+			{
+				auto_index = true;
+				i += 2;
+			}
+			else if (file.substr(i, 3) == "off")
+			{
+				auto_index = false;
+				i += 3;
+			}
+			else
+				throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+			skip_wspace(file, i, line);
+		}
+		else if (file.substr(i, 5) == "index")
+		{
+			i += 5;
+			while (i < file.size() && file[i] != ';')
+			{
+				skip_wspace(file, i, line);
+				index.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
+				i = file.find_first_of(SEP_WSPACE, i);
+			}
+			if (file[i] != ';')
+				throw (MissingSemiColonException(line));
+			i++;
+		}
+		else if (file.substr(i, 14) == "request_method")
+		{
+			i += 14;
+		}
+		else if (file.substr(i, 6) == "return")
+		{
+			i += 6;
+		}
+		else if (file[i] == '#')
+			skip_line(file, i, line);
+		else
+			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		skip_wspace(file, i, line);
+	}
+	if (file[i] != '}')
+		throw (MissingSemiColonException(line));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, directoryListing, directoryFile, cgiFileExtension, uploads)));
 }
