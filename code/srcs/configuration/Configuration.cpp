@@ -19,6 +19,13 @@ Configuration::~Configuration(void)
 	return ;
 }
 
+const ServerConfiguration	&Configuration::getServerConfiguration(size_t i) const
+{
+	if (i < ServerConfigurations.size())
+		return (ServerConfigurations[i]);
+	throw (OutOfRangeException());
+}
+
 void	Configuration::parse_file(std::string &file)
 {
 	size_t	i = 0;
@@ -104,7 +111,8 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 	if (file[i] != '}')
 		throw (MissingSemiColonException(line));
 	i++;
-	//----------print server config--------------//		
+	//----------print server config--------------//
+			std::cout << "SERVER :" << std::endl;		
 			std::cout << "root:" << root << std::endl;
 			std::cout << "host:" << (host >> 24) << ((host << 8) >> 24) << ((host << 16) >> 24) << ((host << 24) >> 24) << std::endl;
 			std::cout << "port:" << port << std::endl;
@@ -125,6 +133,7 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 			{
 				std::cout << it->first << ":" << std::endl << it->second << std::endl;
     		}
+			std::cout << std::endl << std::endl;
 	//----------print server config--------------//
 }
 

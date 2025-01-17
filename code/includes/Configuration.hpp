@@ -32,6 +32,8 @@ class Configuration
 	Configuration(const char *path);
 	~Configuration(void);
 
+	const ServerConfiguration	&getServerConfiguration(size_t i) const;
+
 	class   NumberOfArgumentException : public std::exception
 	{
 		public :
@@ -292,6 +294,16 @@ class Configuration
 			size_t		line;
 			std::string error;
 			std::string def;
+	};
+
+	class   OutOfRangeException : public std::exception
+	{
+		public :
+		
+		virtual const char *what() const throw()
+		{
+			return ("Error: Element out of range.");
+		}
 	};
 
 	private :

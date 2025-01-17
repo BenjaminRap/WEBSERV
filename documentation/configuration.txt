@@ -83,9 +83,9 @@ server {
     location /images/ {
     }
 
-    location ~ \.(mp3|mp4) {
-        root /www/media;
-    }
+   # location ~ \.(mp3|mp4) {
+   #     root /www/media;
+	#}
 }
 
 explanation of all configuration :

@@ -18,6 +18,7 @@ public :
 	std::map<std::string, Route> routes);
 	~ServerConfiguration(void);
 
+	const std::string					&getRoot(void) const;
 	const uint32_t						&getHost(void) const;
 	const uint16_t						&getPort(void) const;
 	const std::vector<std::string>		&getServerNames(void) const;
