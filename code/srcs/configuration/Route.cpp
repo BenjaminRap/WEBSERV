@@ -96,5 +96,7 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 			o << "DELETE ";
 	}
 	o << std::endl;
+	o << "redirection status code:" << rhs.getRedirection().responseStatusCode << std::endl;
+	o << "redirection url:" << rhs.getRedirection().url << std::endl;
     return (o);
 }

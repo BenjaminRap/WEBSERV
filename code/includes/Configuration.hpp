@@ -313,6 +313,7 @@ class Configuration
 	void	parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &auto_index);
 	void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index);
 	void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);
+	void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
 
 	Configuration(void);
 };

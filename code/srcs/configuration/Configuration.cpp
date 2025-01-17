@@ -242,6 +242,7 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 	std::string					cgiFileExtension;
 	SUploads					uploads;
 
+	redirection.responseStatusCode = 0;
 	skip_wspace(file, i, line);
 	if (file[i] != '/')
 		throw (PathNotFoundException(line));
@@ -277,6 +278,7 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 		else if (file.substr(i, 6) == "return")
 		{
 			i += 6;
+			parse_route_redirection(file, i, line, redirection);
 		}
 		else if (file[i] == '#')
 			skip_line(file, i, line);
@@ -360,6 +362,18 @@ void	Configuration::parse_route_accepted_method(std::string &file, size_t &i, si
 		else if (file[i] != ';')
 			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	}
+	if (file[i] != ';')
+		throw (MissingSemiColonException(line));
+	i++;
+}
+
+void	Configuration::parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection)
+{
+	skip_wspace(file, i, line);
+	redirection.responseStatusCode = real_atoi(file, i, line, 999, 3);
+	skip_wspace(file, i, line);
+	redirection.url = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i = file.find_first_of(SEP_WSPACE, i);
 	if (file[i] != ';')
 		throw (MissingSemiColonException(line));
 	i++;
