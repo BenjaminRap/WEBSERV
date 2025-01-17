@@ -21,10 +21,10 @@ private:
 	 */
 	std::string	_firstPart;
 	/**
-	 * @brief The number of character from firstPart that has been read. It should
-	 * be in range [0, firstPart.size()]
+	 * @brief The number of character from firstPart that has been written
+	 * to the socket. It should be in range [0, firstPart.size()]
 	 */
-	size_t		_rd;
+	size_t		_written;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
