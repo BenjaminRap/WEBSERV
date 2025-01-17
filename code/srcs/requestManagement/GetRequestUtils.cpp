@@ -174,6 +174,8 @@ void	directoryCase(GetRequest& get)
 	indexs.push_back("index.html"); // a connecter
 	indexs.push_back("main.cpp"); // a connecter
 
+	index = get.
+
 	get.setUrl(checkType(get.getUrl(), get));
 	if (get.code == 301)
 		return;

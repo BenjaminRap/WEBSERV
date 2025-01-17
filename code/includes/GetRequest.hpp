@@ -1,20 +1,23 @@
 #include <string>
+#include "ServerConfiguration.hpp"
 /**
  * This class treat a GET request. The construtor do everthing and the result is store in :
  * - std::string file
  * - int code.
  */
+
 class GetRequest
 {
 	private :
 		GetRequest();
 
-		std::string	_url;
-		bool		_autoIndex;
-		bool		_isDirectory;
-		int			_index;
+		ServerConfiguration	*_config;
+		std::string			_url;
+		bool				_autoIndex;
+		bool				_isDirectory;
+		int					_index;
 	public :
-		explicit GetRequest(const std::string& url);
+		explicit GetRequest(const std::string& url, ServerConfiguration config);
 		GetRequest(const GetRequest& src);
 		~GetRequest();
 		GetRequest& operator=(const GetRequest& src);
@@ -26,6 +29,7 @@ class GetRequest
 		std::string getUrl();
 		void setAutoIndex(bool src);
 		bool getAutoIndex() const;
+		std::vector<std::string> getIndexVec();
 
 		/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...

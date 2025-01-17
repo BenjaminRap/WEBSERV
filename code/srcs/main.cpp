@@ -1,9 +1,8 @@
 #include <iostream>
 #include "GetRequest.hpp"
-
-#define DIR 1
-#define FILE 2
-#define NF 3
+# include "ServerConfiguration.hpp"
+# include "Route.hpp"
+# include "Configuration.hpp"
 
 #define HTML_CONTENT "<html>\n" \
 "<head><title>Index of ./unitTest/</title></head>\n" \
@@ -102,9 +101,10 @@ int	main(int argc, char **argv)
 
 	if (argc == 1)
 		unitsTest();
-	else if (argc == 2)
+	else if (argc == 3)
 	{
-		GetRequest a(argv[1]);
+		Configuration	config(argv[1]);
+		GetRequest a(argv[2], config.ServerConfigurations[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[1] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;

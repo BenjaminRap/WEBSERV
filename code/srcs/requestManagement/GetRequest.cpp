@@ -15,7 +15,28 @@ std::string					buildPage(std::vector<std::string> files, const std::string& pat
 void						directoryCase(GetRequest& get);
 void						fixUrl(GetRequest& get, const std::string& url);
 
-GetRequest::GetRequest(const std::string& url)
+
+std::string addRoot(GetRequest get, ServerConfiguration config)
+{
+	std::map<std::string, Route> roots;
+	std::map<std::string, Route>::iterator it;
+
+	roots = config.getRoutes();
+	it = roots.find(get.getUrl());
+
+	if (it == roots.end())
+	{
+		std::cout << "Root not find" << std::endl;
+	}
+	else
+	{
+		std::cout << "Root find" << std::endl;
+	}
+	return ("Blehasdj");
+}
+
+
+GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
 {
 	int			temp;
 	std::string	root;
@@ -24,9 +45,11 @@ GetRequest::GetRequest(const std::string& url)
 	this->_index = 0;
 	this->_isDirectory = true;
 	this->_autoIndex = true;
-	root = "./unitTest"; // a connecter | Si route non preciser, "."par defaut
+	this->_config = &config;
+	//root = "./unitTest"; // a connecter | Si route non preciser, "."par defaut
 
 	fixUrl(*this, url);
+	addRoot(*this, config);
 //	Si root find, agis comme alias
 //	if (!root.empty()) // Uniquement si rien est found.
 	setUrl(root + this->_url);
@@ -36,7 +59,7 @@ GetRequest::GetRequest(const std::string& url)
 	else if (temp == FILE)
 		setResponse(200, this->_url);
 	else
-		setResponse(404, "404/page"); // a connecter
+		setResponse(404, config.getErrorPage(404));
 }
 
 GetRequest::GetRequest()
@@ -106,4 +129,9 @@ void GetRequest::setUrl(const std::string& src)
 std::string GetRequest::getUrl()
 {
 	return (this->_url);
+}
+
+std::vector<std::string> GetRequest::getIndexVec()
+{
+	return ("try", "tru"); // Stand By
 }
