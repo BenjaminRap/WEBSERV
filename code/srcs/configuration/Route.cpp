@@ -6,8 +6,6 @@ Route::Route(	std::vector<EMethods> acceptedMethods, \
 			std::vector<std::string> index, \
 			bool auto_index, \
 			std::string root, \
-			bool directoryListing, \
-			std::string directoryFile, \
 			std::string cgiFileExtension, \
 			SUploads	uploads) : \
 			acceptedMethods(acceptedMethods), \
@@ -15,8 +13,6 @@ Route::Route(	std::vector<EMethods> acceptedMethods, \
 			index(index), \
 			auto_index(auto_index), \
 			root(root), \
-			directoryListing(directoryListing), \
-			directoryFile(directoryFile), \
 			cgiFileExtension(cgiFileExtension), \
 			uploads(uploads)
 			{
@@ -52,15 +48,6 @@ const std::string				&Route::getRoot(void) const
 	return (root);
 }
 
-const bool						&Route::getDirectoryListing(void) const
-{
-	return (directoryListing);
-}
-
-const std::string				&Route::getDirectoryFile(void) const
-{
-	return (directoryFile);
-}
 
 const std::string				&Route::getCgiFileExtension(void) const
 {

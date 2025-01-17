@@ -309,7 +309,7 @@ class Configuration
 	void	parse_servername(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames);
 	void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages);
 	void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes);
-	void	parse_route_root(std::string &file, size_t &i, size_t &line, std::string &root);
+	void	parse_root(std::string &file, size_t &i, size_t &line, std::string &root);
 	void	parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &auto_index);
 	void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index);
 	void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);

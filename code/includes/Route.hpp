@@ -35,8 +35,6 @@ public:
 			std::vector<std::string> index, \
 			bool auto_index, \
 			std::string root, \
-			bool directoryListing, \
-			std::string directoryFile, \
 			std::string cgiFileExtension, \
 			SUploads	uploads);
 	
@@ -47,8 +45,6 @@ public:
 	const std::vector<std::string>	&getIndex(void) const;
 	const bool						&getAutoIndex(void) const;
 	const std::string				&getRoot(void) const;
-	const bool						&getDirectoryListing(void) const;
-	const std::string				&getDirectoryFile(void) const;
 	const std::string				&getCgiFileExtension(void) const;
 	const SUploads					&getUploads(void) const;
 

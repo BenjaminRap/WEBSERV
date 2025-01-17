@@ -53,13 +53,13 @@ server {
     }
 
     # Exécution de CGI pour les fichiers avec une extension spécifique
-    location ~ \.php$ {
-        # Utilise FastCGI pour exécuter le CGI
-        include fastcgi_params;
-        fastcgi_pass php-fpm:9000;  # Exemple avec PHP-FPM
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
-    }
+  #  location ~ \.php$ {
+  #      # Utilise FastCGI pour exécuter le CGI
+  #      include fastcgi_params;
+  #      fastcgi_pass php-fpm:9000;  # Exemple avec PHP-FPM
+  #      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  #      fastcgi_param PATH_INFO $fastcgi_path_info;
+  #  }
 
     # Autoriser les uploads de fichiers
     location /upload {
@@ -75,11 +75,17 @@ server {
 
 # Un autre serveur avec une configuration par défaut différente
 server {
-    listen 0.0.0.0:80;
-    server_name _;  # Utilisé pour capturer tout le reste
+    root /www/data;
 
-    root /var/www/default;
-    index index.html;
+    location / {
+    }
+
+    location /images/ {
+    }
+
+    location ~ \.(mp3|mp4) {
+        root /www/media;
+    }
 }
 
 explanation of all configuration :
