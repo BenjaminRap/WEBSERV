@@ -88,23 +88,23 @@ server {
 	#}
 }
 
-explanation of all configuration :
-    host : the ip on which the server is listening : 127.0.0.1 if local, 0.0.0.0 by default and to listen to all.
-	port : default 80.Wrote on the same line as the host on the nignx configuration. We may not do that
-	server_names : to differentiate all the servers listening on the ip
-make	default error page : pages returned on an error
-	limit clien height body : self explanatory
-	routes : 
-		list of accepted http methods : other methods will be returned a forbidden error
-		http redirection : redirection to another page with a code of 3XX
-		root : the path /test will be search at root/test
-		directory listing : list the content of a directory
-		default file for directory : If directory listing is enabled, shows the content, otherwise, an error page
-		execute cgi based on file extension with POST and GET : when one of those methods ask for a file with the
-			extension, execute the script in a fork and execve.
-		make the route accept uploaded files : Create a route, accepting POST, that create a new file with the body content
-		configure where they should be saved : same thing as root in a route
-		do you wonder what cgi is : see cgi.txt
+#explanation of all configuration :
+#    host : the ip on which the server is listening : 127.0.0.1 if local, 0.0.0.0 by default and to listen to all.
+#	port : default 80.Wrote on the same line as the host on the nignx configuration. We may not do that
+#	server_names : to differentiate all the servers listening on the ip
+#make	default error page : pages returned on an error
+#	limit clien height body : self explanatory
+#	routes : 
+#		list of accepted http methods : other methods will be returned a forbidden error
+#		http redirection : redirection to another page with a code of 3XX
+#		root : the path /test will be search at root/test
+#		directory listing : list the content of a directory
+#		default file for directory : If directory listing is enabled, shows the content, otherwise, an error page
+#		execute cgi based on file extension with POST and GET : when one of those methods ask for a file with the
+#			extension, execute the script in a fork and execve.
+#		make the route accept uploaded files : Create a route, accepting POST, that create a new file with the body content
+#		configure where they should be saved : same thing as root in a route
+#		do you wonder what cgi is : see cgi.txt
 		
 
 

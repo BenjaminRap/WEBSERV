@@ -14,7 +14,7 @@ class ServerConfiguration
 public :
 
 	ServerConfiguration(uint32_t host, uint16_t port, std::vector<std::string> serverNames, \
-	std::map<unsigned short, std::string> errorPages, size_t getMaxClientBodySize, \
+	std::map<unsigned short, std::string> errorPages, size_t maxClientBodySize, \
 	std::map<std::string, Route> routes);
 	~ServerConfiguration(void);
 
