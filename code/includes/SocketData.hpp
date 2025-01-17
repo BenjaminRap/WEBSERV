@@ -4,6 +4,9 @@
 # include <stdint.h>
 # include <list>
 # include <stdexcept>
+# include <queue>
+
+# include "Response.hpp"
 
 /**
  * @brief Represents all the data needed by a fd : the _callback function that
@@ -39,6 +42,11 @@ private:
 	 * EPOLLOUT, but false when there is a EAGAIN.
 	 */
 	bool							_canWrite;
+	/**
+	 * @brief A queue of all the responses. They will be written to the client in
+	 * the same order that the client send the requests.
+	 */
+	std::queue<RawResponse>			_responses;
 
 	SocketData(void);
 

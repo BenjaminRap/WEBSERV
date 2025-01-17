@@ -3,6 +3,8 @@
 
 # include <string>
 # include <map>
+# include <sys/types.h>
+# include <stdint.h>
 
 /**
  * @brief This class stores all the data that will be sent to the client as a
@@ -21,17 +23,19 @@ private:
 	 */
 	std::string	_firstPart;
 	/**
-	 * @brief The number of character from firstPart that has been written
-	 * to the socket. It should be in range [0, firstPart.size()]
+	 * @brief The number of character from _firstPart that need to be written
+	 * to the socket. It should be in range [-1, firstPart.size()] : -1 meaning
+	 * there was an error, 0 meaning there is nothing to read anymore.
 	 */
-	size_t		_written;
+	ssize_t		_numCharsToWrite;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
 	 */
 	int			_bodyFd;
+
 public:
-	int	writeToFd(int fd);
+	ssize_t	writeToFd(int fd);
 };
 
 /**
