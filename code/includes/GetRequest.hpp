@@ -12,6 +12,7 @@ class GetRequest
 		GetRequest();
 
 		ServerConfiguration	*_config;
+		Route				*_root;
 		std::string			_url;
 		bool				_autoIndex;
 		bool				_isDirectory;
@@ -30,6 +31,7 @@ class GetRequest
 		void setAutoIndex(bool src);
 		bool getAutoIndex() const;
 		std::vector<std::string> getIndexVec();
+		void	setRoot(Route root);
 
 		/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...
