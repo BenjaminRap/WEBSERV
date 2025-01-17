@@ -49,33 +49,17 @@
 #define CRESET "\e[0m"
 
 
-void	makeTest(const std::string& test, int code, const std::string& response, const std::string& tab)
+void	makeTest(const std::string& test, int code, const std::string& response, const std::string& tab, ServerConfiguration config)
 {
-	GetRequest a(test);
+	GetRequest a(test, config);
 
 	if (a.code == code && a.file == response)
 		std::cout << BMAG << "Request : "<< BCYN << test << tab << BGRN << "GOOD" << CRESET << std::endl;
 	else if (a.code != code || a.file != response)
 		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "FALSE " << a.file << CRESET <<std::endl;
 }
-//#include "Configuration.hpp"
-//
-//int	main(int argc, char **argv)
-//{
-//	try
-//	{
-//		if (argc > 2)
-//			throw (Configuration::NumberOfArgumentException());
-//		if (argc == 2)
-//			Configuration	config(argv[1]);
-//		else if (argc == 1)
-//		 	Configuration	config(DEFAULT_CONFIG_PATH);
-//	}
-//	catch(const std::exception& e)
-//	{
-//		std::cerr << e.what() << std::endl;
-//	}
-void	unitsTest()
+
+void	unitsTest(ServerConfiguration config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest" << CRESET << std::endl;
@@ -83,15 +67,15 @@ void	unitsTest()
 	std::cout << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 
-	makeTest("/", 0, HTML_CONTENT, "\t\t\t");
-	makeTest("/xasdw", 404, RESPONSE404, "\t\t");
-	makeTest("/srcs", 301, SRCS301, "\t\t\t");
-	makeTest("/srcs/", 200, INDEX200, "\t\t");
-	makeTest("/srcs/index.html", 200, INDEX200, "\t");
-	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t");
-	makeTest("/fake/", 200, MAIN200, "\t\t");
-	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t");
-	makeTest("/nonono/", 403, FOR403, "\t\t");
+	makeTest("/", 0, HTML_CONTENT, "\t\t\t", config);
+	makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
+	makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
+	makeTest("/srcs/", 200, INDEX200, "\t\t", config);
+	makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
+	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
+	makeTest("/fake/", 200, MAIN200, "\t\t", config);
+	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
+	makeTest("/nonono/", 403, FOR403, "\t\t", config);
 }
 
 int	main(int argc, char **argv)
@@ -99,12 +83,13 @@ int	main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
+	Configuration	config(argv[1]);
+
 	if (argc == 1)
-		unitsTest();
+		unitsTest(config.getServerConfiguration(0));
 	else if (argc == 3)
 	{
-		Configuration	config(argv[1]);
-		GetRequest a(argv[2], config.ServerConfigurations[0]);
+		GetRequest a(argv[2], config.getServerConfiguration(0));
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[1] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
