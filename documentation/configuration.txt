@@ -1,9 +1,9 @@
-nginx ex :
+#nginx ex :
 # Définit un serveur HTTP principal
 server {
     # Hôte et port sur lesquels ce serveur écoute
     listen 192.168.1.10:8080;  # Hôte et port spécifiques
-    listen [::1]:8080;         # Support IPv6 (facultatif)
+    #listen [::1]:8080;        # Support IPv6 (facultatif)(je ne gere pas les ipv6)
     
     # Définit les noms de domaine gérés par ce serveur
     server_name www.example.com example.com;
@@ -88,7 +88,7 @@ explanation of all configuration :
     host : the ip on which the server is listening : 127.0.0.1 if local, 0.0.0.0 by default and to listen to all.
 	port : default 80.Wrote on the same line as the host on the nignx configuration. We may not do that
 	server_names : to differentiate all the servers listening on the ip
-	default error page : pages returned on an error
+make	default error page : pages returned on an error
 	limit clien height body : self explanatory
 	routes : 
 		list of accepted http methods : other methods will be returned a forbidden error
