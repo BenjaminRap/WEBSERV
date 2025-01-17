@@ -9,50 +9,51 @@
 int							isDirOrFile(const std::string& path, GetRequest& get);
 bool						checkPath(std::string path);
 std::string					checkType(const std::string& path, GetRequest& get);
-std::vector<std::string>	ls(std::string path);
 std::string					fixPath(std::string  path);
 std::string					buildPage(std::vector<std::string> files, const std::string& path);
 void						directoryCase(GetRequest& get);
 void						fixUrl(GetRequest& get, const std::string& url);
 
 
-std::string addRoot(GetRequest get, ServerConfiguration config)
+void	addRoot(GetRequest get, ServerConfiguration config)
 {
-	std::map<std::string, Route> roots;
-	std::map<std::string, Route>::iterator it;
+	std::map<std::string, Route> 			roots;
+	std::map<std::string, Route>::iterator	it;
+	SRedirection							redirectSt;
 
 	roots = config.getRoutes();
 	it = roots.find(get.getUrl());
 
 	if (it == roots.end())
-	{
-		std::cout << "Root not find" << std::endl;
-	}
+		get.setUrl(config.getRoot() + get.getUrl());
 	else
 	{
+		// Dont forget to check Meth Allow
 		std::cout << "Root find" << std::endl;
+		redirectSt = it->second.getRedirection();
+		if (!redirectSt.url.empty())
+			get.setResponse(301, redirectSt.url);
+		else
+		{
+			get.setRoot(it->second);
+			get.setAutoIndex(it->second.getAutoIndex());
+			// Update URL
+		}
 	}
-	return ("Blehasdj");
 }
 
 
 GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
 {
 	int			temp;
-	std::string	root;
 
 	this->code = 0;
 	this->_index = 0;
 	this->_isDirectory = true;
-	this->_autoIndex = true;
 	this->_config = &config;
-	//root = "./unitTest"; // a connecter | Si route non preciser, "."par defaut
 
 	fixUrl(*this, url);
 	addRoot(*this, config);
-//	Si root find, agis comme alias
-//	if (!root.empty()) // Uniquement si rien est found.
-	setUrl(root + this->_url);
 	temp = isDirOrFile(this->_url, *this);
 	if (temp == DIRE)
 		directoryCase(*this);
@@ -133,5 +134,10 @@ std::string GetRequest::getUrl()
 
 std::vector<std::string> GetRequest::getIndexVec()
 {
-	return ("try", "tru"); // Stand By
+	return (this->_root->getIndex());
+}
+
+void	GetRequest::setRoot(Route root)
+{
+	this->_root = &root;
 }

@@ -171,11 +171,7 @@ void	directoryCase(GetRequest& get)
 	std::vector<std::string>	files;
 	std::vector<std::string>	indexs;
 
-	indexs.push_back("index.html"); // a connecter
-	indexs.push_back("main.cpp"); // a connecter
-
-	index = get.
-
+	indexs = get.getIndexVec();
 	get.setUrl(checkType(get.getUrl(), get));
 	if (get.code == 301)
 		return;
