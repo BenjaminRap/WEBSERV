@@ -22,6 +22,11 @@ ServerConfiguration::~ServerConfiguration(void)
 	return ;
 }
 
+const std::string				&ServerConfiguration::getRoot(void) const
+{
+	return (this->root);
+}
+
 const uint32_t					&ServerConfiguration::getHost(void) const
 {
 	return (this->host);
