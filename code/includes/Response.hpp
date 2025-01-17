@@ -19,17 +19,17 @@ private:
 	 * the status line, the headers, the blank line and, if there is a static one,
 	 * a body.
 	 */
-	std::string	firstPart;
+	std::string	_firstPart;
 	/**
 	 * @brief The number of character from firstPart that has been read. It should
 	 * be in range [0, firstPart.size()]
 	 */
-	size_t		rd;
+	size_t		_rd;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
 	 */
-	int			bodyFd;
+	int			_bodyFd;
 };
 
 /**
@@ -51,23 +51,23 @@ private:
 		/**
 		 * @brief The version of http we are using : in our case HTTP/1.1.
 		 */
-		std::string	protocol;
+		std::string	_protocol;
 		/**
 		 * @brief The return code [100, 600[
 		 */
-		uint16_t	statusCode;
+		uint16_t	_statusCode;
 		/**
 		 * @brief The text associated with the status code. Each status code has
 		 * a single status line that corresponds.
 		 */
-		std::string	statusText;
-	}									statusLine;
-	std::map<std::string, std::string>	headers;
+		std::string	_statusText;
+	}									_statusLine;
+	std::map<std::string, std::string>	_headers;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, this variable
 	 * is set to -1.
 	 */
-	int									bodyFd;
+	int									_bodyFd;
 };
 
 #endif // !RESPONSE_HPP
