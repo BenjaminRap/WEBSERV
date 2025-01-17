@@ -10,12 +10,13 @@
 # include <sstream> 
 
 # include "ServerConfiguration.hpp"
+# include "Route.hpp"
 
 # define DEFAULT_CONFIG_PATH "../documentation/configuration.txt"
+
 # define WSPACE "\t\n\v\f\r "
-
 # define SEP_WSPACE "\t\n\v\f\r ;"
-
+# define SEP_WSPACE_ARG "\t\n\v\f\r ;{}"
 # define DIGITS "0123456789"
 
 void	ft_readfile(const char *path, std::string &buff);
@@ -37,7 +38,7 @@ class Configuration
 		
 		virtual const char *what() const throw()
 		{
-			return ("Wrong number of argument.");
+			return ("Error: Wrong number of argument.");
 		}
 	};
 
@@ -47,7 +48,7 @@ class Configuration
 		
 		virtual const char *what() const throw()
 		{
-			return ("Couldn't open configuration file.");
+			return ("Error: Couldn't open configuration file.");
 		}
 	};
 
@@ -57,7 +58,7 @@ class Configuration
 		
 		virtual const char *what() const throw()
 		{
-			return ("Couldn't read configuration file.");
+			return ("Error: Couldn't read configuration file.");
 		}
 	};
 
@@ -67,7 +68,7 @@ class Configuration
 		
 		virtual const char *what() const throw()
 		{
-			return ("Couldn't find a server in configuration file.");
+			return ("Error: Couldn't find a server in configuration file.");
 		}
 	};
 
@@ -81,7 +82,7 @@ class Configuration
 			{
 				std::ostringstream oss;
 				oss << line;
-				return ("Error: unexpected keyword: " + word + "\nline: " + oss.str());
+				return ("Error: unexpected keyword:" + word + "\nline: " + oss.str());
 			}
 
 			virtual const char* what() const throw()
@@ -132,7 +133,7 @@ class Configuration
 			{
 				std::ostringstream oss;
 				oss << line;
-				return ("Multiple definition of: " + def + "\nline: " + oss.str());
+				return ("Error: Multiple definition of: " + def + "\nline: " + oss.str());
 			}
 
 			virtual const char* what() const throw()
@@ -205,7 +206,7 @@ class Configuration
 			{
 				std::ostringstream oss;
 				oss << line;
-				return ("Wrong server name: " + def + "\nline: " + oss.str());
+				return ("Error: Wrong server name: " + def + "\nline: " + oss.str());
 			}
 
 			virtual const char* what() const throw()
@@ -213,6 +214,79 @@ class Configuration
 				return (error.c_str());
 			}
 			virtual ~WrongServerNameException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+			std::string def;
+	};
+
+	class PathNotFoundException : public std::exception
+	{
+		public:
+			PathNotFoundException(size_t line) : line(line), error(errorMsg()) {}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error: Path not found\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~PathNotFoundException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+	};
+
+	class ParsedNumberOutOfRangeException : public std::exception
+	{
+		public:
+			ParsedNumberOutOfRangeException(size_t line) : line(line), error(errorMsg()) {}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error: Parsed number out of range\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~ParsedNumberOutOfRangeException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+	};
+
+	class WrongPathException : public std::exception
+	{
+		public:
+			WrongPathException(size_t line, std::string def) : line(line), def(def)
+			{
+				error = errorMsg();
+			}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error: Wrong path: " + def + "\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~WrongPathException() throw() {}
 
 		private:
 			size_t		line;
@@ -234,6 +308,12 @@ class Configuration
 	void	parse_maxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
 	void	parse_servername(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames);
 	void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages);
+	void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes);
+	void	parse_route_root(std::string &file, size_t &i, size_t &line, std::string &root);
+	void	parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &auto_index);
+	void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index);
+	void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);
+	void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
 
 	Configuration(void);
 };

@@ -6,7 +6,7 @@ ServerConfiguration::ServerConfiguration(	uint32_t host, \
 											std::map<unsigned short, \
 											std::string> errorPages, \
 											size_t maxClientBodySize, \
-											std::vector<Route> routes	) : \
+											std::map<std::string, Route> routes	) : \
 											host(host), \
 											port(port), \
 											serverNames(serverNames), \
@@ -47,7 +47,7 @@ const size_t					&ServerConfiguration::getMaxClientBodySize(void) const
 	return (this->maxClientBodySize);
 }
 
-const std::vector<Route>		&ServerConfiguration::getRoutes(void)
+const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void)
 {
 	return (this->routes);
 }

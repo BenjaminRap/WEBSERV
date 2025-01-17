@@ -15,15 +15,15 @@ public :
 
 	ServerConfiguration(uint32_t host, uint16_t port, std::vector<std::string> serverNames, \
 	std::map<unsigned short, std::string> errorPages, size_t getMaxClientBodySize, \
-	std::vector<Route> routes);
+	std::map<std::string, Route> routes);
 	~ServerConfiguration(void);
 
-	const uint32_t					&getHost(void) const;
-	const uint16_t					&getPort(void) const;
-	const std::vector<std::string>	&getServerNames(void) const;
-	const std::string				&getErrorPage(unsigned short error) const;
-	const size_t					&getMaxClientBodySize(void) const;
-	const std::vector<Route>		&getRoutes(void);
+	const uint32_t						&getHost(void) const;
+	const uint16_t						&getPort(void) const;
+	const std::vector<std::string>		&getServerNames(void) const;
+	const std::string					&getErrorPage(unsigned short error) const;
+	const size_t						&getMaxClientBodySize(void) const;
+	const std::map<std::string, Route>	&getRoutes(void);
 
 private :
 	uint32_t								host;
@@ -33,7 +33,8 @@ private :
 	/// Associate an error with a page, returned to the client.
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize;
-	std::vector<Route>						routes;
+	std::map<std::string, Route>			routes;
+	std::string								root;
 
 	ServerConfiguration(void);
 };
