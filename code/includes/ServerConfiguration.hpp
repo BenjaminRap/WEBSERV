@@ -1,9 +1,7 @@
 #ifndef SERVER_CONFIGURATION_HPP
 # define SERVER_CONFIGURATION_HPP
 
-# include <string>
 # include <map>
-# include <vector>
 # include <stdint.h>
 
 # include "Route.hpp"
@@ -18,13 +16,14 @@ public :
 	std::map<std::string, Route> routes);
 	~ServerConfiguration(void);
 
-	const std::string					&getRoot(void) const;
-	const uint32_t						&getHost(void) const;
-	const uint16_t						&getPort(void) const;
-	const std::vector<std::string>		&getServerNames(void) const;
-	const std::string					&getErrorPage(unsigned short error) const;
-	const size_t						&getMaxClientBodySize(void) const;
-	const std::map<std::string, Route>	&getRoutes(void);
+	const std::string							&getRoot(void) const;
+	const uint32_t								&getHost(void) const;
+	const uint16_t								&getPort(void) const;
+	const std::vector<std::string>				&getServerNames(void) const;
+	const std::string							&getErrorPage(unsigned short error) const;
+	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
+	const size_t								&getMaxClientBodySize(void) const;
+	const std::map<std::string, Route>			&getRoutes(void) const;
 
 private :
 	uint32_t								host;
@@ -39,5 +38,7 @@ private :
 
 	ServerConfiguration(void);
 };
+
+std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs);
 
 #endif // !SERVER_CONFIGURATION_HPP

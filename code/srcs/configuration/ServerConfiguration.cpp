@@ -47,12 +47,46 @@ const std::string				&ServerConfiguration::getErrorPage(unsigned short error) co
     return (this->errorPages.find(error)->second);
 }
 
+const std::map<unsigned short, std::string>	&ServerConfiguration::getErrorPages(void) const
+{
+	return (this->errorPages);
+}
+
 const size_t					&ServerConfiguration::getMaxClientBodySize(void) const
 {
 	return (this->maxClientBodySize);
 }
 
-const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void)
+const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 {
 	return (this->routes);
+}
+
+std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
+{
+	const std::vector<std::string>				&serverNames = rhs.getServerNames();
+	const std::map<unsigned short, std::string>	&errorPages = rhs.getErrorPages();
+	const std::map<std::string, Route>			&routes = rhs.getRoutes();
+
+	o << "SERVER :" << std::endl;		
+	o << "root:" << rhs.getRoot() << std::endl;
+	o << "host:" << (rhs.getHost() >> 24) << ((rhs.getHost() << 8) >> 24) << ((rhs.getHost() << 16) >> 24) << ((rhs.getHost() << 24) >> 24) << std::endl;
+	o << "port:" << rhs.getPort() << std::endl;
+	o << "client_max_body_size:" << rhs.getMaxClientBodySize() << std::endl;
+    for (size_t i = 0; i < serverNames.size(); i++)
+	{
+    	o << "server_name " << i << ":" << serverNames[i] << std::endl;
+    }
+	o << "error pages :" << std::endl;
+	for (std::map<unsigned short, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it)
+	{
+		o << it->first << " : " << it->second << std::endl;
+    }
+	o << std::endl << "Routes :" << std::endl;
+	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
+	{
+		o << it->first << ":" << std::endl << it->second << std::endl;
+    }
+	o << std::endl << std::endl;
+	return (o);
 }

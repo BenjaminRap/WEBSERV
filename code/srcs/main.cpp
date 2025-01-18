@@ -11,6 +11,7 @@ int	main(int argc, char **argv)
 		else if (argc == 1)
 		{
 		 	Configuration	config(DEFAULT_CONFIG_PATH);
+			std::cout << config.getServerConfiguration(0);
 		}
 	}
 	catch(const std::exception& e)
