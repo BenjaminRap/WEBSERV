@@ -4,9 +4,8 @@
 # include <stdint.h>
 # include <list>
 # include <stdexcept>
-# include <queue>
 
-# include "Response.hpp"
+# include "ResponsesHandler.hpp"
 
 /**
  * @brief Represents all the data needed by a fd : the _callback function that
@@ -43,10 +42,11 @@ private:
 	 */
 	bool							_canWrite;
 	/**
-	 * @brief A queue of all the responses. They will be written to the client in
-	 * the same order that the client send the requests.
+	 * @brief The structure responsible for storing and sending all the responses,
+	 * in the same order they have been received.
 	 */
-	std::queue<RawResponse>			_responses;
+	ResponsesHandler				_responsesHandler;
+	
 
 	SocketData(void);
 

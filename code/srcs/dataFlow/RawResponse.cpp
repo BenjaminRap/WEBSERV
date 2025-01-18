@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <cerrno>
 
-#include "Response.hpp"
+#include "RawResponse.hpp"
 
 static ssize_t	writeFirstPartToFd(int fd, const char *buffer, size_t numsCharsToWrite)
 {
