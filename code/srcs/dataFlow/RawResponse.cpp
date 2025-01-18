@@ -19,7 +19,12 @@ static ssize_t	writeFirstPartToFd(int fd, const char *buffer, size_t numsCharsTo
 	return (0);
 }
 
-ssize_t	RawResponse::writeToFd(int fd)
+static void	writeBodyToFd(int fd, int bodyFd, char (&buffer)[RESPONSE_BUFFER_SIZE], size_t bufferLength)
+{
+
+}
+
+ssize_t	RawResponse::writeToFd(int fd, char (&buffer)[RESPONSE_BUFFER_SIZE], size_t bufferLength)
 {
 	if (_numCharsToWrite > 0)
 	{
@@ -28,6 +33,10 @@ ssize_t	RawResponse::writeToFd(int fd)
 		_numCharsToWrite = writeFirstPartToFd(fd, _firstPart.c_str() + numsCharsWritten, _numCharsToWrite);
 		if (_numCharsToWrite != 0)
 			return (_numCharsToWrite);
+	}
+	if (_bodyFd != -1)
+	{
+		writeBodyToFd(fd, _bodyFd, buffer, bufferLength);
 	}
 	return (0);
 }

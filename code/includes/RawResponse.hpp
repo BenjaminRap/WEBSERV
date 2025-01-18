@@ -4,6 +4,8 @@
 # include <string>
 # include <sys/types.h>
 
+# define RESPONSE_BUFFER_SIZE 1024
+
 /**
  * @brief This class stores all the data that will be sent to the client as a
  * response, compacted in a single string and a fd for the body. This class take
@@ -33,7 +35,7 @@ private:
 	int			_bodyFd;
 
 public:
-	ssize_t	writeToFd(int fd);
+	ssize_t	writeToFd(int fd, char (&buffer)[RESPONSE_BUFFER_SIZE], size_t bufferLength);
 };
 
 #endif // !RAW_RESPONSE_HPP

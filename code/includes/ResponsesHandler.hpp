@@ -5,7 +5,6 @@
 
 # include "RawResponse.hpp"
 
-# define RESPONSE_BUFFER_SIZE 1024
 
 /**
  * @brief This class manages the responses that a connection client/server needs
@@ -28,6 +27,11 @@ private:
 	 * responses.
 	 */
 	char							_buffer[RESPONSE_BUFFER_SIZE];
+	/**
+	 * @brief The length of the string written in buffer, meaning the number of
+	 * characters written in _buffer before a '/0'.
+	 */
+	size_t							_bufferLength;
 };
 
 #endif // !RESPONSES_HANDLER_HPP
