@@ -15,6 +15,41 @@ void						directoryCase(GetRequest& get);
 void						fixUrl(GetRequest& get, const std::string& url);
 
 
+bool	checkAllowMeth(Route root)
+{
+	std::vector<EMethods> meths;
+	size_t			len;
+
+	meths = root.getAcceptedMethods();
+	len = meths.size();
+	if (len == 0)
+		return (true);
+	for (size_t i = 0; i < len ; i++)
+	{
+		if (meths[i] == GET)
+			return (true);
+	}
+	return (false);
+}
+
+std::string replaceUrl(std::string location, std::string root, std::string url)
+{
+	std::string temp;
+	size_t		found;
+
+	found = location.find(root);
+	while (found != std::string::npos)
+	{
+		temp = location.substr(0, found);
+		temp += url;
+		temp += location.substr(found + root.length());
+		location = temp;
+		found = location.find(root);
+	}
+	return (location);
+}
+
+
 void	addRoot(GetRequest get, ServerConfiguration config)
 {
 	std::map<std::string, Route> 			roots;
@@ -28,7 +63,11 @@ void	addRoot(GetRequest get, ServerConfiguration config)
 		get.setUrl(config.getRoot() + get.getUrl());
 	else
 	{
-		// Dont forget to check Meth Allow
+		if (!checkAllowMeth(it->second))
+		{
+			get.setResponse(405, config.getErrorPage(405));
+			return ;
+		}
 		std::cout << "Root find" << std::endl;
 		redirectSt = it->second.getRedirection();
 		if (!redirectSt.url.empty())
@@ -38,7 +77,7 @@ void	addRoot(GetRequest get, ServerConfiguration config)
 			std::cout << "Root Set" << std::endl;
 			get.setRoot(it->second);
 			get.setAutoIndex(it->second.getAutoIndex());
-			// Update URL
+			get.setUrl(replaceUrl(it->first, it->second.getRoot(), get.getUrl()));
 		}
 	}
 }

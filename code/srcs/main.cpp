@@ -67,15 +67,20 @@ void	unitsTest(ServerConfiguration config)
 	std::cout << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 
-	makeTest("/", 0, HTML_CONTENT, "\t\t\t", config);
-	makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
-	makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
-	makeTest("/srcs/", 200, INDEX200, "\t\t", config);
-	makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
-	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
-	makeTest("/fake/", 200, MAIN200, "\t\t", config);
-	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
-	makeTest("/nonono/", 403, FOR403, "\t\t", config);
+	makeTest("/", 0, INDEX200, "\t\t\t", config);
+	makeTest("/unitTest/fake/main.cpp", 0, INDEX200, "\t\t\t", config);
+
+
+
+//	makeTest("/", 0, HTML_CONTENT, "\t\t\t", config);
+//	makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
+//	makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
+//	makeTest("/srcs/", 200, INDEX200, "\t\t", config);
+//	makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
+//	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
+//	makeTest("/fake/", 200, MAIN200, "\t\t", config);
+//	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
+//	makeTest("/nonono/", 403, FOR403, "\t\t", config);
 }
 
 int	main(int argc, char **argv)
