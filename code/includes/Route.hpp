@@ -38,7 +38,8 @@ public:
 			std::string root, \
 			std::string cgiFileExtension, \
 			SUploads	uploads);
-	
+	Route(Route const &src);
+	Route    &operator=(Route const &src);
 	~Route(void);
 
 	const std::vector<EMethods>		&getAcceptedMethods(void) const;

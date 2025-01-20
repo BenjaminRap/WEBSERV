@@ -15,12 +15,34 @@ Route::Route(	std::vector<EMethods> acceptedMethods, \
 			root(root), \
 			cgiFileExtension(cgiFileExtension), \
 			uploads(uploads)
-			{
-			}
+{
+	return;
+}
+
+Route::Route(Route const &src)
+{
+    *this = src;
+    return;
+}
+
+Route    &Route::operator=(Route const &src)
+{
+    if (this != &src)
+    {
+		this->acceptedMethods = src.acceptedMethods;
+		this->redirection = src.redirection;
+		this->index = src.index;
+		this->auto_index = src.auto_index;
+		this->root = src.root;
+		this->cgiFileExtension = src.cgiFileExtension;
+		this->uploads = src.uploads;
+    }
+    return (*this);
+}
 
 Route::~Route(void)
 {
-
+	return;
 }
 
 const std::vector<EMethods>		&Route::getAcceptedMethods(void) const
