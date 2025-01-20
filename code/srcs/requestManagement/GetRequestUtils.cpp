@@ -169,9 +169,8 @@ bool findIndex(GetRequest& get, std::vector<std::string> indexs)
 void	directoryCase(GetRequest& get)
 {
 	std::vector<std::string>	files;
-	std::vector<std::string>	indexs;
+	const std::vector<std::string>	&indexs = get.getIndexVec();
 
-	indexs = get.getIndexVec();
 	get.setUrl(checkType(get.getUrl(), get));
 	if (get.code == 301)
 		return;

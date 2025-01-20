@@ -35,6 +35,7 @@ void	addRoot(GetRequest get, ServerConfiguration config)
 			get.setResponse(301, redirectSt.url);
 		else
 		{
+			std::cout << "Root Set" << std::endl;
 			get.setRoot(it->second);
 			get.setAutoIndex(it->second.getAutoIndex());
 			// Update URL
@@ -54,6 +55,8 @@ GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
 
 	fixUrl(*this, url);
 	addRoot(*this, config);
+	std::cout << this->_root << std::endl;
+	std::cout << "Zebi" << std::endl;
 	temp = isDirOrFile(this->_url, *this);
 	if (temp == DIRE)
 		directoryCase(*this);

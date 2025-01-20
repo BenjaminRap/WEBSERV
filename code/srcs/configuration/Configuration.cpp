@@ -112,30 +112,6 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 		throw (MissingSemiColonException(line));
 	i++;
 	ServerConfigurations.push_back(ServerConfiguration(host, port, serverNames, errorPages, maxClientBodySize, routes));
-	// //----------print server config--------------//
-	// 		std::cout << "SERVER :" << std::endl;		
-	// 		std::cout << "root:" << root << std::endl;
-	// 		std::cout << "host:" << (host >> 24) << ((host << 8) >> 24) << ((host << 16) >> 24) << ((host << 24) >> 24) << std::endl;
-	// 		std::cout << "port:" << port << std::endl;
-	// 		std::cout << "client_max_body_size:" << maxClientBodySize << std::endl;
-    // 		for (std::vector<std::string>::iterator it = serverNames.begin(); it != serverNames.end(); ++it)
-	// 		{
-	// 			static int i = 1;
-    //     		std::cout << "server_name " << i << ":" << *it << std::endl;
-	// 			i++;
-    // 		}
-	// 		std::cout << "error pages :" << std::endl;
-	// 		for (std::map<unsigned short, std::string>::iterator it = errorPages.begin(); it != errorPages.end(); it++)
-	// 		{
-	// 			std::cout << it->first << " : " << it->second << std::endl;
-    // 		}
-	// 		std::cout << std::endl << "Routes :" << std::endl;
-	// 		for (std::map<std::string, Route>::iterator it = routes.begin(); it != routes.end(); it++)
-	// 		{
-	// 			std::cout << it->first << ":" << std::endl << it->second << std::endl;
-    // 		}
-	// 		std::cout << std::endl << std::endl;
-	// //----------print server config--------------//
 }
 
 void	Configuration::skip_line(std::string &file, size_t &i, size_t &line)
