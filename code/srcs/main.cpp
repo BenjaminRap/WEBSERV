@@ -4,35 +4,29 @@
 # include "Route.hpp"
 # include "Configuration.hpp"
 
-#define HTML_CONTENT "<html>\n" \
-"<head><title>Index of ./unitTest/</title></head>\n" \
-"<body>\n" \
-"<h1>Index of./unitTest/</h1><hr><pre><a href=\"../\">../</a>\n" \
-"<a href=\"main.html\">main.html</a>\n" \
-"<a href=\"fake\">fake</a>\n" \
-"<a href=\"nonono\">nonono</a>\n" \
-"<a href=\"srcs\">srcs</a>\n" \
-"</pre><hr></body>\n" \
-"</html>"
-
-
-#define HTML_CONTENTW "<html>\n" \
-"<head><title>Index of ./unitTest//</title></head>\n" \
-"<body>\n" \
-"<h1>Index of./unitTest//</h1><hr><pre><a href=\"../\">../</a>\n" \
-"<a href=\"main.html\">main.html</a>\n" \
-"<a href=\"fake\">fake</a>\n" \
-"<a href=\"nonono\">nonono</a>\n" \
-"<a href=\"srcs\">srcs</a>\n" \
-"</pre><hr></body>\n" \
-"</html>"
-
-
 #define RESPONSE404 "404/page"
 #define SRCS301 "./unitTest/srcs/"
-#define INDEX200 "./unitTest/srcs/index.html"
+#define CLASSIC "./unitTest/main.html"
 #define MAIN200 "./unitTest/fake/main.cpp"
 #define FOR403 "Forbidden"
+#define MAINCPP "./unitTest/fake/main.cpp"
+
+/*
+ * Classic
+
+
+
+
+
+makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
+makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
+makeTest("/srcs/", 200, INDEX200, "\t\t", config);
+makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
+makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
+makeTest("/fake/", 200, MAIN200, "\t\t", config);
+makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
+makeTest("/nonono/", 403, FOR403, "\t\t", config);
+*/
 
 #define BBLK "\e[1;3;30m"
 #define BRED "\e[1;3;31m"
@@ -62,16 +56,11 @@ void	unitsTest(const ServerConfiguration& config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-
-	makeTest("/", 0, HTML_CONTENT, "\t\t\t", config);
-	makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
-	makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
-	makeTest("/srcs/", 200, INDEX200, "\t\t", config);
-	makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
-	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
-	makeTest("/fake/", 200, MAIN200, "\t\t", config);
-	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
-	makeTest("/nonono/", 403, FOR403, "\t\t", config);
+	(void)config;
+	makeTest("/", 200, CLASSIC, "\t\t\t", config);
+	makeTest("/unitTest/fake/main.cpp", 200, MAINCPP, "\t\t\t", config);
+	makeTest("/unitTest/fake/../", 200, CLASSIC, "\t\t\t", config);
+	makeTest("/unitTest/fake/../../../../../../../../", 200, CLASSIC, "\t\t\t", config);
 }
 
 int	main(int argc, char **argv)

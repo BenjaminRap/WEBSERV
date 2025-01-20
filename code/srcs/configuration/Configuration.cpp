@@ -238,9 +238,9 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 	SRedirection				redirection;
 	std::string					path;
 	std::string					root;
-	bool						auto_index;
+	bool						auto_index = false;
 	std::string					cgiFileExtension;
-	SUploads					uploads;
+	SUploads					uploads = {false, ""};
 
 	redirection.responseStatusCode = 0;
 	skip_wspace(file, i, line);

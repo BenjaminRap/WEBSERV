@@ -17,6 +17,7 @@ class GetRequest
 		bool				_autoIndex;
 		bool				_isDirectory;
 		int					_index;
+		bool				_isRoot;
 	public :
 		explicit GetRequest(const std::string& url, ServerConfiguration config);
 		GetRequest(const GetRequest& src);
@@ -33,6 +34,8 @@ class GetRequest
 		std::vector<std::string> getIndexVec();
 		void	setRoot(Route *root);
 		Route	*getRoot() const;
+		void setIsRoot(bool src);
+		bool getIsRoot() const;
 
 
 	/**
