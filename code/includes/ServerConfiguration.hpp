@@ -26,6 +26,7 @@ public :
 	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
 	const size_t								&getMaxClientBodySize(void) const;
 	const std::map<std::string, Route>			&getRoutes(void) const;
+	Route										*getOneRoutes(std::string path) const;
 
 private :
 	uint32_t								host;

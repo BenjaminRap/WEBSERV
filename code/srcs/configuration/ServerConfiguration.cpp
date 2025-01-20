@@ -80,6 +80,11 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 	return (this->routes);
 }
 
+Route	*ServerConfiguration::getOneRoutes(std::string path) const
+{
+	return (new Route(this->routes.find(path)->second));
+}
+
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 {
 	const std::vector<std::string>				&serverNames = rhs.getServerNames();
