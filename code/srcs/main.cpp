@@ -87,7 +87,7 @@ int	main(int argc, char **argv)
 	{
 		GetRequest a(argv[2], config.getServerConfiguration(0));
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		std::cout << BMAG << "Request : "<< BCYN << argv[1] << "\t" << CRESET << std::endl;
+		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << CRESET << std::endl;
 		std::cout << BMAG << "Code : "<< BWHT << a.code << CRESET << std::endl;

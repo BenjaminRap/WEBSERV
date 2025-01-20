@@ -32,21 +32,24 @@ bool	checkAllowMeth(const Route& root)
 	return (false);
 }
 
-std::string replaceUrl(std::string location, const std::string& root, const std::string& url)
+std::string replaceUrl(const std::string& location, const std::string& root, std::string url)
 {
 	std::string temp;
 	size_t		found;
 
-	found = location.find(root);
+	found = url.find(location);
 	while (found != std::string::npos)
 	{
-		temp = location.substr(0, found);
-		temp += url;
-		temp += location.substr(found + root.length());
-		location = temp;
-		found = location.find(root);
+		temp = url.substr(0, found);
+		temp += root;
+		temp += url.substr(found + location.length());
+		url = temp;
+		std::cout << url << std::endl;
+		found = url.find(location, found + 1);
+		if (found == url.size() - 1)
+			break;
 	}
-	return (location);
+	return (url);
 }
 
 
@@ -76,7 +79,7 @@ GetRequest	&addRoot(GetRequest &get, const ServerConfiguration& config)
 			get.setRoot(&it->second);
 			std::cout << it->second<< std::endl;
 			get.setAutoIndex(it->second.getAutoIndex());
-//			get.setUrl(replaceUrl(it->first, it->second.getRoot(), get.getUrl()));
+		//	get.setUrl(replaceUrl(it->first, it->second.getRoot(), get.getUrl()));
 		}
 	}
 	return (get);
@@ -94,7 +97,8 @@ GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
 	this->_autoIndex = false;
 
 	fixUrl(*this, url);
-	*this = addRoot(*this, config);
+	//*this = addRoot(*this, config);
+	std::cout << this->getUrl() << std::endl;
 	temp = isDirOrFile(this->_url, *this);
 	if (temp == DIRE)
 		directoryCase(*this);
