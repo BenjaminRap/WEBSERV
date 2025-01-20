@@ -166,17 +166,18 @@ bool findIndex(GetRequest& get, std::vector<std::string> indexs)
 	return (false);
 }
 
-void	directoryCase(GetRequest& get)
+void	directoryCase(GetRequest &get)
 {
 	std::vector<std::string>	files;
-	const std::vector<std::string>	&indexs = get.getIndexVec();
-
+	bool autoIndex;
+//	const std::vector<std::string>	&indexs = get.getIndexVec();
+	autoIndex = get.getAutoIndex();
 	get.setUrl(checkType(get.getUrl(), get));
 	if (get.code == 301)
 		return;
-	if (findIndex(get, indexs))
-		return;
-	if (get.getAutoIndex())
+//	if (findIndex(get, indexs))
+//		return;
+	if (autoIndex)
 	{
 		files = ls(get.getUrl());
 		if (files[0] == "Error")

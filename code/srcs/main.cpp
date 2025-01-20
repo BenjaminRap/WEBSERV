@@ -34,10 +34,6 @@
 #define MAIN200 "./unitTest/fake/main.cpp"
 #define FOR403 "Forbidden"
 
-
-
-
-
 #define BBLK "\e[1;3;30m"
 #define BRED "\e[1;3;31m"
 #define BGRN "\e[1;3;32m"
@@ -59,7 +55,7 @@ void	makeTest(const std::string& test, int code, const std::string& response, co
 		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "FALSE " << a.file << CRESET <<std::endl;
 }
 
-void	unitsTest(ServerConfiguration config)
+void	unitsTest(const ServerConfiguration& config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest" << CRESET << std::endl;
@@ -67,20 +63,15 @@ void	unitsTest(ServerConfiguration config)
 	std::cout << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 
-	makeTest("/", 0, INDEX200, "\t\t\t", config);
-	makeTest("/unitTest/fake/main.cpp", 0, INDEX200, "\t\t\t", config);
-
-
-
-//	makeTest("/", 0, HTML_CONTENT, "\t\t\t", config);
-//	makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
-//	makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
-//	makeTest("/srcs/", 200, INDEX200, "\t\t", config);
-//	makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
-//	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
-//	makeTest("/fake/", 200, MAIN200, "\t\t", config);
-//	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
-//	makeTest("/nonono/", 403, FOR403, "\t\t", config);
+	makeTest("/", 0, HTML_CONTENT, "\t\t\t", config);
+	makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
+	makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
+	makeTest("/srcs/", 200, INDEX200, "\t\t", config);
+	makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
+	makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
+	makeTest("/fake/", 200, MAIN200, "\t\t", config);
+	makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
+	makeTest("/nonono/", 403, FOR403, "\t\t", config);
 }
 
 int	main(int argc, char **argv)
@@ -90,7 +81,7 @@ int	main(int argc, char **argv)
 
 	Configuration	config(argv[1]);
 
-	if (argc == 1)
+	if (argc == 2)
 		unitsTest(config.getServerConfiguration(0));
 	else if (argc == 3)
 	{

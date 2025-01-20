@@ -31,9 +31,11 @@ class GetRequest
 		void setAutoIndex(bool src);
 		bool getAutoIndex() const;
 		std::vector<std::string> getIndexVec();
-		void	setRoot(Route root);
+		void	setRoot(Route *root);
+		Route	*getRoot() const;
 
-		/**
+
+	/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...
 		*/
 		int			code;
