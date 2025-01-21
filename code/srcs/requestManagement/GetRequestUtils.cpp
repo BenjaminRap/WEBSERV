@@ -130,7 +130,7 @@ std::string	buildPage(std::vector<std::string> files, const std::string& path)
 	std::string result;
 	size_t size;
 
-	size = files.size();
+	size = files.size() - 1;
 	result = "<html>\n<head><title>Index of ";
 	result += path;
 	result += "</title></head>\n<body>\n<h1>Index of";
@@ -138,6 +138,8 @@ std::string	buildPage(std::vector<std::string> files, const std::string& path)
 	result += "</h1><hr><pre><a href=\"../\">../</a>\n";
 	for (unsigned long i = 0; i < size; i++)
 	{
+		if (files.empty())
+			break;
 		while ( i < size && (files[i] == ".." || files[i] == "."))
 			i++;
 		result+= "<a href=\"";
@@ -173,7 +175,7 @@ void	directoryCase(GetRequest &get)
 	if (get.code == 301)
 		return;
 	if (get.getIsRoot())
-{
+	{
 		const std::vector<std::string>	&indexs = get.getIndexVec();
 		if (findIndex(get, indexs))
 			return;
@@ -181,12 +183,15 @@ void	directoryCase(GetRequest &get)
 	if (get.getAutoIndex())
 	{
 		files = ls(get.getUrl());
-		if (files[0] == "Error")
+		if (files.empty())
+			get.file = buildPage(files, get.getUrl());
+		else if (files[0] == "Error")
 		{
 			get.setResponse(403, "Forbidden");
 			return ;
 		}
-		get.file = buildPage(files, get.getUrl());
+		else
+			get.file = buildPage(files, get.getUrl());
 	}
 	else
 		get.setResponse(403, "Forbidden");

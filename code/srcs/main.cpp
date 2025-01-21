@@ -4,29 +4,17 @@
 # include "Route.hpp"
 # include "Configuration.hpp"
 
-#define RESPONSE404 "404/page"
+#define RESPONSE404 "/custom_404.html"
 #define SRCS301 "./unitTest/srcs/"
 #define CLASSIC "./unitTest/main.html"
 #define MAIN200 "./unitTest/fake/main.cpp"
 #define FOR403 "Forbidden"
 #define MAINCPP "./unitTest/fake/main.cpp"
+#define SRCS200 "./unitTest/srcs/index.html"
 
-/*
- * Classic
+#define AUTOINDEXBASE "<html>\n<head><title>Index of ./unitTest/autoindex/</title></head>\n<body>\n<h1>Index of./unitTest/autoindex/</h1><hr><pre><a href=\"../\">../</a>\n<a href=\"dir\">dir</a>\n<a href=\"notdir\">notdir</a>\n<a href=\"main.cpp\">main.cpp</a>\n<a href=\"zebi.js\">zebi.js</a>\n<a href=\"test\">test</a>\n</pre><hr></body>\n</html>"
+#define AUTOINDEXDIR "<html>\n<head><title>Index of ./unitTest/autoindex/dir/</title></head>\n<body>\n<h1>Index of./unitTest/autoindex/dir/</h1><hr><pre><a href=\"../\">../</a>\n<a href=\"..\">..</a>\n</pre><hr></body>\n</html>"
 
-
-
-
-
-makeTest("/xasdw", 404, RESPONSE404, "\t\t", config);
-makeTest("/srcs", 301, SRCS301, "\t\t\t", config);
-makeTest("/srcs/", 200, INDEX200, "\t\t", config);
-makeTest("/srcs/index.html", 200, INDEX200, "\t", config);
-makeTest("/../../../../../../", 0, HTML_CONTENT, "\t", config);
-makeTest("/fake/", 200, MAIN200, "\t\t", config);
-makeTest("/..//.././../", 0, HTML_CONTENTW, "\t\t", config);
-makeTest("/nonono/", 403, FOR403, "\t\t", config);
-*/
 
 #define BBLK "\e[1;3;30m"
 #define BRED "\e[1;3;31m"
@@ -44,9 +32,9 @@ void	makeTest(const std::string& test, int code, const std::string& response, co
 	GetRequest a(test, config);
 
 	if (a.code == code && a.file == response)
-		std::cout << BMAG << "Request : "<< BCYN << test << tab << BGRN << "GOOD" << CRESET << std::endl;
+		std::cout << BMAG << "Request : "<< BCYN << test << tab << BGRN << "OK" << CRESET << std::endl;
 	else if (a.code != code || a.file != response)
-		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "FALSE " << a.file << CRESET <<std::endl;
+		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "KO : " << a.code << " | " << a.file << CRESET <<std::endl;
 }
 
 void	unitsTest(const ServerConfiguration& config)
@@ -54,13 +42,49 @@ void	unitsTest(const ServerConfiguration& config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << CRESET << std::endl;
+	std::cout << BBLU << "\t Classic Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	(void)config;
-	makeTest("/", 200, CLASSIC, "\t\t\t", config);
-	makeTest("/unitTest/fake/main.cpp", 200, MAINCPP, "\t\t\t", config);
-	makeTest("/unitTest/fake/../", 200, CLASSIC, "\t\t\t", config);
-	makeTest("/unitTest/fake/../../../../../../../../", 200, CLASSIC, "\t\t\t", config);
+	makeTest("/unitTest/main.html", 200, CLASSIC, "\t\t\t\t\t\t", config);
+	makeTest("/unitTest/fake/main.cpp", 200, MAINCPP, "\t\t\t\t\t", config);
+	makeTest("/unitTest/fake/../main.html", 200, CLASSIC, "\t\t\t\t\t", config);
+	makeTest("/unitTest/fake/../../../../../../../../unitTest/main.html", 200, CLASSIC, "\t", config);
+	makeTest("/../unitTest/main.html", 200, CLASSIC, "\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	makeTest("/unitTest/", 200, CLASSIC, "\t\t\t\t\t\t\t", config);
+	makeTest("/", 200, CLASSIC, "\t\t\t\t\t\t\t\t", config);
+	makeTest("/unitTest/srcs/", 200, SRCS200, "\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	makeTest("/unitTest", 301, "./unitTest/", "\t\t\t\t\t\t\t", config);
+	makeTest("/redirect-me", 301, "/", "\t\t\t\t\t\t\t", config);
+	makeTest("", 301, "./", "\t\t\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	makeTest("/unitTest/fake/", 403, FOR403, "\t\t\t\t\t\t", config);
+	makeTest("/unitTest/nonono/", 403, FOR403, "\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t 405 Case" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	makeTest("/unitTest/upload/", 405, "Method Not Allowed", "\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t 404 Case" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	makeTest("/unitTest/uplo/", 404, RESPONSE404, "\t\t\t\t\t\t", config);
+	makeTest("gknrk", 404, RESPONSE404, "\t\t\t\t\t\t\t\t", config);
+	makeTest("/bin/", 404, RESPONSE404, "\t\t\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Auto Index" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t\t\t", config);
+	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t\t\t", config);
+
+
+
+
 }
 
 int	main(int argc, char **argv)

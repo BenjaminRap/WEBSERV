@@ -37,6 +37,8 @@ std::string replaceUrl(const std::string& location, const std::string& root, std
 	std::string temp;
 	size_t		found;
 
+	if (root.empty())
+		return (url);
 	found = url.find(location);
 	while (found == 0)
 	{
@@ -70,7 +72,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	get.setIsRoot(true);
 	if (!checkAllowMeth(it->second))
 	{
-		get.setResponse(405, config.getErrorPage(405));
+		get.setResponse(405, "Method Not Allowed");
 		return ;
 	}
 	redirectSt = it->second.getRedirection();
@@ -82,7 +84,6 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 		get.setUrl(replaceUrl(it->first, it->second.getRoot(), get.getUrl()));
 	}
 }
-
 
 GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
 {
@@ -97,6 +98,8 @@ GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
 
 	fixUrl(*this, url);
 	addRoot(*this, config);
+	if (this->code == 301 || this->code == 405)
+		return ;
 	if (this->_url[0] != '.')
 		this->_url = "." + this->_url;
 	temp = isDirOrFile(this->_url, *this);
