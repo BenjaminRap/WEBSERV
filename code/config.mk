@@ -9,7 +9,8 @@ SOCKET_FILES			:=	createServerSockets.cpp	\
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 DATA_FLOW_DIR			:=	dataFlow/
-DATA_FLOW_FILES			:=	RawResponse.cpp
+DATA_FLOW_FILES			:=	RawResponse.cpp			\
+							FlowBuffer.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
