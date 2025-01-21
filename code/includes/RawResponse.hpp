@@ -12,7 +12,7 @@
  * response, compacted in a single string and a fd for the body. This class take
  * responsability for the closing of the fd.
  * It moves the data from the file to the socket like a stream, without allocation.
- * This class is designed to be minimalistic.
+ * This class is designed to use the less syscall possible, for performances.
  */
 class RawResponse
 {

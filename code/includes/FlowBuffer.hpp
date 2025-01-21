@@ -21,7 +21,7 @@ class FlowBuffer
 {
 private:
 	/**
-	 * @brief The buffer used to store what as been read, or what will be sent.
+	 * @brief The buffer used to store what has been read, or what will be sent.
 	 */
 	char	*_buffer;
 	/**

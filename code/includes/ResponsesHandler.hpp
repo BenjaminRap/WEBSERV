@@ -24,7 +24,7 @@ private:
 	std::queue<RawResponse>	_responses;
 	/**
 	 * @brief The buffer that will be passed in the responseBuffer constructor.
-	 * It will be used to store parrts of the response body before sending it to
+	 * It will be used to store parts of the response body before sending it to
 	 * the client.
 	 * As we send one response at a time, we only need one buffer for all responses.
 	 */

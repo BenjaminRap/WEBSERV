@@ -41,8 +41,8 @@ FlowBuffer::~FlowBuffer()
  * the data read from srcFd.
  * @param destType The type of destFd, either SOCKETFD or FILEFD, it will determines
  * if the function uses write or send.
- * @return Return -1 on error, 0 if there is nothing more to read, and >0 if there
- * is more to read. In the later case, we need to wait for another EPOLLOUT/EPOLLIN
+ * @return Return -1 on error, 0 if there is nothing more to read/write, and >0 if there
+ * is more to read/write. In the later case, we need to wait for another EPOLLOUT/EPOLLIN
  * before calling this function again, until it returns 0 or -1.
  */
 ssize_t	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdType destType)
@@ -74,8 +74,8 @@ ssize_t	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdTyp
  * or sent into.
  * @param destType The type of destFd, either FILEFD or SOCKETFD, it will determines
  * if the function uses write or recv.
- * @return Return -1 on error, 0 if there is nothing more to read, and >0 if there
- * is more to read. In the later case, we need to wait for another EPOLLOUT/EPOLLIN
+ * @return Return -1 on error, 0 if there is nothing more to write, and >0 if there
+ * is more to write. In the later case, we need to wait for another EPOLLOUT
  * before calling this function again, until it returns 0 or -1.
  */
 ssize_t	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
