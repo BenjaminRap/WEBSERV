@@ -38,7 +38,7 @@ private:
 	 * @brief True if we can write in the client socket. It is set true when we
 	 * get a EPOLLOUT, but false when there is a EAGAIN.
 	 */
-	bool							_canWrite;
+	bool					_canWrite;
 
 	ResponsesHandler(const ResponsesHandler& ref);
 
@@ -49,6 +49,7 @@ public:
 
 	ssize_t	sendResponsesToSocket(int socketFd);
 	void	enableWritingToSocket();
+	void	addResponse(char *buffer, std::size_t bufferCapacity, int bodyFd);
 };
 
 #endif // !RESPONSES_HANDLER_HPP

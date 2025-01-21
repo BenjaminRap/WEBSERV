@@ -54,3 +54,14 @@ void	ResponsesHandler::enableWritingToSocket()
 {
 	_canWrite = true;
 }
+
+
+void	ResponsesHandler::addResponse
+(
+	char *buffer,
+	std::size_t bufferCapacity,
+	int bodyFd
+)
+{
+	_responses.push(RawResponse(buffer, bufferCapacity, bodyFd, _responseBuffer));
+}
