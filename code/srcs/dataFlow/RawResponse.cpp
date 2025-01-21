@@ -12,12 +12,12 @@
  */
 RawResponse::RawResponse
 (
-	char *buffer,
-	size_t bufferCapacity,
+	char *firstPart,
+	size_t firstPartLength,
 	int bodyFd,
 	FlowBuffer &bodyBuffer
 ) :
-	_firstPartBuffer(buffer, bufferCapacity),
+	_firstPartBuffer(firstPart, firstPartLength, firstPartLength),
 	_bodyFd(bodyFd),
 	_bodyBuffer(bodyBuffer)
 {
@@ -33,11 +33,11 @@ RawResponse::RawResponse
  */
 RawResponse::RawResponse
 (
-	char *buffer,
-	size_t bufferCapacity,
+	char *firstPart,
+	size_t firstPartLength,
 	FlowBuffer &bodyBuffer
 ) :
-	_firstPartBuffer(buffer, bufferCapacity),
+	_firstPartBuffer(firstPart, firstPartLength, firstPartLength),
 	_bodyFd(-1),
 	_bodyBuffer(bodyBuffer)
 {

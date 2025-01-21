@@ -5,7 +5,7 @@
 ResponsesHandler::ResponsesHandler() :
 	_responses(),
 	_buffer(),
-	_responseBuffer(_buffer, RESPONSE_BUFFER_SIZE),
+	_responseBuffer(_buffer, RESPONSE_BUFFER_SIZE, 0),
 	_canWrite(false)
 {
 

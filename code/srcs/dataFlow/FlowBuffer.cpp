@@ -1,18 +1,33 @@
 #include <unistd.h>
 #include <cerrno>
 #include <sys/socket.h>
+#include <stdexcept>
 
 #include "FlowBuffer.hpp"
 
 /************************Constructors / Destructors****************************/
 
-FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity) :
+/**
+ * @brief Create an instance of the FlowBuffer class.
+ * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * bufferCapacity.
+ * @param buffer The buffer used to redirect the data.
+ * @param bufferCapacity The maximum number of chars the buffer can store without
+ * segfault.
+ * @param bufferLength The number of chars that has already been written in the
+ * buffer. If the index of a char is superior to bufferLength, its value is 
+ * unkonwn and shouldn't be used.
+ * If this constructor is called with a bufferLength superior to 0, the data
+ * written in it will be handled.
+ */
+FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength) :
 	_buffer(buffer),
 	_bufferCapacity(bufferCapacity),
-	_bufferLength(0),
+	_bufferLength(bufferLength),
 	_numCharsWritten(0)
 {
-
+	if (bufferLength > bufferCapacity)
+		throw std::logic_error("FlowBuffer constructor called with a bufferLength superior to the bufferCapacity");
 }
 
 FlowBuffer::FlowBuffer(const FlowBuffer& ref) :

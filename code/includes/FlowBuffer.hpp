@@ -44,7 +44,7 @@ private:
 	FlowBuffer&	operator=(const FlowBuffer &flowBuffer);
 public:
 	FlowBuffer(const FlowBuffer& ref);
-	FlowBuffer(char *buffer, size_t bufferCapacity);
+	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
 	ssize_t	redirectContent(int srcFd, FdType srcType, int destFd, FdType destType);
