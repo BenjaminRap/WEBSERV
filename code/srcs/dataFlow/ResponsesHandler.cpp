@@ -65,3 +65,12 @@ void	ResponsesHandler::addResponse
 {
 	_responses.push(RawResponse(buffer, bufferCapacity, bodyFd, _responseBuffer));
 }
+
+void	ResponsesHandler::addResponse
+(
+	char *buffer,
+	std::size_t bufferCapacity
+)
+{
+	_responses.push(RawResponse(buffer, bufferCapacity, _responseBuffer));
+}

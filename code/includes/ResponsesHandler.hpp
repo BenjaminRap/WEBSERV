@@ -50,6 +50,7 @@ public:
 	ssize_t	sendResponsesToSocket(int socketFd);
 	void	enableWritingToSocket();
 	void	addResponse(char *buffer, std::size_t bufferCapacity, int bodyFd);
+	void	addResponse(char *buffer, std::size_t bufferCapacity);
 };
 
 #endif // !RESPONSES_HANDLER_HPP
