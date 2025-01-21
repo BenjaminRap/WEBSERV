@@ -1,5 +1,6 @@
 #include <iostream>
 #include <list>
+#include <cstdlib>
 
 #include "SocketData.hpp"
 
@@ -20,7 +21,7 @@ void	checkInvalidArgument(int minFd)
 		}
 		catch(const std::exception& e)
 		{
-			std::cerr << e.what() << '\n';
+			std::cout << e.what() << '\n';
 			verify(true);
 		}
 	}
@@ -41,12 +42,12 @@ void	tryGettingUnsetIterator()
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cout << e.what() << '\n';
 		verify(true);
 	}
 }
 
-void	TrySettingWrongIterator()
+void	TrySettingWrongIterator(int errorFd)
 {
 	std::list<SocketData>	socketsData;
 	int						data;
@@ -57,9 +58,10 @@ void	TrySettingWrongIterator()
 	socketsData.push_front(SocketData(5, data, callback));
 	printInfo("Should output an error message :");
 	socketsData.back().setIterator(socketsData.begin());
+	checkError(errorFd);
 }
 
-void	trySettingIteratorTwice()
+void	trySettingIteratorTwice(int errorFd)
 {
 	std::list<SocketData>	socketsData;
 	int						data;
@@ -70,6 +72,7 @@ void	trySettingIteratorTwice()
 	printInfo("Should output an error message :");
 	socketsData.front().setIterator(socketsData.begin());
 	socketsData.front().setIterator(socketsData.begin());
+	checkError(errorFd);
 }
 
 void	tryUsingIterator()
@@ -87,9 +90,15 @@ void	tryUsingIterator()
 
 int	main(void)
 {
+	int	tube[2];
+
+	if (redirectSTDERR(tube) == false)
+		return (EXIT_FAILURE);
 	checkInvalidArgument(4);
 	tryGettingUnsetIterator();
-	TrySettingWrongIterator();
-	trySettingIteratorTwice();
+	TrySettingWrongIterator(tube[0]);
+	trySettingIteratorTwice(tube[0]);
 	tryUsingIterator();
+	close(tube[0]);
+	close(tube[1]);
 }
