@@ -44,47 +44,43 @@ void	unitsTest(const ServerConfiguration& config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Classic Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/main.html", 200, CLASSIC, "\t\t\t\t\t\t", config);
-	makeTest("/unitTest/fake/main.cpp", 200, MAINCPP, "\t\t\t\t\t", config);
-	makeTest("/unitTest/fake/../main.html", 200, CLASSIC, "\t\t\t\t\t", config);
-	makeTest("/unitTest/fake/../../../../../../../../unitTest/main.html", 200, CLASSIC, "\t", config);
-	makeTest("/../unitTest/main.html", 200, CLASSIC, "\t\t\t\t\t", config);
+	makeTest("/main.html", 200, CLASSIC, "\t\t\t\t\t", config);
+	makeTest("/fake/main.cpp", 200, MAINCPP, "\t\t\t\t", config);
+	makeTest("/fake/../main.html", 200, CLASSIC, "\t\t\t\t", config);
+	makeTest("/fake/../../../../../../../../main.html", 200, CLASSIC, "\t", config);
+	makeTest("/../main.html", 200, CLASSIC, "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/", 200, CLASSIC, "\t\t\t\t\t\t\t", config);
-	makeTest("/", 200, CLASSIC, "\t\t\t\t\t\t\t\t", config);
-	makeTest("/unitTest/srcs/", 200, SRCS200, "\t\t\t\t\t\t", config);
+	makeTest("/unitTest/", 200, CLASSIC, "\t\t\t\t\t", config);
+	makeTest("/", 200, CLASSIC, "\t\t\t\t\t\t", config);
+	makeTest("/unitTest/srcs/", 200, SRCS200, "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest", 301, "./unitTest/", "\t\t\t\t\t\t\t", config);
-	makeTest("/redirect-me", 301, "/", "\t\t\t\t\t\t\t", config);
-	makeTest("", 301, "./", "\t\t\t\t\t\t\t\t", config);
+	makeTest("/srcs", 301, "./unitTest/srcs/", "\t\t\t\t\t\t", config);
+	makeTest("/redirect-me", 301, "/", "\t\t\t\t\t", config);
+	makeTest("", 301, "./unitTest/", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/fake/", 403, FOR403, "\t\t\t\t\t\t", config);
-	makeTest("/unitTest/nonono/", 403, FOR403, "\t\t\t\t\t\t", config);
+	makeTest("/fake/", 403, FOR403, "\t\t\t\t\t", config);
+	makeTest("/nonono/", 403, FOR403, "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 405 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/upload/", 405, "Method Not Allowed", "\t\t\t\t\t\t", config);
+	makeTest("/unitTest/upload/", 405, "Method Not Allowed", "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 404 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/uplo/", 404, RESPONSE404, "\t\t\t\t\t\t", config);
-	makeTest("gknrk", 404, RESPONSE404, "\t\t\t\t\t\t\t\t", config);
-	makeTest("/bin/", 404, RESPONSE404, "\t\t\t\t\t\t\t\t", config);
+	makeTest("/unitTest/uplo/", 404, RESPONSE404, "\t\t\t\t", config);
+	makeTest("gknrk", 404, RESPONSE404, "\t\t\t\t\t\t", config);
+	makeTest("/bin/", 404, RESPONSE404, "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Auto Index" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t\t\t", config);
-	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t\t\t", config);
-
-
-
-
+	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t", config);
+	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t", config);
 }
 
 int	main(int argc, char **argv)

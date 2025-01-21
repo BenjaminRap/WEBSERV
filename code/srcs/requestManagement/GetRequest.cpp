@@ -53,6 +53,13 @@ std::string replaceUrl(const std::string& location, const std::string& root, std
 	return (url);
 }
 
+std::string buildNewURl(std::string root, std::string url)
+{
+	if (!root.empty() && root[root.size() - 1] == '/')
+		root.erase(root.size() - 1);
+	url = root + url;
+	return (url);
+}
 
 void	addRoot(GetRequest &get, const ServerConfiguration& config)
 {
@@ -65,7 +72,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 
 	if (it == roots.end())
 	{
-		get.setUrl(config.getRoot() + get.getUrl());
+		get.setUrl(buildNewURl(config.getRoot(), get.getUrl()));
 		return ;
 	}
 	get.setRoot(config.getOneRoutes(it->first));
