@@ -5,6 +5,35 @@
 # include <string>
 
 /**
+ * @brief The meanings of the FlowBuffer functions member's returns.
+ */
+enum FlowState
+{
+	/**
+	 * @brief An error append, errno is set or an error has been written in the
+	 * standart error output.
+	 */
+	FLOW_ERROR = -1,
+	/**
+	 * @brief There is nothing left to write/send or read/recv.
+	 */
+	FLOW_DONE,
+	/**
+	 * @brief There is more to read, but we need to wait another EPOLLIN event.
+	 */
+	FLOW_MORE_READ,
+	/**
+	 * @brief There is more to read, but we need to wait another EPOLLOUT event.
+	 */
+	FLOW_MORE_WRITE,
+	/**
+	 * @brief The internal buffer is full, it can only occurs when redirecting
+	 * data in the buffer and not out.
+	 */
+	FLOW_BUFFER_FULL
+};
+
+/**
  * @brief The differents type of a file descriptor.
  */
 enum FdType
@@ -47,9 +76,9 @@ public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
-	ssize_t	redirectContent(int srcFd, FdType srcType, int destFd, FdType destType);
-	ssize_t	redirectContentFromBuffer(int destFd, FdType destType);
-	ssize_t	redirectContentToBuffer(int srcFd, FdType srcType);
+	FlowState	redirectContent(int srcFd, FdType srcType, int destFd, FdType destType);
+	FlowState	redirectContentFromBuffer(int destFd, FdType destType);
+	FlowState	redirectContentToBuffer(int srcFd, FdType srcType);
 };
 
 #endif // !FLOW_BUFFER_HPP

@@ -64,27 +64,27 @@ FlowBuffer::~FlowBuffer()
  * is more to read/write. In the later case, we need to wait for another EPOLLOUT/EPOLLIN
  * before calling this function again, until it returns 0 or -1.
  */
-ssize_t	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdType destType)
+FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdType destType)
 {
 	ssize_t			rd;
 
 	do
 	{
-		const ssize_t	numCharsToWrite = redirectContentFromBuffer(destFd, destType);
+		const FlowState	flowState = redirectContentFromBuffer(destFd, destType);
 
-		if (numCharsToWrite != 0)
-			return (numCharsToWrite);
+		if (flowState != FLOW_DONE)
+			return (flowState);
 		if (srcType == SOCKETFD)
 			rd = recv(srcFd, _buffer, _bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
 		else
 			rd = read(srcFd, _buffer, _bufferCapacity);
 		if (rd == -1)
-			return ((errno == EAGAIN) ? 1 : -1);
+			return ((errno == EAGAIN) ? FLOW_MORE_READ : FLOW_ERROR);
 		_numCharsWritten = 0;
 		_bufferLength = rd;
 	}
 	while (rd != 0);
-	return (0);
+	return (FLOW_DONE);
 }
 
 /**
@@ -97,7 +97,7 @@ ssize_t	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdTyp
  * is more to write. In the later case, we need to wait for another EPOLLOUT
  * before calling this function again, until it returns 0 or -1.
  */
-ssize_t	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
+FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 {
 	size_t	numCharsToWrite;
 
@@ -111,11 +111,11 @@ ssize_t	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 		else
 			written = write(destFd, _buffer + _numCharsWritten, numCharsToWrite);
 		if (written == -1)
-			return ((errno == EAGAIN) ? _numCharsWritten : -1);
+			return ((errno == EAGAIN) ? FLOW_MORE_WRITE : FLOW_ERROR);
 		_numCharsWritten += written;
 		numCharsToWrite -= written;
 	}
-	return (0);
+	return (FLOW_DONE);
 }
 
 /**
@@ -130,10 +130,10 @@ ssize_t	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
  * return 2. In the case of return 1, we need to wait for another EPOLLIN event
  * and call this function again.
  */
-ssize_t	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
+FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
 {
 	size_t	remainingCapacity;
-	size_t	rd;
+	ssize_t	rd;
 
 	remainingCapacity = _bufferCapacity - _bufferLength;
 	while (remainingCapacity > 0)
@@ -143,11 +143,11 @@ ssize_t	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
 		else
 			rd = read(srcFd, _buffer + _bufferLength, remainingCapacity);
 		if (rd == -1)
-			return ((errno == EAGAIN) ? 1 : -1);
+			return ((errno == EAGAIN) ? FLOW_MORE_READ : FLOW_ERROR);
 		if (rd == 0)
-			return (0);
+			return (FLOW_DONE);
 		remainingCapacity -= rd;
 		_bufferLength += rd;
 	}
-	return (2);
+	return (FLOW_BUFFER_FULL);
 }

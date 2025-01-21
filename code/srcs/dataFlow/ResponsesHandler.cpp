@@ -25,25 +25,26 @@ ResponsesHandler::~ResponsesHandler()
  * there is more to write. In the latter case, we should wait for an EPOLLOUT and
  * call this function again, until we receive a 0.
  */
-ssize_t	ResponsesHandler::sendResponsesToSocket(int socketFd)
+FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 {
 	if (_canWrite == false)
-		return (1);
+		return (FLOW_MORE_WRITE);
 	while (_responses.size() != 0)
 	{
 		RawResponse		&response = _responses.front();
-		const ssize_t	res = response.sendResponseToSocket(socketFd);
+		const FlowState	flowState = response.sendResponseToSocket(socketFd);
 
-		if (res == -1)
-			return (-1);
-		if (res > 0)
+		if (flowState == FLOW_ERROR)
+			return (flowState);
+		if (flowState == FLOW_DONE)
+			_responses.pop();
+		else
 		{
 			_canWrite = false;
-			return (res);
+			return (flowState);
 		}
-		_responses.pop();
 	}
-	return (0);
+	return (FLOW_DONE);
 }
 
 /**

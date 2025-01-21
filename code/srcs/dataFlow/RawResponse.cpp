@@ -70,13 +70,13 @@ RawResponse::~RawResponse()
  * there is more to write. In the latter case, we need to wait for another EPOLLOUT
  * before calling this fuction again, until we receive <=0.
  */
-ssize_t	RawResponse::sendResponseToSocket(int socketFd)
+FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	const ssize_t res = _firstPartBuffer.redirectContentFromBuffer(socketFd, SOCKETFD);
+	const FlowState flowState = _firstPartBuffer.redirectContentFromBuffer(socketFd, SOCKETFD);
 
-	if (res != 0)
-		return (res);
+	if (flowState != FLOW_DONE)
+		return (flowState);
 	if (_bodyFd == -1)
-		return (0);
+		return (FLOW_DONE);
 	return (_bodyBuffer.redirectContent(_bodyFd, FILEFD, socketFd, SOCKETFD));
 }
