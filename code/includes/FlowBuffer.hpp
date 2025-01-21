@@ -19,13 +19,15 @@ enum FlowState
 	 */
 	FLOW_DONE,
 	/**
-	 * @brief There is more to read, but we need to wait another EPOLLIN event.
+	 * @brief There is more to receive, but we need to wait another EPOLLIN
+	 * event.
 	 */
-	FLOW_MORE_READ,
+	FLOW_MORE_RECV,
 	/**
-	 * @brief There is more to read, but we need to wait another EPOLLOUT event.
+	 * @brief There is more to send, but we need to wait another EPOLLOUT
+	 * event.
 	 */
-	FLOW_MORE_WRITE,
+	FLOW_MORE_SEND,
 	/**
 	 * @brief The internal buffer is full, it can only occurs when redirecting
 	 * data in the buffer and not out.

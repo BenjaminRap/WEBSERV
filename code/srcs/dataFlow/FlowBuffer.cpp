@@ -75,11 +75,15 @@ FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdT
 		if (flowState != FLOW_DONE)
 			return (flowState);
 		if (srcType == SOCKETFD)
+		{
 			rd = recv(srcFd, _buffer, _bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
+			if (rd == -1 && errno == EAGAIN)
+				return (FLOW_MORE_RECV);
+		}
 		else
 			rd = read(srcFd, _buffer, _bufferCapacity);
 		if (rd == -1)
-			return ((errno == EAGAIN) ? FLOW_MORE_READ : FLOW_ERROR);
+			return (FLOW_ERROR);
 		_numCharsWritten = 0;
 		_bufferLength = rd;
 	}
@@ -107,11 +111,15 @@ FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 		ssize_t	written;
 
 		if (destType == SOCKETFD)
+		{
 			written = send(destFd, _buffer + _numCharsWritten, numCharsToWrite, MSG_DONTWAIT | MSG_NOSIGNAL);
+			if (written == -1 && errno == EAGAIN)
+				return (FLOW_MORE_SEND);
+		}
 		else
 			written = write(destFd, _buffer + _numCharsWritten, numCharsToWrite);
 		if (written == -1)
-			return ((errno == EAGAIN) ? FLOW_MORE_WRITE : FLOW_ERROR);
+			return (FLOW_ERROR);
 		_numCharsWritten += written;
 		numCharsToWrite -= written;
 	}
@@ -139,11 +147,15 @@ FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
 	while (remainingCapacity > 0)
 	{
 		if (srcType == SOCKETFD)
+		{
 			rd = recv(srcFd, _buffer + _bufferLength, remainingCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
+			if (rd == -1 && errno == EAGAIN)
+				return (FLOW_MORE_RECV);
+		}
 		else
 			rd = read(srcFd, _buffer + _bufferLength, remainingCapacity);
 		if (rd == -1)
-			return ((errno == EAGAIN) ? FLOW_MORE_READ : FLOW_ERROR);
+			return (FLOW_ERROR);
 		if (rd == 0)
 			return (FLOW_DONE);
 		remainingCapacity -= rd;

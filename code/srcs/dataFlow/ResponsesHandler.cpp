@@ -28,7 +28,7 @@ ResponsesHandler::~ResponsesHandler()
 FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 {
 	if (_canWrite == false)
-		return (FLOW_MORE_WRITE);
+		return (FLOW_MORE_SEND);
 	while (_responses.size() != 0)
 	{
 		RawResponse		&response = _responses.front();
