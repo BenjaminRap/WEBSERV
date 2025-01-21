@@ -8,7 +8,7 @@
 #define FILE 2
 #define NF 3
 
-std::string delString(const std::string& toDel, std::string str)
+std::string	delString(const std::string& toDel, std::string str)
 {
 	size_t	found;
 	size_t	len;
@@ -47,7 +47,7 @@ std::string	fixPath(std::string path)
 	return (path);
 }
 
-bool checkPath(std::string path)
+bool	checkPath(std::string path)
 {
 	size_t	found;
 	int		k;
@@ -73,7 +73,7 @@ bool checkPath(std::string path)
 
 std::string	checkType(const std::string& path, GetRequest& get)
 {
-	std::string temp;
+	std::string	temp;
 
 	temp = path;
 	char lastChar = temp[temp.length() - 1];
@@ -85,24 +85,17 @@ std::string	checkType(const std::string& path, GetRequest& get)
 	return (temp);
 }
 
-int	isDirOrFile(const std::string& path, GetRequest& get)
+int	isDirOrFile(const std::string& path)
 {
-	struct stat		stats;
+	struct stat	stats;
 
 	if (path == "/")
-	{
-		get.setIsDirectory(true);
 		return (DIRE);
-	}
 	std::memset(&stats, 0, sizeof(stats));
-	get.setIsDirectory(false);
 	if (stat(path.c_str(), &stats) == -1)
 		return (NF);
 	if (S_ISDIR(stats.st_mode) == DIRE)
-	{
-		get.setIsDirectory(true);
 		return (DIRE);
-	}
 	else
 		return (FILE);
 }
@@ -127,8 +120,8 @@ std::vector<std::string>	ls(const std::string& path)
 
 std::string	buildPage(std::vector<std::string> files, const std::string& path)
 {
-	std::string result;
-	size_t size;
+	std::string	result;
+	size_t		size;
 
 	size = files.size() - 1;
 	result = "<html>\n<head><title>Index of ";
@@ -152,14 +145,14 @@ std::string	buildPage(std::vector<std::string> files, const std::string& path)
 	return (result);
 }
 
-bool findIndex(GetRequest& get, std::vector<std::string> indexs)
+bool	findIndex(GetRequest& get, std::vector<std::string> indexs)
 {
-	size_t size;
+	size_t	size;
 
 	size = indexs.size();
 	for (unsigned long i = 0; i < size; i++)
 	{
-		if (isDirOrFile(get.getUrl() + indexs[i], get) == FILE)
+		if (isDirOrFile(get.getUrl() + indexs[i]) == FILE)
 		{
 			get.setResponse(200, get.getUrl() + indexs[i]);
 			return (true);
@@ -168,9 +161,34 @@ bool findIndex(GetRequest& get, std::vector<std::string> indexs)
 	return (false);
 }
 
-void	directoryCase(GetRequest &get)
+void	fixUrl(GetRequest& get, const std::string& url)
+{
+	bool	isValid;
+
+	isValid = checkPath(url);
+	if (!isValid)
+		get.setUrl("/");
+	get.setUrl(fixPath(url));
+}
+
+void	autoIndexCase(GetRequest &get)
 {
 	std::vector<std::string>	files;
+
+	files = ls(get.getUrl());
+	if (files.empty())
+		get.file = buildPage(files, get.getUrl());
+	else if (files[0] == "Error")
+	{
+		get.setResponse(403, "Forbidden");
+		return ;
+	}
+	else
+		get.file = buildPage(files, get.getUrl());
+}
+
+void	directoryCase(GetRequest &get)
+{
 	get.setUrl(checkType(get.getUrl(), get));
 	if (get.code == 301)
 		return;
@@ -178,31 +196,10 @@ void	directoryCase(GetRequest &get)
 	{
 		const std::vector<std::string>	&indexs = get.getIndexVec();
 		if (findIndex(get, indexs))
-			return;
+			return ;
 	}
 	if (get.getAutoIndex())
-	{
-		files = ls(get.getUrl());
-		if (files.empty())
-			get.file = buildPage(files, get.getUrl());
-		else if (files[0] == "Error")
-		{
-			get.setResponse(403, "Forbidden");
-			return ;
-		}
-		else
-			get.file = buildPage(files, get.getUrl());
-	}
+		autoIndexCase(get);
 	else
 		get.setResponse(403, "Forbidden");
-}
-
-void	fixUrl(GetRequest& get, const std::string& url)
-{
-	bool isValid;
-
-	isValid = checkPath(url);
-	if (!isValid)
-		get.setUrl("/");
-	get.setUrl(fixPath(url));
 }

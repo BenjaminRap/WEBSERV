@@ -15,7 +15,6 @@ class GetRequest
 		Route				*_root;
 		std::string			_url;
 		bool				_autoIndex;
-		bool				_isDirectory;
 		int					_index;
 		bool				_isRoot;
 	public :
@@ -24,26 +23,22 @@ class GetRequest
 		~GetRequest();
 		GetRequest& operator=(const GetRequest& src);
 
-		void setResponse(int code, const std::string& file);
-		void setIsDirectory(bool src);
-		bool getIsDirectory() const;
-		void setUrl(const std::string& src);
-		std::string getUrl();
-		void setAutoIndex(bool src);
-		bool getAutoIndex() const;
-		std::vector<std::string> getIndexVec();
-		void	setRoot(Route *root);
-		Route	*getRoot() const;
-		void setIsRoot(bool src);
-		bool getIsRoot() const;
+		void						setResponse(int code, const std::string& file);
+		void						setUrl(const std::string& src);
+		void						setAutoIndex(bool src);
+		void						setRoot(Route *root);
+		void						setIsRoot(bool src);
+		bool						getAutoIndex() const;
+		bool						getIsRoot() const;
+		std::vector<std::string>	getIndexVec();
+		std::string					getUrl();
 
-
-	/**
+		/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...
 		*/
 		int			code;
 		/**
 		* @brief This Variable represent the response of the request, it could be a path, or content of a file, show code to know
 		*/
-		std::string	file;
+		std::string		file;
 };

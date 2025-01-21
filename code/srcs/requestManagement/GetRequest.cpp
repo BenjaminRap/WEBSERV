@@ -6,7 +6,7 @@
 #define FILE	2
 #define NF		3
 
-int							isDirOrFile(const std::string& path, GetRequest& get);
+int							isDirOrFile(const std::string& path);
 bool						checkPath(std::string path);
 std::string					checkType(const std::string& path, GetRequest& get);
 std::string					fixPath(std::string  path);
@@ -17,8 +17,8 @@ void						fixUrl(GetRequest& get, const std::string& url);
 
 bool	checkAllowMeth(const Route& root)
 {
-	std::vector<EMethods> meths;
-	size_t			len;
+	std::vector<EMethods>	meths;
+	size_t					len;
 
 	meths = root.getAcceptedMethods();
 	len = meths.size();
@@ -32,9 +32,9 @@ bool	checkAllowMeth(const Route& root)
 	return (false);
 }
 
-std::string replaceUrl(const std::string& location, const std::string& root, std::string url)
+std::string	replaceUrl(const std::string& location, const std::string& root, std::string url)
 {
-	std::string temp;
+	std::string	temp;
 	size_t		found;
 
 	if (root.empty())
@@ -53,7 +53,7 @@ std::string replaceUrl(const std::string& location, const std::string& root, std
 	return (url);
 }
 
-std::string buildNewURl(std::string root, std::string url)
+std::string	buildNewURl(std::string root, std::string url)
 {
 	if (!root.empty() && root[root.size() - 1] == '/')
 		root.erase(root.size() - 1);
@@ -65,11 +65,9 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 {
 	std::map<std::string, Route> 			roots;
 	std::map<std::string, Route>::iterator	it;
-	SRedirection							redirectSt;
 
 	roots = config.getRoutes();
 	it = roots.find(get.getUrl());
-
 	if (it == roots.end())
 	{
 		get.setUrl(buildNewURl(config.getRoot(), get.getUrl()));
@@ -82,9 +80,8 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 		get.setResponse(405, "Method Not Allowed");
 		return ;
 	}
-	redirectSt = it->second.getRedirection();
-	if (!redirectSt.url.empty())
-		get.setResponse(301, redirectSt.url);
+	if (!it->second.getRedirection().url.empty())
+		get.setResponse(301, it->second.getRedirection().url);
 	else
 	{
 		get.setAutoIndex(it->second.getAutoIndex());
@@ -92,24 +89,18 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	}
 }
 
-GetRequest::GetRequest(const std::string& url, ServerConfiguration config)
+GetRequest::GetRequest(const std::string& url, ServerConfiguration config) : _autoIndex(false), _index(0), _isRoot(false), code(0)
 {
 	int			temp;
 
-	this->code = 0;
-	this->_index = 0;
-	this->_isDirectory = true;
 	this->_config = &config;
-	this->_isRoot = false;
-	this->_autoIndex = false;
-
 	fixUrl(*this, url);
 	addRoot(*this, config);
 	if (this->code == 301 || this->code == 405)
 		return ;
 	if (this->_url[0] != '.')
 		this->_url = "." + this->_url;
-	temp = isDirOrFile(this->_url, *this);
+	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == FILE)
@@ -122,9 +113,9 @@ GetRequest::GetRequest() : _config(), _root()
 {
 	_url = "NULL";
 	_autoIndex = false;
-	_isDirectory = false;
 	_index = 0;
 	code = 0;
+	_isRoot = false;
 	std::cerr << "The default constructor shouldn't be called" << std::endl;
 }
 
@@ -138,7 +129,6 @@ GetRequest &GetRequest::operator=(const GetRequest &src)
 {
 	this->_url = src._url;
 	this->_autoIndex = src._autoIndex;
-	this->_isDirectory = src._isDirectory;
 	this->_index = src._index;
 	this->code = src.code;
 	this->_config = src._config;
@@ -148,7 +138,7 @@ GetRequest &GetRequest::operator=(const GetRequest &src)
 	return (*this);
 }
 
-GetRequest::GetRequest(const GetRequest &src) : _config(), _root(), _autoIndex(), _isDirectory(), _index(), code()
+GetRequest::GetRequest(const GetRequest &src) : _config(), _root(), _autoIndex(), _index(), code()
 {
 	if (this == &src)
 		return;
@@ -159,16 +149,6 @@ void GetRequest::setResponse(int newcode, const std::string& newfile)
 {
 	this->code = newcode;
 	this->file = newfile;
-}
-
-void GetRequest::setIsDirectory(bool src)
-{
-	this->_isDirectory = src;
-}
-
-bool GetRequest::getIsDirectory() const
-{
-	return (this->_isDirectory);
 }
 
 bool GetRequest::getAutoIndex() const
@@ -199,11 +179,6 @@ std::vector<std::string> GetRequest::getIndexVec()
 void	GetRequest::setRoot(Route *root)
 {
 	this->_root = root;
-}
-
-Route	*GetRequest::getRoot() const
-{
-	return (this->_root);
 }
 
 void GetRequest::setIsRoot(bool src)
