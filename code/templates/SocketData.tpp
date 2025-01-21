@@ -11,7 +11,6 @@ SocketData::SocketData(int fd, T &data, void (&callback)(SocketData& socketData,
 	_callback(reinterpret_cast<void (&)(SocketData& socketData, void *data, uint32_t events)>(callback)),
 	_iterator(),
 	_isIteratorSet(false),
-	_canWrite(false),
 	_responsesHandler()
 {
 	if (fd <= 3)

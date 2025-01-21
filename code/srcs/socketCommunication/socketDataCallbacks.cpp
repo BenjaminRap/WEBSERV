@@ -14,15 +14,9 @@
 
 static void	processRequests(SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)
 {
+	(void)socketData;
 	(void)socketsHandler;
-	if (events & EPOLLOUT)
-	{
-		socketData.setCanWrite(true);
-	}
-	if (events & EPOLLIN)
-	{
-
-	}
+	(void)events;
 }
 
 /**

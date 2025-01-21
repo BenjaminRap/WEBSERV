@@ -78,8 +78,3 @@ void	SocketData::setIterator(const std::list<SocketData>::iterator &iterator)
 	_isIteratorSet = true;
 	this->_iterator = iterator;
 }
-
-void	SocketData::setCanWrite(bool canWrite)
-{
-	_canWrite = canWrite;
-}

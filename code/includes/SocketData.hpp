@@ -37,16 +37,10 @@ private:
 	 */
 	bool							_isIteratorSet;
 	/**
-	 * @brief True if we can write in the socket. It is set true when we get a
-	 * EPOLLOUT, but false when there is a EAGAIN.
-	 */
-	bool							_canWrite;
-	/**
 	 * @brief The structure responsible for storing and sending all the responses,
 	 * in the same order they have been received.
 	 */
 	ResponsesHandler				_responsesHandler;
-	
 
 	SocketData(void);
 
@@ -61,7 +55,6 @@ public:
 	int										getFd() const;
 	const std::list<SocketData>::iterator	&getIterator() const;
 	void									setIterator(const std::list<SocketData>::iterator &iterator);
-	void									setCanWrite(bool canWrite);
 };
 
 # include "SocketData.tpp"

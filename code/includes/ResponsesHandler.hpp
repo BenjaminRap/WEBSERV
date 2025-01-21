@@ -34,6 +34,11 @@ private:
 	 * allows to redirect the data from the body to the socket like a stream.
 	 */
 	FlowBuffer				_responseBuffer;
+	/**
+	 * @brief True if we can write in the client socket. It is set true when we
+	 * get a EPOLLOUT, but false when there is a EAGAIN.
+	 */
+	bool							_canWrite;
 
 	ResponsesHandler(const ResponsesHandler& ref);
 
@@ -42,6 +47,8 @@ public:
 	ResponsesHandler();
 	~ResponsesHandler();
 
+	ssize_t	sendResponsesToSocket(int socketFd);
+	void	enableWritingToSocket();
 };
 
 #endif // !RESPONSES_HANDLER_HPP
