@@ -5,13 +5,15 @@ ServerConfiguration::ServerConfiguration(	uint32_t host, \
 											std::vector<std::string> serverNames, \
 											std::map<unsigned short, std::string> errorPages, \
 											size_t maxClientBodySize, \
-											std::map<std::string, Route> routes	) : \
+											std::map<std::string, Route> routes, \
+											std::string root) : \
 											host(host), \
 											port(port), \
 											serverNames(serverNames), \
 											errorPages(errorPages), \
 											maxClientBodySize(maxClientBodySize), \
-											routes(routes)
+											routes(routes), \
+											root(root) \
 {
 	return ;
 }
@@ -31,6 +33,7 @@ ServerConfiguration    &ServerConfiguration::operator=(ServerConfiguration const
 		this->errorPages = src.errorPages;
 		this->maxClientBodySize = src.maxClientBodySize;
 		this->routes = src.routes;
+		this->root = src.root;
 	}
 	return (*this);
 }

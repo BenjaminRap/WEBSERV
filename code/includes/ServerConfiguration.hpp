@@ -13,7 +13,7 @@ public :
 
 	ServerConfiguration(uint32_t host, uint16_t port, std::vector<std::string> serverNames, \
 	std::map<unsigned short, std::string> errorPages, size_t maxClientBodySize, \
-	std::map<std::string, Route> routes);
+	std::map<std::string, Route> routes, std::string root);
 	ServerConfiguration(ServerConfiguration const &src);
     ServerConfiguration    &operator=(ServerConfiguration const &src);
 	~ServerConfiguration(void);
