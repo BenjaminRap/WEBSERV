@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "SocketData.hpp"
+
 void	verify(bool test)
 {
 	if (test)
@@ -13,8 +15,9 @@ void	printInfo(std::string infos)
 	std::cout << "\033[0;35m" << infos << "\033[0m\n" << std::endl;
 }
 
-void	callback(int fd, int *data)
+void	callback(SocketData &socketData, int *data, uint32_t events)
 {
-	(void)fd;
+	(void)socketData;
 	(void)data;
+	(void)events;
 }
