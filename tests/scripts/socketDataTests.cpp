@@ -58,7 +58,7 @@ void	TrySettingWrongIterator(int errorFd)
 	socketsData.push_front(SocketData(5, data, callback));
 	printInfo("Should output an error message :");
 	socketsData.back().setIterator(socketsData.begin());
-	checkError(errorFd);
+	verify(checkError(errorFd));
 }
 
 void	trySettingIteratorTwice(int errorFd)
@@ -72,7 +72,7 @@ void	trySettingIteratorTwice(int errorFd)
 	printInfo("Should output an error message :");
 	socketsData.front().setIterator(socketsData.begin());
 	socketsData.front().setIterator(socketsData.begin());
-	checkError(errorFd);
+	verify(checkError(errorFd));
 }
 
 void	tryUsingIterator()

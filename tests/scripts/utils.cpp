@@ -26,7 +26,7 @@ void	callback(SocketData &socketData, int *data, uint32_t events)
 	(void)events;
 }
 
-void	checkError(int errorFd)
+bool	checkError(int errorFd)
 {
 	char	buffer[1024];
 	ssize_t	rd;
@@ -43,7 +43,7 @@ void	checkError(int errorFd)
 		write(STDOUT_FILENO, buffer, rd);
 	}
 	std::cout << '\n';
-	verify(errorPrinted);
+	return (errorPrinted);
 }
 
 bool	redirectSTDERR(int (&tube)[2])
