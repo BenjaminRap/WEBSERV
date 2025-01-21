@@ -1,9 +1,6 @@
-#include <sys/socket.h>
-#include <stdexcept>
-#include <unistd.h>
-#include <cerrno>
-
 #include "RawResponse.hpp"
+
+/*************************Constructors / Destructors***************************/
 
 /**
  * @brief Create a RawResponse instance.
@@ -38,4 +35,22 @@ RawResponse::RawResponse(const RawResponse& ref) :
 RawResponse::~RawResponse()
 {
 
+}
+
+/*******************************Member functions*******************************/
+
+/**
+ * @brief Send this response to the client socket.
+ * @param socketFd The socket of the client, in which we will send the response.
+ * @return -1 on error, 0 if the response has been entirely written and >0 if
+ * there is more to write. In the latter case, we need to wait for another EPOLLOUT
+ * before calling this fuction again, until we receive <=0.
+ */
+ssize_t	RawResponse::sendResponseToSocket(int socketFd)
+{
+	const ssize_t res = _firstPartBuffer.redirectContentFromBuffer(socketFd, SOCKETFD);
+
+	if (res != 0)
+		return (res);
+	return (_bodyBuffer.redirectContent(_bodyFd, FILEFD, socketFd, SOCKETFD));
 }

@@ -41,6 +41,7 @@ public:
 	RawResponse(char *buffer, std::size_t bufferCapacity, int bodyFd, FlowBuffer &bodyBuffer);
 	~RawResponse();
 
+	ssize_t	sendResponseToSocket(int socketFd);
 };
 
 #endif // !RAW_RESPONSE_HPP
