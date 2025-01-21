@@ -63,6 +63,7 @@ server {
 
     # Autoriser les uploads de fichiers
     location /upload {
+		uploads on;
         root /var/www/uploads;
     }
 

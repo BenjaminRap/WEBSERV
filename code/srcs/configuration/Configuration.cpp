@@ -240,7 +240,7 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 	std::string					root;
 	bool						auto_index;
 	std::string					cgiFileExtension;
-	SUploads					uploads;
+	bool						acceptUploads;
 
 	redirection.responseStatusCode = 0;
 	skip_wspace(file, i, line);
@@ -280,6 +280,11 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 			i += 6;
 			parse_route_redirection(file, i, line, redirection);
 		}
+		else if (file.substr(i, 7) == "uploads")
+		{
+			i += 7;
+			parse_route_uploads(file, i, line, acceptUploads);
+		}
 		else if (file[i] == '#')
 			skip_line(file, i, line);
 		else if (file[i] != '}')
@@ -295,7 +300,7 @@ void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std:
 		acceptedMethods.push_back(POST);
 		acceptedMethods.push_back(DELETE);
 	}
-	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, uploads)));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, acceptUploads)));
 }
 
 void	Configuration::parse_root(std::string &file, size_t &i, size_t &line, std::string &root)
@@ -378,6 +383,27 @@ void	Configuration::parse_route_redirection(std::string &file, size_t &i, size_t
 	skip_wspace(file, i, line);
 	redirection.url = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
+	if (file[i] != ';')
+		throw (MissingSemiColonException(line));
+	i++;
+}
+
+void	Configuration::parse_route_uploads(std::string &file, size_t &i, size_t &line, bool &acceptUploads)
+{
+	skip_wspace(file, i, line);
+	if (file.substr(i, 2) == "on")
+	{
+		acceptUploads = true;
+		i += 2;
+	}
+	else if (file.substr(i, 3) == "off")
+	{
+		acceptUploads = false;
+		i += 3;
+	}
+	else
+		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+	skip_wspace(file, i, line);
 	if (file[i] != ';')
 		throw (MissingSemiColonException(line));
 	i++;
