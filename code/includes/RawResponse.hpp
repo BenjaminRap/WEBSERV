@@ -3,8 +3,9 @@
 
 # include <string>
 # include <sys/types.h>
+# include <cstddef>
 
-# define RESPONSE_BUFFER_SIZE 1024
+# include "FlowBuffer.hpp"
 
 /**
  * @brief This class stores all the data that will be sent to the client as a
@@ -16,26 +17,22 @@
 class RawResponse
 {
 private:
-	/**
-	 * @brief A string containing the first part of the response, that means :
-	 * the status line, the headers, the blank line and, if there is a static one,
-	 * a body.
-	 */
-	std::string	_firstPart;
-	/**
-	 * @brief The number of character from _firstPart that need to be written
-	 * to the socket. It should be in range [-1, firstPart.size()] : -1 meaning
-	 * there was an error, 0 meaning there is nothing to read anymore.
-	 */
-	ssize_t		_numCharsToWrite;
+	FlowBuffer	_firstPartBuffer;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
 	 */
 	int			_bodyFd;
+	FlowBuffer	&_bodyBuffer;
 
+	RawResponse();
+
+	RawResponse&	operator=(const RawResponse& ref);
 public:
-	ssize_t	writeToFd(int fd, char (&buffer)[RESPONSE_BUFFER_SIZE], size_t bufferLength);
+	RawResponse(const RawResponse& ref);
+	RawResponse(char *buffer, std::size_t bufferCapacity, int bodyFd, FlowBuffer &bodyBuffer);
+	~RawResponse();
+
 };
 
 #endif // !RAW_RESPONSE_HPP

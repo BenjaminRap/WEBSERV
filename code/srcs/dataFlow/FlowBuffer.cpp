@@ -15,6 +15,15 @@ FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity) :
 
 }
 
+FlowBuffer::FlowBuffer(const FlowBuffer& ref) :
+	_buffer(ref._buffer),
+	_bufferCapacity(ref._bufferCapacity),
+	_bufferLength(ref._bufferLength),
+	_numCharsWritten(ref._numCharsWritten)
+{
+
+}
+
 FlowBuffer::~FlowBuffer()
 {
 

@@ -39,11 +39,11 @@ private:
 	 */
 	size_t	_numCharsWritten;
 
-	FlowBuffer(const FlowBuffer& flowBuffer);
 	FlowBuffer();
 
 	FlowBuffer&	operator=(const FlowBuffer &flowBuffer);
 public:
+	FlowBuffer(const FlowBuffer& ref);
 	FlowBuffer(char *buffer, size_t bufferCapacity);
 	~FlowBuffer();
 
