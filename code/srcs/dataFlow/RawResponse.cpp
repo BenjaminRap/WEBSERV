@@ -24,6 +24,26 @@ RawResponse::RawResponse
 
 }
 
+/**
+ * @brief Create a RawResponse instance without body fd
+ * @param buffer The buffer used to store the firstPart.
+ * @param bufferCapacity The maximum number of chars that the buffer can store.
+ * @param bodyBuffer The FlowBuffer used to redirect the data from the body to
+ * the client socket.
+ */
+RawResponse::RawResponse
+(
+	char *buffer,
+	size_t bufferCapacity,
+	FlowBuffer &bodyBuffer
+) :
+	_firstPartBuffer(buffer, bufferCapacity),
+	_bodyFd(-1),
+	_bodyBuffer(bodyBuffer)
+{
+
+}
+
 RawResponse::RawResponse(const RawResponse& ref) :
 	_firstPartBuffer(ref._firstPartBuffer),
 	_bodyFd(ref._bodyFd),
@@ -52,5 +72,7 @@ ssize_t	RawResponse::sendResponseToSocket(int socketFd)
 
 	if (res != 0)
 		return (res);
+	if (_bodyFd == -1)
+		return (0);
 	return (_bodyBuffer.redirectContent(_bodyFd, FILEFD, socketFd, SOCKETFD));
 }

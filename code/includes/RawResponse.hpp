@@ -39,6 +39,7 @@ private:
 public:
 	RawResponse(const RawResponse& ref);
 	RawResponse(char *buffer, std::size_t bufferCapacity, int bodyFd, FlowBuffer &bodyBuffer);
+	RawResponse(char *buffer, std::size_t bufferCapacity, FlowBuffer &bodyBuffer);
 	~RawResponse();
 
 	ssize_t	sendResponseToSocket(int socketFd);
