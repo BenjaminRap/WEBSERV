@@ -49,7 +49,7 @@ public:
 
 	ssize_t	redirectContent(int srcFd, FdType srcType, int destFd, FdType destType);
 	ssize_t	redirectContentFromBuffer(int destFd, FdType destType);
-	// ssize_t	redirectContentToBuffer(int srcFd, FdType destType);
+	ssize_t	redirectContentToBuffer(int srcFd, FdType srcType);
 };
 
 #endif // !FLOW_BUFFER_HPP

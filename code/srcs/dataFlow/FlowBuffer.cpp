@@ -117,3 +117,37 @@ ssize_t	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 	}
 	return (0);
 }
+
+/**
+ * @brief Read or recv all the data from srcFd and write it in the internal
+ * buffer.
+ * @param srcFd The fd this functions will read from.
+ * @param srcType The type of srcFd, either SOCKETFD or FILEFD, it will determine
+ * if the function uses read or recv.
+ * @return This function returns -1 on error, 0 if the client has closed the
+ * connection, 1 if there is more to read and 2 if the buffer is full. If the
+ * buffer is full and the client has closed the connection, this function will
+ * return 2. In the case of return 1, we need to wait for another EPOLLIN event
+ * and call this function again.
+ */
+ssize_t	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
+{
+	size_t	remainingCapacity;
+	size_t	rd;
+
+	remainingCapacity = _bufferCapacity - _bufferLength;
+	while (remainingCapacity > 0)
+	{
+		if (srcType == SOCKETFD)
+			rd = recv(srcFd, _buffer + _bufferLength, remainingCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
+		else
+			rd = read(srcFd, _buffer + _bufferLength, remainingCapacity);
+		if (rd == -1)
+			return ((errno == EAGAIN) ? 1 : -1);
+		if (rd == 0)
+			return (0);
+		remainingCapacity -= rd;
+		_bufferLength += rd;
+	}
+	return (2);
+}
