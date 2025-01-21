@@ -4,6 +4,8 @@
 
 /**
  * @brief Create a RawResponse instance.
+ * @throw This function throw (std::logic_error) if the buffer is null or if
+ * the bufferCapacity is set to 0.
  * @param buffer The buffer used to store the firstPart.
  * @param bufferCapacity The maximum number of chars that the buffer can store.
  * @param bodyFd The fd of the body.
@@ -26,6 +28,8 @@ RawResponse::RawResponse
 
 /**
  * @brief Create a RawResponse instance without body fd.
+ *  * @throw This function throw (std::logic_error) if the buffer is null or if
+ * the bufferCapacity is set to 0.
  * @param buffer The buffer used to store the firstPart.
  * @param bufferCapacity The maximum number of chars that the buffer can store.
  * @param bodyBuffer The FlowBuffer used to redirect the data from the body to

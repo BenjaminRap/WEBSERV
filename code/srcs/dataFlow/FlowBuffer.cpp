@@ -10,7 +10,7 @@
 /**
  * @brief Create an instance of the FlowBuffer class.
  * @throw This function throw (std::logic_error) if bufferLength is superior to
- * bufferCapacity.
+ * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
  * @param buffer The buffer used to redirect the data.
  * @param bufferCapacity The maximum number of chars the buffer can store without
  * segfault.
@@ -28,6 +28,10 @@ FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength)
 {
 	if (bufferLength > bufferCapacity)
 		throw std::logic_error("FlowBuffer constructor called with a bufferLength superior to the bufferCapacity");
+	if (buffer == NULL)
+		throw std::logic_error("The buffer passed as argument is empty");
+	if (bufferCapacity == 0)
+		throw std::logic_error("The buffer capacity is 0");
 }
 
 FlowBuffer::FlowBuffer(const FlowBuffer& ref) :
