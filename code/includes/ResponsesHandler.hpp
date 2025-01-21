@@ -22,7 +22,17 @@ private:
 	 * the same order that the client send the requests.
 	 */
 	std::queue<RawResponse>	_responses;
+	/**
+	 * @brief The buffer that will be passed in the responseBuffer constructor.
+	 * It will be used to store parrts of the response body before sending it to
+	 * the client.
+	 * As we send one response at a time, we only need one buffer for all responses.
+	 */
 	char					_buffer[RESPONSE_BUFFER_SIZE];
+	/**
+	 * @brief This instance store the _buffer and informations about it. It also
+	 * allows to redirect the data from the body to the socket like a stream.
+	 */
 	FlowBuffer				_responseBuffer;
 
 	ResponsesHandler(const ResponsesHandler& ref);

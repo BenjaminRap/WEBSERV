@@ -17,12 +17,20 @@
 class RawResponse
 {
 private:
+	/**
+	 * @brief The buffer for the first part of the responses : the status line, 
+	 * the headers and, optionnaly, the body or the first part of the body.
+	 */
 	FlowBuffer	_firstPartBuffer;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
 	 */
 	int			_bodyFd;
+	/**
+	 * @brief A reference on the ResponsesHandler FlowBuffer. It allows this class
+	 * to redirect the content from _bodyFd to the client socket Fd.
+	 */
 	FlowBuffer	&_bodyBuffer;
 
 	RawResponse();
