@@ -25,7 +25,7 @@ RawResponse::RawResponse
 }
 
 /**
- * @brief Create a RawResponse instance without body fd
+ * @brief Create a RawResponse instance without body fd.
  * @param buffer The buffer used to store the firstPart.
  * @param bufferCapacity The maximum number of chars that the buffer can store.
  * @param bodyBuffer The FlowBuffer used to redirect the data from the body to

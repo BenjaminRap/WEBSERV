@@ -55,7 +55,10 @@ void	ResponsesHandler::enableWritingToSocket()
 	_canWrite = true;
 }
 
-
+/**
+ * @brief Add a response at the end of the _responses queue. The response has a
+ * body fd.
+ */
 void	ResponsesHandler::addResponse
 (
 	char *buffer,
@@ -66,6 +69,10 @@ void	ResponsesHandler::addResponse
 	_responses.push(RawResponse(buffer, bufferCapacity, bodyFd, _responseBuffer));
 }
 
+/**
+ * @brief Add a response at the end of the _responses queue. The response doesn't
+ * have a body fd.
+ */
 void	ResponsesHandler::addResponse
 (
 	char *buffer,
