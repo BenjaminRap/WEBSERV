@@ -4,7 +4,7 @@ server {
     # Hôte et port sur lesquels ce serveur écoute
     listen 192.168.1.10:8080;  # Hôte et port spécifiques
     #listen [::1]:8080;        # Support IPv6 (facultatif)(je ne gere pas les ipv6)
-    
+    root	/unitTest/;
     # Définit les noms de domaine gérés par ce serveur
     server_name www.example.com example.com;
 

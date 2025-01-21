@@ -111,7 +111,7 @@ void	Configuration::parse_server(std::string &file, size_t &i, size_t &line)
 	if (file[i] != '}')
 		throw (MissingSemiColonException(line));
 	i++;
-	ServerConfigurations.push_back(ServerConfiguration(host, port, serverNames, errorPages, maxClientBodySize, routes));
+	ServerConfigurations.push_back(ServerConfiguration(host, port, serverNames, errorPages, maxClientBodySize, routes, root));
 }
 
 void	Configuration::skip_line(std::string &file, size_t &i, size_t &line)
