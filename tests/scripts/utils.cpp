@@ -48,7 +48,7 @@ bool	checkError(int errorFd)
 
 bool	redirectSTDERR(int (&tube)[2])
 {
-	if (pipe(tube) == 1)
+	if (pipe(tube) == -1)
 	{
 		std::cerr << "Failed to pipe in tests\n";
 		return (false);
