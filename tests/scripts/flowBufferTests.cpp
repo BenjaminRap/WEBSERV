@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
+#include <vector>
 
 #include "FlowBuffer.hpp"
 
@@ -99,6 +100,39 @@ void	fileToBufer(std::string path)
 	close(fileFd);
 }
 
+void	readMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages)
+{
+	char	buffer[1024];
+
+	for (std::vector<std::string>::const_iterator it = messages.begin(); it < messages.end(); it++)
+	{
+		const ssize_t written = send(sockets[0], (*it).c_str(), (*it).size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		if (written == -1)
+		{
+			std::cout << strerror(errno) << std::endl;
+			return ;
+		}
+		const ssize_t rd = recv(sockets[1], buffer, 1024, MSG_DONTWAIT | MSG_NOSIGNAL);
+		if (rd == -1)
+		{
+			std::cout << strerror(errno) << std::endl;
+			return ;
+		}
+		std::cout << std::string(buffer, rd) << std::endl;
+	}
+}
+
+void	readStringWordByWord(int (&sockets)[2])
+{
+	std::vector<std::string>	messages;
+
+	messages.push_back("je ");
+	messages.push_back("suis ");
+	messages.push_back("un ");
+	messages.push_back("test");
+	readMultipleMessages(sockets, messages);
+}
+
 int	main()
 {
 	int	sockets[2];
@@ -115,6 +149,7 @@ int	main()
 	fileToFd("../tests/scripts/cors-test.html", STDIN_FILENO, FILEFD);
 	fileToFd("/var/log/dpkg.log.3.gz", STDIN_FILENO, FILEFD);
 	fileToBufer("/var/log/dpkg.log.3.gz");
+	readStringWordByWord(sockets);
 	close(sockets[0]);
 	close(sockets[1]);
 }
