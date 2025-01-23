@@ -69,3 +69,64 @@ bool	redirectSTDERR(int (&tube)[2])
 	}
 	return (true);
 }
+
+bool	checkContent(int srcFd, FdType srcType, char *expectedBuffer, size_t bufferCapacity)
+{
+	char	buffer[bufferCapacity];
+	ssize_t	rd;
+
+	if (srcType == SOCKETFD)
+		rd = recv(srcFd, buffer, bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
+	else
+		rd = read(srcFd, buffer, bufferCapacity);
+	if (rd == -1)
+	{
+		std::cout << "1" << "\n";
+		return (errno == EAGAIN && bufferCapacity == 0);
+	}
+	else if ((size_t)rd != bufferCapacity)
+	{
+		std::cout << "2" << "\n";
+		return (false);
+	}
+	else
+	{
+		std::cout << "3" << "\n";
+		return (!std::memcmp(buffer, expectedBuffer, bufferCapacity));
+	}
+}
+
+std::string	&getFlowStateAsString(FlowState flowState)
+{
+	static std::string meaning[] = {"FLOW_ERROR", "FLOW_DONE", "FLOW_MORE_RECV", "FLOW_MORE_SEND", "FLOW_BUFFER_FULL"};
+
+	return (meaning[flowState + 1]);
+}
+
+char 	*getRandomString(size_t size)
+{
+	try
+	{
+		char	*str = new char[size];
+		int		fd = open("/dev/random", O_RDONLY);
+
+		if (fd == -1)
+		{
+			delete [] str;
+			return (NULL);
+		}
+		if (read(fd, str, size) != (ssize_t)size)
+		{
+			close(fd);
+			delete [] str;
+			return (NULL);
+		}
+		close(fd);
+		return (str);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return (NULL);
+	}
+}

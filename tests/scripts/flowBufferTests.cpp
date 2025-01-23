@@ -12,56 +12,50 @@
 
 #include "utils.cpp"
 
-std::string	&getFlowStateAsString(FlowState flowState)
+FlowState	bufferToFd(int fd, FdType fdType, char *buffer, size_t bufferCapacity, size_t *numCharsWritten)
 {
-	static std::string meaning[] = {"FLOW_ERROR", "FLOW_DONE", "FLOW_MORE_RECV", "FLOW_MORE_SEND", "FLOW_BUFFER_FULL"};
-
-	return (meaning[flowState + 1]);
-}
-
-void	printBufferInFd(std::string &str, int fd, FdType fdType, char *buffer, size_t bufferSize)
-{
-	if (str.size() > bufferSize)
-	{
-		std::cout << "Test error, string too big" << std::endl;
-		return ;
-	}
-
-	FlowBuffer	flowBuffer(buffer, bufferSize, str.size());
-
-	std::memcpy(buffer, str.c_str(), str.size());
+	FlowBuffer	flowBuffer(buffer, bufferCapacity, bufferCapacity);
 
 	const FlowState	flowState = flowBuffer.redirectContentFromBuffer(fd, fdType);
 
-	std::cout << getFlowStateAsString(flowState) << std::endl;
 	if (flowState == FLOW_ERROR)
 		std::cout << strerror(errno) << '\n';
+	if (flowBuffer.getNumCharsWritten() == 0)
+		*numCharsWritten = bufferCapacity;
+	else
+		*numCharsWritten = flowBuffer.getNumCharsWritten();
+	return (flowState);
 }
 
-void	readFromFdToBuffer(int fd, FdType fdType, char *buffer, size_t bufferSize)
+void	fdToBuffer(int fd, FdType fdType, char *buffer, size_t bufferCapacity, char *expectedBuffer, size_t expectedLength, FlowState flowResult)
 {
-	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
+	FlowBuffer	flowBuffer(buffer, bufferCapacity, 0);
 
 	const FlowState flowState = flowBuffer.redirectContentToBuffer(fd, fdType);
 
-	std::cout << getFlowStateAsString(flowState) << std::endl;
 	if (flowState == FLOW_ERROR)
 		std::cout << strerror(errno) << '\n';
+	verify(flowBuffer.getBufferLength() == expectedLength && !std::memcmp(buffer, expectedBuffer, expectedLength));
+	verify(flowState == flowResult);
 }
 
-void	printBufferInSTDIN(std::string str)
+void	testBufferInFd(char *buffer, size_t bufferCapacity, int writeFd, FdType writeType, int readFd, FdType readType, FlowState flowResult)
 {
-	char		buffer[1024];
+	size_t	numCharsWritten;
 
-	printBufferInFd(str, STDIN_FILENO, FILEFD, buffer, 1024);
+	const FlowState flowState = bufferToFd(writeFd, writeType, buffer, bufferCapacity, &numCharsWritten);
+	verify(checkContent(readFd, readType, buffer, numCharsWritten));
+	verify(flowState == flowResult);
 }
 
-void	bufferToSocketToBuffer(std::string str, int (&sockets)[2])
+void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[2])
 {
-	char	buffer[1024];
+	size_t	numCharsWritten;
 
-	printBufferInFd(str, sockets[0], SOCKETFD, buffer, 1024);
-	readFromFdToBuffer(sockets[1], SOCKETFD, buffer, 1024);
+	char	*resultBuffer = new char[bufferCapacity];
+	bufferToFd(sockets[0], SOCKETFD, buffer, bufferCapacity, &numCharsWritten);
+	fdToBuffer(sockets[1], SOCKETFD, resultBuffer, bufferCapacity, buffer, numCharsWritten, FLOW_BUFFER_FULL);
+	delete [] resultBuffer;
 }
 
 void	fileToFd(std::string path, int fd, FdType fdType)
@@ -102,10 +96,10 @@ void	fileToBufer(std::string path)
 	close(fileFd);
 }
 
-void	readMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages)
+void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages, size_t bufferSize)
 {
-	char		buffer[5];
-	FlowBuffer	flowBuffer(buffer, 5, 0);
+	char		buffer[bufferSize];
+	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
 
 	printInfo("read multiples messages");
 	for (std::vector<std::string>::const_iterator it = messages.begin(); it < messages.end(); it++)
@@ -127,34 +121,131 @@ void	readMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages)
 	}
 }
 
-void	readStringWordByWord(int (&sockets)[2])
+void	redirectMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages, size_t bufferSize)
+{
+	char		buffer[bufferSize];
+	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
+
+	printInfo("read multiples messages");
+	for (std::vector<std::string>::const_iterator it = messages.begin(); it < messages.end(); it++)
+	{
+		const ssize_t written = send(sockets[0], (*it).c_str(), (*it).size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		if (written == -1)
+		{
+			std::cout << strerror(errno) << std::endl;
+			return ;
+		}
+		const FlowState flowState = flowBuffer.redirectContent(sockets[1], SOCKETFD, STDIN_FILENO, FILEFD);
+		std::cout << getFlowStateAsString(flowState) << std::endl;
+		if (flowState == FLOW_ERROR)
+		{
+			std::cout << strerror(errno) << std::endl;
+			return ;
+		}
+	}
+}
+
+void	readAndWriteStringWordByWord(int (&sockets)[2])
 {
 	std::vector<std::string>	messages;
 
 	messages.push_back("je ");
 	messages.push_back("suis ");
 	messages.push_back("un ");
-	messages.push_back("test");
-	readMultipleMessages(sockets, messages);
+	messages.push_back("test\n");
+	readAndWriteMultipleMessages(sockets, messages, 5);
 }
+
+void	redirectStringWordByWord(int (&sockets)[2])
+{
+	std::vector<std::string>	messages;
+
+	messages.push_back("je ");
+	messages.push_back("suis ");
+	messages.push_back("un ");
+	messages.push_back("test\n");
+	redirectMultipleMessages(sockets, messages, 5);
+}
+
+# define HUGE_STRING_LENGTH 1000000
 
 int	main()
 {
-	int	sockets[2];
+	int				sockets[2];
+	char			buffer[1024];
+	char * const	hugeString = getRandomString(HUGE_STRING_LENGTH);
+
+	if (hugeString == NULL)
+		return (EXIT_FAILURE);
 
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets) == -1)
 	{
 		std::cout << strerror(errno) << '\n';
 		return (EXIT_FAILURE);
 	}
-	printBufferInSTDIN("I am a test\n");
-	printBufferInSTDIN("");
-	bufferToSocketToBuffer("truc tralaala", sockets);
-	bufferToSocketToBuffer("Truc bidule machin", sockets);
-	fileToFd("../tests/scripts/cors-test.html", STDIN_FILENO, FILEFD);
+	printInfo("Print buffer in fd with small string");
+	testBufferInFd((char*)"I am a test\n", 13, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
+	printInfo("Print buffer in fd with empty string");
+	testBufferInFd((char*)"", 1, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
+	printInfo("Print buffer in fd with big string");
+	testBufferInFd((char*)"Je suis un gros test azjhe iaziuehuazhexazex zhexiuahze \
+	xiuhazeiuxhaz iuexhaziuehwiahzewhzoeixhazoeihaxez w ahiewuhaz azhexa  \
+	waheh iuazhexiaz ea ewzoi a  azhew  aiuzhewi zewa iehwa iehaiewh az \
+	ewiuahze iuwhazehwaz ewuhaez wahewua euwazeihwa iue iuw az ewiua ewhaew \
+	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
+	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
+	printInfo("Print buffer in fd with huge string");
+	testBufferInFd(hugeString, HUGE_STRING_LENGTH, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_MORE_SEND);
+	printInfo("Try creating flow buffer with bufferlength superior to capacity");
+	try
+	{
+		FlowBuffer(buffer, 100, 300);
+		verify(false);
+	}
+	catch(const std::logic_error& e)
+	{
+		std::cout << e.what() << '\n';
+		verify(true);
+	}
+	printInfo("Try creating a flow buffer with a buffer null");
+	try
+	{
+		FlowBuffer(NULL, 100, 50);
+		verify(false);
+	}
+	catch(const std::logic_error& e)
+	{
+		std::cout << e.what() << '\n';
+		verify(true);
+	}
+	printInfo("Try creating a flow buffer with a capactity set to 0");
+	try
+	{
+		FlowBuffer(buffer, 0, 0);
+		verify(false);
+	}
+	catch(const std::logic_error& e)
+	{
+		std::cout << e.what() << '\n';
+		verify(true);
+	}
+	printInfo("buffer to socket to buffer with small string and big buffer");
+	bufferToSocketToBuffer((char*)"truc tralaala", 14, sockets);
+	printInfo("buffer to socket to buffer with empty string and big buffer");
+	bufferToSocketToBuffer((char*)"", 1, sockets);
+	printInfo("buffer to socket to buffer with big string and big buffer");
+	bufferToSocketToBuffer((char*)"Je suis un gros test azjhe iaziuehuazhexazex zhexiuahze \
+	xiuhazeiuxhaz iuexhaziuehwiahzewhzoeixhazoeihaxez w ahiewuhaz azhexa  \
+	waheh iuazhexiaz ea ewzoi a  azhew  aiuzhewi zewa iehwa iehaiewh az \
+	ewiuahze iuwhazehwaz ewuhaez wahewua euwazeihwa iue iuw az ewiua ewhaew \
+	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
+	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets);
+	/*fileToFd("../tests/scripts/cors-test.html", STDIN_FILENO, FILEFD);
 	fileToFd("/var/log/dpkg.log.3.gz", STDIN_FILENO, FILEFD);
 	fileToBufer("/var/log/dpkg.log.3.gz");
-	readStringWordByWord(sockets);
+	readAndWriteStringWordByWord(sockets);
+	redirectStringWordByWord(sockets);*/
 	close(sockets[0]);
 	close(sockets[1]);
+	delete [] hugeString;
 }
