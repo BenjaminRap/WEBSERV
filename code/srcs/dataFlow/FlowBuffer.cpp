@@ -106,7 +106,7 @@ FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 	size_t	numCharsToWrite;
 
 	numCharsToWrite = _bufferLength - _numCharsWritten;
-	while (numCharsToWrite != 0)
+	while (_numCharsWritten < _bufferLength)
 	{
 		ssize_t	written;
 
@@ -123,6 +123,8 @@ FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 		_numCharsWritten += written;
 		numCharsToWrite -= written;
 	}
+	_bufferLength = 0;
+	_numCharsWritten = 0;
 	return (FLOW_DONE);
 }
 
