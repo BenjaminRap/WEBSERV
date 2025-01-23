@@ -146,7 +146,7 @@ FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
 	ssize_t	rd;
 
 	remainingCapacity = _bufferCapacity - _bufferLength;
-	while (remainingCapacity > 0)
+	while (_bufferLength < _bufferCapacity)
 	{
 		if (srcType == SOCKETFD)
 		{
