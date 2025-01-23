@@ -48,33 +48,36 @@ void	testBufferInFd(char *buffer, size_t bufferCapacity, int writeFd, FdType wri
 	verify(flowState == flowResult);
 }
 
-void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[2])
+void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[2], FlowState firstFlowResult, FlowState secondFlowResult)
 {
 	size_t	numCharsWritten;
 
 	char	*resultBuffer = new char[bufferCapacity];
-	bufferToFd(sockets[0], SOCKETFD, buffer, bufferCapacity, &numCharsWritten);
-	fdToBuffer(sockets[1], SOCKETFD, resultBuffer, bufferCapacity, buffer, numCharsWritten, FLOW_BUFFER_FULL);
+	const FlowState flowState = bufferToFd(sockets[0], SOCKETFD, buffer, bufferCapacity, &numCharsWritten);
+	verify(flowState == firstFlowResult);
+	fdToBuffer(sockets[1], SOCKETFD, resultBuffer, bufferCapacity, buffer, numCharsWritten, secondFlowResult);
 	delete [] resultBuffer;
 }
 
-void	fileToFd(std::string path, int fd, FdType fdType)
+void	fileToSocket(const char *path, size_t fileSize, int (&sockets)[2], FlowState flowResult)
 {
-	const int	fileFd = open(path.c_str(), O_RDONLY);
-	char		buffer[1024];
+	char		*file = getFileInString(path, fileSize, fileSize);
+	const int	fileFd = open(path, O_RDONLY);
+	char		*buffer = new char[fileSize];
 
 	if (fileFd == -1)
 	{
 		std::cout << strerror(errno) << std::endl;
 		return ;
 	}
-	FlowBuffer	flowBuffer(buffer, 1024, 0);
-	const FlowState flowState = flowBuffer.redirectContent(fileFd, FILEFD, fd, fdType);
+	FlowBuffer	flowBuffer(buffer, fileSize, 0);
+	const FlowState flowState = flowBuffer.redirectContent(fileFd, FILEFD, sockets[0], SOCKETFD);
 
-	std::cout << getFlowStateAsString(flowState) << std::endl;
-	if (flowState == FLOW_ERROR)
-		std::cout << strerror(errno) << '\n';
+	verify(checkContent(sockets[1], SOCKETFD, file, fileSize));
+	verify(flowState == flowResult);
 	close(fileFd);
+	delete [] file;
+	delete [] buffer;
 }
 
 void	fileToBufer(std::string path)
@@ -173,7 +176,8 @@ int	main()
 {
 	int				sockets[2];
 	char			buffer[1024];
-	char * const	hugeString = getRandomString(HUGE_STRING_LENGTH);
+	size_t			temp;
+	char * const	hugeString = getFileInString("/dev/random", HUGE_STRING_LENGTH, temp);
 
 	if (hugeString == NULL)
 		return (EXIT_FAILURE);
@@ -230,19 +234,25 @@ int	main()
 		verify(true);
 	}
 	printInfo("buffer to socket to buffer with small string and big buffer");
-	bufferToSocketToBuffer((char*)"truc tralaala", 14, sockets);
+	bufferToSocketToBuffer((char*)"truc tralaala", 14, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
 	printInfo("buffer to socket to buffer with empty string and big buffer");
-	bufferToSocketToBuffer((char*)"", 1, sockets);
+	bufferToSocketToBuffer((char*)"", 1, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
 	printInfo("buffer to socket to buffer with big string and big buffer");
 	bufferToSocketToBuffer((char*)"Je suis un gros test azjhe iaziuehuazhexazex zhexiuahze \
 	xiuhazeiuxhaz iuexhaziuehwiahzewhzoeixhazoeihaxez w ahiewuhaz azhexa  \
 	waheh iuazhexiaz ea ewzoi a  azhew  aiuzhewi zewa iehwa iehaiewh az \
 	ewiuahze iuwhazehwaz ewuhaez wahewua euwazeihwa iue iuw az ewiua ewhaew \
 	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
-	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets);
-	/*fileToFd("../tests/scripts/cors-test.html", STDIN_FILENO, FILEFD);
-	fileToFd("/var/log/dpkg.log.3.gz", STDIN_FILENO, FILEFD);
-	fileToBufer("/var/log/dpkg.log.3.gz");
+	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
+	printInfo("buffer to socket to buffer with big string and big buffer");
+	bufferToSocketToBuffer(hugeString, HUGE_STRING_LENGTH, sockets, FLOW_MORE_SEND, FLOW_MORE_RECV);
+	printInfo("small file to socket with buffer smaller");
+	fileToSocket("../tests/scripts/cors-test.html", 100, sockets, FLOW_DONE);
+	printInfo("small file to socket with buffer larger");
+	fileToSocket("../tests/scripts/cors-test.html", 200, sockets, FLOW_DONE);
+	// printInfo("big file to socket");
+	// fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_DONE);
+	/*fileToBufer("/var/log/dpkg.log.3.gz");
 	readAndWriteStringWordByWord(sockets);
 	redirectStringWordByWord(sockets);*/
 	close(sockets[0]);

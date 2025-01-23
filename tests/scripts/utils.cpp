@@ -73,6 +73,7 @@ bool	redirectSTDERR(int (&tube)[2])
 bool	checkContent(int srcFd, FdType srcType, char *expectedBuffer, size_t bufferCapacity)
 {
 	char	buffer[bufferCapacity];
+	char	ignoreBuffer[1024];
 	ssize_t	rd;
 
 	if (srcType == SOCKETFD)
@@ -80,18 +81,18 @@ bool	checkContent(int srcFd, FdType srcType, char *expectedBuffer, size_t buffer
 	else
 		rd = read(srcFd, buffer, bufferCapacity);
 	if (rd == -1)
-	{
-		std::cout << "1" << "\n";
 		return (errno == EAGAIN && bufferCapacity == 0);
-	}
 	else if ((size_t)rd != bufferCapacity)
-	{
-		std::cout << "2" << "\n";
 		return (false);
-	}
 	else
 	{
-		std::cout << "3" << "\n";
+		while (rd >= 0)
+		{
+			if (srcType == SOCKETFD)
+				rd = recv(srcFd, ignoreBuffer, 1024, MSG_DONTWAIT | MSG_NOSIGNAL);
+			else
+				rd = read(srcFd, ignoreBuffer, 1024);
+		}
 		return (!std::memcmp(buffer, expectedBuffer, bufferCapacity));
 	}
 }
@@ -103,25 +104,26 @@ std::string	&getFlowStateAsString(FlowState flowState)
 	return (meaning[flowState + 1]);
 }
 
-char 	*getRandomString(size_t size)
+char 	*getFileInString(const char *path, size_t size, size_t &sizeResult)
 {
 	try
 	{
 		char	*str = new char[size];
-		int		fd = open("/dev/random", O_RDONLY);
+		int		fd = open(path, O_RDONLY);
 
 		if (fd == -1)
 		{
 			delete [] str;
 			return (NULL);
 		}
-		if (read(fd, str, size) != (ssize_t)size)
+		const ssize_t rd = read(fd, str, size);
+		close(fd);
+		if (rd == -1)
 		{
-			close(fd);
 			delete [] str;
 			return (NULL);
 		}
-		close(fd);
+		sizeResult = rd;
 		return (str);
 	}
 	catch(const std::exception& e)
