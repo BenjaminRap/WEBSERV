@@ -132,3 +132,12 @@ char 	*getFileInString(const char *path, size_t size, size_t &sizeResult)
 		return (NULL);
 	}
 }
+
+void	verifyFlowState(FlowState result, FlowState expectation)
+{
+	if (result == expectation)
+		std::cout << getFlowStateAsString(result) << " ";
+	else
+		std::cout << getFlowStateAsString(result) << ", should be " << getFlowStateAsString(expectation);
+	verify(result == expectation);
+}

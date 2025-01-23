@@ -36,7 +36,7 @@ void	fdToBuffer(int fd, FdType fdType, char *buffer, size_t bufferCapacity, char
 	if (flowState == FLOW_ERROR)
 		std::cout << strerror(errno) << '\n';
 	verify(flowBuffer.getBufferLength() == expectedLength && !std::memcmp(buffer, expectedBuffer, expectedLength));
-	verify(flowState == flowResult);
+	verifyFlowState(flowState, flowResult);
 }
 
 void	testBufferInFd(char *buffer, size_t bufferCapacity, int writeFd, FdType writeType, int readFd, FdType readType, FlowState flowResult)
@@ -45,7 +45,7 @@ void	testBufferInFd(char *buffer, size_t bufferCapacity, int writeFd, FdType wri
 
 	const FlowState flowState = bufferToFd(writeFd, writeType, buffer, bufferCapacity, &numCharsWritten);
 	verify(checkContent(readFd, readType, buffer, numCharsWritten));
-	verify(flowState == flowResult);
+	verifyFlowState(flowState,flowResult);
 }
 
 void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[2], FlowState firstFlowResult, FlowState secondFlowResult)
@@ -74,7 +74,7 @@ void	fileToSocket(const char *path, size_t fileSize, int (&sockets)[2], FlowStat
 	const FlowState flowState = flowBuffer.redirectContent(fileFd, FILEFD, sockets[0], SOCKETFD);
 
 	verify(checkContent(sockets[1], SOCKETFD, file, fileSize));
-	verify(flowState == flowResult);
+	verifyFlowState(flowState, flowResult);
 	close(fileFd);
 	delete [] file;
 	delete [] buffer;
@@ -250,8 +250,10 @@ int	main()
 	fileToSocket("../tests/scripts/cors-test.html", 100, sockets, FLOW_DONE);
 	printInfo("small file to socket with buffer larger");
 	fileToSocket("../tests/scripts/cors-test.html", 200, sockets, FLOW_DONE);
-	// printInfo("big file to socket");
-	// fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_DONE);
+	printInfo("big file to socket with small buffer");
+	fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_MORE_SEND);
+	printInfo("big file to socket with big buffer");
+	fileToSocket("/var/log/dpkg.log.3.gz", 1024, sockets, FLOW_DONE);
 	/*fileToBufer("/var/log/dpkg.log.3.gz");
 	readAndWriteStringWordByWord(sockets);
 	redirectStringWordByWord(sockets);*/
