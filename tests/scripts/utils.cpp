@@ -70,7 +70,7 @@ bool	redirectSTDERR(int (&tube)[2])
 	return (true);
 }
 
-bool	checkContent(int srcFd, FdType srcType, char *expectedBuffer, size_t bufferCapacity)
+bool	checkContent(int srcFd, FdType srcType, const char *expectedBuffer, size_t bufferCapacity)
 {
 	char	buffer[bufferCapacity];
 	char	ignoreBuffer[1024];

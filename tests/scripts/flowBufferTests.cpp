@@ -107,7 +107,6 @@ void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &m
 	char		buffer[bufferSize];
 	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
 
-	printInfo("read multiples messages");
 	for (std::vector<std::string>::const_iterator it = messages.begin(); it < messages.end(); it++)
 	{
 		const ssize_t written = send(sockets[0], (*it).c_str(), (*it).size(), MSG_DONTWAIT | MSG_NOSIGNAL);
@@ -117,13 +116,9 @@ void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &m
 			return ;
 		}
 		const FlowState flowState = flowBuffer.redirectContentToBuffer(sockets[1], SOCKETFD);
-		std::cout << getFlowStateAsString(flowState) << std::endl;
-		if (flowState == FLOW_ERROR)
-		{
-			std::cout << strerror(errno) << std::endl;
-			return ;
-		}
-		flowBuffer.redirectContentFromBuffer(STDIN_FILENO, FILEFD);
+		flowBuffer.redirectContentFromBuffer(sockets[0], SOCKETFD);
+		verify(checkContent(sockets[1], SOCKETFD, (*it).c_str(), (*it).size()));
+		verifyFlowState(flowState, FLOW_MORE_RECV);
 	}
 }
 
@@ -159,7 +154,7 @@ void	readAndWriteStringWordByWord(int (&sockets)[2])
 	messages.push_back("suis ");
 	messages.push_back("un ");
 	messages.push_back("test\n");
-	readAndWriteMultipleMessages(sockets, messages, 5);
+	readAndWriteMultipleMessages(sockets, messages, 7);
 }
 
 void	redirectStringWordByWord(int (&sockets)[2])
@@ -265,8 +260,9 @@ int	main()
 	fileToBufer((char*)"./../tests/scripts/cors-test.html", 1024, FLOW_DONE);
 	printInfo("empty file to buffer");
 	fileToBufer((char*)"./../tests/scripts/flowBufferFiles/empty.txt", 5, FLOW_DONE);
-	/*readAndWriteStringWordByWord(sockets);
-	redirectStringWordByWord(sockets);*/
+	printInfo("Sending and receiving a message word by word");
+	readAndWriteStringWordByWord(sockets);
+	/*redirectStringWordByWord(sockets);*/
 	close(sockets[0]);
 	close(sockets[1]);
 	delete [] hugeString;
