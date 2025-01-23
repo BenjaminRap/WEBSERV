@@ -121,8 +121,6 @@ GetRequest::GetRequest() : _config(), _root()
 
 GetRequest::~GetRequest()
 {
-	if (this->_isRoot)
-		delete this->_root;
 }
 
 GetRequest &GetRequest::operator=(const GetRequest &src)
@@ -176,7 +174,7 @@ std::vector<std::string> GetRequest::getIndexVec()
 	return (this->_root->getIndex());
 }
 
-void	GetRequest::setRoot(Route *root)
+void	GetRequest::setRoot(const Route *root)
 {
 	this->_root = root;
 }

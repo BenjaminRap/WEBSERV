@@ -12,7 +12,7 @@ class GetRequest
 		GetRequest();
 
 		ServerConfiguration	*_config;
-		Route				*_root;
+		const Route			*_root;
 		std::string			_url;
 		bool				_autoIndex;
 		int					_index;
@@ -26,7 +26,7 @@ class GetRequest
 		void						setResponse(int code, const std::string& file);
 		void						setUrl(const std::string& src);
 		void						setAutoIndex(bool src);
-		void						setRoot(Route *root);
+		void						setRoot(const Route *root);
 		void						setIsRoot(bool src);
 		bool						getAutoIndex() const;
 		bool						getIsRoot() const;

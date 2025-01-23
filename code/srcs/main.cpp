@@ -142,21 +142,21 @@ int	main(int argc, char **argv)
 
 	Configuration	config(argv[1]);
 
-	if (argc == 2)
-		unitsTest(config.getServerConfiguration(0));
-	else if (argc == 3)
-	{
-		GetRequest a(argv[2], config.getServerConfiguration(0));
-		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
-		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		std::cout << CRESET << std::endl;
-		std::cout << BMAG << "Code : "<< BWHT << a.code << CRESET << std::endl;
-		std::cout << BMAG << "File : "<< BWHT << a.file << CRESET << std::endl;
-		std::cout << std::endl;
-		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	}
-	return (0);
+	// if (argc == 2)
+	// 	unitsTest(config.getServerConfiguration(0));
+	// else if (argc == 3)
+	// {
+	// 	GetRequest a(argv[2], config.getServerConfiguration(0));
+	// 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	// 	std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
+	// 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	// 	std::cout << CRESET << std::endl;
+	// 	std::cout << BMAG << "Code : "<< BWHT << a.code << CRESET << std::endl;
+	// 	std::cout << BMAG << "File : "<< BWHT << a.file << CRESET << std::endl;
+	// 	std::cout << std::endl;
+	// 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	// }
+	// return (0);
 }
 
 
