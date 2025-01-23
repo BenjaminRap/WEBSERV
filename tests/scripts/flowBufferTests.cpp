@@ -59,18 +59,19 @@ void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[
 	delete [] resultBuffer;
 }
 
-void	fileToSocket(const char *path, size_t fileSize, int (&sockets)[2], FlowState flowResult)
+void	fileToSocket(const char *path, size_t bufferSize, int (&sockets)[2], FlowState flowResult)
 {
-	char		*file = getFileInString(path, fileSize, fileSize);
+	size_t	fileSize;
+	char		*file = getFileInString(path, bufferSize, fileSize);
 	const int	fileFd = open(path, O_RDONLY);
-	char		*buffer = new char[fileSize];
+	char		*buffer = new char[(bufferSize == 0 ? 1 : bufferSize)];
 
 	if (fileFd == -1)
 	{
 		std::cout << strerror(errno) << std::endl;
 		return ;
 	}
-	FlowBuffer	flowBuffer(buffer, fileSize, 0);
+	FlowBuffer	flowBuffer(buffer, (bufferSize == 0 ? 1 : bufferSize), 0);
 	const FlowState flowState = flowBuffer.redirectContent(fileFd, FILEFD, sockets[0], SOCKETFD);
 
 	verify(checkContent(sockets[1], SOCKETFD, file, fileSize));
@@ -80,22 +81,24 @@ void	fileToSocket(const char *path, size_t fileSize, int (&sockets)[2], FlowStat
 	delete [] buffer;
 }
 
-void	fileToBufer(std::string path)
+void	fileToBufer(char *path, size_t bufferSize, FlowState flowResult)
 {
-	const int	fileFd = open(path.c_str(), O_RDONLY);
-	char		buffer[1024];
+	size_t	fileSize;
+	const int	fileFd = open(path, O_RDONLY);
+	char		*file = getFileInString(path, bufferSize, fileSize);
+	char		buffer[(bufferSize == 0) ? 1 : bufferSize];
 
 	if (fileFd == -1)
 	{
 		std::cout << strerror(errno) << std::endl;
 		return ;
 	}
-	FlowBuffer	flowBuffer(buffer, 1024, 0);
+	FlowBuffer	flowBuffer(buffer, (bufferSize == 0) ? 1 : bufferSize, 0);
 	const FlowState flowState = flowBuffer.redirectContentToBuffer(fileFd, FILEFD);
 
-	std::cout << getFlowStateAsString(flowState) << std::endl;
-	if (flowState == FLOW_ERROR)
-		std::cout << strerror(errno) << '\n';
+	verify(fileSize == flowBuffer.getBufferLength() && !std::memcmp(buffer, file, fileSize));
+	verifyFlowState(flowState, flowResult);
+	delete [] file;
 	close(fileFd);
 }
 
@@ -254,8 +257,15 @@ int	main()
 	fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_MORE_SEND);
 	printInfo("big file to socket with big buffer");
 	fileToSocket("/var/log/dpkg.log.3.gz", 1024, sockets, FLOW_DONE);
-	/*fileToBufer("/var/log/dpkg.log.3.gz");
-	readAndWriteStringWordByWord(sockets);
+	printInfo("empty file to socket with small buffer");
+	fileToSocket("./../tests/scripts/flowBufferFiles/empty.txt", 5, sockets, FLOW_DONE);
+	printInfo("big file to smaller buffer");
+	fileToBufer((char*)"/var/log/dpkg.log.3.gz", 1024, FLOW_BUFFER_FULL);
+	printInfo("small file to bigger buffer");
+	fileToBufer((char*)"./../tests/scripts/cors-test.html", 1024, FLOW_DONE);
+	printInfo("empty file to buffer");
+	fileToBufer((char*)"./../tests/scripts/flowBufferFiles/empty.txt", 5, FLOW_DONE);
+	/*readAndWriteStringWordByWord(sockets);
 	redirectStringWordByWord(sockets);*/
 	close(sockets[0]);
 	close(sockets[1]);
