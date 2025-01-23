@@ -60,9 +60,9 @@ FlowBuffer::~FlowBuffer()
  * the data read from srcFd.
  * @param destType The type of destFd, either SOCKETFD or FILEFD, it will determines
  * if the function uses write or send.
- * @return Return -1 on error, 0 if there is nothing more to read/write, and >0 if there
- * is more to read/write. In the later case, we need to wait for another EPOLLOUT/EPOLLIN
- * before calling this function again, until it returns 0 or -1.
+ * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read/write,
+ * FLOW_MORE_RECV if there is more to receive and we need to wait an EPOLLIN event
+ * and FLOW_MORE_SEND of there is more to send and we need to wait for an EPOLLOUT event.
  */
 FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdType destType)
 {
@@ -97,9 +97,10 @@ FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdT
  * or sent into.
  * @param destType The type of destFd, either FILEFD or SOCKETFD, it will determines
  * if the function uses write or recv.
- * @return Return -1 on error, 0 if there is nothing more to write, and >0 if there
- * is more to write. In the later case, we need to wait for another EPOLLOUT
- * before calling this function again, until it returns 0 or -1.
+ * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to write,
+ * and FLOW_MORE_SEND if there is more to send. In the later case, we need to wait for
+ * another EPOLLOUT before calling this function again, until it returns FLOW_DONE
+ * or FLOW_ERROR.
  */
 FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 {
@@ -134,10 +135,11 @@ FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
  * @param srcFd The fd this functions will read from.
  * @param srcType The type of srcFd, either SOCKETFD or FILEFD, it will determine
  * if the function uses read or recv.
- * @return This function returns -1 on error, 0 if the client has closed the
- * connection, 1 if there is more to read and 2 if the buffer is full. If the
- * buffer is full and the client has closed the connection, this function will
- * return 2. In the case of return 1, we need to wait for another EPOLLIN event
+ * @return This function returns FLOW_ERROR on error, FLOW_DONE if the client
+ * has closed the connection, FLOW_MORE_RECV if there is more to receive and
+ * FLOW_BUFFER_FULL if the buffer is full. If the buffer is full and the client
+ * has closed the connection, this function will return FLOW_BUFFER_FULL.
+ * In the case of return FLOW_MORE_RECV, we need to wait for another EPOLLIN event
  * and call this function again.
  */
 FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
