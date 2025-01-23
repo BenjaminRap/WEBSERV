@@ -129,7 +129,7 @@ std::string	buildPage(std::vector<std::string> files, const std::string& path)
 	result += "</title></head>\n<body>\n<h1>Index of";
 	result += path;
 	result += "</h1><hr><pre><a href=\"../\">../</a>\n";
-	for (unsigned long i = 0; i < size; i++)
+	for (unsigned long i = 0; i <= size; i++)
 	{
 		if (files.empty())
 			break;
