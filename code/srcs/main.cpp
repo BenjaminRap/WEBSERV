@@ -37,6 +37,34 @@ void	makeTest(const std::string& test, int code, const std::string& response, co
 		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "KO : " << a.code << " | " << a.file << CRESET <<std::endl;
 }
 
+void	verifyUrl(const std::string &test, const std::string &result, const ServerConfiguration &config, size_t rootLength)
+{
+	GetRequest		a(test, config);
+	std::string		url = a.getUrl();
+
+	url = url.substr(rootLength, url.size());
+
+	std::cout << test << " --> ";
+	std::cout << url << "\t";
+	if (url == result)
+		std::cout << BGRN << "OK" << CRESET << std::endl;
+	else
+		std::cout << BRED << "KO, url should be : " << result << CRESET << std::endl;
+}
+
+void	checkCode(const std::string &test, int result, const ServerConfiguration &config)
+{
+	GetRequest	a(test, config);
+
+
+	std::cout << test << " --> ";
+	std::cout << a.code << "\t";
+	if (a.code == result)
+		std::cout << BGRN << "OK" << CRESET << std::endl;
+	else
+		std::cout << BRED << "KO, code should be : " << result << CRESET << std::endl;
+}
+
 void	unitsTest(const ServerConfiguration& config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
@@ -81,6 +109,30 @@ void	unitsTest(const ServerConfiguration& config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t", config);
 	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t", config);
+
+	std::cout << "Test Benji" << std::endl;
+
+	std::cout << "tests url" << std::endl;
+
+	size_t	rootLength = config.getRoot().size();
+	verifyUrl("/../../bidule/", "/bidule/", config, rootLength);
+	// verifyUrl("/../../bidule../", "/bidule../", config, rootLength); //infinite loop
+	verifyUrl("/bidule/test/../", "/bidule/", config, rootLength);
+	verifyUrl("/../bidule/../test", "/test", config, rootLength);
+	verifyUrl("/test/truc/bidule/machin/../arg", "/test/truc/bidule/arg", config, rootLength);
+	verifyUrl("/", "/", config, rootLength);
+	verifyUrl("", "/", config, rootLength);
+	verifyUrl("/test//../", "/test/", config, rootLength);
+	verifyUrl("/test/./././../", "/", config, rootLength);
+	verifyUrl("/../../../../test/test/test/test", "/test/test/test/test", config, rootLength);
+	// verifyUrl("../", "/", config, rootLength); //infinite loop
+	verifyUrl("/../", "/", config, rootLength);
+	// verifyUrl("test/../truc", "/", config, rootLength); // segfault
+
+	std::cout << "autoIndex" << std::endl;
+
+	checkCode("/autoindex/testFolder/", 200, config);
+	checkCode("/autoindex/doesntexist/", 404, config);
 }
 
 int	main(int argc, char **argv)
