@@ -126,24 +126,34 @@ void	redirectMultipleMessages(int (&sockets)[2], std::vector<std::string> &messa
 {
 	char		buffer[bufferSize];
 	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
+	int			tube[2];
 
-	printInfo("read multiples messages");
+	if (pipe(tube) == -1)
+	{
+		std::cout << strerror(errno) << std::endl;
+		return ;
+	}
+	if (fcntl(tube[0], F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cout << strerror(errno) << std::endl;
+		close(tube[0]);
+		close(tube[1]);
+		return ;
+	}
 	for (std::vector<std::string>::const_iterator it = messages.begin(); it < messages.end(); it++)
 	{
 		const ssize_t written = send(sockets[0], (*it).c_str(), (*it).size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		if (written == -1)
 		{
 			std::cout << strerror(errno) << std::endl;
-			return ;
+			break ; 
 		}
-		const FlowState flowState = flowBuffer.redirectContent(sockets[1], SOCKETFD, STDIN_FILENO, FILEFD);
-		std::cout << getFlowStateAsString(flowState) << std::endl;
-		if (flowState == FLOW_ERROR)
-		{
-			std::cout << strerror(errno) << std::endl;
-			return ;
-		}
+		const FlowState flowState = flowBuffer.redirectContent(sockets[1], SOCKETFD, tube[1], FILEFD);
+		checkContent(tube[0], FILEFD, (*it).c_str(), (*it).size());
+		verifyFlowState(flowState, FLOW_MORE_RECV);
 	}
+	close(tube[0]);
+	close(tube[1]);
 }
 
 void	readAndWriteStringWordByWord(int (&sockets)[2])
@@ -165,7 +175,7 @@ void	redirectStringWordByWord(int (&sockets)[2])
 	messages.push_back("suis ");
 	messages.push_back("un ");
 	messages.push_back("test\n");
-	redirectMultipleMessages(sockets, messages, 5);
+	redirectMultipleMessages(sockets, messages, 7);
 }
 
 # define HUGE_STRING_LENGTH 1000000
@@ -262,7 +272,8 @@ int	main()
 	fileToBufer((char*)"./../tests/scripts/flowBufferFiles/empty.txt", 5, FLOW_DONE);
 	printInfo("Sending and receiving a message word by word");
 	readAndWriteStringWordByWord(sockets);
-	/*redirectStringWordByWord(sockets);*/
+	printInfo("Redirecting message word by word");
+	redirectStringWordByWord(sockets);
 	close(sockets[0]);
 	close(sockets[1]);
 	delete [] hugeString;
