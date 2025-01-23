@@ -29,7 +29,7 @@ FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength)
 	if (bufferLength > bufferCapacity)
 		throw std::logic_error("FlowBuffer constructor called with a bufferLength superior to the bufferCapacity");
 	if (buffer == NULL)
-		throw std::logic_error("The buffer passed as argument is empty");
+		throw std::logic_error("The buffer passed as argument is NULL");
 	if (bufferCapacity == 0)
 		throw std::logic_error("The buffer capacity is 0");
 }
@@ -164,4 +164,15 @@ FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
 		_bufferLength += rd;
 	}
 	return (FLOW_BUFFER_FULL);
+}
+
+size_t		FlowBuffer::getBufferLength(void) const
+{
+	return (_bufferLength);
+}
+
+
+size_t		FlowBuffer::getNumCharsWritten(void) const
+{
+	return (_numCharsWritten);
 }

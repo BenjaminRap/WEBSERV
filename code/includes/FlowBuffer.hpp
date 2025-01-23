@@ -81,6 +81,8 @@ public:
 	FlowState	redirectContent(int srcFd, FdType srcType, int destFd, FdType destType);
 	FlowState	redirectContentFromBuffer(int destFd, FdType destType);
 	FlowState	redirectContentToBuffer(int srcFd, FdType srcType);
+	size_t		getBufferLength(void) const;
+	size_t		getNumCharsWritten(void) const;
 };
 
 #endif // !FLOW_BUFFER_HPP
