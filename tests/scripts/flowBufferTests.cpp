@@ -10,6 +10,8 @@
 
 #include "FlowBuffer.hpp"
 
+#include "utils.cpp"
+
 std::string	&getFlowStateAsString(FlowState flowState)
 {
 	static std::string meaning[] = {"FLOW_ERROR", "FLOW_DONE", "FLOW_MORE_RECV", "FLOW_MORE_SEND", "FLOW_BUFFER_FULL"};
@@ -102,8 +104,10 @@ void	fileToBufer(std::string path)
 
 void	readMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages)
 {
-	char	buffer[1024];
+	char		buffer[5];
+	FlowBuffer	flowBuffer(buffer, 5, 0);
 
+	printInfo("read multiples messages");
 	for (std::vector<std::string>::const_iterator it = messages.begin(); it < messages.end(); it++)
 	{
 		const ssize_t written = send(sockets[0], (*it).c_str(), (*it).size(), MSG_DONTWAIT | MSG_NOSIGNAL);
@@ -112,13 +116,14 @@ void	readMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages)
 			std::cout << strerror(errno) << std::endl;
 			return ;
 		}
-		const ssize_t rd = recv(sockets[1], buffer, 1024, MSG_DONTWAIT | MSG_NOSIGNAL);
-		if (rd == -1)
+		const FlowState flowState = flowBuffer.redirectContentToBuffer(sockets[1], SOCKETFD);
+		std::cout << getFlowStateAsString(flowState) << std::endl;
+		if (flowState == FLOW_ERROR)
 		{
 			std::cout << strerror(errno) << std::endl;
 			return ;
 		}
-		std::cout << std::string(buffer, rd) << std::endl;
+		flowBuffer.redirectContentFromBuffer(STDIN_FILENO, FILEFD);
 	}
 }
 
