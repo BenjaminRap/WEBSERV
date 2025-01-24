@@ -66,9 +66,10 @@ RawResponse::~RawResponse()
 /**
  * @brief Send this response to the client socket.
  * @param socketFd The socket of the client, in which we will send the response.
- * @return -1 on error, 0 if the response has been entirely written and >0 if
- * there is more to write. In the latter case, we need to wait for another EPOLLOUT
- * before calling this fuction again, until we receive <=0.
+ * @return FLOW_ERROR on error, FLOW_DONE if the response has been entirely written
+ * and FLOW_EAGAIN_SEND if there is more to send . In the latter case, we need
+ * to wait for another EPOLLOUT before calling this fuction again, until we
+ * receive FLOW_ERROR or FLOW_DONE.
  */
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {

@@ -61,8 +61,8 @@ FlowBuffer::~FlowBuffer()
  * @param destType The type of destFd, either SOCKETFD or FILEFD, it will determines
  * if the function uses write or send.
  * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read/write,
- * FLOW_MORE_RECV if there is more to receive and we need to wait an EPOLLIN event
- * and FLOW_MORE_SEND of there is more to send and we need to wait for an EPOLLOUT event.
+ * FLOW_EAGAIN_RECV if there is more to receive and we need to wait an EPOLLIN event
+ * and FLOW_EAGAIN_SEND of there is more to send and we need to wait for an EPOLLOUT event.
  */
 FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdType destType)
 {
@@ -78,7 +78,7 @@ FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdT
 		{
 			rd = recv(srcFd, _buffer, _bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
 			if (rd == -1 && errno == EAGAIN)
-				return (FLOW_MORE_RECV);
+				return (FLOW_EAGAIN_RECV);
 		}
 		else
 			rd = read(srcFd, _buffer, _bufferCapacity);
@@ -98,7 +98,7 @@ FlowState	FlowBuffer::redirectContent(int srcFd, FdType srcType, int destFd, FdT
  * @param destType The type of destFd, either FILEFD or SOCKETFD, it will determines
  * if the function uses write or recv.
  * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to write,
- * and FLOW_MORE_SEND if there is more to send. In the later case, we need to wait for
+ * and FLOW_EAGAIN_SEND if there is more to send. In the later case, we need to wait for
  * another EPOLLOUT before calling this function again, until it returns FLOW_DONE
  * or FLOW_ERROR.
  */
@@ -115,7 +115,7 @@ FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
 		{
 			written = send(destFd, _buffer + _numCharsWritten, numCharsToWrite, MSG_DONTWAIT | MSG_NOSIGNAL);
 			if (written == -1 && errno == EAGAIN)
-				return (FLOW_MORE_SEND);
+				return (FLOW_EAGAIN_SEND);
 		}
 		else
 			written = write(destFd, _buffer + _numCharsWritten, numCharsToWrite);
@@ -136,10 +136,10 @@ FlowState	FlowBuffer::redirectContentFromBuffer(int destFd, FdType destType)
  * @param srcType The type of srcFd, either SOCKETFD or FILEFD, it will determine
  * if the function uses read or recv.
  * @return This function returns FLOW_ERROR on error, FLOW_DONE if the client
- * has closed the connection, FLOW_MORE_RECV if there is more to receive and
+ * has closed the connection, FLOW_EAGAIN_RECV if there is more to receive and
  * FLOW_BUFFER_FULL if the buffer is full. If the buffer is full and the client
  * has closed the connection, this function will return FLOW_BUFFER_FULL.
- * In the case of return FLOW_MORE_RECV, we need to wait for another EPOLLIN event
+ * In the case of return FLOW_EAGAIN_RECV, we need to wait for another EPOLLIN event
  * and call this function again.
  */
 FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
@@ -154,7 +154,7 @@ FlowState	FlowBuffer::redirectContentToBuffer(int srcFd, FdType srcType)
 		{
 			rd = recv(srcFd, _buffer + _bufferLength, remainingCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
 			if (rd == -1 && errno == EAGAIN)
-				return (FLOW_MORE_RECV);
+				return (FLOW_EAGAIN_RECV);
 		}
 		else
 			rd = read(srcFd, _buffer + _bufferLength, remainingCapacity);
