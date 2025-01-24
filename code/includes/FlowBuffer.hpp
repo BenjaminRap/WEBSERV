@@ -2,7 +2,10 @@
 # define FLOW_BUFFER_HPP
 
 # include <stddef.h>
+# include <sys/socket.h>
+# include <unistd.h>
 # include <string>
+# include <cerrno>
 
 /**
  * @brief The meanings of the FlowBuffer functions member's returns.
@@ -47,6 +50,9 @@ enum FdType
 	FILEFD
 };
 
+ssize_t		writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType);
+ssize_t		readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType);
+
 /**
  * @brief This class has a buffer and informations about the buffer. It also
  * has member functions to redirect content, using his internal buffer.
@@ -81,11 +87,36 @@ public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
-	FlowState	redirectContent(int srcFd, FdType srcType, int destFd, FdType destType);
-	FlowState	redirectContentFromBuffer(int destFd, FdType destType);
-	FlowState	redirectContentToBuffer(int srcFd, FdType srcType);
+	template <typename Data>
+	FlowState	redirectContent
+	(
+		int srcFd,
+		Data &readData,
+		int destFd,
+		Data &writeData,
+		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data) = readFromFdWithType,
+		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data) = writeToFdWithType
+	);
+	template <typename Data>
+	FlowState	redirectContentFromBuffer
+	(
+		int destFd,
+		Data &writeData,
+		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data) = writeToFdWithType
+	);
+	template <typename Data>
+	FlowState	redirectContentToBuffer
+	(
+		int srcFd,
+		Data &readData,
+		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data) = readFromFdWithType
+	);
+
 	size_t		getBufferLength(void) const;
 	size_t		getNumCharsWritten(void) const;
 };
+
+
+# include "FlowBuffer.tpp"
 
 #endif // !FLOW_BUFFER_HPP

@@ -61,7 +61,9 @@ void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[
 
 void	fileToSocket(const char *path, size_t bufferSize, int (&sockets)[2], FlowState flowResult)
 {
-	size_t	fileSize;
+	FdType		fileType = FILEFD;
+	FdType		socketType = SOCKETFD;
+	size_t		fileSize;
 	char		*file = getFileInString(path, bufferSize, fileSize);
 	const int	fileFd = open(path, O_RDONLY);
 	char		*buffer = new char[(bufferSize == 0 ? 1 : bufferSize)];
@@ -72,7 +74,7 @@ void	fileToSocket(const char *path, size_t bufferSize, int (&sockets)[2], FlowSt
 		return ;
 	}
 	FlowBuffer	flowBuffer(buffer, (bufferSize == 0 ? 1 : bufferSize), 0);
-	const FlowState flowState = flowBuffer.redirectContent(fileFd, FILEFD, sockets[0], SOCKETFD);
+	const FlowState flowState = flowBuffer.redirectContent(fileFd, fileType, sockets[0], socketType);
 
 	verify(checkContent(sockets[1], SOCKETFD, file, fileSize));
 	verifyFlowState(flowState, flowResult);
@@ -83,6 +85,7 @@ void	fileToSocket(const char *path, size_t bufferSize, int (&sockets)[2], FlowSt
 
 void	fileToBufer(char *path, size_t bufferSize, FlowState flowResult)
 {
+	FdType		fileType = FILEFD;
 	size_t	fileSize;
 	const int	fileFd = open(path, O_RDONLY);
 	char		*file = getFileInString(path, bufferSize, fileSize);
@@ -94,7 +97,7 @@ void	fileToBufer(char *path, size_t bufferSize, FlowState flowResult)
 		return ;
 	}
 	FlowBuffer	flowBuffer(buffer, (bufferSize == 0) ? 1 : bufferSize, 0);
-	const FlowState flowState = flowBuffer.redirectContentToBuffer(fileFd, FILEFD);
+	const FlowState flowState = flowBuffer.redirectContentToBuffer(fileFd, fileType);
 
 	verify(fileSize == flowBuffer.getBufferLength() && !std::memcmp(buffer, file, fileSize));
 	verifyFlowState(flowState, flowResult);
@@ -104,6 +107,7 @@ void	fileToBufer(char *path, size_t bufferSize, FlowState flowResult)
 
 void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages, size_t bufferSize)
 {
+	FdType		socketType = SOCKETFD;
 	char		buffer[bufferSize];
 	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
 
@@ -115,8 +119,8 @@ void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &m
 			std::cout << strerror(errno) << std::endl;
 			return ;
 		}
-		const FlowState flowState = flowBuffer.redirectContentToBuffer(sockets[1], SOCKETFD);
-		flowBuffer.redirectContentFromBuffer(sockets[0], SOCKETFD);
+		const FlowState flowState = flowBuffer.redirectContentToBuffer(sockets[1], socketType);
+		flowBuffer.redirectContentFromBuffer(sockets[0], socketType);
 		verify(checkContent(sockets[1], SOCKETFD, (*it).c_str(), (*it).size()));
 		verifyFlowState(flowState, FLOW_EAGAIN_RECV);
 	}
@@ -124,6 +128,8 @@ void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &m
 
 void	redirectMultipleMessages(int (&sockets)[2], std::vector<std::string> &messages, size_t bufferSize)
 {
+	FdType		fileType = FILEFD;
+	FdType		socketType = SOCKETFD;
 	char		buffer[bufferSize];
 	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
 	int			tube[2];
@@ -148,7 +154,7 @@ void	redirectMultipleMessages(int (&sockets)[2], std::vector<std::string> &messa
 			std::cout << strerror(errno) << std::endl;
 			break ; 
 		}
-		const FlowState flowState = flowBuffer.redirectContent(sockets[1], SOCKETFD, tube[1], FILEFD);
+		const FlowState flowState = flowBuffer.redirectContent(sockets[1], socketType, tube[1], fileType);
 		checkContent(tube[0], FILEFD, (*it).c_str(), (*it).size());
 		verifyFlowState(flowState, FLOW_EAGAIN_RECV);
 	}

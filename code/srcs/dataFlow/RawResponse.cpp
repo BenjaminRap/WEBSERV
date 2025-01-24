@@ -73,11 +73,13 @@ RawResponse::~RawResponse()
  */
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	const FlowState flowState = _firstPartBuffer.redirectContentFromBuffer(socketFd, SOCKETFD);
+	FdType			destType = SOCKETFD;
+	FdType			srcType = FILEFD;
+	const FlowState flowState = _firstPartBuffer.redirectContentFromBuffer(socketFd, destType);
 
 	if (flowState != FLOW_DONE)
 		return (flowState);
 	if (_bodyFd == -1)
 		return (FLOW_DONE);
-	return (_bodyBuffer.redirectContent(_bodyFd, FILEFD, socketFd, SOCKETFD));
+	return (_bodyBuffer.redirectContent(_bodyFd, srcType, socketFd, destType));
 }
