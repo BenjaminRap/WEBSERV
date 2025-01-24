@@ -59,7 +59,7 @@ void	createAllServerSockets
 	SocketsHandler &socketsHandler
 )
 {
-	const uint32_t	events = EPOLLIN | EPOLLET | EPOLLERR | EPOLLHUP;
+	const uint32_t	events = EPOLLIN | EPOLLERR | EPOLLHUP;
 
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
