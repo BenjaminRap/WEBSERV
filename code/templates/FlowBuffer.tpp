@@ -7,14 +7,14 @@
  * @param readData Data that will be sent to the read custom function.
  * @param destFd The file descriptor in which the function will write or send
  * the data read from srcFd.
- * @param writeData that will be sent to the write function.
+ * @param writeData Data that will be sent to the write function.
  * @param customRead The function that will read the data in the srcFd. If no parameter
- * is entered, the defualt customRead is readFromFdWithType and readData is a FdType.
- * @param customWrite The function that will write the data in the destF. If no parameter
- * is entered, the defualt customWrite is writeToFdWithType and writeData is a FdType.
- * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read/write,
- * FLOW_MORE_RECV if there is more to receive and we need to wait an EPOLLIN event
- * and FLOW_MORE_SEND of there is more to send and we need to wait for an EPOLLOUT event.
+ * is entered, the default customRead is readFromFdWithType and readData is a FdType.
+ * @param customWrite The function that will write the data in the destFd. If no parameter
+ * is entered, the default customWrite is writeToFdWithType and writeData is a FdType.
+ * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read/write
+ * and FLOW_MORE if there is more to read/write. In the latter case, we should
+ * wait for an EPOLLIN/EPOLLOUT event before calling this function again.
  */
 template <typename Data>
 FlowState	FlowBuffer::redirectContent
@@ -27,15 +27,16 @@ FlowState	FlowBuffer::redirectContent
 	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data)
 )
 {
-	if (_bufferLength <= _bufferCapacity / 2)
-	{
-		const FlowState	flowState = redirectFdContentToBuffer(srcFd, readData, customRead);
+	const FlowState	readState = redirectFdContentToBuffer(srcFd, readData, customRead);
 
 
-		if (flowState == FLOW_ERROR)
-			return (FLOW_ERROR);
-	}
-	return (redirectBufferContentToFd(destFd, writeData, customWrite));
+	if (readState == FLOW_ERROR)
+		return (FLOW_ERROR);
+	const FlowState writeState = redirectBufferContentToFd(destFd, writeData, customWrite);
+
+	if (writeState == FLOW_DONE)
+		return ((readState == FLOW_BUFFER_FULL) ? FLOW_MORE : readState);
+	return (writeState);
 }
 
 /**
@@ -43,12 +44,11 @@ FlowState	FlowBuffer::redirectContent
  * @param destFd The file descriptor in which the data from buffer will be written
  * or sent into.
  * @param writeData that will be sent to the write function.
- * @param customWrite The function that will write the data in the destF. If no parameter
- * is entered, the defualt customWrite is writeToFdWithType and writeData is a FdType.
- * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to write,
- * and FLOW_MORE_SEND if there is more to send. In the later case, we need to wait for
- * another EPOLLOUT before calling this function again, until it returns FLOW_DONE
- * or FLOW_ERROR.
+ * @param customWrite The function that will write the data in the destFd. If no parameter
+ * is entered, the default customWrite is writeToFdWithType and writeData is a FdType.
+ * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to write
+ * and FLOW_MORE if there is more to write. In the latter case, we should
+ * wait for an EPOLLOUT event before calling this function again.
  */
 template <typename Data>
 FlowState	FlowBuffer::redirectBufferContentToFd
@@ -72,7 +72,7 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 		_numCharsWritten = 0;
 		return (FLOW_DONE);
 	}
-	return (FLOW_MORE_SEND);
+	return (FLOW_MORE);
 }
 
 /**
@@ -81,13 +81,12 @@ FlowState	FlowBuffer::redirectBufferContentToFd
  * @param srcFd The fd this functions will read from.
  * @param readData Data that will be sent to the read custom function.
  * @param customRead The function that will read the data in the srcFd. If no parameter
- * is entered, the defualt customRead is readFromFdWithType and readData is a FdType.
- * @return This function returns FLOW_ERROR on error, FLOW_DONE if the client
- * has closed the connection, FLOW_MORE_RECV if there is more to receive and
- * FLOW_BUFFER_FULL if the buffer is full. If the buffer is full and the client
- * has closed the connection, this function will return FLOW_BUFFER_FULL.
- * In the case of return FLOW_MORE_RECV, we need to wait for another EPOLLIN event
- * and call this function again.
+ * is entered, the default customRead is readFromFdWithType and readData is a FdType.
+ * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read,
+ * FLOW_BUFFER_FULL if the buffer is full and FLOW_MORE if there is more to
+ * read. In the latter case, we should wait for an EPOLLIN event before calling
+ * this function again.
+ * BUFFER_FULL also means that there is more to read.
  */
 template <typename Data>
 FlowState	FlowBuffer::redirectFdContentToBuffer
@@ -108,5 +107,5 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 	if (rd == 0)
 		return (FLOW_DONE);
 	_bufferLength += rd;
-	return ((_bufferLength >= _bufferCapacity) ? FLOW_BUFFER_FULL : FLOW_MORE_RECV);
+	return ((_bufferLength >= _bufferCapacity) ? FLOW_BUFFER_FULL : FLOW_MORE);
 }

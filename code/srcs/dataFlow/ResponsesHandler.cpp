@@ -20,16 +20,16 @@ ResponsesHandler::~ResponsesHandler()
 
 /**
  * @brief Send all the responses to the client socket.
- * @param the file descriptor to the client socket.
+ * @param socketFd the file descriptor to the client socket.
  * @return FLOW_ERROR on error, FLOW_DONE if all responses has been entirely
- * written, FLOW_MORE_SEND if there is more to sned. In the latter case,
+ * written, FLOW_MORE if there is more to send. In the latter case,
  * we should wait for an EPOLLOUT and call this function again, until we
  * receive a FLOR_ERROR or FLOW_DONE.
  */
 FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 {
 	if (_canWrite == false)
-		return (FLOW_MORE_SEND);
+		return (FLOW_MORE);
 	while (_responses.size() != 0)
 	{
 		RawResponse		&response = _responses.front();
