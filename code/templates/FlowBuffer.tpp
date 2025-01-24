@@ -27,18 +27,15 @@ FlowState	FlowBuffer::redirectContent
 	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data)
 )
 {
-	const FlowState	flowState = redirectBufferContentToFd(destFd, writeData, customWrite);
+	if (_bufferLength <= _bufferCapacity / 2)
+	{
+		const FlowState	flowState = redirectFdContentToBuffer(srcFd, readData, customRead);
 
-	if (flowState != FLOW_DONE)
-		return (flowState);
-	const ssize_t rd = customRead(srcFd, _buffer, _bufferCapacity, readData);
-	if (rd == -1)
-		return (FLOW_ERROR);
-	_numCharsWritten = 0;
-	_bufferLength = rd;
-	if (rd == 0)
-		return (FLOW_DONE);
-	return (FLOW_MORE_RECV);
+
+		if (flowState == FLOW_ERROR)
+			return (FLOW_ERROR);
+	}
+	return (redirectBufferContentToFd(destFd, writeData, customWrite));
 }
 
 /**
@@ -75,7 +72,7 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 		_numCharsWritten = 0;
 		return (FLOW_DONE);
 	}
-	return (FLOW_MORE_RECV);
+	return (FLOW_MORE_SEND);
 }
 
 /**
