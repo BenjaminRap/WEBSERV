@@ -99,7 +99,7 @@ bool	checkContent(int srcFd, FdType srcType, const char *expectedBuffer, size_t 
 
 std::string	&getFlowStateAsString(FlowState flowState)
 {
-	static std::string meaning[] = {"FLOW_ERROR", "FLOW_DONE", "FLOW_EAGAIN_RECV", "FLOW_EAGAIN_SEND", "FLOW_BUFFER_FULL"};
+	static std::string meaning[] = {"FLOW_ERROR", "FLOW_DONE", "FLOW_MORE_RECV", "FLOW_MORE_SEND", "FLOW_BUFFER_FULL"};
 
 	return (meaning[flowState + 1]);
 }

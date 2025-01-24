@@ -67,7 +67,7 @@ RawResponse::~RawResponse()
  * @brief Send this response to the client socket.
  * @param socketFd The socket of the client, in which we will send the response.
  * @return FLOW_ERROR on error, FLOW_DONE if the response has been entirely written
- * and FLOW_EAGAIN_SEND if there is more to send . In the latter case, we need
+ * and FLOW_MORE_SEND if there is more to send . In the latter case, we need
  * to wait for another EPOLLOUT before calling this fuction again, until we
  * receive FLOW_ERROR or FLOW_DONE.
  */
@@ -75,7 +75,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	FdType			destType = SOCKETFD;
 	FdType			srcType = FILEFD;
-	const FlowState flowState = _firstPartBuffer.redirectContentFromBuffer(socketFd, destType);
+	const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd, destType);
 
 	if (flowState != FLOW_DONE)
 		return (flowState);

@@ -24,6 +24,16 @@ enum FlowState
 	 */
 	FLOW_DONE,
 	/**
+	 * @brief There is more to receive, but we need to wait another EPOLLIN
+	 * event. This can only append if we read from a socket.
+	 */
+	FLOW_MORE_RECV,
+	/**
+	 * @brief There is more to send, but we need to wait another EPOLLOUT
+	 * event. This can only append if we write in a socket.
+	 */
+	FLOW_MORE_SEND,
+	/**
 	 * @brief The internal buffer is full, it can only occurs when redirecting
 	 * data in the buffer and not out. This means that we can call the function
 	 * again after emptying the buffer, without waiting for an EPOLLIN.
@@ -88,14 +98,14 @@ public:
 		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data) = writeToFdWithType
 	);
 	template <typename Data>
-	FlowState	redirectContentFromBuffer
+	FlowState	redirectBufferContentToFd
 	(
 		int destFd,
 		Data &writeData,
 		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data) = writeToFdWithType
 	);
 	template <typename Data>
-	FlowState	redirectContentToBuffer
+	FlowState	redirectFdContentToBuffer
 	(
 		int srcFd,
 		Data &readData,

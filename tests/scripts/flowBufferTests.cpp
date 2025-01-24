@@ -16,7 +16,7 @@ FlowState	bufferToFd(int fd, FdType fdType, char *buffer, size_t bufferCapacity,
 {
 	FlowBuffer	flowBuffer(buffer, bufferCapacity, bufferCapacity);
 
-	const FlowState	flowState = flowBuffer.redirectContentFromBuffer(fd, fdType);
+	const FlowState	flowState = flowBuffer.redirectBufferContentToFd(fd, fdType);
 
 	if (flowState == FLOW_ERROR)
 		std::cout << strerror(errno) << '\n';
@@ -31,7 +31,7 @@ void	fdToBuffer(int fd, FdType fdType, char *buffer, size_t bufferCapacity, char
 {
 	FlowBuffer	flowBuffer(buffer, bufferCapacity, 0);
 
-	const FlowState flowState = flowBuffer.redirectContentToBuffer(fd, fdType);
+	const FlowState flowState = flowBuffer.redirectFdContentToBuffer(fd, fdType);
 
 	if (flowState == FLOW_ERROR)
 		std::cout << strerror(errno) << '\n';
@@ -97,7 +97,7 @@ void	fileToBufer(char *path, size_t bufferSize, FlowState flowResult)
 		return ;
 	}
 	FlowBuffer	flowBuffer(buffer, (bufferSize == 0) ? 1 : bufferSize, 0);
-	const FlowState flowState = flowBuffer.redirectContentToBuffer(fileFd, fileType);
+	const FlowState flowState = flowBuffer.redirectFdContentToBuffer(fileFd, fileType);
 
 	verify(fileSize == flowBuffer.getBufferLength() && !std::memcmp(buffer, file, fileSize));
 	verifyFlowState(flowState, flowResult);
@@ -119,10 +119,10 @@ void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &m
 			std::cout << strerror(errno) << std::endl;
 			return ;
 		}
-		const FlowState flowState = flowBuffer.redirectContentToBuffer(sockets[1], socketType);
-		flowBuffer.redirectContentFromBuffer(sockets[0], socketType);
+		const FlowState flowState = flowBuffer.redirectFdContentToBuffer(sockets[1], socketType);
+		flowBuffer.redirectBufferContentToFd(sockets[0], socketType);
 		verify(checkContent(sockets[1], SOCKETFD, (*it).c_str(), (*it).size()));
-		verifyFlowState(flowState, FLOW_EAGAIN_RECV);
+		verifyFlowState(flowState, FLOW_MORE_RECV);
 	}
 }
 
@@ -156,7 +156,7 @@ void	redirectMultipleMessages(int (&sockets)[2], std::vector<std::string> &messa
 		}
 		const FlowState flowState = flowBuffer.redirectContent(sockets[1], socketType, tube[1], fileType);
 		checkContent(tube[0], FILEFD, (*it).c_str(), (*it).size());
-		verifyFlowState(flowState, FLOW_EAGAIN_RECV);
+		verifyFlowState(flowState, FLOW_MORE_RECV);
 	}
 	close(tube[0]);
 	close(tube[1]);
@@ -213,7 +213,7 @@ int	main()
 	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
 	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
 	printInfo("Print buffer in fd with huge string");
-	testBufferInFd(hugeString, HUGE_STRING_LENGTH, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_EAGAIN_SEND);
+	testBufferInFd(hugeString, HUGE_STRING_LENGTH, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_MORE_SEND);
 	printInfo("Try creating flow buffer with bufferlength superior to capacity");
 	try
 	{
@@ -259,13 +259,13 @@ int	main()
 	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
 	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
 	printInfo("buffer to socket to buffer with big string and big buffer");
-	bufferToSocketToBuffer(hugeString, HUGE_STRING_LENGTH, sockets, FLOW_EAGAIN_SEND, FLOW_EAGAIN_RECV);
+	bufferToSocketToBuffer(hugeString, HUGE_STRING_LENGTH, sockets, FLOW_MORE_SEND, FLOW_MORE_RECV);
 	printInfo("small file to socket with buffer smaller");
 	fileToSocket("../tests/scripts/cors-test.html", 100, sockets, FLOW_DONE);
 	printInfo("small file to socket with buffer larger");
 	fileToSocket("../tests/scripts/cors-test.html", 200, sockets, FLOW_DONE);
 	printInfo("big file to socket with small buffer");
-	fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_EAGAIN_SEND);
+	fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_MORE_SEND);
 	printInfo("big file to socket with big buffer");
 	fileToSocket("/var/log/dpkg.log.3.gz", 1024, sockets, FLOW_DONE);
 	printInfo("empty file to socket with small buffer");
