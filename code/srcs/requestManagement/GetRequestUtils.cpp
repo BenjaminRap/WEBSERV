@@ -2,13 +2,17 @@
 #include <cstring>
 #include <vector>
 #include <dirent.h>
+#include <list>
+#include <cerrno>
 #include "GetRequest.hpp"
 
 #define DIRE 1
 #define FILE 2
 #define NF 3
+#define FORBIDEN -1
+#define ERROR500 -2
 
-std::string	delString(const std::string& toDel, std::string str)
+void	delString(const std::string& toDel, std::string &str)
 {
 	size_t	found;
 	size_t	len;
@@ -20,69 +24,39 @@ std::string	delString(const std::string& toDel, std::string str)
 		str.erase(found, len);
 		found = str.find(toDel, 0);
 	}
-	return (str);
 }
 
-std::string	fixPath(std::string path)
+void	fixPath(std::string &path)
 {
 	size_t	found;
 	size_t	foundBack;
 
-	found = path.find("../", 0);
+	found = path.find("/../", 0);
 	while (found != std::string::npos)
 	{
-		if (path[found - 1] == '/')
-		{
-			if (found > 2)
-				foundBack = path.find_last_of('/', found - 2);
-			else
-				foundBack = path.find_last_of('/', found - 1);
-			if (foundBack == found - 2)
-				foundBack = path.find_last_of('/', found - 3);
-			path.erase(foundBack, found - foundBack + 2);
-		}
-		found = path.find("../", 0);
-	}
-	path = delString("./", path);
-	return (path);
-}
-
-bool	checkPath(std::string path)
-{
-	size_t	found;
-	int		k;
-
-	k = 0;
-	found = path.find_first_of('/', 0);
-	while (found != std::string::npos)
-	{
-		if (path[found + 1] == '\0')
-			break ;
-		else if (path[found + 1] == '.' && path[found + 2] == '.')
-			k--;
-		else if (path[found + 1] == '/' || path[found + 1] == '.')
-			;
+		foundBack = path.find_last_of('/', found - 1);
+		if (found == 0)
+			path.erase(0, 3);
 		else
-			k++;
-		if (k < 0)
-			return (false);
-		found = path.find_first_of('/', found + 1);
+			path.erase(foundBack, found - foundBack + 3);
+		found = path.find("/../", 0);
 	}
-	return (true);
+	delString("./", path);
+	delString("//", path);
+	if (path.empty())
+		path = "/";
 }
 
-std::string	checkType(const std::string& path, GetRequest& get)
+void checkType(std::string &path, GetRequest &get)
 {
-	std::string	temp;
-
-	temp = path;
-	char lastChar = temp[temp.length() - 1];
+	char lastChar = path[path.length() - 1];
 	if (lastChar != '/')
 	{
-		temp = path + "/";
-		get.setResponse(301, temp);
+		path += "/";
+		get.setResponse(301, path);
 	}
-	return (temp);
+	else
+		get.setUrl(path);
 }
 
 int	isDirOrFile(const std::string& path)
@@ -100,96 +74,99 @@ int	isDirOrFile(const std::string& path)
 		return (FILE);
 }
 
-std::vector<std::string>	ls(const std::string& path)
+int	ls(const std::string& path, std::list<std::string> &lst)
 {
 	DIR							*dw;
 	struct dirent				*res;
-	std::vector<std::string>	files;
 
 	dw = opendir(path.c_str());
 	if (!dw)
 	{
-		files.push_back("Error");
-		return (files);
+		if (errno == EACCES)
+			return (FORBIDEN);
+		else
+			return (ERROR500);
 	}
 	while ((res = readdir(dw)))
-		files.push_back(res->d_name);
+		lst.push_back(res->d_name);
 	closedir(dw);
-	return (files);
+	return (0);
 }
 
-std::string	buildPage(std::vector<std::string> files, const std::string& path)
+std::string	buildPage(std::list<std::string>	&files, const std::string& path)
 {
-	std::string	result;
-	size_t		size;
+	std::string								result;
+	std::list<std::string>::iterator		end;
 
-	size = files.size() - 1;
+	end = files.end();
 	result = "<html>\n<head><title>Index of ";
 	result += path;
 	result += "</title></head>\n<body>\n<h1>Index of";
 	result += path;
 	result += "</h1><hr><pre><a href=\"../\">../</a>\n";
-	for (unsigned long i = 0; i <= size; i++)
+
+	for (std::list<std::string>::iterator it = files.begin(); it != end; it++)
 	{
-		if (files.empty())
+		while (it != end && (*it == ".." || *it == "."))
+			it++;
+		if (it == end)
 			break;
-		while ( i < size && (files[i] == ".." || files[i] == "."))
-			i++;
-		result+= "<a href=\"";
-		result+= files[i];
+		result += "<a href=\"";
+		result += *it;
 		result += "\">";
-		result+= files[i];
+		result += *it;
 		result += "</a>\n";
 	}
 	result += "</pre><hr></body>\n</html>";
 	return (result);
 }
 
-bool	findIndex(GetRequest& get, std::vector<std::string> indexs)
+bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 {
-	size_t	size;
+	size_t		size;
+	std::string	temp;
 
 	size = indexs.size();
 	for (unsigned long i = 0; i < size; i++)
 	{
-		if (isDirOrFile(get.getUrl() + indexs[i]) == FILE)
+		temp = get.getUrl() + indexs[i];
+		if (isDirOrFile(temp) == FILE)
 		{
-			get.setResponse(200, get.getUrl() + indexs[i]);
+			get.setResponse(200, temp);
 			return (true);
 		}
 	}
 	return (false);
 }
 
-void	fixUrl(GetRequest& get, const std::string& url)
+void	fixUrl(GetRequest& get, std::string& url)
 {
-	bool	isValid;
-
-	isValid = checkPath(url);
-	if (!isValid)
-		get.setUrl("/");
-	get.setUrl(fixPath(url));
+	if (*url.begin() != '/')
+		get.setResponse(400, "Bad Request");
+	else
+	{
+		fixPath(url);
+		get.setUrl(url);
+	}
 }
 
 void	autoIndexCase(GetRequest &get)
 {
-	std::vector<std::string>	files;
+	std::list<std::string>	files;
+	int						response;
 
-	files = ls(get.getUrl());
-	if (files.empty())
-		get.file = buildPage(files, get.getUrl());
-	else if (files[0] == "Error")
-	{
+	response = ls(get.getUrl(), files);
+	if (response == FORBIDEN)
 		get.setResponse(403, "Forbidden");
-		return ;
-	}
+	else if (response == ERROR500)
+		get.setResponse(500, "Internal Server Error");
 	else
 		get.file = buildPage(files, get.getUrl());
 }
 
 void	directoryCase(GetRequest &get)
 {
-	get.setUrl(checkType(get.getUrl(), get));
+	checkType(get.getUrl(), get);
 	if (get.code == 301)
 		return;
 	if (get.getIsRoot())

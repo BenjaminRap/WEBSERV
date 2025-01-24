@@ -1,26 +1,26 @@
 #include "GetRequest.hpp"
 #include <iostream>
 #include <vector>
+#include <list>
 
 #define DIRE	1
 #define FILE	2
 #define NF		3
 
 int							isDirOrFile(const std::string& path);
-bool						checkPath(std::string path);
-std::string					checkType(const std::string& path, GetRequest& get);
-std::string					fixPath(std::string  path);
-std::string					buildPage(std::vector<std::string> files, const std::string& path);
+void						checkType(std::string& path, GetRequest& get);
+void						fixPath(std::string &path);
+std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 void						directoryCase(GetRequest& get);
-void						fixUrl(GetRequest& get, const std::string& url);
+void						fixUrl(GetRequest& get, std::string& url);
 
 
-bool	checkAllowMeth(const Route& root)
+
+bool	checkAllowMeth(const Route &root)
 {
-	std::vector<EMethods>	meths;
-	size_t					len;
+	const std::vector<EMethods>	&meths = root.getAcceptedMethods();
+	size_t						len;
 
-	meths = root.getAcceptedMethods();
 	len = meths.size();
 	if (len == 0)
 		return (true);
@@ -32,69 +32,62 @@ bool	checkAllowMeth(const Route& root)
 	return (false);
 }
 
-std::string	replaceUrl(const std::string& location, const std::string& root, std::string url)
+void replaceUrl(const std::string& location, const std::string& root, std::string &url)
 {
-	std::string	temp;
-	size_t		found;
+	size_t found;
 
 	if (root.empty())
-		return (url);
+		return ;
 	found = url.find(location);
-	while (found == 0)
+	while (found != std::string::npos)
 	{
-		temp = url.substr(0, found);
-		temp += root;
-		temp += url.substr(found + location.length());
-		url = temp;
-		found = url.find(location, found + 1);
-		if (found == url.size() - 1)
-			break;
+		url.replace(found, location.length(), root);
+		found = url.find(location, found + root.length());
 	}
-	return (url);
 }
 
-std::string	buildNewURl(std::string root, std::string url)
+void	buildNewURl(std::string root, std::string &url)
 {
 	if (!root.empty() && root[root.size() - 1] == '/')
 		root.erase(root.size() - 1);
 	url = root + url;
-	return (url);
 }
 
 void	addRoot(GetRequest &get, const ServerConfiguration& config)
 {
-	std::map<std::string, Route> 			roots;
-	std::map<std::string, Route>::iterator	it;
+	const Route	*temp = config.getOneRoutes(get.getUrl());
+	std::string	redir;
 
-	roots = config.getRoutes();
-	it = roots.find(get.getUrl());
-	if (it == roots.end())
+	if (temp == NULL)
 	{
-		get.setUrl(buildNewURl(config.getRoot(), get.getUrl()));
+		buildNewURl(config.getRoot(), get.getUrl());
 		return ;
 	}
-	get.setRoot(config.getOneRoutes(it->first));
+	get.setRoot(temp);
 	get.setIsRoot(true);
-	if (!checkAllowMeth(it->second))
+	if (!checkAllowMeth(*temp))
 	{
 		get.setResponse(405, "Method Not Allowed");
 		return ;
 	}
-	if (!it->second.getRedirection().url.empty())
-		get.setResponse(301, it->second.getRedirection().url);
+	redir = temp->getRedirection().url;
+	if (!redir.empty())
+		get.setResponse(301, redir);
 	else
 	{
-		get.setAutoIndex(it->second.getAutoIndex());
-		get.setUrl(replaceUrl(it->first, it->second.getRoot(), get.getUrl()));
+		get.setAutoIndex(temp->getAutoIndex());
+		replaceUrl(get.getUrl(), temp->getRoot(), get.getUrl()); // ici
 	}
 }
 
-GetRequest::GetRequest(const std::string& url, ServerConfiguration config) : _autoIndex(false), _index(0), _isRoot(false), code(0)
+GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _autoIndex(false), _index(0), _isRoot(false), code(0)
 {
 	int			temp;
 
 	this->_config = &config;
 	fixUrl(*this, url);
+	if (this->code == 400)
+		return ;
 	addRoot(*this, config);
 	if (this->code == 301 || this->code == 405)
 		return ;
@@ -121,8 +114,7 @@ GetRequest::GetRequest() : _config(), _root()
 
 GetRequest::~GetRequest()
 {
-	if (this->_isRoot)
-		delete this->_root;
+
 }
 
 GetRequest &GetRequest::operator=(const GetRequest &src)
@@ -166,7 +158,7 @@ void GetRequest::setUrl(const std::string& src)
 	this->_url = src;
 }
 
-std::string GetRequest::getUrl()
+std::string &GetRequest::getUrl()
 {
 	return (this->_url);
 }
@@ -176,7 +168,7 @@ std::vector<std::string> GetRequest::getIndexVec()
 	return (this->_root->getIndex());
 }
 
-void	GetRequest::setRoot(Route *root)
+void	GetRequest::setRoot(const Route *root)
 {
 	this->_root = root;
 }

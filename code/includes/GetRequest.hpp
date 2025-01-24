@@ -11,14 +11,14 @@ class GetRequest
 	private :
 		GetRequest();
 
-		ServerConfiguration	*_config;
-		Route				*_root;
+		const ServerConfiguration	*_config;
+		const Route			*_root;
 		std::string			_url;
 		bool				_autoIndex;
 		int					_index;
 		bool				_isRoot;
 	public :
-		explicit GetRequest(const std::string& url, ServerConfiguration config);
+		explicit GetRequest(std::string url, const ServerConfiguration &config);
 		GetRequest(const GetRequest& src);
 		~GetRequest();
 		GetRequest& operator=(const GetRequest& src);
@@ -26,12 +26,12 @@ class GetRequest
 		void						setResponse(int code, const std::string& file);
 		void						setUrl(const std::string& src);
 		void						setAutoIndex(bool src);
-		void						setRoot(Route *root);
+		void						setRoot(const Route *root);
 		void						setIsRoot(bool src);
 		bool						getAutoIndex() const;
 		bool						getIsRoot() const;
 		std::vector<std::string>	getIndexVec();
-		std::string					getUrl();
+		std::string					&getUrl(); //ref test
 
 		/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...
