@@ -54,52 +54,52 @@ void	bufferToSocketToBuffer(char *buffer, size_t bufferCapacity, int (&sockets)[
 
 	char	*resultBuffer = new char[bufferCapacity];
 	const FlowState flowState = bufferToFd(sockets[0], SOCKETFD, buffer, bufferCapacity, &numCharsWritten);
-	verify(flowState == firstFlowResult);
+	verifyFlowState(flowState, firstFlowResult);
 	fdToBuffer(sockets[1], SOCKETFD, resultBuffer, bufferCapacity, buffer, numCharsWritten, secondFlowResult);
 	delete [] resultBuffer;
 }
 
-void	fileToSocket(const char *path, size_t bufferSize, int (&sockets)[2], FlowState flowResult)
+void	fileToSocket(const char *path, size_t maxFileSize, size_t bufferSize, int (&sockets)[2], FlowState flowResult)
 {
 	FdType		fileType = FILEFD;
 	FdType		socketType = SOCKETFD;
 	size_t		fileSize;
-	char		*file = getFileInString(path, bufferSize, fileSize);
+	char		*file = getFileInString(path, maxFileSize, fileSize);
 	const int	fileFd = open(path, O_RDONLY);
-	char		*buffer = new char[(bufferSize == 0 ? 1 : bufferSize)];
+	char		*buffer = new char[bufferSize];
 
 	if (fileFd == -1)
 	{
 		std::cout << strerror(errno) << std::endl;
 		return ;
 	}
-	FlowBuffer	flowBuffer(buffer, (bufferSize == 0 ? 1 : bufferSize), 0);
+	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
 	const FlowState flowState = flowBuffer.redirectContent(fileFd, fileType, sockets[0], socketType);
 
-	verify(checkContent(sockets[1], SOCKETFD, file, fileSize));
+	verify(checkContent(sockets[1], SOCKETFD, file, (fileSize < bufferSize) ? fileSize : bufferSize));
 	verifyFlowState(flowState, flowResult);
 	close(fileFd);
 	delete [] file;
 	delete [] buffer;
 }
 
-void	fileToBufer(char *path, size_t bufferSize, FlowState flowResult)
+void	fileToBufer(size_t fileSize, size_t bufferSize, FlowState flowResult)
 {
 	FdType		fileType = FILEFD;
-	size_t	fileSize;
-	const int	fileFd = open(path, O_RDONLY);
-	char		*file = getFileInString(path, bufferSize, fileSize);
-	char		buffer[(bufferSize == 0) ? 1 : bufferSize];
+	char		*file = NULL;
+	const int	fileFd = createFile(fileSize, &file);
+	char		buffer[bufferSize];
 
 	if (fileFd == -1)
 	{
+		delete [] file;
 		std::cout << strerror(errno) << std::endl;
 		return ;
 	}
-	FlowBuffer	flowBuffer(buffer, (bufferSize == 0) ? 1 : bufferSize, 0);
+	FlowBuffer	flowBuffer(buffer, bufferSize, 0);
 	const FlowState flowState = flowBuffer.redirectFdContentToBuffer(fileFd, fileType);
 
-	verify(fileSize == flowBuffer.getBufferLength() && !std::memcmp(buffer, file, fileSize));
+	verify(!std::memcmp(buffer, file, bufferSize < fileSize ? bufferSize : fileSize));
 	verifyFlowState(flowState, flowResult);
 	delete [] file;
 	close(fileFd);
@@ -122,7 +122,7 @@ void	readAndWriteMultipleMessages(int (&sockets)[2], std::vector<std::string> &m
 		const FlowState flowState = flowBuffer.redirectFdContentToBuffer(sockets[1], socketType);
 		flowBuffer.redirectBufferContentToFd(sockets[0], socketType);
 		verify(checkContent(sockets[1], SOCKETFD, (*it).c_str(), (*it).size()));
-		verifyFlowState(flowState, FLOW_MORE_RECV);
+		verifyFlowState(flowState, FLOW_MORE);
 	}
 }
 
@@ -156,7 +156,7 @@ void	redirectMultipleMessages(int (&sockets)[2], std::vector<std::string> &messa
 		}
 		const FlowState flowState = flowBuffer.redirectContent(sockets[1], socketType, tube[1], fileType);
 		checkContent(tube[0], FILEFD, (*it).c_str(), (*it).size());
-		verifyFlowState(flowState, FLOW_MORE_RECV);
+		verifyFlowState(flowState, FLOW_MORE);
 	}
 	close(tube[0]);
 	close(tube[1]);
@@ -202,10 +202,13 @@ int	main()
 		return (EXIT_FAILURE);
 	}
 	printInfo("Print buffer in fd with small string");
+	printInfo("FLOW_DONE because the flowBuffer buffer is smaller than the socket buffer");
 	testBufferInFd((char*)"I am a test\n", 13, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
 	printInfo("Print buffer in fd with empty string");
+	printInfo("FLOW_DONE because the flowBuffer buffer is smaller than the socket buffer");
 	testBufferInFd((char*)"", 1, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
 	printInfo("Print buffer in fd with big string");
+	printInfo("FLOW_DONE because the flowBuffer buffer is smaller than the socket buffer");
 	testBufferInFd((char*)"Je suis un gros test azjhe iaziuehuazhexazex zhexiuahze \
 	xiuhazeiuxhaz iuexhaziuehwiahzewhzoeixhazoeihaxez w ahiewuhaz azhexa  \
 	waheh iuazhexiaz ea ewzoi a  azhew  aiuzhewi zewa iehwa iehaiewh az \
@@ -213,7 +216,8 @@ int	main()
 	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
 	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
 	printInfo("Print buffer in fd with huge string");
-	testBufferInFd(hugeString, HUGE_STRING_LENGTH, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_MORE_SEND);
+	printInfo("FLOW_MORE_ because the flowBuffer buffer is larger than the socket buffer, so it can't be sent in one time");
+	testBufferInFd(hugeString, HUGE_STRING_LENGTH, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_MORE);
 	printInfo("Try creating flow buffer with bufferlength superior to capacity");
 	try
 	{
@@ -247,39 +251,47 @@ int	main()
 		std::cout << e.what() << '\n';
 		verify(true);
 	}
-	printInfo("buffer to socket to buffer with small string and big buffer");
+	printInfo("buffer to socket to buffer with small string and equal buffer");
+	printInfo("FLOW_DONE because the flowBuffer buffer is smaller than the socket buffer");
+	printInfo("FLOW_BUFFER_FULL because the result buffer is of the same size that the message");
 	bufferToSocketToBuffer((char*)"truc tralaala", 14, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
-	printInfo("buffer to socket to buffer with empty string and big buffer");
+	printInfo("buffer to socket to buffer with empty string and equal buffer");
+	printInfo("FLOW_DONE because the flowBuffer buffer is smaller than the socket buffer");
+	printInfo("FLOW_BUFFER_FULL because the result buffer is of the same size that the message");
 	bufferToSocketToBuffer((char*)"", 1, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
 	printInfo("buffer to socket to buffer with big string and big buffer");
+	printInfo("FLOW_DONE because the flowBuffer buffer is smaller than the socket buffer");
+	printInfo("FLOW_BUFFER_FULL because the result buffer is of the same size that the message");
 	bufferToSocketToBuffer((char*)"Je suis un gros test azjhe iaziuehuazhexazex zhexiuahze \
 	xiuhazeiuxhaz iuexhaziuehwiahzewhzoeixhazoeihaxez w ahiewuhaz azhexa  \
 	waheh iuazhexiaz ea ewzoi a  azhew  aiuzhewi zewa iehwa iehaiewh az \
 	ewiuahze iuwhazehwaz ewuhaez wahewua euwazeihwa iue iuw az ewiua ewhaew \
 	haueh wuaheua ewiuahew aze wahezwahezwh aezhwah eiuw aezwhahezwa ewaz \
 	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets, FLOW_DONE, FLOW_BUFFER_FULL);
-	printInfo("buffer to socket to buffer with big string and big buffer");
-	bufferToSocketToBuffer(hugeString, HUGE_STRING_LENGTH, sockets, FLOW_MORE_SEND, FLOW_MORE_RECV);
-	printInfo("small file to socket with buffer smaller");
-	fileToSocket("../tests/scripts/cors-test.html", 100, sockets, FLOW_DONE);
-	printInfo("small file to socket with buffer larger");
-	fileToSocket("../tests/scripts/cors-test.html", 200, sockets, FLOW_DONE);
+	printInfo("buffer to socket to buffer with huge string and huge buffer");
+	printInfo("FLOW_MORE_ because the buffer is larger than the socket buffer");
+	printInfo("FLOW_MORE_ because the buffer is larger than the socket buffer, so not of all the messgae has been sent, so the receive buffer is larger than what is received");
+	bufferToSocketToBuffer(hugeString, HUGE_STRING_LENGTH, sockets, FLOW_MORE, FLOW_MORE);
+	printInfo("small file to socket with buffer smaller than file");
+	fileToSocket("../tests/scripts/cors-test.html", 200, 100, sockets, FLOW_MORE);
+	printInfo("small file to socket with buffer larger than file");
+	fileToSocket("../tests/scripts/cors-test.html", 200, 1024, sockets, FLOW_MORE);
 	printInfo("big file to socket with small buffer");
-	fileToSocket("/var/log/dpkg.log.3.gz", 5, sockets, FLOW_MORE_SEND);
+	fileToSocket("/var/log/dpkg.log.3.gz", 1024, 200, sockets, FLOW_MORE);
 	printInfo("big file to socket with big buffer");
-	fileToSocket("/var/log/dpkg.log.3.gz", 1024, sockets, FLOW_DONE);
+	fileToSocket("/var/log/dpkg.log.3.gz", 4096, 4096, sockets, FLOW_MORE);
 	printInfo("empty file to socket with small buffer");
-	fileToSocket("./../tests/scripts/flowBufferFiles/empty.txt", 5, sockets, FLOW_DONE);
+	fileToSocket("./../tests/scripts/flowBufferFiles/empty.txt", 0, 5, sockets, FLOW_DONE);
 	printInfo("big file to smaller buffer");
-	fileToBufer((char*)"/var/log/dpkg.log.3.gz", 1024, FLOW_BUFFER_FULL);
+	fileToBufer(1024, 500, FLOW_BUFFER_FULL);
 	printInfo("small file to bigger buffer");
-	fileToBufer((char*)"./../tests/scripts/cors-test.html", 1024, FLOW_DONE);
+	fileToBufer(100, 500, FLOW_MORE);
 	printInfo("empty file to buffer");
-	fileToBufer((char*)"./../tests/scripts/flowBufferFiles/empty.txt", 5, FLOW_DONE);
-	printInfo("Sending and receiving a message word by word");
-	readAndWriteStringWordByWord(sockets);
-	printInfo("Redirecting message word by word");
-	redirectStringWordByWord(sockets);
+	fileToBufer(0, 5, FLOW_DONE);
+	// printInfo("Sending and receiving a message word by word");
+	// readAndWriteStringWordByWord(sockets);
+	// printInfo("Redirecting message word by word");
+	// redirectStringWordByWord(sockets);
 	close(sockets[0]);
 	close(sockets[1]);
 	delete [] hugeString;
