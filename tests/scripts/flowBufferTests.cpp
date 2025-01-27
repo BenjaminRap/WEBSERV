@@ -192,8 +192,8 @@ int	main()
 {
 	int				sockets[2];
 	char			buffer[1024];
-	size_t			temp;
-	char * const	hugeString = getFileInString("/dev/random", HUGE_STRING_LENGTH, temp);
+	size_t			hugeSize;
+	char * const	hugeString = getFileInString("/dev/random", HUGE_STRING_LENGTH, hugeSize);
 
 	if (hugeString == NULL)
 		return (EXIT_FAILURE);
@@ -219,7 +219,7 @@ int	main()
 	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_DONE);
 	printInfo("Print buffer in fd with huge string");
 	printInfo("FLOW_MORE_ because the flowBuffer buffer is larger than the socket buffer, so it can't be sent in one time");
-	testBufferInFd(hugeString, HUGE_STRING_LENGTH, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_MORE);
+	testBufferInFd(hugeString, hugeSize, sockets[0], SOCKETFD, sockets[1], SOCKETFD, FLOW_MORE);
 	printInfo("Try creating flow buffer with bufferlength superior to capacity");
 	try
 	{
@@ -273,7 +273,7 @@ int	main()
 	printInfo("buffer to socket to buffer with huge string and huge buffer");
 	printInfo("FLOW_MORE_ because the buffer is larger than the socket buffer");
 	printInfo("FLOW_MORE_ because the buffer is larger than the socket buffer, so not of all the messgae has been sent, so the receive buffer is larger than what is received");
-	bufferToSocketToBuffer(hugeString, HUGE_STRING_LENGTH, sockets, FLOW_MORE, FLOW_MORE);
+	bufferToSocketToBuffer(hugeString, hugeSize, sockets, FLOW_MORE, FLOW_MORE);
 	printInfo("small file to socket with buffer smaller than file");
 	fileToSocket("../tests/scripts/cors-test.html", 200, 100, sockets, FLOW_MORE);
 	printInfo("small file to socket with buffer larger than file");
@@ -290,10 +290,10 @@ int	main()
 	fileToBufer(100, 500, FLOW_MORE);
 	printInfo("empty file to buffer");
 	fileToBufer(0, 5, FLOW_DONE);
-	// printInfo("Sending and receiving a message word by word");
-	// readAndWriteStringWordByWord(sockets);
-	// printInfo("Redirecting message word by word");
-	// redirectStringWordByWord(sockets);
+	printInfo("Sending and receiving a message word by word");
+	readAndWriteStringWordByWord(sockets);
+	printInfo("Redirecting message word by word");
+	redirectStringWordByWord(sockets);
 	close(sockets[0]);
 	close(sockets[1]);
 	delete [] hugeString;
