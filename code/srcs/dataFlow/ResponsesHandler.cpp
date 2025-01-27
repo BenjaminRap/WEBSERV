@@ -47,45 +47,39 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 /**
  * @brief Add a response at the end of the _responses queue. The response has a
  * body fd.
+ * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
+ * It can also throw (std::bad_alloc) if the push fail.
+ * @param firstPart The first part of the response. It is composed by the status line,
+ * the headers, the empty line and, maybe, a part of the body.
+ * @param firstPartLength The length of firstPart.
+ * @param bodyFd The fd of the body.
  */
-bool	ResponsesHandler::addResponse
+void	ResponsesHandler::addResponse
 (
-	char *buffer,
-	std::size_t bufferCapacity,
+	char *firstPart,
+	std::size_t firstPartLength,
 	int bodyFd
 )
 {
-	try
-	{
-		_responses.push(RawResponse(buffer, bufferCapacity, bodyFd, _responseBuffer));
-		return (true);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "fail to write a response : " << e.what() << '\n';
-		return (false);
-	}
+	_responses.push(RawResponse(firstPart, firstPartLength, bodyFd, _responseBuffer));
 }
 
 /**
  * @brief Add a response at the end of the _responses queue. The response doesn't
  * have a body fd.
+ * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
+ * It can also throw (std::bad_alloc) if the push fail.
+ * @param firstPart The first part of the response. It is composed by the status line,
+ * the headers, the empty line and, maybe, a part of the body.
+ * @param firstPartLength The length of firstPart.
  */
-bool	ResponsesHandler::addResponse
+void	ResponsesHandler::addResponse
 (
-	char *buffer,
-	std::size_t bufferCapacity
+	char *firstPart,
+	std::size_t firstPartLength
 )
 {
-	try
-	{
-		_responses.push(RawResponse(buffer, bufferCapacity));
-		return (true);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "fail to write a response : " << e.what() << '\n';
-		return (false);
-	}
-	
+	_responses.push(RawResponse(firstPart, firstPartLength));
 }
