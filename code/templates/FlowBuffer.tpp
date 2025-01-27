@@ -1,3 +1,5 @@
+// IWYU pragma: private, include "FlowBuffer.hpp"
+
 #include "FlowBuffer.hpp"
 
 /**
