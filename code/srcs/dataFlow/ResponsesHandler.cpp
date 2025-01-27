@@ -1,6 +1,9 @@
-#include <iostream>
+#include <cstddef>               // for size_t
+#include <queue>                 // for queue
 
-#include "ResponsesHandler.hpp"
+#include "FlowBuffer.hpp"        // for FlowState
+#include "RawResponse.hpp"       // for RawResponse
+#include "ResponsesHandler.hpp"  // for ResponsesHandler, RESPONSE_BUFFER_SIZE
 
 /*************************Constructors / Destructors **************************/
 

@@ -1,6 +1,11 @@
-#include <stdexcept>
+#include <stddef.h>        // for size_t, NULL
+#include <sys/socket.h>    // for MSG_DONTWAIT, MSG_NOSIGNAL, recv, send
+#include <sys/types.h>     // for ssize_t
+#include <unistd.h>        // for read, write
+#include <stdexcept>       // for logic_error
+#include <string>          // for basic_string
 
-#include "FlowBuffer.hpp"
+#include "FlowBuffer.hpp"  // for FlowBuffer, FdType, readFromFdWithType
 
 /************************Constructors / Destructors****************************/
 

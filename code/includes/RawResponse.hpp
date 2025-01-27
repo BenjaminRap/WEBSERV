@@ -1,8 +1,6 @@
 #ifndef RAW_RESPONSE_HPP
 # define RAW_RESPONSE_HPP
 
-# include <string>
-# include <sys/types.h>
 # include <cstddef>
 
 # include "FlowBuffer.hpp"

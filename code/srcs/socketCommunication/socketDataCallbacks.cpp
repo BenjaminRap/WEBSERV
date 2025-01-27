@@ -1,15 +1,13 @@
 #include <netinet/in.h>             // for sockaddr_in
-#include <string.h>                 // for strerror, NULL
+#include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLET, EPOLLHUP, EPOLLIN
 #include <sys/socket.h>             // for accept, recv, MSG_DONTWAIT, sockl...
-#include <sys/types.h>              // for ssize_t
-#include <stdint.h>                  // for uint32_t
-#include <cerrno>                  // for errno, EAGAIN
 #include <unistd.h>                 // for close
 #include <iostream>                 // for basic_ostream, operator<<, endl
 #include <string>                   // for char_traits, basic_string
 
-#include <SocketsHandler.hpp>       // for SocketsHandle"
+#include "SocketData.hpp"           // for SocketData
+#include "SocketsHandler.hpp"       // for SocketsHandle"
 #include "socketCommunication.hpp"  // for acceptConnection
 
 static void	processRequests(SocketData &socketData, SocketsHandler *socketsHandler, uint32_t events)

@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <iostream>        // for basic_ostream, operator<<, basic_ios, cerr
 #include <list>            // for list
 #include <stdexcept>       // logic_error

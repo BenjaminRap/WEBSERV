@@ -3,7 +3,6 @@
 #include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
 #include <sys/un.h>            // for sockaddr_un, sa_family_t
 #include <unistd.h>            // for close
-#include <stdint.h>            // for uint32_t
 #include <cerrno>              // for errno, ENOENT
 #include <cstring>             // for strerror
 #include <cstdio>              // for size_t, remove, NULL
