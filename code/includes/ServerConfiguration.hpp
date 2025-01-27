@@ -6,6 +6,13 @@
 
 # include "Route.hpp"
 
+# define ERROR_404_STR "/custom_404.html"
+# define ERROR_404_INT 404
+# define ERROR_405_STR "/custom_405.html"
+# define ERROR_405_INT 405
+# define ERROR_500_STR "/custom_500.html"
+# define ERROR_500_INT 500
+
 /// @brief The configuration specific for each server
 class ServerConfiguration
 {
@@ -26,7 +33,7 @@ public :
 	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
 	const size_t								&getMaxClientBodySize(void) const;
 	const std::map<std::string, Route>			&getRoutes(void) const;
-	Route										*getOneRoutes(std::string path) const;
+	const Route									*getOneRoutes(std::string path) const;
 
 private :
 	uint32_t								host;

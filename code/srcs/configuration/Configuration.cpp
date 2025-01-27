@@ -229,6 +229,12 @@ void	Configuration::parse_errorpages(std::string &file, size_t &i, size_t &line,
 	{
 		errorPages.insert(std::make_pair(*it, error_page));
 	}
+	if (errorPages.find(ERROR_404_INT) == errorPages.end())
+		errorPages.insert(std::make_pair(ERROR_404_INT, ERROR_404_STR));
+	if (errorPages.find(ERROR_405_INT) == errorPages.end())
+		errorPages.insert(std::make_pair(ERROR_405_INT, ERROR_405_STR));
+	if (errorPages.find(ERROR_500_INT) == errorPages.end())
+		errorPages.insert(std::make_pair(ERROR_500_INT, ERROR_500_STR));
 }
 
 void	Configuration::parse_route(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
