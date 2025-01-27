@@ -5,8 +5,16 @@
 
 #include "utils.cpp"
 
+char	*allocateAndCopyBuffer(char *buffer, size_t bufferCapacity)
+{
+	char	*result = new char[bufferCapacity];
+	std::memcpy(result, buffer, bufferCapacity);
+	return (result);
+}
+
 void	testNoBody(char *firstPart, size_t firstPartLength, int (&sockets)[2], FlowState flowResult, bool isSentEqualToBuffer)
 {
+	firstPart = allocateAndCopyBuffer(firstPart, firstPartLength);
 	RawResponse	response(firstPart, firstPartLength);
 	const FlowState flowState = response.sendResponseToSocket(sockets[0]);
 	verify(checkContent(sockets[1], SOCKETFD, firstPart, firstPartLength) == isSentEqualToBuffer);
@@ -15,6 +23,7 @@ void	testNoBody(char *firstPart, size_t firstPartLength, int (&sockets)[2], Flow
 
 void	testWithBody(char *firstPart, size_t firstPartLength, int (&sockets)[2], char *bodyPath, size_t bodyBufferCapacity)
 {
+	firstPart = allocateAndCopyBuffer(firstPart, firstPartLength);
 	int	fd = open(bodyPath, O_RDONLY);
 
 	if (fd == -1)
