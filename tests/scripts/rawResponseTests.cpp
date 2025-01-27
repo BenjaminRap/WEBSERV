@@ -13,6 +13,37 @@ void	testNoBody(char *firstPart, size_t firstPartLength, int (&sockets)[2], Flow
 	verifyFlowState(flowState, flowResult);
 }
 
+void	testWithBody(char *firstPart, size_t firstPartLength, int (&sockets)[2], char *bodyPath, size_t bodyBufferCapacity)
+{
+	int	fd = open(bodyPath, O_RDONLY);
+
+	if (fd == -1)
+	{
+		std::cout << strerror(errno) << std::endl;
+		return ;
+	}
+
+	char			bodyBuffer[bodyBufferCapacity];
+	FlowBuffer		bodyFlowBuffer(bodyBuffer, bodyBufferCapacity, 0);
+	RawResponse		response(firstPart, firstPartLength, fd, bodyFlowBuffer);
+	{
+		const FlowState flowState = response.sendResponseToSocket(sockets[0]);
+
+		verify(checkContent(sockets[1], SOCKETFD, firstPart, firstPartLength));
+		verifyFlowState(flowState, FLOW_MORE);
+	}
+	{
+		const FlowState flowState = response.sendResponseToSocket(sockets[0]);
+
+		verifyFlowState(flowState, FLOW_MORE);
+	}
+{
+		const FlowState flowState = response.sendResponseToSocket(sockets[0]);
+
+		verifyFlowState(flowState, FLOW_DONE);
+	}
+}
+
 # define HUGE_STRING_LENGTH 1000000
 
 int	main(void)
@@ -34,6 +65,8 @@ int	main(void)
 	ewahezwaezuw ahezwiahez wi haewha eziuwhoaez whaewhaz", 395, sockets, FLOW_DONE, true);
 	printInfo("FLOW_MORE_ because the flowBuffer buffer is larger than the socket buffer, so it can't be sent in one time");
 	testNoBody(hugeString, hugeSize, sockets, FLOW_MORE, false);
+	printInfo("small string with small body and big buffer");
+	testWithBody((char*)"je suis un test", 16, sockets, (char*)"../tests/scripts/cors-test.html", 1024);
 	close(sockets[0]);
 	close(sockets[1]);
 	delete [] hugeString;
