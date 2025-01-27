@@ -65,7 +65,7 @@ const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 
 const std::string				&ServerConfiguration::getErrorPage(unsigned short error) const
 {
-    return (this->errorPages.find(error)->second);
+	return (this->errorPages.find(error)->second);
 }
 
 const std::map<unsigned short, std::string>	&ServerConfiguration::getErrorPages(void) const

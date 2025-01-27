@@ -107,10 +107,8 @@ std::string	buildPage(std::list<std::string>	&files, const std::string& path)
 
 	for (std::list<std::string>::iterator it = files.begin(); it != end; it++)
 	{
-		while (it != end && (*it == ".." || *it == "."))
-			it++;
-		if (it == end)
-			break;
+		if (*it == ".." || *it == ".")
+			continue ;
 		result += "<a href=\"";
 		result += *it;
 		result += "\">";

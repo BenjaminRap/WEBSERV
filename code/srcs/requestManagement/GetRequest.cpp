@@ -50,13 +50,12 @@ void	buildNewURl(std::string root, std::string &url)
 {
 	if (!root.empty() && root[root.size() - 1] == '/')
 		root.erase(root.size() - 1);
-	url = root + url;
+	url.insert(0, root);
 }
 
 void	addRoot(GetRequest &get, const ServerConfiguration& config)
 {
 	const Route	*temp = config.getOneRoutes(get.getUrl());
-	std::string	redir;
 
 	if (temp == NULL)
 	{
@@ -70,7 +69,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 		get.setResponse(405, "Method Not Allowed");
 		return ;
 	}
-	redir = temp->getRedirection().url;
+	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
 		get.setResponse(301, redir);
 	else
