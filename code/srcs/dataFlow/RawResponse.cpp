@@ -40,7 +40,7 @@ RawResponse::RawResponse
 	char *firstPart,
 	size_t firstPartLength
 ) :
-	_firstPart(firstPart, strlen(firstPart), firstPartLength),
+	_firstPart(firstPart, firstPartLength, firstPartLength),
 	_bodyFd(-1),
 	_bodyBuffer(NULL)
 {
