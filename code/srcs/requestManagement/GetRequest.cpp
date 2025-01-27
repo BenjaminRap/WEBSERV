@@ -66,7 +66,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	get.setIsRoot(true);
 	if (!checkAllowMeth(*temp))
 	{
-		get.setResponse(405, "Method Not Allowed");
+		get.setResponse(405, config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
@@ -180,4 +180,9 @@ void GetRequest::setIsRoot(bool src)
 bool GetRequest::getIsRoot() const
 {
 	return (this->_isRoot);
+}
+
+std::string	GetRequest::getError(unsigned short error)
+{
+	return (this->_config->getErrorPage(error));
 }

@@ -31,9 +31,11 @@ class GetRequest
 		bool						getAutoIndex() const;
 		bool						getIsRoot() const;
 		std::vector<std::string>	getIndexVec();
-		std::string					&getUrl(); //ref test
+		std::string					&getUrl();
+		std::string					getError(unsigned short error);
 
-		/**
+
+	/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...
 		*/
 		int			code;

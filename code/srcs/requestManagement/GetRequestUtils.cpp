@@ -155,9 +155,9 @@ void	autoIndexCase(GetRequest &get)
 
 	response = ls(get.getUrl(), files);
 	if (response == FORBIDEN)
-		get.setResponse(403, "Forbidden");
+		get.setResponse(403, get.getError(403));
 	else if (response == ERROR500)
-		get.setResponse(500, "Internal Server Error");
+		get.setResponse(500, get.getError(500));
 	else
 		get.file = buildPage(files, get.getUrl());
 }
@@ -176,5 +176,5 @@ void	directoryCase(GetRequest &get)
 	if (get.getAutoIndex())
 		autoIndexCase(get);
 	else
-		get.setResponse(403, "Forbidden");
+		get.setResponse(403, get.getError(403));
 }
