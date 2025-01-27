@@ -70,6 +70,8 @@ void	fileToSocket(const char *path, size_t maxFileSize, size_t bufferSize, int (
 
 	if (fileFd == -1)
 	{
+		delete [] file;
+		delete [] buffer;
 		std::cout << strerror(errno) << std::endl;
 		return ;
 	}
