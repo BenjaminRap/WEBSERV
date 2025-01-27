@@ -2,7 +2,7 @@
 
 runTest()
 {
-	(cd ../code && make MAIN=../tests/scripts/$1 && ./WebServ)
+	(cd ../code && make -s re MAIN=../tests/scripts/$1 && ./WebServ)
 }
 
 runTest flowBufferTests.cpp
