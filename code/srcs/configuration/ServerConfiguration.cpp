@@ -88,7 +88,7 @@ const Route	*ServerConfiguration::getOneRoutes(std::string path) const
 	const std::map<std::string, Route>::const_iterator it = this->routes.find(path);
 	if (it == this->routes.end())
 		return (NULL);
-	return (&((*it).second));
+	return (&((it)->second));
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
