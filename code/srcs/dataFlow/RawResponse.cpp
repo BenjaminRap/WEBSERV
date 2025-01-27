@@ -29,7 +29,7 @@ RawResponse::RawResponse
 
 /**
  * @brief Create a RawResponse instance without body fd.
- *  * @throw This function throw (std::logic_error) if the buffer is null or if
+ * @throw This function throw (std::logic_error) if the buffer is null or if
  * the bufferCapacity is set to 0.
  * @param firstPart The first part of the response. It is composed by the status line,
  * the headers, the empty line and, maybe, a part of the body.

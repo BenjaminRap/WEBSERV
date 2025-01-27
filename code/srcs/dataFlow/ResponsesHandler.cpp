@@ -27,6 +27,9 @@ ResponsesHandler::~ResponsesHandler()
  */
 FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 {
+	if (_responses.size() == 0)
+		return (FLOW_DONE);
+
 	RawResponse		&response = _responses.front();
 	const FlowState	flowState = response.sendResponseToSocket(socketFd);
 
