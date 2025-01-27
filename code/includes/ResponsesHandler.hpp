@@ -43,8 +43,8 @@ public:
 	~ResponsesHandler();
 
 	FlowState	sendResponsesToSocket(int socketFd);
-	void		addResponse(char *buffer, std::size_t bufferCapacity, int bodyFd);
-	void		addResponse(char *buffer, std::size_t bufferCapacity);
+	bool		addResponse(char *buffer, std::size_t bufferCapacity, int bodyFd);
+	bool		addResponse(char *buffer, std::size_t bufferCapacity);
 };
 
 #endif // !RESPONSES_HANDLER_HPP

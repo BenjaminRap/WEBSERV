@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "ResponsesHandler.hpp"
 
 /*************************Constructors / Destructors **************************/
@@ -46,25 +48,44 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
  * @brief Add a response at the end of the _responses queue. The response has a
  * body fd.
  */
-void	ResponsesHandler::addResponse
+bool	ResponsesHandler::addResponse
 (
 	char *buffer,
 	std::size_t bufferCapacity,
 	int bodyFd
 )
 {
-	_responses.push(RawResponse(buffer, bufferCapacity, bodyFd, _responseBuffer));
+	try
+	{
+		_responses.push(RawResponse(buffer, bufferCapacity, bodyFd, _responseBuffer));
+		return (true);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "fail to write a response : " << e.what() << '\n';
+		return (false);
+	}
 }
 
 /**
  * @brief Add a response at the end of the _responses queue. The response doesn't
  * have a body fd.
  */
-void	ResponsesHandler::addResponse
+bool	ResponsesHandler::addResponse
 (
 	char *buffer,
 	std::size_t bufferCapacity
 )
 {
-	_responses.push(RawResponse(buffer, bufferCapacity));
+	try
+	{
+		_responses.push(RawResponse(buffer, bufferCapacity));
+		return (true);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "fail to write a response : " << e.what() << '\n';
+		return (false);
+	}
+	
 }
