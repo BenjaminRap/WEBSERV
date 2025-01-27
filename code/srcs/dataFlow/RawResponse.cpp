@@ -74,10 +74,15 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	FdType			destType = SOCKETFD;
 	FdType			srcType = FILEFD;
-	const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
 
-	if (flowState != FLOW_DONE)
+	if (_firstPart.getBufferLength() != 0)
+	{
+		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
+
+		if (flowState == FLOW_DONE)
+			return ((_bodyFd == -1) ? FLOW_DONE : FLOW_MORE);
 		return (flowState);
+	}
 	if (_bodyFd == -1)
 		return (FLOW_DONE);
 	return (_bodyBuffer->redirectContent(_bodyFd, srcType, socketFd, destType));

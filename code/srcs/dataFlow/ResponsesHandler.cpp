@@ -5,8 +5,7 @@
 ResponsesHandler::ResponsesHandler() :
 	_responses(),
 	_buffer(),
-	_responseBuffer(_buffer, RESPONSE_BUFFER_SIZE, 0),
-	_canWrite(false)
+	_responseBuffer(_buffer, RESPONSE_BUFFER_SIZE, 0)
 {
 
 }
@@ -28,33 +27,16 @@ ResponsesHandler::~ResponsesHandler()
  */
 FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 {
-	if (_canWrite == false)
-		return (FLOW_MORE);
-	while (_responses.size() != 0)
+	RawResponse		&response = _responses.front();
+	const FlowState	flowState = response.sendResponseToSocket(socketFd);
+
+	if (flowState == FLOW_DONE)
 	{
-		RawResponse		&response = _responses.front();
-		const FlowState	flowState = response.sendResponseToSocket(socketFd);
-
-		if (flowState == FLOW_ERROR)
-			return (flowState);
-		if (flowState == FLOW_DONE)
-			_responses.pop();
-		else
-		{
-			_canWrite = false;
-			return (flowState);
-		}
+		_responses.pop();
+		return ((_responses.size() == 0) ? FLOW_DONE : FLOW_MORE);
 	}
-	return (FLOW_DONE);
-}
-
-/**
- * @brief Allow this class to write into a socket. It should only be called when
- * receiving EPOLLOUT. 
- */
-void	ResponsesHandler::enableWritingToSocket()
-{
-	_canWrite = true;
+	else
+		return (flowState);
 }
 
 /**
