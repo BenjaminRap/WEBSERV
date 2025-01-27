@@ -63,6 +63,11 @@ size_t		FlowBuffer::getNumCharsWritten(void) const
 	return (_numCharsWritten);
 }
 
+const char	*FlowBuffer::getBuffer() const
+{
+	return (_buffer);
+}
+
 /************************FlowBuffer write/read functions***********************/
 
 ssize_t	readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType)

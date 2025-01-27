@@ -8,7 +8,7 @@
 /**
  * @brief This class stores all the data that will be sent to the client as a
  * response, compacted in a single string and a fd for the body. This class take
- * responsability for the closing of the fd.
+ * responsability for closing of the fd and deallocating the firstPart buffer.
  * It moves the data from the file to the socket like a stream, without allocation.
  * This class is designed to use the less syscall possible, for performances.
  */
@@ -17,11 +17,12 @@ class RawResponse
 private:
 	/**
 	 * @brief The first part of the response. It is composed by the status line,
-	 * the headers, the empty line and, maybe, a part of the body.
+	 * the headers, the empty line and, maybe, a part of the body. It should be
+	 * allocated in the heap.
 	 */
 	FlowBuffer	_firstPart;
 	/**
-	 * @brief The file descriptor of the body.If there is no body, or it has already
+	 * @brief The file descriptor of the body. If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
 	 */
 	int			_bodyFd;

@@ -1,13 +1,17 @@
 #include "RawResponse.hpp"
+#include "socketCommunication.hpp"
 
 /*************************Constructors / Destructors***************************/
 
 /**
- * @brief Create a RawResponse instance.
+ * @brief Create a RawResponse instance. This class takes responsability
+ * for closing the fd and deallocating the first part buffer.
  * @throw This function throw (std::logic_error) if bufferLength is superior to
  * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
+ * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
  * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body.
+ * the headers, the empty line and, maybe, a part of the body. It must be allocated
+ * on the heap.
  * @param firstPartLength The length of firstPart.
  * @param bodyFd The fd of the body.
  * @param bodyFlowBuffer The FlowBuffer used to redirect the data from the body to
@@ -28,11 +32,14 @@ RawResponse::RawResponse
 }
 
 /**
- * @brief Create a RawResponse instance without body fd.
+ * @brief Create a RawResponse instance without body fd. This class takes responsability
+ * for closing the fd and deallocating the first part buffer.
  * @throw This function throw (std::logic_error) if bufferLength is superior to
  * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
+ * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
  * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body.
+ * the headers, the empty line and, maybe, a part of the body. It must be allocated
+ * on the heap.
  * @param firstPartLength The length of firstPart.
  */
 RawResponse::RawResponse
@@ -55,9 +62,17 @@ RawResponse::RawResponse(const RawResponse& ref) :
 
 }
 
+/**
+ * @brief The destructor of the RawResponse. This class takes responsability
+ * for closing the fd and deallocating the firstPart buffer.
+ */
 RawResponse::~RawResponse()
 {
-
+	if (_bodyFd != -1)
+	{
+		checkError(close(_bodyFd), -1, "close() : ");
+	}
+	delete [] _firstPart.getBuffer();
 }
 
 /*******************************Member functions*******************************/
