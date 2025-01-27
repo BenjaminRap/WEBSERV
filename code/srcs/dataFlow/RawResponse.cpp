@@ -6,10 +6,11 @@
  * @brief Create a RawResponse instance.
  * @throw This function throw (std::logic_error) if the buffer is null or if
  * the bufferCapacity is set to 0.
- * @param buffer The buffer used to store the firstPart.
- * @param bufferCapacity The maximum number of chars that the buffer can store.
+ * @param firstPart The first part of the response. It is composed by the status line,
+ * the headers, the empty line and, maybe, a part of the body.
+ * @param firstPartLength The length of firstPart.
  * @param bodyFd The fd of the body.
- * @param bodyBuffer The FlowBuffer used to redirect the data from the body to
+ * @param bodyFlowBuffer The FlowBuffer used to redirect the data from the body to
  * the client socket.
  */
 RawResponse::RawResponse
@@ -17,11 +18,11 @@ RawResponse::RawResponse
 	char *firstPart,
 	size_t firstPartLength,
 	int bodyFd,
-	FlowBuffer &bodyBuffer
+	FlowBuffer &bodyFlowBuffer
 ) :
-	_firstPartBuffer(firstPart, firstPartLength, firstPartLength),
+	_firstPart(firstPart, firstPartLength, firstPartLength),
 	_bodyFd(bodyFd),
-	_bodyBuffer(bodyBuffer)
+	_bodyBuffer(&bodyFlowBuffer)
 {
 
 }
@@ -30,26 +31,24 @@ RawResponse::RawResponse
  * @brief Create a RawResponse instance without body fd.
  *  * @throw This function throw (std::logic_error) if the buffer is null or if
  * the bufferCapacity is set to 0.
- * @param buffer The buffer used to store the firstPart.
- * @param bufferCapacity The maximum number of chars that the buffer can store.
- * @param bodyBuffer The FlowBuffer used to redirect the data from the body to
- * the client socket.
+ * @param firstPart The first part of the response. It is composed by the status line,
+ * the headers, the empty line and, maybe, a part of the body.
+ * @param firstPartLength The length of firstPart.
  */
 RawResponse::RawResponse
 (
 	char *firstPart,
-	size_t firstPartLength,
-	FlowBuffer &bodyBuffer
+	size_t firstPartLength
 ) :
-	_firstPartBuffer(firstPart, firstPartLength, firstPartLength),
+	_firstPart(firstPart, strlen(firstPart), firstPartLength),
 	_bodyFd(-1),
-	_bodyBuffer(bodyBuffer)
+	_bodyBuffer(NULL)
 {
 
 }
 
 RawResponse::RawResponse(const RawResponse& ref) :
-	_firstPartBuffer(ref._firstPartBuffer),
+	_firstPart(ref._firstPart),
 	_bodyFd(ref._bodyFd),
 	_bodyBuffer(ref._bodyBuffer)
 {
@@ -75,11 +74,11 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	FdType			destType = SOCKETFD;
 	FdType			srcType = FILEFD;
-	const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd, destType);
+	const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
 
 	if (flowState != FLOW_DONE)
 		return (flowState);
 	if (_bodyFd == -1)
 		return (FLOW_DONE);
-	return (_bodyBuffer.redirectContent(_bodyFd, srcType, socketFd, destType));
+	return (_bodyBuffer->redirectContent(_bodyFd, srcType, socketFd, destType));
 }

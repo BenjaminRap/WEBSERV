@@ -81,5 +81,5 @@ void	ResponsesHandler::addResponse
 	std::size_t bufferCapacity
 )
 {
-	_responses.push(RawResponse(buffer, bufferCapacity, _responseBuffer));
+	_responses.push(RawResponse(buffer, bufferCapacity));
 }

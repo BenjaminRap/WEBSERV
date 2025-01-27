@@ -18,28 +18,29 @@ class RawResponse
 {
 private:
 	/**
-	 * @brief The buffer for the first part of the responses : the status line, 
-	 * the headers and, optionnaly, the body or the first part of the body.
+	 * @brief The first part of the response. It is composed by the status line,
+	 * the headers, the empty line and, maybe, a part of the body.
 	 */
-	FlowBuffer	_firstPartBuffer;
+	FlowBuffer	_firstPart;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, or it has already
 	 * been included in firstPart, this variable is set to -1.
 	 */
 	int			_bodyFd;
 	/**
-	 * @brief A reference on the ResponsesHandler FlowBuffer. It allows this class
-	 * to redirect the content from _bodyFd to the client socket Fd.
+	 * @brief A pointer on the ResponsesHandler FlowBuffer. It allows this class
+	 * to redirect the content from _bodyFd to the client socket Fd. If there is
+	 * no body, this variable is set to NULL.
 	 */
-	FlowBuffer	&_bodyBuffer;
+	FlowBuffer	*_bodyBuffer;
 
 	RawResponse();
 
 	RawResponse&	operator=(const RawResponse& ref);
 public:
 	RawResponse(const RawResponse& ref);
-	RawResponse(char *buffer, std::size_t bufferCapacity, int bodyFd, FlowBuffer &bodyBuffer);
-	RawResponse(char *buffer, std::size_t bufferCapacity, FlowBuffer &bodyBuffer);
+	RawResponse(char *firstPart, size_t firstPartLength, int bodyFd, FlowBuffer &bodyFlowBuffer);
+	RawResponse(char *firstPart, size_t firstPartLength);
 	~RawResponse();
 
 	FlowState	sendResponseToSocket(int socketFd);
