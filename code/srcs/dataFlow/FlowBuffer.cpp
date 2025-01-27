@@ -70,6 +70,15 @@ const char	*FlowBuffer::getBuffer() const
 
 /************************FlowBuffer write/read functions***********************/
 
+/**
+ * @brief Read the data from fd.
+ * @param fd The file descriptor to read from.
+ * @param buffer The buffer in which the read bytes will be stored.
+ * @param bufferCapacity The capacity of buffer.
+ * @param fdType The type of fd, either FILEFD or SOCKETFD. It is used to determine
+ * if the function will use recv (for sockets) or read (for files).
+ * @return Return the number of bytes read, or -1 on error.
+ */
 ssize_t	readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType)
 {
 	if (fdType == SOCKETFD)
@@ -77,6 +86,15 @@ ssize_t	readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &
 	return (read(fd, buffer, bufferCapacity));
 }
 
+/**
+ * @brief Write the data to fd.
+ * @param fd The file descriptor to write into.
+ * @param buffer The buffer containing all the bytes to write.
+ * @param bufferCapacity The capacity of buffer.
+ * @param fdType The type of fd, either FILEFD or SOCKETFD. It is used to determine
+ * if the function will use send (for sockets) or write (for files).
+ * @return Return the number of bytes read, or -1 on error.
+ */
 ssize_t	writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType)
 {
 	if (fdType == SOCKETFD)
