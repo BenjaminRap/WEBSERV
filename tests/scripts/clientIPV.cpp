@@ -64,36 +64,31 @@ main(int argc, char *argv[])
 
 	for (size_t i = 1; i < argc; i++)
 	{
-		w = write(data_socket, argv[i], strlen(argv[i]) + 1);
+		w = write(data_socket, argv[i], strlen(argv[i]));
 		if (w == -1) {
 			perror("write() : ");
 			break;
 		}
 	}
-	
-
-	/* Request result. */
-
-	// strcpy(buffer, "END");
-	// w = write(data_socket, buffer, strlen(buffer) + 1);
-	// if (w == -1) {
-	// 	perror("write");
-	// 	exit(EXIT_FAILURE);
-	// }
 
 	/* Receive result. */
 
-	// r = read(data_socket, buffer, sizeof(buffer));
-	// if (r == -1) {
-	// 	perror("read");
-	// 	exit(EXIT_FAILURE);
-	// }
+	do
+	{
+		r = read(data_socket, buffer, sizeof(buffer));
+		if (r == -1) {
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
 
-	/* Ensure buffer is 0-terminated. */
+		/* Ensure buffer is 0-terminated. */
 
-	// buffer[sizeof(buffer) - 1] = 0;
+		buffer[sizeof(buffer) - 1] = 0;
 
-	// printf("Result = %s\n", buffer);
+		printf("%s\n", buffer);
+		/* code */
+	} while (r > 0);
+	
 
 	/* Close socket. */
 
