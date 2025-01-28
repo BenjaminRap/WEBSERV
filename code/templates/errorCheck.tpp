@@ -1,3 +1,5 @@
+// IWYU pragma: private, include "socketCommunication.hpp"
+
 #include "socketCommunication.hpp"
 
 /**

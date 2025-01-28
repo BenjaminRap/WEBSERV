@@ -3,34 +3,7 @@
 
 # include <string>
 # include <map>
-
-/**
- * @brief This class stores all the data that will be sent to the client as a
- * response, compacted in a single string and a fd for the body. This class take
- * responsability for the closing of the fd.
- * It moves the data from the file to the socket like a stream, without allocation.
- * This class is designed to be minimalistic.
- */
-class RawResponse
-{
-private:
-	/**
-	 * @brief A string containing the first part of the response, that means :
-	 * the status line, the headers, the blank line and, if there is a static one,
-	 * a body.
-	 */
-	std::string	_firstPart;
-	/**
-	 * @brief The number of character from firstPart that has been written
-	 * to the socket. It should be in range [0, firstPart.size()]
-	 */
-	size_t		_written;
-	/**
-	 * @brief The file descriptor of the body.If there is no body, or it has already
-	 * been included in firstPart, this variable is set to -1.
-	 */
-	int			_bodyFd;
-};
+# include <stdint.h>
 
 /**
  * @brief The classe that stores all the data that will be sent to the client.
