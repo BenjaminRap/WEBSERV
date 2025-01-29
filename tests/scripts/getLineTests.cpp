@@ -36,7 +36,7 @@ void	printEverythingInFlowBuffer(FlowBuffer& flowBuffer)
 
 		if (!flowBuffer.getLine(&lineStart, &length))
 			break ;
-		std::cout << std::string(lineStart, (size_t)length);
+		std::cout << std::string(lineStart, (size_t)length) << std::endl;
 	}
 }
 

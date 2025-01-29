@@ -87,7 +87,7 @@ bool		FlowBuffer::getLine(char **lineStart, ssize_t *length)
 		if (_buffer[index] == '\n')
 		{
 			*lineStart = _buffer + _numCharsWritten;
-			*length = index + 1 - _numCharsWritten;
+			*length = index - _numCharsWritten;
 			_numCharsWritten = index + 1;
 			if (_numCharsWritten == _bufferLength)
 			{
