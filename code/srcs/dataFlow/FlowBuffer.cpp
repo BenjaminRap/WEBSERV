@@ -68,6 +68,41 @@ const char	*FlowBuffer::getBuffer() const
 	return (_buffer);
 }
 
+/**
+ * @brief  Get a line, (finishing by \n). Return true if there was a line in the
+ * buffer, false otherwise. If there is a line, lineStart is a pointer on the
+ * start of this line, and length is the lenth of the line. If there is no line,
+ * lineStart is set to NULL and length to -1.
+ * This functions update the FlowBuffer internal _numCharsWritten variables, 
+ * meaning that the line that has been returned, is counted as read and won't be
+ * returned again.
+ */
+bool		FlowBuffer::getLine(char **lineStart, ssize_t *length)
+{
+	size_t	index;
+
+	index = _numCharsWritten;
+	while (index < _bufferLength)
+	{
+		if (_buffer[index] == '\n')
+		{
+			*lineStart = _buffer + _numCharsWritten;
+			*length = index + 1 - _numCharsWritten;
+			_numCharsWritten = index + 1;
+			if (_numCharsWritten == _bufferLength)
+			{
+				_numCharsWritten = 0;
+				_bufferLength = 0;
+			}
+			return (true);
+		}
+		index++;
+	}
+	*lineStart = NULL;
+	*length = -1;
+	return (false);
+}
+
 /************************FlowBuffer write/read functions***********************/
 
 /**
