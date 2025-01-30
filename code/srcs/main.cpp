@@ -4,9 +4,6 @@
 #include "ServerConfiguration.hpp"
 #include "Configuration.hpp"
 #include "DeleteRequest.hpp"
-#include <cerrno>
-#include <cstring>
-
 
 #define RESPONSE404 "/custom_404.html"
 #define CLASSIC "./unitTest/main.html"
@@ -97,7 +94,6 @@ void	unitsTest(const ServerConfiguration &config)
 	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t", config);
 	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t", config);
 }
-
 
 void	deleteTest(const ServerConfiguration &config)
 {
