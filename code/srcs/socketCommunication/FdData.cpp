@@ -1,10 +1,10 @@
-#include <stdint.h>
-#include <iostream>        // for basic_ostream, operator<<, basic_ios, cerr
-#include <list>            // for list
-#include <stdexcept>       // logic_error
-#include <string>          // for char_traits, basic_string
+#include <iostream>    // for basic_ostream, operator<<, cerr, endl
+#include <list>        // for list
+#include <stdexcept>   // for invalid_argument, logic_error
+#include <string>      // for char_traits, basic_string
 
 #include "FdData.hpp"  // for FdData
+class SocketsHandler;
 
 /**
  * @throw Throw a std::invalid argument if the fd is inferior to 4.

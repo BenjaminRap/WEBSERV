@@ -1,7 +1,7 @@
 SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
-							FdData.cpp			\
+							FdData.cpp				\
 							signals.cpp				\
 							SocketsHandler.cpp		\
 							setSocketsOption.cpp	\

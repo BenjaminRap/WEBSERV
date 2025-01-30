@@ -1,25 +1,23 @@
-#include <sys/epoll.h>         // for epoll_event, epoll_ctl, epoll_create
-#include <sys/socket.h>        // for bind, socklen_t, AF_UNIX
-#include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
-#include <sys/un.h>            // for sockaddr_un, sa_family_t
-#include <unistd.h>            // for close
-#include <cerrno>              // for errno, ENOENT
-#include <cstring>             // for strerror
-#include <cstdio>              // for size_t, remove, NULL
-#include <exception>           // for exception
-#include <iostream>            // for basic_ostream, operator<<, endl, cerr
-#include <list>                // for list, operator!=, _List_const_iterator
-#include <map>                 // for operator!=, _Rb_tree_const_iterator
-#include <stdexcept>           // for logic_error
-#include <string>              // for basic_string, char_traits, string
-#include <utility>             // for pair
-#include <vector>              // for vector
+#include <stdint.h>                 // for uint32_t
+#include <sys/epoll.h>              // for epoll_event, epoll_ctl, epoll_create
+#include <sys/socket.h>             // for AF_UNIX, bind, sockaddr, socklen_t
+#include <sys/un.h>                 // for sa_family_t
+#include <unistd.h>                 // for close
+#include <cstdio>                   // for size_t, NULL
+#include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, endl
+#include <list>                     // for list, _List_const_iterator, opera...
+#include <map>                      // for operator!=, _Rb_tree_const_iterator
+#include <stdexcept>                // for logic_error
+#include <string>                   // for char_traits, basic_string, string
+#include <utility>                  // for pair
+#include <vector>                   // for vector
 
-#include "Configuration.hpp"   // for Configuration
-#include "socketCommunication.hpp"
-#include "Host.hpp"            // for Host
-#include "FdData.hpp"      // for FdData
-#include "SocketsHandler.hpp"  // for SocketsHandler
+#include "Configuration.hpp"        // for Configuration
+#include "FdData.hpp"               // for FdData
+#include "Host.hpp"                 // for Host
+#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "socketCommunication.hpp"  // for checkError, bindUnixSocket, remov...
 
 bool	SocketsHandler::_instanciated = false;
 

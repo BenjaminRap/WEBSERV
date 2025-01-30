@@ -1,11 +1,17 @@
-#include <netinet/in.h>
-#include <sys/epoll.h>
-#include <unistd.h>
-
-#include "ServerSocketData.hpp"
-#include "socketCommunication.hpp"
-#include "SocketsHandler.hpp"
-#include "ConnectedSocketData.hpp"
+#include <netinet/in.h>             // for sockaddr_in
+#include <stdint.h>                 // for uint32_t
+#include <sys/epoll.h>              // for EPOLLIN, EPOLLERR, EPOLLET, EPOLLHUP
+#include <sys/socket.h>             // for accept, sockaddr, socklen_t
+#include <unistd.h>                 // for close
+#include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, basic_ios
+#include <string>                   // for char_traits, basic_string
+	
+#include "ConnectedSocketData.hpp"  // for ConnectedSocketData
+#include "FdData.hpp"               // for FdData
+#include "ServerSocketData.hpp"     // for ServerSocketData
+#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "socketCommunication.hpp"  // for checkError
 
 //***********************Cosntructors / Destructors****************************/
 

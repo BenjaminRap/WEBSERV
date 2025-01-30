@@ -1,9 +1,13 @@
 #ifndef CONNECTED_SOCKET_DATA_HPP
 # define CONNECTED_SOCKET_DATA_HPP
 
-# include "FdData.hpp"
-# include "ResponsesHandler.hpp"
-# include "RequestHandler.hpp"
+#include <stdint.h>              // for uint32_t
+	
+#include "FdData.hpp"            // for FdData
+#include "RequestHandler.hpp"    // for RequestHandler
+#include "ResponsesHandler.hpp"  // for ResponsesHandler
+
+class SocketsHandler;
 
 /**
  * @brief This class stores all the data needed by a connected Socket. This fd
