@@ -1,9 +1,6 @@
 #include <sys/stat.h>
 #include <cstring>
-#include <vector>
 #include <dirent.h>
-#include <list>
-#include <cerrno>
 #include <fstream>
 
 #include "DeleteRequest.hpp"
@@ -15,14 +12,14 @@
 #define ERROR500 -2
 
 
-int							isDirOrFile(const std::string& path);
-int							removeDirectory(const std::string& path, DeleteRequest &del);
-void						delString(const std::string& toDel, std::string &str);
-void						fixPath(std::string &path);
-std::string					getParentPath(const std::string &path);
+int				isDirOrFile(const std::string& path);
+int				removeDirectory(const std::string& path, DeleteRequest &del);
+void			delString(const std::string& toDel, std::string &str);
+void			fixPath(std::string &path);
+std::string		getParentPath(const std::string &path);
 
 
-void checkEnd(std::string &path, DeleteRequest &del)
+void	checkEnd(std::string &path, DeleteRequest &del)
 {
 	char lastChar = path[path.length() - 1];
 	if (lastChar != '/')
@@ -34,7 +31,7 @@ void checkEnd(std::string &path, DeleteRequest &del)
 		del.setUrl(path);
 }
 
-bool canWrite(const std::string &path)
+bool	canWrite(const std::string &path)
 {
 	struct stat	stats;
 
@@ -64,8 +61,9 @@ int	directoryCase(const std::string &path, DeleteRequest &del)
 std::string	getParentPath(const std::string &path)
 {
 	size_t	found;
-	std::string temp = path;
+	std::string temp;
 
+	temp = path;
 	found = temp.find_last_of('/', temp.length() - 2);
 	temp.erase(found + 1, temp.length() - found);
 	return (temp);
@@ -73,8 +71,8 @@ std::string	getParentPath(const std::string &path)
 
 int	removeDirectory(const std::string &path, DeleteRequest &del)
 {
-	DIR							*dw;
-	struct dirent				*res;
+	DIR				*dw;
+	struct dirent	*res;
 
 	dw = opendir(path.c_str());
 	if (!dw)
