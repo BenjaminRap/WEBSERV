@@ -8,23 +8,21 @@
 class SocketsHandler;
 
 /**
- * @brief Represents all the data needed by a fd : the _callback function that
- * will be executed when the fd receive an event, its _iterator to remove itself
- * from the SocketsHandler list and the _data that will be passed to the _callback
- * functions.
+ * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
+ * instance. This class store everything that the programs need one the fd receive
+ * an events (EPOLLIN/EPOLLOUT/...).
+ * This class is abstratc, so it can only be used through its childs.
  */
 class FdData
 {
 protected:
 	/**
-	 * @brief The fd of the socket, it will be passed to the _callback function.
+	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
 	int								_fd;
 	/**
-	 * @brief The data that will be passed to the _callback function.
-	 */
-	/**
-	 * @brief The iterator of this FdData in the SocketsHandler list.
+	 * @brief The iterator of this instance in the SocketsHandler list. It is used
+	 * to remove this instance from the list in O(1).
 	 */
 	std::list<FdData *>::iterator	_iterator;
 	/**

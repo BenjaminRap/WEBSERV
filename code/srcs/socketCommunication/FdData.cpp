@@ -6,6 +6,9 @@
 
 #include "FdData.hpp"  // for FdData
 
+/**
+ * @throw Throw a std::invalid argument if the fd is inferior to 4.
+ */
 FdData::FdData(int fd, SocketsHandler& socketsHandler) :
 	_fd(fd),
 	_iterator(),

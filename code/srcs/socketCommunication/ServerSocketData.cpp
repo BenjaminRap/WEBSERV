@@ -24,12 +24,9 @@ ServerSocketData::~ServerSocketData(void)
 //**************************Member functions***********************************/
 
 /**
- * @brief Accept a connection request, sent to fd, add it to the epoll interest
- * list and add a FdData node.
- * The socket that will be created has the writeReceived function as callback.
- * @param fd The fd of the serverSocket that received a connection request.
- * @param data This pointer will be casted as a socketsHandler *, and will be used
- * to add it to the epoll interest list and socketsData list.
+ * @brief Accept a connection request, create a new fd, add it to the epoll interest
+ * list and add a ConnectedSocketData node to the socketsHandler list.
+ * @param events The events registered by epoll.
  */
 void	ServerSocketData::acceptConnection(uint32_t events)
 {

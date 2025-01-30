@@ -3,6 +3,11 @@
 
 # include "FdData.hpp"
 
+/**
+ * @brief This class stores all the data needed by a server socket. A server socket
+ * is a socket that listen on a specific host, and when it receives a request, 
+ * create another fd connecteed to that client.
+ */
 class ServerSocketData : public FdData
 {
 private:

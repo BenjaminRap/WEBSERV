@@ -5,6 +5,10 @@
 # include "ResponsesHandler.hpp"
 # include "RequestHandler.hpp"
 
+/**
+ * @brief This class stores all the data needed by a connected Socket. This fd
+ * process the request of a single client.
+ */
 class ConnectedSocketData : public FdData
 {
 private:
