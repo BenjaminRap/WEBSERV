@@ -4,15 +4,15 @@ if (process.argv.length != 4)
 	return ;
 }
 
-const url = "http://localhost:8181";
-const request = process.argv[2];
+const host = "http://localhost:8181";
+const url = process.argv[2];
 const method = process.argv[3];
 
 async function	makeRequest()
 {
 	try
 	{
-		const response = await fetch(url + request, {
+		const response = await fetch(host + url, {
 			method: method
 		});
 		console.log(response.status + " " + response.statusText);

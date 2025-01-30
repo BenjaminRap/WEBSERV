@@ -6,6 +6,7 @@
 #include "DeleteRequest.hpp"
 #include <cerrno>
 #include <cstring>
+#include <unistd.h>
 
 
 #define RESPONSE404 "/custom_404.html"
@@ -50,6 +51,41 @@ void	makeDelete(const std::string &desc, const std::string& test, int code, cons
 		std::cout << BMAG << "Test : "<< BCYN << desc << tab << BGRN << "OK : " << code << CRESET << std::endl;
 	else if (a.code != code || a.file != response)
 		std::cout << BMAG << "Test : "<< BCYN << desc << tab << BRED << "KO : " << "request : " << test << " response : " << a.code << " | " << a.file << CRESET <<std::endl;
+}
+
+std::pair<int, std::string>	askNginx(const std::string &url,const std::string &method)
+{
+	int					tube[2];
+	char				buffer[1024];
+	std::stringstream	ss;
+	int					status;
+	std::string			statusText;
+
+	pipe(tube);
+	ss << "node ../tests/scripts/makeRequest.js " << url << " " << method << " 1>&" << tube[1];
+	const std::string	command(ss.str());
+	ss.str("");
+	
+	system(command.c_str());
+
+	const ssize_t rd = read(tube[0], buffer, sizeof(buffer));
+	
+	if (std::string(buffer, rd) == "ERROR")
+		throw std::runtime_error("The fetch script crashed");
+	ss << std::string(buffer, rd);
+	ss >> status;
+	ss >> statusText;
+	close(tube[0]);
+	close(tube[1]);
+	return (std::pair<int, std::string>(status, statusText));
+}
+
+void	testDeleteRequest(const std::string &desc, const std::string &url, const std::string &tab, const ServerConfiguration &config)
+{
+	std::pair<int, std::string>	nginxResult;
+	
+	nginxResult = askNginx(url, "GET");
+	makeDelete(desc, url, nginxResult.first, nginxResult.second, tab, config);
 }
 
 void	unitsTest(const ServerConfiguration &config)
@@ -98,7 +134,6 @@ void	unitsTest(const ServerConfiguration &config)
 	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t", config);
 }
 
-
 void	deleteTest(const ServerConfiguration &config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
@@ -106,24 +141,24 @@ void	deleteTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t File Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeDelete("Normal Case", "/temp/full/classic", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("Normal Case (\"../\" in URL)","/temp/full/../../temp/full/noback", 204, NOT204, "\t\t\t", config);
-	makeDelete("No Perm file","/temp/full/noperms", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("No Perm directory of file","/temp/cant/tryme", 403, FOR403, "\t\t\t", config);
-	makeDelete("Only Read Perm directory of file","/temp/readme/deleteme", 403, FOR403, "\t\t\t", config);
-	makeDelete("Not Found","/temp/emptwswdy", 404, RESPONSE404, "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case", "/temp/full/classic", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case (\"../\" in URL)","/temp/full/../../temp/full/noback", "\t\t\t", config);
+	testDeleteRequest("No Perm file","/temp/full/noperms", "\t\t\t\t\t", config);
+	testDeleteRequest("No Perm directory of file","/temp/cant/tryme", "\t\t\t", config);
+	testDeleteRequest("Only Read Perm directory of file","/temp/readme/deleteme", "\t\t\t", config);
+	testDeleteRequest("Not Found","/temp/emptwswdy", "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Directory Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeDelete("Url not end by \"/\"","/temp/folder/empty", 409, CON409, "\t\t\t\t", config);
-	makeDelete("Empty Directory","/temp/folder/empty/", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("Normal Case","/temp/folder/classic/", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("No Perms for parent dir","/temp/folder/nopermspa/", 500, INTERNAL500, "\t\t\t\t", config);
-	makeDelete("No Perms for the dir do del","/temp/folder/noperms/", 500, INTERNAL500, "\t\t\t", config);
-	makeDelete("Dir in Dir (But have no perms)","/temp/folder/dire/", 500, INTERNAL500, "\t\t\t", config);
-	makeDelete("Dir in Dir (Have no perms but empty)","/temp/folder/dire2/", 204, NOT204, "\t\t", config);
-	makeDelete("Dir in Dir (Read Only but empty)","/temp/folder/dire3/", 204, NOT204, "\t\t\t", config);
-	makeDelete("Normal Case ++++++","/temp/folder/dire4/", 204, NOT204, "\t\t\t\t", config);
+	testDeleteRequest("Url not end by \"/\"","/temp/folder/empty", "\t\t\t\t", config);
+	testDeleteRequest("Empty Directory","/temp/folder/empty/", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case","/temp/folder/classic/", "\t\t\t\t\t", config);
+	testDeleteRequest("No Perms for parent dir","/temp/folder/nopermspa/", "\t\t\t\t", config);
+	testDeleteRequest("No Perms for the dir do del","/temp/folder/noperms/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (But have no perms)","/temp/folder/dire/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (Have no perms but empty)","/temp/folder/dire2/", "\t\t", config);
+	testDeleteRequest("Dir in Dir (Read Only but empty)","/temp/folder/dire3/", "\t\t\t", config);
+	testDeleteRequest("Normal Case ++++++","/temp/folder/dire4/", "\t\t\t\t", config);
 }
 
 int	main(int argc, char **argv)
