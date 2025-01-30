@@ -8,9 +8,9 @@ class SocketsHandler;
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
- * instance. This class store everything that the programs need one the fd receive
- * an events (EPOLLIN/EPOLLOUT/...).
- * This class is abstratc, so it can only be used through its childs.
+ * instance. This class store everything that the programs needs when the fd
+ * receive an events (EPOLLIN/EPOLLOUT/...).
+ * This class is abstract, so it can only be used through its childs.
  */
 class FdData
 {
