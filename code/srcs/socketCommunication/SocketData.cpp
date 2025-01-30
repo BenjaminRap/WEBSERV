@@ -48,7 +48,7 @@ int	SocketData::getFd() const
  * a std::logic_error.
  * @return A const reference on the iterator pointing to this object.
  */
-const std::list<SocketData>::iterator	&SocketData::getIterator() const
+const std::list<SocketData *>::iterator	&SocketData::getIterator() const
 {
 	if (_isIteratorSet)
 		return (this->_iterator);
@@ -64,14 +64,14 @@ const std::list<SocketData>::iterator	&SocketData::getIterator() const
  * If the SocketData pointed by the iterator isn't this class, print an error.
  * @param iterator The iterator that points to this SocketData.
  */
-void	SocketData::setIterator(const std::list<SocketData>::iterator &iterator)
+void	SocketData::setIterator(const std::list<SocketData *>::iterator &iterator)
 {
 	if (_isIteratorSet)
 	{
 		std::cerr << "Error : trying to set an iterator twice" << std::endl;
 		return ;
 	}
-	if (&(*iterator) != this)
+	if (*iterator != this)
 	{
 		std::cerr << "Error : trying to set the iterator with an iterator pointing to the wrong SocketData" << std::endl;
 		return ;

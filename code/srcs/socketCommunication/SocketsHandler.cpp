@@ -75,9 +75,10 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 SocketsHandler::~SocketsHandler()
 {
 	SocketsHandler::_instanciated = false;
-	for (std::list<SocketData>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<SocketData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
-		closeSocket((*ci).getFd());
+		closeSocket((*ci)->getFd());
+		delete (*ci);
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
@@ -163,6 +164,7 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	{
 		std::cerr << e.what() << std::endl;
 	}
+	delete &socketData;
 	return (true);
 }
 
@@ -256,5 +258,33 @@ static int	bindUnixSocket
 	if (checkError(bind(fd, addr, addrLen), -1, "bind() : "))
 		return (-1);
 	socketsToRemove.push_back(addrUnix->sun_path);
+	return (0);
+}
+
+int	SocketsHandler::addFdToListeners
+(
+	SocketData &socketData,
+	uint32_t events
+)
+{
+	epoll_event	event;
+
+	try
+	{
+		_socketsData.push_front(&socketData);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << "push_front() : " << e.what() << std::endl;
+		return (-1);
+	}
+	socketData.setIterator(_socketsData.begin());
+	event.data.ptr = &(socketData);
+	event.events = events;
+	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, socketData.getFd(), &event), -1, "epoll_ctl() :") == -1)
+	{
+		_socketsData.pop_front();
+		return (-1);
+	}
 	return (0);
 }

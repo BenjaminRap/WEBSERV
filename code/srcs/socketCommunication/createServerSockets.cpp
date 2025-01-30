@@ -55,7 +55,7 @@ static int	createServerSocket
  */
 void	createAllServerSockets
 (
-	const Configuration &conf,
+const Configuration &conf,
 	SocketsHandler &socketsHandler
 )
 {
@@ -68,7 +68,18 @@ void	createAllServerSockets
 
 		if (fd == -1)
 			continue ;
-		if (socketsHandler.addFdToListeners(fd, acceptConnection, socketsHandler, events) == -1)
-			close(fd);
+		try
+		{
+			SocketData * const socketData = new SocketData(fd, socketsHandler, acceptConnection);
+			if (socketsHandler.addFdToListeners(*socketData, events) == -1)
+			{
+				delete socketData;
+				close(fd);
+			}
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 	}
 }

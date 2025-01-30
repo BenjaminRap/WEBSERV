@@ -19,28 +19,28 @@ private:
 	/**
 	 * @brief The fd of the socket, it will be passed to the _callback function.
 	 */
-	int								_fd;
+	int									_fd;
 	/**
 	 * @brief The data that will be passed to the _callback function.
 	 */
-	void							*_data;
+	void								*_data;
 	/**
 	 * @brief The function that will be called when the epoll_wait detects an event.
 	 */
-	void							(&_callback)(SocketData &socketData, void *data, uint32_t events);
+	void								(&_callback)(SocketData &socketData, void *data, uint32_t events);
 	/**
 	 * @brief The iterator of this SocketData in the SocketsHandler list.
 	 */
-	std::list<SocketData>::iterator	_iterator;
+	std::list<SocketData *>::iterator	_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a good argument.
 	 */
-	bool							_isIteratorSet;
+	bool								_isIteratorSet;
 	/**
 	 * @brief The structure responsible for storing and sending all the responses,
 	 * in the same order they have been received.
 	 */
-	ResponsesHandler				_responsesHandler;
+	ResponsesHandler					_responsesHandler;
 
 	SocketData(void);
 
@@ -53,8 +53,8 @@ public:
 
 	void									callback(uint32_t events);
 	int										getFd() const;
-	const std::list<SocketData>::iterator	&getIterator() const;
-	void									setIterator(const std::list<SocketData>::iterator &iterator);
+	const std::list<SocketData *>::iterator	&getIterator() const;
+	void									setIterator(const std::list<SocketData *>::iterator &iterator);
 };
 
 # include "SocketData.tpp"

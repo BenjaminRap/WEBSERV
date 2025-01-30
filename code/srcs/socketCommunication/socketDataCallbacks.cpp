@@ -39,11 +39,21 @@ void	acceptConnection(SocketData &socketData, SocketsHandler *socketsHandler, ui
 
 	if (checkError(newConnectionFd, -1, "accept() : ") == -1)
 		return ;
-	if (socketsHandler->addFdToListeners(newConnectionFd, processRequests, *socketsHandler, newConnectionEvents) == -1)
+	try
 	{
-		std::cerr << "Can't accept new connection" << std::endl;
-		checkError(close(newConnectionFd), -1, "close() : ");
+		SocketData * const socketData = new SocketData(newConnectionFd, *socketsHandler, processRequests);
+		if (socketsHandler->addFdToListeners(*socketData, newConnectionEvents) == -1)
+		{
+			delete socketData;
+			std::cerr << "Can't accept new connection" << std::endl;
+			checkError(close(newConnectionFd), -1, "close() : ");
+		}
+		else
+			std::cout << "Accepted a new connection, fd : " << newConnectionFd << std::endl;
 	}
-	else
-		std::cout << "Accepted a new connection, fd : " << newConnectionFd << std::endl;
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
 }

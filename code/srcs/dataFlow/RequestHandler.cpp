@@ -31,9 +31,12 @@ RequestHandler::~RequestHandler()
 
 bool	RequestHandler::readRequest(int socketFd)
 {
+	(void)socketFd;
+	return (true);
 }
 
 bool	RequestHandler::processRequest(int socketFd)
 {
-
+	(void)socketFd;
+	return (true);
 }

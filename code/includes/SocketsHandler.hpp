@@ -28,7 +28,7 @@ private:
 	/**
 	 * @brief A list of the SocketData that are in the epoll interest list.
 	 */
-	std::list<SocketData>		_socketsData;
+	std::list<SocketData*>		_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -65,13 +65,10 @@ public:
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
-	template <typename T>
-	int		addFdToListeners(int fd, void (&callback)(SocketData &socketData, T *data, uint32_t events), T &data, uint32_t events);
+	int		addFdToListeners(SocketData &socketData, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);
 };
-
-# include "SocketsHandler.tpp"
 
 #endif // !SOCKETS_HANDLER_HPP
