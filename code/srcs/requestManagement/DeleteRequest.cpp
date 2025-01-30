@@ -47,10 +47,8 @@ void	addRoot(DeleteRequest &del, const ServerConfiguration& config)
 		replaceUrl(del.getUrl(), temp->getRoot(), del.getUrl());
 }
 
-DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : _isRoot(false), code(0)
+void	DeleteRequest::parsing(std::string &url, const ServerConfiguration &config)
 {
-	int			temp;
-
 	this->_config = &config;
 	fixUrl(*this, url);
 	if (this->code == 400)
@@ -60,6 +58,15 @@ DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config)
 		return ;
 	if (this->_url[0] != '.')
 		this->_url = "." + this->_url;
+}
+
+DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : _isRoot(false), code(0)
+{
+	int			temp;
+
+	parsing(url, config);
+	if (this->code != 0)
+		return ;
 	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(this->_url, *this);
