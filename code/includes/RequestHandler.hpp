@@ -24,6 +24,9 @@ public:
 	RequestHandler();
 	RequestHandler(const RequestHandler& ref);
 	~RequestHandler();
+
+	bool	readRequest(int socketFd);
+	bool	processRequest(int socketFd);
 };
 
 #endif // !REQUEST_HANDLER_HPP

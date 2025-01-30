@@ -2,6 +2,8 @@
 
 #include "RequestHandler.hpp"
 
+/************************Constructors/Destructors******************************/
+
 RequestHandler::RequestHandler() :
 	_buffer(),
 	_flowBuffer(_buffer, REQUEST_BUFFER_SIZE, 0),
@@ -25,3 +27,13 @@ RequestHandler::~RequestHandler()
 {
 }
 
+/************************Member function***************************************/
+
+bool	RequestHandler::readRequest(int socketFd)
+{
+}
+
+bool	RequestHandler::processRequest(int socketFd)
+{
+
+}

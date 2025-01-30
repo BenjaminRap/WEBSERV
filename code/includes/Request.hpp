@@ -31,12 +31,6 @@ private:
 	}									_statusLine;
 	std::map<std::string, std::string>	_headers;
 	/**
-	 * @brief When reading the headers, a part of the body can be read. It can be
-	 * empty, a part of the body or the entire body.
-	 * A request has no body if this string is empty and the bodyFd is set to -1.
-	 */
-	std::string							_alreadyReadBody;
-	/**
 	 * @brief The file descriptor of the client socket if there is a remaining body.
 	 * If there is no remaining body, this variable is set to -1.
 	 */
