@@ -73,6 +73,7 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 {
 	DIR				*dw;
 	struct dirent	*res;
+	std::string		temp;
 
 	dw = opendir(path.c_str());
 	if (!dw)
@@ -81,10 +82,11 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 	{
 		if (std::strcmp(res->d_name, ".") == 0 || std::strcmp(res->d_name, "..") == 0)
 			continue ;
-		else if (std::remove((path + res->d_name).c_str()) == -1)
+		temp = path + res->d_name;
+		if (std::remove(temp.c_str()) == -1)
 		{
-			if (isDirOrFile(path + res->d_name) == DIRE)
-				directoryCase(path + res->d_name + "/", del);
+			if (isDirOrFile(temp) == DIRE)
+				directoryCase(temp + "/", del);
 			else
 			{
 				closedir(dw);
