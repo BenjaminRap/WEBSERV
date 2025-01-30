@@ -7,7 +7,7 @@
 # include <string>
 # include <iostream>
 
-# include "SocketData.hpp"
+# include "FdData.hpp"
 #include <socketCommunication.hpp>
 
 class Configuration;
@@ -26,9 +26,9 @@ private:
 	static bool					_instanciated;
 
 	/**
-	 * @brief A list of the SocketData that are in the epoll interest list.
+	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<SocketData*>		_socketsData;
+	std::list<FdData*>		_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -65,7 +65,7 @@ public:
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
-	int		addFdToListeners(SocketData &socketData, uint32_t events);
+	int		addFdToListeners(FdData *FdData, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);

@@ -9,10 +9,11 @@
 # include <iostream>
 # include <cstring>
 # include <vector>
+# include <sys/socket.h>
 
 class SocketsHandler;
 class Configuration;
-class SocketData;
+class FdData;
 typedef struct sockaddr sockaddr;
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &SocketsHandler);
@@ -22,7 +23,6 @@ void	signalHandler(int signal);
 int		getReturnCodeWithSignal();
 int		setReusableAddr(int fd, bool reuseAddr);
 int		setIPV6Only(int fd, bool isIPV6Only);
-void	acceptConnection(SocketData& socketData, SocketsHandler *socketsHandler, uint32_t events);
 int		removeUnixSocketIfExists(const char sun_path[108]);
 int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
 			std::vector<std::string> &socketsToRemove);

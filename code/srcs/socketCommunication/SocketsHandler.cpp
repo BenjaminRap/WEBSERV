@@ -18,7 +18,7 @@
 #include "Configuration.hpp"   // for Configuration
 #include "socketCommunication.hpp"
 #include "Host.hpp"            // for Host
-#include "SocketData.hpp"      // for SocketData
+#include "FdData.hpp"      // for FdData
 #include "SocketsHandler.hpp"  // for SocketsHandler
 
 bool	SocketsHandler::_instanciated = false;
@@ -72,7 +72,7 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 SocketsHandler::~SocketsHandler()
 {
 	SocketsHandler::_instanciated = false;
-	for (std::list<SocketData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<FdData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
 		closeSocket((*ci)->getFd());
 		delete (*ci);
@@ -126,9 +126,9 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+	FdData	*fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
 
-	socketData.callback(_events[eventIndex].events);
+	fdData->callback(_events[eventIndex].events);
 }
 
 /**
@@ -148,20 +148,20 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	}
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
 		return (false);
-	const SocketData	&socketData = *static_cast<SocketData *>(_events[eventIndex].data.ptr);
-	const int	fd = socketData.getFd();
+	const FdData * const	fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
+	const int	fd = fdData->getFd();
 
 	closeSocket(fd);
 	std::cout << "A connection stopped, fd : " << fd << std::endl;
 	try
 	{
-		_socketsData.erase(socketData.getIterator());
+		_socketsData.erase(fdData->getIterator());
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
-	delete &socketData;
+	delete fdData;
 	return (true);
 }
 
@@ -197,7 +197,7 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 
 int	SocketsHandler::addFdToListeners
 (
-	SocketData &socketData,
+	FdData *FdData,
 	uint32_t events
 )
 {
@@ -205,21 +205,21 @@ int	SocketsHandler::addFdToListeners
 
 	try
 	{
-		_socketsData.push_front(&socketData);
+		_socketsData.push_front(FdData);
 	}
 	catch(const std::exception& e)
 	{
-		delete &socketData;
+		delete FdData;
 		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (-1);
 	}
-	socketData.setIterator(_socketsData.begin());
-	event.data.ptr = &(socketData);
+	FdData->setIterator(_socketsData.begin());
+	event.data.ptr = FdData;
 	event.events = events;
-	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, socketData.getFd(), &event), -1, "epoll_ctl() :") == -1)
+	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData->getFd(), &event), -1, "epoll_ctl() :") == -1)
 	{
 		_socketsData.pop_front();
-		delete &socketData;
+		delete FdData;
 		return (-1);
 	}
 	return (0);

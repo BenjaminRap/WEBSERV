@@ -1,12 +1,13 @@
 SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
-							SocketData.cpp			\
+							FdData.cpp			\
 							signals.cpp				\
 							SocketsHandler.cpp		\
 							setSocketsOption.cpp	\
-							socketDataCallbacks.cpp	\
-							unixSocket.cpp
+							unixSocket.cpp			\
+							ConnectedSocketData.cpp	\
+							ServerSocketData.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 DATA_FLOW_DIR			:=	dataFlow/

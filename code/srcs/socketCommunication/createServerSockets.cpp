@@ -11,6 +11,7 @@
 #include "Host.hpp"                 // for Host
 #include "SocketsHandler.hpp"       // for SocketsHandler
 #include "socketCommunication.hpp"  // for setIPV6Only, setReusableAddr, acc...
+#include "ServerSocketData.hpp"
 
 /**
  * @brief Create a server socket, a socket used only to listen to connection creation request.
@@ -70,10 +71,10 @@ const Configuration &conf,
 			continue ;
 		try
 		{
-			SocketData * const socketData = new SocketData(fd, socketsHandler, acceptConnection);
-			if (socketsHandler.addFdToListeners(*socketData, events) == -1)
+			ServerSocketData * const serverSocketData = new ServerSocketData(fd, socketsHandler);
+			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
 			{
-				delete socketData;
+				delete serverSocketData;
 				close(fd);
 			}
 		}
