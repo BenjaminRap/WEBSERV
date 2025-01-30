@@ -7,11 +7,9 @@
 # include <string>
 # include <iostream>
 
-# include "FdData.hpp"
-#include <socketCommunication.hpp>
-
 class Configuration;
 class Host;
+class FdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and

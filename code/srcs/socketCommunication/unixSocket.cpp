@@ -1,13 +1,14 @@
-#include <cstring>
-#include <vector>
-#include <cstdio>
-#include <iostream>
-#include <sys/un.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-
-#include "socketCommunication.hpp"
-
+#include <errno.h>                  // for errno, ENOENT
+#include <sys/socket.h>             // for bind, sockaddr, socklen_t
+#include <sys/stat.h>               // for stat, S_IFMT, S_IFSOCK
+#include <sys/un.h>                 // for sockaddr_un
+#include <cstdio>                   // for remove
+#include <cstring>                  // for strerror
+#include <iostream>                 // for basic_ostream, char_traits, opera...
+#include <string>                   // for basic_string, string
+#include <vector>                   // for vector
+	
+#include "socketCommunication.hpp"  // for checkError, bindUnixSocket, remov...
 /**
  * @brief Remove the sockets at sun_path.
  * @param sun_path The path of the socket in the file system.

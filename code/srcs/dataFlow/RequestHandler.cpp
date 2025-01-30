@@ -1,5 +1,3 @@
-#include <cstring>
-
 #include "RequestHandler.hpp"
 
 /************************Constructors/Destructors******************************/

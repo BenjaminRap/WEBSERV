@@ -13,7 +13,6 @@
 
 class SocketsHandler;
 class Configuration;
-class FdData;
 typedef struct sockaddr sockaddr;
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &SocketsHandler);
