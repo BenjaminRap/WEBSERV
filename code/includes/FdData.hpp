@@ -3,7 +3,6 @@
 
 # include <stdint.h>
 # include <list>
-# include <stdexcept>
 
 class SocketsHandler;
 
