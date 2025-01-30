@@ -11,5 +11,7 @@ CONFIGURATION			:=	$(addprefix $(CONFIGURATION_DIR), $(CONFIGURATION_FILES))
 
 REQUEST_DIR				:=	requestManagement/
 REQUEST_FILES			:=	GetRequestUtils.cpp	\
-							GetRequest.cpp
+							GetRequest.cpp	\
+							DeleteRequest.cpp	\
+							DeleteRequestUtils.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
