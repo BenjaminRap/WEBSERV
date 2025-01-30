@@ -7,6 +7,6 @@ runTest()
 }
 
 runTest flowBufferTests.cpp
-runTest socketDataTests.cpp
-runTest socketDataTests.cpp
+runTest fdDataTests.cpp
+runTest rawResponseTests.cpp
 runTest socketsHandlerTests.cpp

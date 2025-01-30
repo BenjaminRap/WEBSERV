@@ -8,6 +8,7 @@
 
 #include "SocketsHandler.hpp"
 #include "Configuration.hpp"
+#include "ServerSocketData.hpp"
 
 #include "utils.cpp"
 
@@ -114,24 +115,11 @@ void	addWrongFdToListeners(int errorFd)
 {
 	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
-	int					data;
 
-	data = 0;
-	printInfo("Try passing an fd to listeners that is inferior to 4");
-	printInfo("Should output an error");
-	try
-	{
-		new SocketData(1, data, callback);
-		verify(false);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		verify(true);
-	}
+
 	printInfo("Try passing an fd to listeners that isn't open");
 	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(*(new SocketData(10, data, callback)), EPOLLIN);
+	socketsHandler.addFdToListeners(new ServerSocketData(10, socketsHandler), EPOLLIN);
 	verify(checkError(errorFd));
 }
 
