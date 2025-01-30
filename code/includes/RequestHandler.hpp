@@ -19,10 +19,11 @@ private:
 	FlowBuffer		_flowBuffer;
 	RequestState	_state;
 
+	RequestHandler(const RequestHandler& ref);
+
 	RequestHandler&	operator=(const RequestHandler& ref);
 public:
 	RequestHandler();
-	RequestHandler(const RequestHandler& ref);
 	~RequestHandler();
 
 	bool	readRequest(int socketFd);

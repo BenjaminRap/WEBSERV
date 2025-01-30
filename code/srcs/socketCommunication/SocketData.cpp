@@ -6,21 +6,6 @@
 
 #include "SocketData.hpp"  // for SocketData
 
-
-/**
- * @brief Create a SocketData by copying ref.The ref iterator isn't copied and this
- * new SocketData need a setIterator call.
- * @param ref The SocketData to copy from.
- */
-SocketData::SocketData(const SocketData& ref) :
-	_fd(ref._fd),
-	_data(ref._data),
-	_callback(ref._callback),
-	_iterator(),
-	_isIteratorSet(false)
-{
-}
-
 SocketData::~SocketData(void)
 {
 }

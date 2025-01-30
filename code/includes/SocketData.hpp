@@ -43,12 +43,12 @@ private:
 	ResponsesHandler					_responsesHandler;
 
 	SocketData(void);
+	SocketData(const SocketData &ref);
 
 	SocketData&	operator=(const SocketData& ref);
 public:
 	template <typename T> 
 	SocketData(int fd, T &data, void (&callback)(SocketData &socketData, T *data, uint32_t events));
-	SocketData(const SocketData &ref);
 	~SocketData(void);
 
 	void									callback(uint32_t events);
