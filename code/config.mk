@@ -5,7 +5,8 @@ SOCKET_FILES			:=	createServerSockets.cpp	\
 							signals.cpp				\
 							SocketsHandler.cpp		\
 							setSocketsOption.cpp	\
-							socketDataCallbacks.cpp
+							socketDataCallbacks.cpp	\
+							unixSocket.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 DATA_FLOW_DIR			:=	dataFlow/
