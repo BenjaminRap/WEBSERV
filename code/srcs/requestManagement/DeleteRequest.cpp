@@ -57,7 +57,7 @@ void	DeleteRequest::parsing(std::string &url, const ServerConfiguration &config)
 	if (this->code == 301 || this->code == 405)
 		return ;
 	if (this->_url[0] != '.')
-		this->_url = "." + this->_url;
+		this->_url.insert(0, ".");
 }
 
 DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : _isRoot(false), code(0)
