@@ -49,42 +49,52 @@ void	tryGettingUnsetIterator()
 
 void	TrySettingWrongIterator(int errorFd)
 {
-	std::list<SocketData>	socketsData;
+	std::list<SocketData*>	socketsData;
 	int						data;
 
 	data = 0;
 	printInfo("Try setting the wrong iterator");
-	socketsData.push_front(SocketData(4, data, callback));
-	socketsData.push_front(SocketData(5, data, callback));
+	socketsData.push_front(new SocketData(4, data, callback));
+	socketsData.push_front(new SocketData(5, data, callback));
 	printInfo("Should output an error message :");
-	socketsData.back().setIterator(socketsData.begin());
+	socketsData.back()->setIterator(socketsData.begin());
+	for (std::list<SocketData *>::iterator it = socketsData.begin(); it != socketsData.end(); it++)
+		delete *it;
 	verify(checkError(errorFd));
 }
 
 void	trySettingIteratorTwice(int errorFd)
 {
-	std::list<SocketData>	socketsData;
+	std::list<SocketData *>	socketsData;
 	int						data;
 
 	data = 0;
 	printInfo("try setting an iterator twice");
-	socketsData.push_front(SocketData(4, data, callback));
+	socketsData.push_front(new SocketData(4, data, callback));
 	printInfo("Should output an error message :");
-	socketsData.front().setIterator(socketsData.begin());
-	socketsData.front().setIterator(socketsData.begin());
+	socketsData.front()->setIterator(socketsData.begin());
+	socketsData.front()->setIterator(socketsData.begin());
+	for (std::list<SocketData *>::iterator it = socketsData.begin(); it != socketsData.end(); it++)
+		delete *it;
 	verify(checkError(errorFd));
 }
 
 void	tryUsingIterator()
 {
-	std::list<SocketData>	socketsData;
+	std::list<SocketData *>	socketsData;
 	int						data;
 
 	data = 4;
 	printInfo("try using an iterator");
-	socketsData.push_front(SocketData(4, data, callback));
-	socketsData.front().setIterator(socketsData.begin());
-	socketsData.erase(socketsData.front().getIterator());
+	socketsData.push_front(new SocketData(4, data, callback));
+	socketsData.front()->setIterator(socketsData.begin());
+	for (std::list<SocketData *>::iterator it = socketsData.begin(); it != socketsData.end(); )
+	{
+		std::list<SocketData *>::iterator storedIt = (*it)->getIterator();
+		delete *it;
+		it++;
+		socketsData.erase(storedIt);
+	}
 	verify(socketsData.size() == 0);
 }
 
