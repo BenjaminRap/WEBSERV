@@ -1,18 +1,24 @@
-const url = "http://localhost:8181/";
+if (process.argv.length != 4)
+{
+	console.error("Not enough parameters");
+	return ;
+}
+
+const url = "http://localhost:8181";
+const request = process.argv[2];
+const method = process.argv[3];
 
 async function	makeRequest()
 {
-	try {
-		const response = await fetch(url, {
-			method: "GET"
+	try
+	{
+		const response = await fetch(url + request, {
+			method: method
 		});
-		if (!response.ok) {
-			throw new Error(`Response status: ${response.status}`);
-		}
-		
 		console.log(response.status + " " + response.statusText);
-	} catch (error) {
-		console.error(error.message);
+	}
+	catch (error) {
+		console.error("fetch error");
 	}
 }
 
