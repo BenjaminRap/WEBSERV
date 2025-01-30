@@ -17,6 +17,7 @@ class DeleteRequest
 		~DeleteRequest();
 		DeleteRequest& operator=(const DeleteRequest& src);
 
+		void						parsing(std::string &url, const ServerConfiguration &config);
 		void						setResponse(int code, const std::string& file);
 		void						setUrl(const std::string& src);
 		void						setRoot(const Route *root);
