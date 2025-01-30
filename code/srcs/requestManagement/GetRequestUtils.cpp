@@ -47,7 +47,7 @@ void	fixPath(std::string &path)
 		path = "/";
 }
 
-void checkType(std::string &path, GetRequest &get)
+void checkType(std::string &path, GetRequest get)
 {
 	char lastChar = path[path.length() - 1];
 	if (lastChar != '/')
@@ -67,7 +67,12 @@ int	isDirOrFile(const std::string& path)
 		return (DIRE);
 	std::memset(&stats, 0, sizeof(stats));
 	if (stat(path.c_str(), &stats) == -1)
+	{
+		if (errno == EACCES)
+			return (FORBIDEN);
+		else
 		return (NF);
+	}
 	if (S_ISDIR(stats.st_mode) == DIRE)
 		return (DIRE);
 	else
@@ -136,6 +141,7 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 	}
 	return (false);
 }
+
 
 void	fixUrl(GetRequest& get, std::string& url)
 {

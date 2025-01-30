@@ -14,9 +14,7 @@ std::string					buildPage(std::list<std::string>	&files, const std::string& path
 void						directoryCase(GetRequest& get);
 void						fixUrl(GetRequest& get, std::string& url);
 
-
-
-bool	checkAllowMeth(const Route &root)
+bool	checkAllowMeth(const Route &root, EMethods meth)
 {
 	const std::vector<EMethods>	&meths = root.getAcceptedMethods();
 	size_t						len;
@@ -26,7 +24,7 @@ bool	checkAllowMeth(const Route &root)
 		return (true);
 	for (size_t i = 0; i < len ; i++)
 	{
-		if (meths[i] == GET)
+		if (meths[i] == meth)
 			return (true);
 	}
 	return (false);
@@ -64,7 +62,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	}
 	get.setRoot(temp);
 	get.setIsRoot(true);
-	if (!checkAllowMeth(*temp))
+	if (!checkAllowMeth(*temp, GET))
 	{
 		get.setResponse(405, config.getErrorPage(405));
 		return ;
@@ -91,7 +89,7 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _au
 	if (this->code == 301 || this->code == 405)
 		return ;
 	if (this->_url[0] != '.')
-		this->_url = "." + this->_url;
+		this->_url.insert(0, ".");
 	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(*this);
