@@ -110,7 +110,7 @@ void	tryPassingAWrongIPV6Array()
 	verify(true);
 }
 
-void	addWrongFdToListeners()
+void	addWrongFdToListeners(int errorFd)
 {
 	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
@@ -131,17 +131,8 @@ void	addWrongFdToListeners()
 	}
 	printInfo("Try passing an fd to listeners that isn't open");
 	printInfo("Should output an error");
-	try
-	{
-		socketsHandler.addFdToListeners(*(new SocketData(10, data, callback)), EPOLLIN);
-		verify(false);
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		verify(true);
-	}
-	
+	socketsHandler.addFdToListeners(*(new SocketData(10, data, callback)), EPOLLIN);
+	verify(checkError(errorFd));
 }
 
 void	executeCallbackWithIndexTooBig(int errorFd)
@@ -273,7 +264,7 @@ int	main(void)
 	bindTwiceSameHost(tube[0]);
 	bindTwiceSameHostWithDiffIpFamily(tube[0]);
 	tryPassingAWrongIPV6Array();
-	addWrongFdToListeners();
+	addWrongFdToListeners(tube[0]);
 	executeCallbackWithIndexTooBig(tube[0]);
 	bindUnixSocketWithWrongFd(tube[0]);
 	creatingUnixSocketWithExistingFile(tube[0]);
