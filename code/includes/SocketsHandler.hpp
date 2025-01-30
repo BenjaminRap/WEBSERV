@@ -52,7 +52,7 @@ private:
 	 * have been created.
 	 * It should be used to removed them in the destructor.
 	 */
-	std::vector<std::string>	_socketsToRemove;
+	std::vector<std::string>	_unixSocketsToRemove;
 
 	SocketsHandler(const SocketsHandler& ref);
 	SocketsHandler(void);

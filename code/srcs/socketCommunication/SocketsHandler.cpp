@@ -51,7 +51,7 @@ static size_t getUnixSocketCount(const Configuration &conf)
 SocketsHandler::SocketsHandler(const Configuration &conf) :
 	_maxEvents(conf.getMaxEvents()),
 	_eventsCount(0),
-	_socketsToRemove(getUnixSocketCount(conf))
+	_unixSocketsToRemove(getUnixSocketCount(conf))
 {
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
@@ -79,7 +79,7 @@ SocketsHandler::~SocketsHandler()
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
-	for (std::vector<std::string>::iterator ci = _socketsToRemove.begin(); ci != _socketsToRemove.end(); ci++)
+	for (std::vector<std::string>::iterator ci = _unixSocketsToRemove.begin(); ci != _unixSocketsToRemove.end(); ci++)
 	{
 		removeUnixSocketIfExists((*ci).c_str());
 	}
@@ -169,7 +169,7 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 /**
  * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
  * delete the socket at the host.sun_path, recreate a socket and add the socket
- * path to the SocketsHandler _socketsToRemove vector.
+ * path to the SocketsHandler _unixSocketsToRemove vector.
  * @param The fd to bind, should be a socket fd.
  * @param host The host whose address will be used to bind the socket.
  * @return 0 on success, -1 on error with an error message printed in the terminal.
@@ -185,7 +185,7 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 		const socklen_t	addrLen = host.getAddrInfo(&addr);
 	
 		if (family == AF_UNIX)
-			return (bindUnixSocket(fd, addr, addrLen, _socketsToRemove));
+			return (bindUnixSocket(fd, addr, addrLen, _unixSocketsToRemove));
 		return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
 	}
 	catch(const std::exception& e)
