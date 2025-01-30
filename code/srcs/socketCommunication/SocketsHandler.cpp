@@ -275,6 +275,7 @@ int	SocketsHandler::addFdToListeners
 	}
 	catch(const std::exception& e)
 	{
+		delete &socketData;
 		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (-1);
 	}
@@ -284,6 +285,7 @@ int	SocketsHandler::addFdToListeners
 	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, socketData.getFd(), &event), -1, "epoll_ctl() :") == -1)
 	{
 		_socketsData.pop_front();
+		delete &socketData;
 		return (-1);
 	}
 	return (0);
