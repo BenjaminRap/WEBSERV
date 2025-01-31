@@ -189,7 +189,6 @@ int	main(int argc, char **argv)
 
 	if (argc == 2)
 	{
-		getTest(config.getServerConfiguration(0));
 		std::system("cd unitTest && ../deleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
 		deleteTest(config.getServerConfiguration(0));
