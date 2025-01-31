@@ -11,6 +11,11 @@ chmod 777 delete/
 		mkdir -p delete/trickyRight/symlinkParent
 		chmod 777 delete/trickyRight
 		ln -s delete/trickyRight/symlinkParent delete/trickyRight/symlinkParent/symlinkLoop
+	# Test 3: symlink pointing outside root
+		mkdir -p ../outsideRoot
+		chmod 777 ../outsideRoot
+		touch ../outsideRoot/outsideRoot.txt
+		(cd delete/trickyRight/ && ln -s ../../../outsideRoot outsideLink)
 
 ##---------------------------------------------------------------------------------------------------##
 	# Create Folder Full perms with 3 file.

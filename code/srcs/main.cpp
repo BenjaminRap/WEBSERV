@@ -181,6 +181,7 @@ void	deleteTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	testDeleteRequest("Symlink look with parent no right", "/delete/trickyNoRight/symlinkParent/", "\t", config);
 	testDeleteRequest("Symlink look with parent right", "/delete/trickyRight/symlinkParent/", "\t", config);
+	testDeleteRequest("Delete file outside root with symlink", "/delete/trickyRight/outsideLink", "\t", config);
 }
 
 int	main(int argc, char **argv)
