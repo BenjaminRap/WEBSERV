@@ -189,10 +189,11 @@ int	main(int argc, char **argv)
 
 	if (argc == 2)
 	{
-//		std::system("./test.sh");
-//		deleteTest(config.getServerConfiguration(0));
-//		std::system("./removeTest.sh");
-		unitsTest(config.getServerConfiguration(0));
+		std::system("cd unitTest && ../deleteTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
+		deleteTest(config.getServerConfiguration(0));
+		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
