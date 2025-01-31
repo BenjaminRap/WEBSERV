@@ -3,6 +3,8 @@
 #include <map>
 #include <sstream>
 #include <fstream>
+#include <cstring>
+#include <utility>
 #include <netinet/in.h>
 #include "Route.hpp"
 #include "Configuration.hpp"
@@ -20,12 +22,15 @@
 #define ERROR_500_INT 500
 
 void	parse_file(Configuration &config, std::string &file);
-void	parse_server(Configuration &config, std::string &file, size_t &i, size_t &line);
+void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::string &file, size_t &i, size_t &line);
 void	skip_line(std::string &file, size_t &i, size_t &line);
 void	skip_wspace(std::string &file, size_t &i, size_t &line);
 short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len);
-void	parse_ip(std::string &file, size_t &i, size_t &line, uint32_t &host);
-void	parse_port(std::string &file, size_t &i, size_t &line, uint16_t &port);
+void	parse_ipv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip);
+void	parse_host(std::string &file, size_t &i, size_t &line, ip_t &ip);
+void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<uint8_t [16], in_port_t> &ip);
+void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip);
+void	parse_port(std::string &file, size_t &i, size_t &line, in_port_t &port);
 void	parse_maxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
 void	parse_servername(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames);
 void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages);
@@ -36,19 +41,22 @@ void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<s
 void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);
 void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
 void	parse_route_uploads(std::string &file, size_t &i, size_t &line, bool &acceptUploads);
-void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip);
-void	parse_ipv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip);
-void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<uint8_t [16], in_port_t> &ip);
 void	ft_readfile(const char *path, std::string &buff);
 
-class	ip
-{
-	public:
+typedef struct ipv6_s {
+    uint8_t ipv6[16];
 
-	std::vector<std::string>			unix_adrr;
-	std::map<in_addr_t, in_port_t>		ipv4;
-	std::map<uint8_t [16], in_port_t>	ipv6;
-};
+    bool operator<(const ipv6_s& other) const {
+        return std::memcmp(ipv6, other.ipv6, 16) < 0;
+    }
+}	ipv6_t;
+
+typedef struct ip_s
+{
+	std::vector<std::string>		unix_adrr;
+	std::map<in_addr_t, in_port_t>	ipv4;
+	std::map<ipv6_t, in_port_t>		ipv6;
+}	ip_t;
 
 class   NumberOfArgumentException : public std::exception
 	{
@@ -87,6 +95,16 @@ class   NumberOfArgumentException : public std::exception
 		virtual const char *what() const throw()
 		{
 			return ("Error: Couldn't find a server in configuration file.");
+		}
+	};
+
+	class   MissingHostException : public std::exception
+	{
+		public :
+		
+		virtual const char *what() const throw()
+		{
+			return ("Error: Missing host");
 		}
 	};
 
@@ -183,6 +201,29 @@ class   NumberOfArgumentException : public std::exception
 				return (error.c_str());
 			}
 			virtual ~MissingSemiColonException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+	};
+
+	class UnclosedBraceException : public std::exception
+	{
+		public:
+			UnclosedBraceException(size_t line) : line(line), error(errorMsg()) {}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error: Unclosed brace\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~UnclosedBraceException() throw() {}
 
 		private:
 			size_t		line;

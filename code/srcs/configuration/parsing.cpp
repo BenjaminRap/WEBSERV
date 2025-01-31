@@ -15,6 +15,7 @@ void	parse_file(Configuration &config, std::string &file)
 {
 	size_t	i = 0;
 	size_t	line = 1;
+	std::map<ip_t, std::vector<ServerConfiguration> >	conf;
 
 	while (i < file.size())
 	{
@@ -28,7 +29,7 @@ void	parse_file(Configuration &config, std::string &file)
 			if (file[i] != '{')
 				throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 			i++;
-			parse_server(config, file, i, line);
+			parse_server(conf, file, i, line);
 		}
 		else
 			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
@@ -36,14 +37,14 @@ void	parse_file(Configuration &config, std::string &file)
 	}
 }
 
-void	parse_server(Configuration &config, std::string &file, size_t &i, size_t &line)
+void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::string &file, size_t &i, size_t &line)
 {
 	std::vector<std::string>				serverNames;
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize = 0;
 	std::map<std::string, Route>			routes;
 	std::string								root;
-	ip										ip;
+	ip_t									ip;
 
 	while (i < file.size() && file[i] != '}')
 	{
@@ -85,9 +86,28 @@ void	parse_server(Configuration &config, std::string &file, size_t &i, size_t &l
 		skip_wspace(file, i, line);
 	}
 	if (file[i] != '}')
-		throw (MissingSemiColonException(line));
+		throw (UnclosedBraceException(line));
 	i++;
-	config.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root));
+	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
+		throw (MissingHostException());
+	
+	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
+	{
+		if (!it->first.ipv4.empty() && it->first.ipv4.begin()->first == )
+		{
+			
+		}
+		else if (!it->first.ipv6.empty())
+		{
+
+		}
+		else if (!it->first.unix_adrr.empty())
+		{
+
+		}
+		
+	}
+	config.insert(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root));
 }
 
 void	skip_line(std::string &file, size_t &i, size_t &line)
@@ -123,28 +143,48 @@ short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len
 	return (nb);
 }
 
-void	parse_host(std::string &file, size_t &i, size_t &line, ip &ip)
+uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line)
+{
+	int		j = 2;
+	short	nb = 0;
+	const std::string	hex = "0123456789abcdef";
+
+	while (file[i] && hex.find(file[i]) != std::string::npos && j > 0)
+	{
+		nb = nb * 16 + hex.find(file[i]);
+		i++;
+		j--;
+	}
+	if (j != 0)
+		throw (WrongIpFormatException(line));
+}
+
+void	parse_host(std::string &file, size_t &i, size_t &line, ip_t &ip)
 {
 	skip_wspace(file, i , line);
 	if (std::isdigit(file[i]))
 		parse_ipv4(file, i, line, ip.ipv4);
+	else if (file[i] == '[')
+	{
+		i++;
+		parse_ipv6(file, i, line, ip.ipv6);
+	}
+	else if (file.substr(i, 5) == "unix:")
+	{
+		i += 5;
+		parse_ip_unix(file, i, line, ip.unix_adrr);
+	}
+	else
+		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	if (file[i] != ';')
 		throw (MissingSemiColonException(line));
-}
-
-void	parse_ip(std::string &file, size_t &i, size_t &line, uint32_t &host)
-{
-
-}
-
-void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip)
-{
-
+	i++;
 }
 
 void	parse_ipv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip)
 {
 	in_addr_t	ipv4;
+	in_port_t	port;
 
 	ipv4 = real_atoi(file, i, line, 255, 3) << 24;
 	if (file[i] != '.')
@@ -159,15 +199,52 @@ void	parse_ipv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, 
 		throw (WrongIpFormatException(line));
 	i++;
 	ipv4 = ipv4 | real_atoi(file, i, line, 255, 3);
+	parse_port(file, i, line, port);
+	for (std::map<in_addr_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
+	{
+		if (ipv4 == it->first && port == it->second)
+			return ;
+	}
+	ip.insert(std::make_pair(ipv4, port));
 }
 
-void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<uint8_t [16], in_port_t> &ip)
+void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip)
 {
+	ipv6_t		ipv6;
+	in_port_t	port;
 
+	for (int j = 0; j < 16; j++)
+	{
+		ipv6.ipv6[j] = ft_hextoint(file, i, line);
+		j++;
+		ipv6.ipv6[j] = ft_hextoint(file, i, line);
+		if (file[i] != ':' && j != 16)
+			throw (WrongIpFormatException(line));
+		i++;
+	}
+	if (file[i] != ']')
+		throw (WrongIpFormatException(line));
+	parse_port(file, i, line, port);
+	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
+	{
+		if (ipv6.ipv6 == it->first.ipv6 && port == it->second)
+			return ;
+	}
+	ip.insert(std::make_pair(ipv6, port));
+	i++;
 }
 
+void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip)
+{
+	ip.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
+	i = file.find_first_of(SEP_WSPACE, i);
+	skip_wspace(file, i, line);
+	if (file[i] != ';')
+		throw (MissingSemiColonException(line));
+	i++;
+}
 
-void	parse_port(std::string &file, size_t &i, size_t &line, uint16_t &port)
+void	parse_port(std::string &file, size_t &i, size_t &line, in_port_t &port)
 {
 	if (file[i] != ':')
 		throw (WrongIpFormatException(line));
