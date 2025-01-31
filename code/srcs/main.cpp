@@ -4,6 +4,10 @@
 #include "ServerConfiguration.hpp"
 #include "Configuration.hpp"
 #include "DeleteRequest.hpp"
+#include <cerrno>
+#include <cstring>
+#include <unistd.h>
+
 
 #define RESPONSE404 "/custom_404.html"
 #define CLASSIC "./unitTest/main.html"
@@ -29,70 +33,122 @@
 #define CRESET "\e[0m"
 
 
-void	makeTest(const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
+void	makeGet(const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
 {
 	GetRequest a(test, config);
 
+	std::cout << BMAG << "Request : "<< BCYN << test << tab;
 	if (a.code == code && a.file == response)
-		std::cout << BMAG << "Request : "<< BCYN << test << tab << BGRN << "OK" << CRESET << std::endl;
-	else if (a.code != code || a.file != response)
-		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "KO : " << a.code << " | " << a.file << CRESET <<std::endl;
+		std::cout << BGRN << "OK" << CRESET << std::endl;
+	else
+	{
+		std::cout << BRED << "KO : " << a.code << " | " << a.file << CRESET;
+		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
+	}
 }
 
 void	makeDelete(const std::string &desc, const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
 {
 	DeleteRequest a(test, config);
 
+	std::cout << BMAG << "Test : "<< BCYN << desc << " request : " << test << tab;
 	if (a.code == code && a.file == response)
-		std::cout << BMAG << "Test : "<< BCYN << desc << tab << BGRN << "OK : " << code << CRESET << std::endl;
-	else if (a.code != code || a.file != response)
-		std::cout << BMAG << "Test : "<< BCYN << desc << tab << BRED << "KO : " << "request : " << test << " response : " << a.code << " | " << a.file << CRESET <<std::endl;
+		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
+	else
+	{
+		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.file;
+		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
+	}
 }
 
-void	unitsTest(const ServerConfiguration &config)
+std::pair<int, std::string>	askNginx(const std::string &url,const std::string &method)
+{
+	int					tube[2];
+	char				buffer[1024];
+	std::stringstream	ss;
+	int					status;
+	std::string			statusText;
+
+	pipe(tube);
+	ss << "node ../tests/scripts/makeRequest.js " << url << " " << method << " 1>&" << tube[1];
+	const std::string	command(ss.str());
+	ss.str("");
+
+	system(command.c_str());
+
+	const ssize_t rd = read(tube[0], buffer, sizeof(buffer));
+
+	if (std::string(buffer, rd) == "ERROR")
+		throw std::runtime_error("The fetch script crashed");
+	ss << std::string(buffer, rd);
+	ss >> status;
+	std::getline(ss, statusText);
+	statusText.erase(0, 1);
+	close(tube[0]);
+	close(tube[1]);
+	return (std::pair<int, std::string>(status, statusText));
+}
+
+void	testDeleteRequest(const std::string &desc, const std::string &url, const std::string &tab, const ServerConfiguration &config)
+{
+	std::pair<int, std::string>	nginxResult;
+
+	nginxResult = askNginx(url, "DELETE");
+	makeDelete(desc, url, nginxResult.first, nginxResult.second, tab, config);
+}
+
+void	testGetRequest(const std::string &url, const std::string &tab, const ServerConfiguration &config)
+{
+	std::pair<int, std::string>	nginxResult;
+
+	nginxResult = askNginx(url, "GET");
+	makeGet(url, nginxResult.first, nginxResult.second, tab, config);
+}
+
+void	getTest(const ServerConfiguration &config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Classic Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/main.html", 200, CLASSIC, "\t\t\t\t\t", config);
-	makeTest("/fake/main.cpp", 200, MAINCPP, "\t\t\t\t", config);
-	makeTest("/fake/../main.html", 200, CLASSIC, "\t\t\t\t", config);
-	makeTest("/fake/../../../../../../../../main.html", 200, CLASSIC, "\t", config);
-	makeTest("/../main.html", 200, CLASSIC, "\t\t\t\t\t", config);
+	testGetRequest("/main.html", "\t\t\t\t\t", config);
+	testGetRequest("/fake/main.cpp", "\t\t\t\t", config);
+	testGetRequest("/fake/../main.html", "\t\t\t\t", config);
+	testGetRequest("/fake/../../../../../../../../main.html", "\t", config);
+	testGetRequest("/../main.html", "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/", 200, CLASSIC, "\t\t\t\t\t", config);
-	makeTest("/", 200, CLASSIC, "\t\t\t\t\t\t", config);
-	makeTest("/unitTest/srcs/", 200, SRCS200, "\t\t\t\t", config);
+	testGetRequest("/unitTest/", "\t\t\t\t\t", config);
+	testGetRequest("/", "\t\t\t\t\t\t", config);
+	testGetRequest("/unitTest/srcs/", "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/srcs", 301, "./unitTest/srcs/", "\t\t\t\t\t\t", config);
-	makeTest("/redirect-me", 301, "/", "\t\t\t\t\t", config);
-	makeTest("", 400, "Bad Request", "\t\t\t\t\t\t", config);
+	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
+	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
+	testGetRequest("", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/fake/", 403, FOR403, "\t\t\t\t\t", config);
-	makeTest("/nonono/", 403, FOR403, "\t\t\t\t\t", config);
+	testGetRequest("/fake/", "\t\t\t\t\t", config);
+	testGetRequest("/nonono/", "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 405 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/upload/", 405, "Method Not Allowed", "\t\t\t\t", config);
+	testGetRequest("/unitTest/upload/", "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 404 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/uplo/", 404, RESPONSE404, "\t\t\t\t", config);
-	makeTest("/gknrk", 404, RESPONSE404, "\t\t\t\t\t", config);
-	makeTest("/bin/", 404, RESPONSE404, "\t\t\t\t\t\t", config);
+	testGetRequest("/unitTest/uplo/", "\t\t\t\t", config);
+	testGetRequest("/gknrk", "\t\t\t\t\t", config);
+	testGetRequest("/bin/", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Auto Index" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t", config);
-	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t", config);
+	testGetRequest("/unitTest/autoindex/", "\t\t\t\t", config);
+	testGetRequest("/unitTest/autoindex/dir/", "\t\t\t", config);
 }
 
 void	deleteTest(const ServerConfiguration &config)
@@ -102,35 +158,41 @@ void	deleteTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t File Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeDelete("Normal Case", "/temp/full/classic", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("Normal Case (\"../\" in URL)","/temp/full/../../temp/full/noback", 204, NOT204, "\t\t\t", config);
-	makeDelete("No Perm file","/temp/full/noperms", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("No Perm directory of file","/temp/cant/tryme", 403, FOR403, "\t\t\t", config);
-	makeDelete("Only Read Perm directory of file","/temp/readme/deleteme", 403, FOR403, "\t\t\t", config);
-	makeDelete("Not Found","/temp/emptwswdy", 404, RESPONSE404, "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case", "/delete/full/classic", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case (\"../\" in URL)","/delete/full/../../delete/full/noback", "\t", config);
+	testDeleteRequest("No Perm file","/delete/full/noperms", "\t\t\t\t\t", config);
+	testDeleteRequest("No Perm directory of file","/delete/cant/tryme", "\t\t\t\t", config);
+	testDeleteRequest("Only Read Perm directory of file","/delete/readme/deleteme", "\t\t", config);
+	testDeleteRequest("Not Found","/delete/emptwswdy", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Directory Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeDelete("Url not end by \"/\"","/temp/folder/empty", 409, CON409, "\t\t\t\t", config);
-	makeDelete("Empty Directory","/temp/folder/empty/", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("Normal Case","/temp/folder/classic/", 204, NOT204, "\t\t\t\t\t", config);
-	makeDelete("No Perms for parent dir","/temp/folder/nopermspa/", 500, INTERNAL500, "\t\t\t\t", config);
-	makeDelete("No Perms for the dir do del","/temp/folder/noperms/", 500, INTERNAL500, "\t\t\t", config);
-	makeDelete("Dir in Dir (But have no perms)","/temp/folder/dire/", 500, INTERNAL500, "\t\t\t", config);
-	makeDelete("Dir in Dir (Have no perms but empty)","/temp/folder/dire2/", 204, NOT204, "\t\t", config);
-	makeDelete("Dir in Dir (Read Only but empty)","/temp/folder/dire3/", 204, NOT204, "\t\t\t", config);
-	makeDelete("Normal Case ++++++","/temp/folder/dire4/", 204, NOT204, "\t\t\t\t", config);
+	testDeleteRequest("Url not end by \"/\"","/delete/folder/empty", "\t\t\t\t", config);
+	testDeleteRequest("Empty Directory","/delete/folder/empty/", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case","/delete/folder/classic/", "\t\t\t\t\t", config);
+	testDeleteRequest("No Perms for parent dir","/delete/folder/nopermspa/", "\t\t\t", config);
+	testDeleteRequest("No Perms for the dir do del","/delete/folder/noperms/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (But have no perms)","/delete/folder/dire/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/", "\t\t", config);
+	testDeleteRequest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/", "\t\t\t", config);
+	testDeleteRequest("Normal Case ++++++","/delete/folder/dire4/", "\t\t\t\t", config);
 }
 
 int	main(int argc, char **argv)
 {
-	Configuration	config(argv[1]);
+	if (argc < 2)
+	{
+		std::cerr << "Not enough arguments, expected the nginxconf and optionnaly an request" << std::endl;
+		return (1);
+	}
+	const Configuration	config(argv[1]);
 
 	if (argc == 2)
 	{
-		std::system("./test.sh");
-		deleteTest(config.getServerConfiguration(0));
-		std::system("./removeTest.sh");
+//		std::system("./test.sh");
+//		deleteTest(config.getServerConfiguration(0));
+//		std::system("./removeTest.sh");
+		unitsTest(config.getServerConfiguration(0));
 	}
 	else if (argc == 3)
 	{

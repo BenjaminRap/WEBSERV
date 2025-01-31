@@ -25,7 +25,7 @@ void	checkEnd(std::string &path, DeleteRequest &del)
 	if (lastChar != '/')
 	{
 		path += "/";
-		del.setResponse(409, "Conflict");
+		del.setResponse(409, "Conflict", "Conflict");
 	}
 	else
 		del.setUrl(path);
@@ -49,12 +49,12 @@ int	directoryCase(const std::string &path, DeleteRequest &del)
 {
 	checkEnd(del.getUrl(), del);
 	if (del.code == 409)
-		del.setResponse(409, "Conflict");
+		del.setResponse(409, "Conflict", "Conflict");
 	else if (!canWrite(path) || removeDirectory(path, del) != 0
 			|| !canWrite(getParentPath(path)) || std::remove(path.c_str()) != 0)
-		del.setResponse(500, "Internal Server Error");
+		del.setResponse(500, "Internal Server Error", "Internal Server Error");
 	else
-		del.setResponse(204, "No Content");
+		del.setResponse(204, "No Content", "No Content");
 	return (del.code);
 }
 
@@ -101,11 +101,11 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 int	fileCase(const std::string &path, DeleteRequest &del)
 {
 	if (!canWrite(getParentPath(path)))
-		del.setResponse(403, "Forbidden");
+		del.setResponse(403, "Forbidden", "Forbidden");
 	else if (std::remove(path.c_str()) != 0)
-		del.setResponse(500, "Internal Server Error");
+		del.setResponse(500, "Internal Server Error", "Internal Server Error");
 	else
-		del.setResponse(204, "No Content");
+		del.setResponse(204, "No Content", "No Content");
 	return (del.code);
 }
 

@@ -1,4 +1,5 @@
 #include "DeleteRequest.hpp"
+
 #include <iostream>
 
 #define DIRE	1
@@ -16,7 +17,7 @@ int							fileCase(const std::string &path, DeleteRequest &del);
 void	fixUrl(DeleteRequest &del, std::string &url)
 {
 	if (*url.begin() != '/')
-		del.setResponse(400, "Bad Request");
+		del.setResponse(400, "Bad Request", "Bad Request");
 	else
 	{
 		fixPath(url);
@@ -37,12 +38,12 @@ void	addRoot(DeleteRequest &del, const ServerConfiguration& config)
 	del.setIsRoot(true);
 	if (!checkAllowMeth(*temp, DELETE))
 	{
-		del.setResponse(405, config.getErrorPage(405));
+		del.setResponse(405, "Method Not Allowed", config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		del.setResponse(301, redir);
+		del.setResponse(301, "Moved Permanently", redir);
 	else
 		replaceUrl(del.getUrl(), temp->getRoot(), del.getUrl());
 }
@@ -73,9 +74,9 @@ DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config)
 	else if (temp == FILE)
 		fileCase(this->_url, *this);
 	else if (temp == -1)
-		this->setResponse(403, "Forbidden");
+		this->setResponse(403, "Forbidden", "Forbidden");
 	else
-		setResponse(404, config.getErrorPage(404));
+		setResponse(404, "Not Found", config.getErrorPage(404));
 }
 
 DeleteRequest::DeleteRequest() : _config(), _root()
@@ -109,9 +110,10 @@ DeleteRequest::DeleteRequest(const DeleteRequest &src) : _config(), _root(), cod
 	*this = src;
 }
 
-void DeleteRequest::setResponse(int newcode, const std::string &newfile)
+void DeleteRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
 {
 	this->code = newcode;
+	this->statusText = status;
 	this->file = newfile;
 }
 

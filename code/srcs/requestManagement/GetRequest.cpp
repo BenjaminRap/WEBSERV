@@ -64,12 +64,12 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	get.setIsRoot(true);
 	if (!checkAllowMeth(*temp, GET))
 	{
-		get.setResponse(405, config.getErrorPage(405));
+		get.setResponse(405, "Method Not Allowed", config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setResponse(301, redir);
+		get.setResponse(301, "Moved Permanently", redir);
 	else
 	{
 		get.setAutoIndex(temp->getAutoIndex());
@@ -94,9 +94,9 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _au
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == FILE)
-		setResponse(200, this->_url);
+		setResponse(200, "OK", this->_url);
 	else
-		setResponse(404, config.getErrorPage(404));
+		setResponse(404, "Not Found", config.getErrorPage(404));
 }
 
 GetRequest::GetRequest() : _config(), _root()
@@ -134,9 +134,10 @@ GetRequest::GetRequest(const GetRequest &src) : _config(), _root(), _autoIndex()
 	*this = src;
 }
 
-void GetRequest::setResponse(int newcode, const std::string& newfile)
+void GetRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
 {
 	this->code = newcode;
+	this->statusText = status;
 	this->file = newfile;
 }
 

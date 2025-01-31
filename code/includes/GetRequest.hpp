@@ -23,7 +23,7 @@ class GetRequest
 		~GetRequest();
 		GetRequest& operator=(const GetRequest& src);
 
-		void						setResponse(int code, const std::string& file);
+		void						setResponse(int code, const std::string &status, const std::string& file);
 		void						setUrl(const std::string& src);
 		void						setAutoIndex(bool src);
 		void						setRoot(const Route *root);
@@ -38,7 +38,10 @@ class GetRequest
 	/**
 		* @brief This Variable represent the code of the request, 200 : all good, 403 : Forbiden etc ...
 		*/
-		int			code;
+		int				code;
+
+		std::string		statusText;
+
 		/**
 		* @brief This Variable represent the response of the request, it could be a path, or content of a file, show code to know
 		*/
