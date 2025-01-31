@@ -176,6 +176,11 @@ void	deleteTest(const ServerConfiguration &config)
 	testDeleteRequest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/", "\t\t", config);
 	testDeleteRequest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/", "\t\t\t", config);
 	testDeleteRequest("Normal Case ++++++","/delete/folder/dire4/", "\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Tricky Cases" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	testDeleteRequest("Symlink look with parent no right", "/delete/trickyNoRight/symlinkParent/", "\t", config);
+	testDeleteRequest("Symlink look with parent right", "/delete/trickyRight/symlinkParent/", "\t", config);
 }
 
 int	main(int argc, char **argv)
