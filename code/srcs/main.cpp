@@ -33,7 +33,7 @@
 #define CRESET "\e[0m"
 
 
-void	makeTest(const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
+void	makeGet(const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
 {
 	GetRequest a(test, config);
 
@@ -97,50 +97,58 @@ void	testDeleteRequest(const std::string &desc, const std::string &url, const st
 	makeDelete(desc, url, nginxResult.first, nginxResult.second, tab, config);
 }
 
-void	unitsTest(const ServerConfiguration &config)
+void	testGetRequest(const std::string &url, const std::string &tab, const ServerConfiguration &config)
+{
+	std::pair<int, std::string>	nginxResult;
+	
+	nginxResult = askNginx(url, "GET");
+	makeGet(url, nginxResult.first, nginxResult.second, tab, config);
+}
+
+void	getTest(const ServerConfiguration &config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Classic Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/main.html", 200, CLASSIC, "\t\t\t\t\t", config);
-	makeTest("/fake/main.cpp", 200, MAINCPP, "\t\t\t\t", config);
-	makeTest("/fake/../main.html", 200, CLASSIC, "\t\t\t\t", config);
-	makeTest("/fake/../../../../../../../../main.html", 200, CLASSIC, "\t", config);
-	makeTest("/../main.html", 200, CLASSIC, "\t\t\t\t\t", config);
+	testGetRequest("/main.html", "\t\t\t\t\t", config);
+	testGetRequest("/fake/main.cpp", "\t\t\t\t", config);
+	testGetRequest("/fake/../main.html", "\t\t\t\t", config);
+	testGetRequest("/fake/../../../../../../../../main.html", "\t", config);
+	testGetRequest("/../main.html", "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/", 200, CLASSIC, "\t\t\t\t\t", config);
-	makeTest("/", 200, CLASSIC, "\t\t\t\t\t\t", config);
-	makeTest("/unitTest/srcs/", 200, SRCS200, "\t\t\t\t", config);
+	testGetRequest("/unitTest/", "\t\t\t\t\t", config);
+	testGetRequest("/", "\t\t\t\t\t\t", config);
+	testGetRequest("/unitTest/srcs/", "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/srcs", 301, "./unitTest/srcs/", "\t\t\t\t\t\t", config);
-	makeTest("/redirect-me", 301, "/", "\t\t\t\t\t", config);
-	makeTest("", 400, "Bad Request", "\t\t\t\t\t\t", config);
+	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
+	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
+	testGetRequest("", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/fake/", 403, FOR403, "\t\t\t\t\t", config);
-	makeTest("/nonono/", 403, FOR403, "\t\t\t\t\t", config);
+	testGetRequest("/fake/", "\t\t\t\t\t", config);
+	testGetRequest("/nonono/", "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 405 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/upload/", 405, "Method Not Allowed", "\t\t\t\t", config);
+	testGetRequest("/unitTest/upload/", "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 404 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/uplo/", 404, RESPONSE404, "\t\t\t\t", config);
-	makeTest("/gknrk", 404, RESPONSE404, "\t\t\t\t\t", config);
-	makeTest("/bin/", 404, RESPONSE404, "\t\t\t\t\t\t", config);
+	testGetRequest("/unitTest/uplo/", "\t\t\t\t", config);
+	testGetRequest("/gknrk", "\t\t\t\t\t", config);
+	testGetRequest("/bin/", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Auto Index" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	makeTest("/unitTest/autoindex/", 0, AUTOINDEXBASE, "\t\t\t\t", config);
-	makeTest("/unitTest/autoindex/dir/", 0, AUTOINDEXDIR, "\t\t\t", config);
+	testGetRequest("/unitTest/autoindex/", "\t\t\t\t", config);
+	testGetRequest("/unitTest/autoindex/dir/", "\t\t\t", config);
 }
 
 void	deleteTest(const ServerConfiguration &config)
@@ -172,10 +180,16 @@ void	deleteTest(const ServerConfiguration &config)
 
 int	main(int argc, char **argv)
 {
-	Configuration	config(argv[1]);
+	if (argc < 2)
+	{
+		std::cerr << "Not enough arguments, expected the nginxconf and optionnaly an request" << std::endl;
+		return (1);
+	}
+	const Configuration	config(argv[1]);
 
 	if (argc == 2)
 	{
+		getTest(config.getServerConfiguration(0));
 		std::system("cd unitTest && ../deleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
 		deleteTest(config.getServerConfiguration(0));
