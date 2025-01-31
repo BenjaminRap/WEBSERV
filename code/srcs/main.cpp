@@ -38,11 +38,11 @@ void	makeGet(const std::string& test, int code, const std::string& response, con
 	GetRequest a(test, config);
 
 	std::cout << BMAG << "Request : "<< BCYN << test << tab;
-	if (a.code == code && a.file == response)
+	if (a.code == code && a.statusText == response)
 		std::cout << BGRN << "OK" << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << "KO : " << a.code << " | " << a.file << CRESET;
+		std::cout << BRED << "KO : " << a.code << " | " << a.statusText << CRESET;
 		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
 	}
 }
@@ -51,12 +51,12 @@ void	makeDelete(const std::string &desc, const std::string& test, int code, cons
 {
 	DeleteRequest a(test, config);
 
-	std::cout << BMAG << "Test : "<< BCYN << desc << " request : " << test << tab;
-	if (a.code == code && a.file == response)
+	std::cout << BMAG << "Test : "<< BCYN << desc << BWHT << " | (" << test << ")" << tab;
+	if (a.code == code && a.statusText == response)
 		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.file;
+		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.statusText;
 		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
 	}
 }
@@ -168,13 +168,13 @@ void	deleteTest(const ServerConfiguration &config)
 	std::cout << BBLU << "\t Directory Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	testDeleteRequest("Url not end by \"/\"","/delete/folder/empty", "\t\t\t\t", config);
-	testDeleteRequest("Empty Directory","/delete/folder/empty/", "\t\t\t\t\t", config);
+	testDeleteRequest("Empty Directory","/delete/folder/empty/", "\t\t\t\t", config);
 	testDeleteRequest("Normal Case","/delete/folder/classic/", "\t\t\t\t\t", config);
 	testDeleteRequest("No Perms for parent dir","/delete/folder/nopermspa/", "\t\t\t", config);
 	testDeleteRequest("No Perms for the dir do del","/delete/folder/noperms/", "\t\t\t", config);
 	testDeleteRequest("Dir in Dir (But have no perms)","/delete/folder/dire/", "\t\t\t", config);
 	testDeleteRequest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/", "\t\t", config);
-	testDeleteRequest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/", "\t\t", config);
 	testDeleteRequest("Normal Case ++++++","/delete/folder/dire4/", "\t\t\t\t", config);
 }
 

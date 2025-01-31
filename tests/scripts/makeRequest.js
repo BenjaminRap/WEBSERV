@@ -1,3 +1,5 @@
+const fetch = require("node-fetch");
+
 if (process.argv.length != 4)
 {
 	console.error("Not enough parameters");
@@ -19,6 +21,9 @@ async function	makeRequest()
 	}
 	catch (error) {
 		console.error("fetch error");
+		console.error("Fetch error:", error);
+        console.error("Error message:", error.message);
+        console.error("Error name:", error.name);
 	}
 }
 
