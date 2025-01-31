@@ -83,6 +83,7 @@ std::pair<int, std::string>	askNginx(const std::string &url,const std::string &m
 	ss << std::string(buffer, rd);
 	ss >> status;
 	std::getline(ss, statusText);
+	statusText.erase(0, 1);
 	close(tube[0]);
 	close(tube[1]);
 	return (std::pair<int, std::string>(status, statusText));
@@ -92,7 +93,7 @@ void	testDeleteRequest(const std::string &desc, const std::string &url, const st
 {
 	std::pair<int, std::string>	nginxResult;
 	
-	nginxResult = askNginx(url, "GET");
+	nginxResult = askNginx(url, "DELETE");
 	makeDelete(desc, url, nginxResult.first, nginxResult.second, tab, config);
 }
 
