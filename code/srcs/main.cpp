@@ -37,20 +37,28 @@ void	makeTest(const std::string& test, int code, const std::string& response, co
 {
 	GetRequest a(test, config);
 
+	std::cout << BMAG << "Request : "<< BCYN << test << tab;
 	if (a.code == code && a.file == response)
-		std::cout << BMAG << "Request : "<< BCYN << test << tab << BGRN << "OK" << CRESET << std::endl;
-	else if (a.code != code || a.file != response)
-		std::cout << BMAG << "Request : "<< BCYN << test << tab << BRED << "KO : " << a.code << " | " << a.file << CRESET <<std::endl;
+		std::cout << BGRN << "OK" << CRESET << std::endl;
+	else
+	{
+		std::cout << BRED << "KO : " << a.code << " | " << a.file << CRESET;
+		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
+	}
 }
 
 void	makeDelete(const std::string &desc, const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
 {
 	DeleteRequest a(test, config);
 
+	std::cout << BMAG << "Test : "<< BCYN << desc << " request : " << test << tab;
 	if (a.code == code && a.file == response)
-		std::cout << BMAG << "Test : "<< BCYN << desc << tab << BGRN << "OK : " << code << CRESET << std::endl;
-	else if (a.code != code || a.file != response)
-		std::cout << BMAG << "Test : "<< BCYN << desc << tab << BRED << "KO : " << "request : " << test << " response : " << a.code << " | " << a.file << CRESET <<std::endl;
+		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
+	else
+	{
+		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.file;
+		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
+	}
 }
 
 std::pair<int, std::string>	askNginx(const std::string &url,const std::string &method)
@@ -74,7 +82,7 @@ std::pair<int, std::string>	askNginx(const std::string &url,const std::string &m
 		throw std::runtime_error("The fetch script crashed");
 	ss << std::string(buffer, rd);
 	ss >> status;
-	ss >> statusText;
+	std::getline(ss, statusText);
 	close(tube[0]);
 	close(tube[1]);
 	return (std::pair<int, std::string>(status, statusText));
@@ -141,24 +149,24 @@ void	deleteTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t File Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testDeleteRequest("Normal Case", "/temp/full/classic", "\t\t\t\t\t", config);
-	testDeleteRequest("Normal Case (\"../\" in URL)","/temp/full/../../temp/full/noback", "\t\t\t", config);
-	testDeleteRequest("No Perm file","/temp/full/noperms", "\t\t\t\t\t", config);
-	testDeleteRequest("No Perm directory of file","/temp/cant/tryme", "\t\t\t", config);
-	testDeleteRequest("Only Read Perm directory of file","/temp/readme/deleteme", "\t\t\t", config);
-	testDeleteRequest("Not Found","/temp/emptwswdy", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case", "/delete/full/classic", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case (\"../\" in URL)","/delete/full/../../delete/full/noback", "\t", config);
+	testDeleteRequest("No Perm file","/delete/full/noperms", "\t\t\t\t\t", config);
+	testDeleteRequest("No Perm directory of file","/delete/cant/tryme", "\t\t\t\t", config);
+	testDeleteRequest("Only Read Perm directory of file","/delete/readme/deleteme", "\t\t", config);
+	testDeleteRequest("Not Found","/delete/emptwswdy", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Directory Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testDeleteRequest("Url not end by \"/\"","/temp/folder/empty", "\t\t\t\t", config);
-	testDeleteRequest("Empty Directory","/temp/folder/empty/", "\t\t\t\t\t", config);
-	testDeleteRequest("Normal Case","/temp/folder/classic/", "\t\t\t\t\t", config);
-	testDeleteRequest("No Perms for parent dir","/temp/folder/nopermspa/", "\t\t\t\t", config);
-	testDeleteRequest("No Perms for the dir do del","/temp/folder/noperms/", "\t\t\t", config);
-	testDeleteRequest("Dir in Dir (But have no perms)","/temp/folder/dire/", "\t\t\t", config);
-	testDeleteRequest("Dir in Dir (Have no perms but empty)","/temp/folder/dire2/", "\t\t", config);
-	testDeleteRequest("Dir in Dir (Read Only but empty)","/temp/folder/dire3/", "\t\t\t", config);
-	testDeleteRequest("Normal Case ++++++","/temp/folder/dire4/", "\t\t\t\t", config);
+	testDeleteRequest("Url not end by \"/\"","/delete/folder/empty", "\t\t\t\t", config);
+	testDeleteRequest("Empty Directory","/delete/folder/empty/", "\t\t\t\t\t", config);
+	testDeleteRequest("Normal Case","/delete/folder/classic/", "\t\t\t\t\t", config);
+	testDeleteRequest("No Perms for parent dir","/delete/folder/nopermspa/", "\t\t\t", config);
+	testDeleteRequest("No Perms for the dir do del","/delete/folder/noperms/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (But have no perms)","/delete/folder/dire/", "\t\t\t", config);
+	testDeleteRequest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/", "\t\t", config);
+	testDeleteRequest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/", "\t\t\t", config);
+	testDeleteRequest("Normal Case ++++++","/delete/folder/dire4/", "\t\t\t\t", config);
 }
 
 int	main(int argc, char **argv)
@@ -167,9 +175,11 @@ int	main(int argc, char **argv)
 
 	if (argc == 2)
 	{
-		std::system("./test.sh");
+		std::system("cd unitTest && ../deleteTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
 		deleteTest(config.getServerConfiguration(0));
-		std::system("./removeTest.sh");
+		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
