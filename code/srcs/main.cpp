@@ -1,17 +1,22 @@
 #include "Configuration.hpp"
+#include "parsing.hpp"
 
 int	main(int argc, char **argv)
 {
+	Configuration	config();
+	std::string		file;
+
 	try
 	{
 		if (argc > 2)
-			throw (Configuration::NumberOfArgumentException());
+			throw (NumberOfArgumentException());
 		if (argc == 2)
-			Configuration	config(argv[1]);
+		{
+			ft_readfile(argv[1], file);
+		}
 		else if (argc == 1)
 		{
-		 	Configuration	config(DEFAULT_CONFIG_PATH);
-			std::cout << config.getServerConfiguration(0);
+		 	ft_readfile(DEFAULT_CONFIG_PATH, file);
 		}
 	}
 	catch(const std::exception& e)

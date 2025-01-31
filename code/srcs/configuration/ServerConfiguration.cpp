@@ -1,14 +1,10 @@
 #include "ServerConfiguration.hpp"
 
-ServerConfiguration::ServerConfiguration(	uint32_t host, \
-											uint16_t port, \
-											std::vector<std::string> serverNames, \
+ServerConfiguration::ServerConfiguration(	std::vector<std::string> serverNames, \
 											std::map<unsigned short, std::string> errorPages, \
 											size_t maxClientBodySize, \
 											std::map<std::string, Route> routes, \
 											std::string root) : \
-											host(host), \
-											port(port), \
 											serverNames(serverNames), \
 											errorPages(errorPages), \
 											maxClientBodySize(maxClientBodySize), \
@@ -27,8 +23,6 @@ ServerConfiguration    &ServerConfiguration::operator=(ServerConfiguration const
 {
 	if (this != &src)
 	{
-		this->host = src.host;
-		this->port = src.port;
 		this->serverNames = src.serverNames;
 		this->errorPages = src.errorPages;
 		this->maxClientBodySize = src.maxClientBodySize;
@@ -46,16 +40,6 @@ ServerConfiguration::~ServerConfiguration(void)
 const std::string				&ServerConfiguration::getRoot(void) const
 {
 	return (this->root);
-}
-
-const uint32_t					&ServerConfiguration::getHost(void) const
-{
-	return (this->host);
-}
-
-const uint16_t					&ServerConfiguration::getPort(void) const
-{
-	return (this->port);
 }
 
 const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
@@ -101,8 +85,6 @@ std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 
 	o << "SERVER :" << std::endl;		
 	o << "root:" << rhs.getRoot() << std::endl;
-	o << "host:" << (rhs.getHost() >> 24) << ((rhs.getHost() << 8) >> 24) << ((rhs.getHost() << 16) >> 24) << ((rhs.getHost() << 24) >> 24) << std::endl;
-	o << "port:" << rhs.getPort() << std::endl;
 	o << "client_max_body_size:" << rhs.getMaxClientBodySize() << std::endl;
     for (size_t i = 0; i < serverNames.size(); i++)
 	{
