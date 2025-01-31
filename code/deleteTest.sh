@@ -18,6 +18,9 @@ chmod 777 delete/
 		(cd delete/trickyRight/ && ln -s ../../../outsideRoot outsideLink)
 	# Test 4: symlink pointing outside root with parent no right
 		(cd delete/trickyNoRight/ && ln -s ../../../outsideRoot outsideLink)
+	# Test 5: immutable file
+		touch delete/immutable.txt
+		chattr +i delete/immutable.txt
 
 ##---------------------------------------------------------------------------------------------------##
 	# Create Folder Full perms with 3 file.

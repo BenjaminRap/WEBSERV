@@ -183,6 +183,7 @@ void	deleteTest(const ServerConfiguration &config)
 	testDeleteRequest("Symlink look with parent right", "/delete/trickyRight/symlinkParent/", "\t", config);
 	testDeleteRequest("Delete file outside root with symlink with parent no right", "/delete/trickyNoRight/outsideLink", "\t", config);
 	testDeleteRequest("Delete file outside root with symlink with parent right", "/delete/trickyRight/outsideLink", "\t", config);
+	testDeleteRequest("Delete immutable file", "/delete/immutable.txt", "\t", config);
 }
 
 int	main(int argc, char **argv)
