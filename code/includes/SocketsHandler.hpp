@@ -7,11 +7,9 @@
 # include <string>
 # include <iostream>
 
-# include "SocketData.hpp"
-#include <socketCommunication.hpp>
-
 class Configuration;
 class Host;
+class FdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
@@ -26,9 +24,9 @@ private:
 	static bool					_instanciated;
 
 	/**
-	 * @brief A list of the SocketData that are in the epoll interest list.
+	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<SocketData>		_socketsData;
+	std::list<FdData*>		_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -52,7 +50,7 @@ private:
 	 * have been created.
 	 * It should be used to removed them in the destructor.
 	 */
-	std::vector<std::string>	_socketsToRemove;
+	std::vector<std::string>	_unixSocketsToRemove;
 
 	SocketsHandler(const SocketsHandler& ref);
 	SocketsHandler(void);
@@ -65,13 +63,10 @@ public:
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
-	template <typename T>
-	int		addFdToListeners(int fd, void (&callback)(SocketData &socketData, T *data, uint32_t events), T &data, uint32_t events);
+	int		addFdToListeners(FdData *FdData, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);
 };
-
-# include "SocketsHandler.tpp"
 
 #endif // !SOCKETS_HANDLER_HPP
