@@ -1,5 +1,5 @@
-#ifndef SERVER_CONFIGURATION_HPP
-# define SERVER_CONFIGURATION_HPP
+#ifndef SERVERCONFIGURATION_HPP
+# define SERVERCONFIGURATION_HPP
 
 # include <map>
 # include <stdint.h>

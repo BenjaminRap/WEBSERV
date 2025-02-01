@@ -3,7 +3,7 @@
 
 int	main(int argc, char **argv)
 {
-	Configuration	config();
+	Configuration	config;
 	std::string		file;
 
 	try
