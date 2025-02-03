@@ -129,10 +129,14 @@ ssize_t	readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &
  * @param fdType The type of fd, either FILEFD or SOCKETFD. It is used to determine
  * if the function will use send (for sockets) or write (for files).
  * @return Return the number of bytes read, or -1 on error.
+ * @note When writing to a file, write() can return a value in the range ]0, bufferCapacity].
+ * The causes can be multiples (see man 2 write).It this case, we return an error.
  */
 ssize_t	writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType)
 {
 	if (fdType == SOCKETFD)
 		return (send(fd, buffer, bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL));
-	return(write(fd, buffer, bufferCapacity));
-}
+	const ssize_t written = write(fd, buffer, bufferCapacity);
+	if (written == 0 || written == bufferCapacity)
+		return (written);
+	return (-1);
