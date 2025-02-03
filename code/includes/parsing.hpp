@@ -28,14 +28,14 @@ typedef struct ipv6_s {
     uint8_t ipv6[16];
 
 	bool operator<(const ipv6_s& other) const {
-        return std::memcmp(ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;
+        return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;
 	}
 
     bool operator==(const ipv6_s& other) const {
-        return std::memcmp(ipv6, other.ipv6, sizeof(uint8_t [16])) == 0;
+        return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) == 0;
 	}
 
-	bool operator==(const uint8_t *other) const {
+	bool operator==(const uint8_t (&other)[16]) const {
         return std::memcmp(this->ipv6, other, sizeof(uint8_t [16])) == 0;
 	}
 

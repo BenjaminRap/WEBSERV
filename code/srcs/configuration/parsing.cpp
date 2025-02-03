@@ -229,7 +229,7 @@ void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_
 	parse_port(file, i, line, port);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
-		if (ipv6.ipv6 == it->first.ipv6 && port == it->second)
+		if (ipv6 == it->first && port == it->second)
 			return ;
 	}
 	ip.insert(std::make_pair(ipv6, port));
