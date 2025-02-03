@@ -6,5 +6,6 @@ CONFIGURATION_DIR		:=	configuration/
 CONFIGURATION_FILES		:=	Configuration.cpp	\
 							ServerConfiguration.cpp \
 							Route.cpp \
+							Host.cpp	\
 							parsing.cpp
 CONFIGURATION			:=	$(addprefix $(CONFIGURATION_DIR), $(CONFIGURATION_FILES))

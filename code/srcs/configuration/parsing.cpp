@@ -175,6 +175,7 @@ void	parse_host(std::string &file, size_t &i, size_t &line, ip_t &ip)
 	}
 	else
 		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+	skip_wspace(file, i, line);
 	if (file[i] != ';')
 		throw (MissingSemiColonException(line));
 	i++;
@@ -217,12 +218,14 @@ void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_
 		ipv6.ipv6[j] = ft_hextoint(file, i, line);
 		j++;
 		ipv6.ipv6[j] = ft_hextoint(file, i, line);
-		if (file[i] != ':' && j != 16)
+		if (file[i] != ':' && j != 15)
 			throw (WrongIpFormatException(line));
-		i++;
+		if (j != 15)
+			i++;
 	}
 	if (file[i] != ']')
 		throw (WrongIpFormatException(line));
+	i++;
 	parse_port(file, i, line, port);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
@@ -230,7 +233,6 @@ void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_
 			return ;
 	}
 	ip.insert(std::make_pair(ipv6, port));
-	i++;
 }
 
 void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip)
@@ -238,9 +240,6 @@ void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::
 	ip.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
 	i = file.find_first_of(SEP_WSPACE, i);
 	skip_wspace(file, i, line);
-	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
-	i++;
 }
 
 void	parse_port(std::string &file, size_t &i, size_t &line, in_port_t &port)

@@ -35,6 +35,10 @@ typedef struct ipv6_s {
         return std::memcmp(ipv6, other.ipv6, sizeof(uint8_t [16])) == 0;
 	}
 
+	bool operator==(const uint8_t *other) const {
+        return std::memcmp(this->ipv6, other, sizeof(uint8_t [16])) == 0;
+	}
+
     uint8_t const (&getRef(void) const)[16] {
         return ipv6; 
     }

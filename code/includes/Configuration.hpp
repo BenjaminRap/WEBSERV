@@ -46,4 +46,6 @@ public:
 	bool			getReuseAddr(void) const;
 };
 
+std::ostream & operator<<(std::ostream & o, Configuration const & rhs);
+
 #endif // !CONFIGURATION_HPP
