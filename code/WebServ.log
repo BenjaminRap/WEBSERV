@@ -1,0 +1,24 @@
+==67887== Memcheck, a memory error detector
+==67887== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==67887== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==67887== Command: ./WebServ ../tests/configurations/oneCommentLine.txt
+==67887== 
+==67887== 
+==67887== Process terminating with default action of signal 15 (SIGTERM)
+==67887==    at 0x113093: parse_file(Configuration&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&) (parsing.cpp:24)
+==67887==    by 0x124BD0: main (main.cpp:16)
+==67887== 
+==67887== HEAP SUMMARY:
+==67887==     in use at exit: 73,759 bytes in 2 blocks
+==67887==   total heap usage: 4 allocs, 2 frees, 82,423 bytes allocated
+==67887== 
+==67887== LEAK SUMMARY:
+==67887==    definitely lost: 0 bytes in 0 blocks
+==67887==    indirectly lost: 0 bytes in 0 blocks
+==67887==      possibly lost: 0 bytes in 0 blocks
+==67887==    still reachable: 73,759 bytes in 2 blocks
+==67887==         suppressed: 0 bytes in 0 blocks
+==67887== Rerun with --leak-check=full to see details of leaked memory
+==67887== 
+==67887== For lists of detected and suppressed errors, rerun with: -s
+==67887== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
