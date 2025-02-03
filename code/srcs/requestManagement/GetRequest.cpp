@@ -8,11 +8,10 @@
 #define NF		3
 
 int							isDirOrFile(const std::string& path);
-void						checkType(std::string& path, GetRequest& get);
 void						fixPath(std::string &path);
-std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 void						directoryCase(GetRequest& get);
 void						fixUrl(GetRequest& get, std::string& url);
+std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 
 bool	checkAllowMeth(const Route &root, EMethods meth)
 {

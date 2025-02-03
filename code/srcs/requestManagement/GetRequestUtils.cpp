@@ -52,7 +52,7 @@ void checkType(std::string &path, GetRequest get)
 	char lastChar = path[path.length() - 1];
 	if (lastChar != '/')
 	{
-		path += "/";
+		path += "/"; // Can throw
 		get.setResponse(301, "Moved Permanently",path);
 	}
 	else
@@ -93,7 +93,7 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 			return (ERROR500);
 	}
 	while ((res = readdir(dw)))
-		lst.push_back(res->d_name);
+		lst.push_back(res->d_name); // Can throw
 	closedir(dw);
 	return (0);
 }
@@ -104,23 +104,23 @@ std::string	buildPage(std::list<std::string>	&files, const std::string& path)
 	std::list<std::string>::iterator		end;
 
 	end = files.end();
-	result = "<html>\n<head><title>Index of ";
-	result += path;
-	result += "</title></head>\n<body>\n<h1>Index of";
-	result += path;
-	result += "</h1><hr><pre><a href=\"../\">../</a>\n";
+	result = "<html>\n<head><title>Index of "; // Can throw
+	result += path; // Can throw
+	result += "</title></head>\n<body>\n<h1>Index of"; // Can throw
+	result += path; // Can throw
+	result += "</h1><hr><pre><a href=\"../\">../</a>\n"; // Can throw
 
 	for (std::list<std::string>::iterator it = files.begin(); it != end; it++)
 	{
 		if (*it == ".." || *it == ".")
 			continue ;
-		result += "<a href=\"";
-		result += *it;
-		result += "\">";
-		result += *it;
-		result += "</a>\n";
+		result += "<a href=\""; // Can throw
+		result += *it; // Can throw
+		result += "\">"; // Can throw
+		result += *it; // Can throw
+		result += "</a>\n"; // Can throw
 	}
-	result += "</pre><hr></body>\n</html>";
+	result += "</pre><hr></body>\n</html>"; // Can throw
 	return (result);
 }
 
