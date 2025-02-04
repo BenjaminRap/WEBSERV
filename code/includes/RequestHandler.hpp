@@ -5,10 +5,11 @@
 
 # define REQUEST_BUFFER_SIZE 1024
 
-enum RequestState
+enum	RequestState
 {
 	REQUEST_STATUS_LINE,
 	REQUEST_HEADERS,
+	REQUEST_EMPTY_LINE,
 	REQUEST_BODY
 };
 
@@ -26,8 +27,11 @@ public:
 	RequestHandler();
 	~RequestHandler();
 
-	bool	readRequest(int socketFd);
-	bool	processRequest(int socketFd);
+	FlowState	processRequest(int socketFd);
+	int			readStatusLine();
+	int			readHeaders();
+	int			executeRequest();
+	int			readBody();
 };
 
 #endif // !REQUEST_HANDLER_HPP
