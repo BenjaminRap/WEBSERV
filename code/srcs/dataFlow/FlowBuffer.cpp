@@ -69,7 +69,7 @@ const char	*FlowBuffer::getBuffer() const
 }
 
 /**
- * @brief  Get a line, (finishing by \n). Return true if there was a line in the
+ * @brief  Get a line, (finishing by \\n). Return true if there was a line in the
  * buffer, false otherwise. If there is a line, lineStart is a pointer on the
  * start of this line, and length is the lenth of the line. If there is no line,
  * lineStart is set to NULL and length to -1.
@@ -137,5 +137,7 @@ ssize_t	writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &f
 	if (fdType == SOCKETFD)
 		return (send(fd, buffer, bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL));
 	const ssize_t written = write(fd, buffer, bufferCapacity);
-	return (written == bufferCapacity ? written : -1);
+	if (written == -1)
+		return (1);
+	return ((size_t)written == bufferCapacity ? written : -1);
 }
