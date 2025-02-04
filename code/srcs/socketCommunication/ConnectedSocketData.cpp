@@ -1,3 +1,5 @@
+#include <sys/epoll.h>
+
 #include "ConnectedSocketData.hpp"
 
 /*************************Constructors / Destructors***************************/
@@ -19,5 +21,12 @@ ConnectedSocketData::~ConnectedSocketData(void)
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	(void)events;
+	if (events & EPOLLIN)
+	{
+		_requestHandler.processRequest(_fd);
+	}
+	if (events & EPOLLOUT)
+	{
+		_responsesHandler.sendResponsesToSocket(_fd);
+	}
 }

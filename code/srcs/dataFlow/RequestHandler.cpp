@@ -20,11 +20,13 @@ RequestHandler::~RequestHandler()
 
 bool	parseStatusLine(char *line, size_t lineLength)
 {
-	return (write(STDOUT_FILENO, line, lineLength) == (ssize_t)lineLength);
+	std::cout << "statusLine : " << std::string(line, lineLength) << ", length : " << lineLength << std::endl;
+	return (true);
 }
 bool	parseHeader(char *line, size_t lineLength)
 {
-	return (write(STDOUT_FILENO, line, lineLength) == (ssize_t)lineLength);
+	std::cout << "header : " << std::string(line, lineLength) << ", length : " << lineLength << std::endl;
+	return (true);
 }
 Body	*getBody()
 {
@@ -34,7 +36,7 @@ Body	*getBody()
 int	RequestHandler::readStatusLine()
 {
 	char	*line;
-	ssize_t	lineLength;
+	size_t	lineLength;
 
 	if (_state != REQUEST_STATUS_LINE)
 		return (0);
@@ -54,7 +56,7 @@ int	RequestHandler::readStatusLine()
 int	RequestHandler::readHeaders()
 {
 	char	*line;
-	ssize_t	lineLength;
+	size_t	lineLength;
 
 	if (_state != REQUEST_HEADERS)
 		return (0);
@@ -120,6 +122,11 @@ FlowState	RequestHandler::processRequest(int socketFd)
 			return ((FlowState)ret);
 		if ((ret = readBody()) != 0)
 			return ((FlowState)ret);
+	}
+	const Body * const body = getBody();
+	if (_state == REQUEST_BODY && (body == NULL || body->getFinished()))
+	{
+		_state = REQUEST_STATUS_LINE;
 	}
 	return (FLOW_MORE);
 }

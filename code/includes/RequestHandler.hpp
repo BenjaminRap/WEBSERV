@@ -2,6 +2,7 @@
 # define REQUEST_HANDLER_HPP
 
 # include "FlowBuffer.hpp"
+# include "Request.hpp"
 
 # define REQUEST_BUFFER_SIZE 1024
 
@@ -19,6 +20,7 @@ private:
 	char			_buffer[REQUEST_BUFFER_SIZE];
 	FlowBuffer		_flowBuffer;
 	RequestState	_state;
+	Request			_request;
 
 	RequestHandler(const RequestHandler& ref);
 
