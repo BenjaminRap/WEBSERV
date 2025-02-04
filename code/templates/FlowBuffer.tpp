@@ -18,15 +18,15 @@
  * and FLOW_MORE if there is more to read/write. In the latter case, we should
  * wait for an EPOLLIN/EPOLLOUT event before calling this function again.
  */
-template <typename Data>
+template <typename ReadData, typename WriteData>
 FlowState	FlowBuffer::redirectContent
 (
 	int srcFd,
-	Data &readData,
+	ReadData &readData,
 	int destFd,
-	Data &writeData,
-	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data),
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data)
+	WriteData &writeData,
+	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData),
+	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
 )
 {
 	const FlowState	readState = redirectFdContentToBuffer(srcFd, readData, customRead);
@@ -52,12 +52,12 @@ FlowState	FlowBuffer::redirectContent
  * and FLOW_MORE if there is more to write. In the latter case, we should
  * wait for an EPOLLOUT event before calling this function again.
  */
-template <typename Data>
+template <typename WriteData>
 FlowState	FlowBuffer::redirectBufferContentToFd
 (
 	int destFd,
-	Data &writeData,
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data)
+	WriteData &writeData,
+	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
 )
 {
 	if (_numCharsWritten < _bufferLength)
@@ -90,12 +90,12 @@ FlowState	FlowBuffer::redirectBufferContentToFd
  * this function again.
  * BUFFER_FULL also means that there is more to read.
  */
-template <typename Data>
+template <typename ReadData>
 FlowState	FlowBuffer::redirectFdContentToBuffer
 (
 	int srcFd,
-	Data &readData,
-	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data)
+	ReadData &readData,
+	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData)
 )
 {
 	size_t	remainingCapacity;
