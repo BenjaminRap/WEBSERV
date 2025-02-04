@@ -32,7 +32,7 @@ void	printEverythingInFlowBuffer(FlowBuffer& flowBuffer)
 	while (true)
 	{
 		char	*lineStart;
-		ssize_t	length;
+		size_t	length;
 
 		if (!flowBuffer.getLine(&lineStart, &length))
 			break ;
