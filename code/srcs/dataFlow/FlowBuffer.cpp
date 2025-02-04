@@ -4,6 +4,7 @@
 #include <unistd.h>        // for read, write
 #include <stdexcept>       // for logic_error
 #include <string>          // for basic_string
+#include <algorithm>
 
 #include "FlowBuffer.hpp"  // for FlowBuffer, FdType, readFromFdWithType
 
@@ -69,38 +70,30 @@ const char	*FlowBuffer::getBuffer() const
 }
 
 /**
- * @brief  Get a line, (finishing by \\n). Return true if there was a line in the
- * buffer, false otherwise. If there is a line, lineStart is a pointer on the
- * start of this line, and length is the lenth of the line. If there is no line,
- * lineStart is set to NULL and length to -1.
- * This functions update the FlowBuffer internal _numCharsWritten variables, 
- * meaning that the line that has been returned, is counted as read and won't be
- * returned again.
+ * @brief Get a line from this bufferFlow internal buffer.
+ * @param lineStart If the buffer contains a line, set this variable to the start
+ * of the line, otherwise, this variable isn't changed.
+ * @param length If the buffer contains a line, set this variable to the length
+ * of the line, otherwise, this variable isn't changed.
+ * @return True if there is a line, false otherwise.,
  */
-bool		FlowBuffer::getLine(char **lineStart, ssize_t *length)
+bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 {
-	size_t	index;
+	char * const	start = _buffer + _numCharsWritten;
+	char * const	afterEnd = _buffer + _bufferLength;
+	char * const	breakline = std::find(start, afterEnd, '\n');
 
-	index = _numCharsWritten;
-	while (index < _bufferLength)
+	if (breakline == afterEnd)
+		return (false);
+	*lineStart = start;
+	*length = std::distance(start, breakline - 1); // -1 because we remove the /n
+	_numCharsWritten += std::distance(start, breakline + 1); // +1 because we go past the /n
+	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
 	{
-		if (_buffer[index] == '\n')
-		{
-			*lineStart = _buffer + _numCharsWritten;
-			*length = index - _numCharsWritten;
-			_numCharsWritten = index + 1;
-			if (_numCharsWritten == _bufferLength)
-			{
-				_numCharsWritten = 0;
-				_bufferLength = 0;
-			}
-			return (true);
-		}
-		index++;
+		_numCharsWritten = 0;
+		_bufferLength = 0;
 	}
-	*lineStart = NULL;
-	*length = -1;
-	return (false);
+	return (true);
 }
 
 /************************FlowBuffer write/read functions***********************/
