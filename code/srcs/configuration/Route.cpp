@@ -85,9 +85,12 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 {
 	const std::vector<std::string>	&index = rhs.getIndex();
 	const std::vector<EMethods> 	&acceptedMethods = rhs.getAcceptedMethods();
+	const std::string				&root = rhs.getRoot();
+	const SRedirection				&redirection = rhs.getRedirection();
 
     o << "auto_index :" << rhs.getAutoIndex() << std::endl;
-	o << "root :" << rhs.getRoot() << std::endl;
+	if (!root.empty())
+		o << "root :" << rhs.getRoot() << std::endl;
 	o << "index : ";
 	for (size_t i = 0; i < index.size(); i++)
 	{
@@ -105,8 +108,11 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 			o << "DELETE ";
 	}
 	o << std::endl;
-	o << "redirection status code:" << rhs.getRedirection().responseStatusCode << std::endl;
-	o << "redirection url:" << rhs.getRedirection().url << std::endl;
+	if (!redirection.url.empty())
+	{
+		o << "redirection status code:" << redirection.responseStatusCode << std::endl;
+		o << "redirection url:" << redirection.url << std::endl;
+	}
 	o << "accepted uploads:" << rhs.getAcceptUploads() << std::endl;
     return (o);
 }
