@@ -19,8 +19,8 @@ public:
 	Body(int fd);
 	virtual ~Body();
 	
-	int		getFd();
-	bool	getFinished();
+	int		getFd() const;
+	bool	getFinished() const;
 };
 
 #endif // !BODY_HPP

@@ -18,7 +18,7 @@ SizedBody::~SizedBody()
 
 }
 
-size_t	SizedBody::getSize()
+size_t	SizedBody::getSize() const
 {
 	return (_size);
 }

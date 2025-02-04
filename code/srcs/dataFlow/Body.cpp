@@ -13,7 +13,7 @@ Body::~Body()
 	checkError(close(_fd), -1, "close() : ");
 }
 
-int	Body::getFd()
+int	Body::getFd() const
 {
 	return (_fd);
 }
@@ -23,7 +23,7 @@ void	Body::setFinished()
 	_finished = true;	
 }
 
-bool	Body::getFinished()
+bool	Body::getFinished() const
 {
 	return (_finished);
 }
