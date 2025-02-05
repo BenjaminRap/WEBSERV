@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "SizedBody.hpp"
+#include "FlowBuffer.hpp"
 
 SizedBody::SizedBody(int fd, size_t size) :
 	Body(fd),
@@ -43,4 +44,18 @@ ssize_t	SizedBody::writeToFile(int fd, char *buffer, size_t bufferCapacity, Size
 	if (written == -1)
 		return (-1);
 	return (((size_t)written != numCharsToWrite) ? -1 : written);
+}
+
+FlowState	SizedBody::writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
+{
+	return (flowBuffer.redirectBufferContentToFd(getFd(), *this, SizedBody::writeToFile));
+}
+
+FlowState	SizedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
+{
+	FdType	socketType = SOCKETFD;
+
+	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this, \
+		readFromFdWithType,
+		SizedBody::writeToFile));
 }

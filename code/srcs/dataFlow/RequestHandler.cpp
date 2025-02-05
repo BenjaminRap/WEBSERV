@@ -8,7 +8,8 @@
 RequestHandler::RequestHandler() :
 	_buffer(),
 	_flowBuffer(_buffer, REQUEST_BUFFER_SIZE, 0),
-	_state(REQUEST_STATUS_LINE)
+	_state(REQUEST_STATUS_LINE),
+	_request()
 {
 }
 
@@ -64,6 +65,7 @@ int	RequestHandler::readHeaders()
 	{
 		if (lineLength == 0)
 		{
+			std::cout << "empty line !" << std::endl;
 			_state = REQUEST_EMPTY_LINE;
 			return (0);
 		}
@@ -78,55 +80,59 @@ int	RequestHandler::executeRequest()
 	return (0);
 }
 
-int	RequestHandler::readBody()
+int	RequestHandler::readBodyFromBuffer()
 {
 	if (_state != REQUEST_BODY)
 		return (0);
-	Body * const body = getBody();
+	Body * const	body = getBody();
 
 	if (body == NULL)
-		return (0);
-	SizedBody * const sizedBody = dynamic_cast<SizedBody *>(body);
-	if (sizedBody != NULL)
-	{
-		const FlowState flowState = _flowBuffer.redirectBufferContentToFd(sizedBody->getFd(), \
-			 *sizedBody, SizedBody::writeToFile);
-		return (flowState);
-	}
-	std::cerr << "Logic Error : readBody() : the body type is unkown" << std::endl;
-	return (-1);
+		return (FLOW_MORE);
+	return (body->writeBodyFromBufferToFile(_flowBuffer));
 }
 
+FlowState			RequestHandler::redirectBody(int socketFd)
+{
+	Body * const	body = getBody();
+	
+	if (body == NULL)
+		return (FLOW_MORE);
+	return (body->redirectBodyFromSocketToFile(_flowBuffer, socketFd));
+}
+
+FlowState			RequestHandler::readRequest(int socketFd)
+{
+	FdType			socketType = SOCKETFD;
+	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer(socketFd, socketType);
+
+	if (flowState != FLOW_MORE)
+		return (flowState);
+	int	ret;
+
+	if ((ret = readStatusLine()) != 0)
+		return ((FlowState)ret);
+	if ((ret = readHeaders()) != 0)
+		return ((FlowState)ret);
+	if ((ret = executeRequest()) != 0)
+		return ((FlowState)ret);
+	ret = readBodyFromBuffer();
+	return (FLOW_MORE);
+}
 
 FlowState	RequestHandler::processRequest(int socketFd)
 {
-	FdType	socketType = SOCKETFD;
-
 	if (_state == REQUEST_BODY)
 	{
-		
+		const FlowState flowState = redirectBody(socketFd);
+		if (flowState != FLOW_MORE)
+			return (flowState);
 	}
 	else
 	{
-		const FlowState flowState = _flowBuffer.redirectFdContentToBuffer(socketFd, socketType);
-
-		if (flowState != FLOW_MORE)
-			return (flowState);
-		int	ret;
-
-		if ((ret = readStatusLine()) != 0)
-			return ((FlowState)ret);
-		if ((ret = readHeaders()) != 0)
-			return ((FlowState)ret);
-		if ((ret = executeRequest()) != 0)
-			return ((FlowState)ret);
-		if ((ret = readBody()) != 0)
-			return ((FlowState)ret);
+		readRequest(socketFd);
 	}
 	const Body * const body = getBody();
-	if (_state == REQUEST_BODY && (body == NULL || body->getFinished()))
-	{
+	if (_state == REQUEST_BODY && body->getFinished())
 		_state = REQUEST_STATUS_LINE;
-	}
 	return (FLOW_MORE);
 }

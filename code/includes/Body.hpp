@@ -3,6 +3,8 @@
 
 # include <stddef.h>
 
+#include "FlowBuffer.hpp"
+
 class Body
 {
 private:
@@ -19,8 +21,11 @@ public:
 	Body(int fd);
 	virtual ~Body();
 	
-	int		getFd() const;
-	bool	getFinished() const;
+	int			getFd() const;
+	bool		getFinished() const;
+	
+	virtual FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer) = 0;
+	virtual FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd) = 0;
 };
 
 #endif // !BODY_HPP

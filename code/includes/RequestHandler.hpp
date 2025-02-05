@@ -30,10 +30,12 @@ public:
 	~RequestHandler();
 
 	FlowState	processRequest(int socketFd);
+	FlowState	redirectBody(int socketFd);
+	FlowState	readRequest(int socketFd);
 	int			readStatusLine();
 	int			readHeaders();
 	int			executeRequest();
-	int			readBody();
+	int			readBodyFromBuffer();
 };
 
 #endif // !REQUEST_HANDLER_HPP

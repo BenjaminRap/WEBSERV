@@ -20,6 +20,9 @@ public:
 	void	addCharsWritten(size_t add);
 	
 	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, SizedBody &sizedBody);
+
+	FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer);
+	FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd);
 };
 
 #endif // !SIZED_BODY_HPP
