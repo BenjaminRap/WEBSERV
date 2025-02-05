@@ -69,6 +69,7 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 
 const Route	*ServerConfiguration::getOneRoutes(std::string path) const
 {
+	std::cout << path << std::endl;
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
 		if (it->first.find(path) == 0)

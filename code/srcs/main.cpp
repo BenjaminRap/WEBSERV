@@ -44,7 +44,7 @@ void	makeGet(const std::string& test, int code, const std::string& response, con
 		std::cout << BGRN << "OK" << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << "KO : " << a.code << " | " << a.statusText << CRESET;
+		std::cout << BRED << "KO : " << a.code << " | " << a.statusText << CRESET << "\t";
 		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
 	}
 }
@@ -58,7 +58,7 @@ void	makeDelete(const std::string &desc, const std::string& test, int code, cons
 		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.statusText;
+		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.statusText << "\t";
 		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
 	}
 }
@@ -129,8 +129,8 @@ void	getTest(const ServerConfiguration &config)
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
-	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
-	testGetRequest("", "\t\t\t\t\t\t", config);
+//	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
+//	testGetRequest("", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
@@ -196,13 +196,15 @@ int	main(int argc, char **argv)
 		parse_file(config, file);
 		std::system("cd unitTest && ../deleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
-		deleteTest(config.begin()->second[0]);
+		getTest(config.begin()->second[0]);
 		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
-		DeleteRequest a(argv[2], config.begin()->second[0]);
+		ft_readfile(argv[1], file);
+		parse_file(config, file);
+		GetRequest a(argv[2], config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
