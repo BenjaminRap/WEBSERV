@@ -7,6 +7,8 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+#include <sstream>
+#include "parsing.hpp"
 
 
 #define RESPONSE404 "/custom_404.html"
@@ -180,24 +182,27 @@ void	deleteTest(const ServerConfiguration &config)
 
 int	main(int argc, char **argv)
 {
+	std::string file;
 	if (argc < 2)
 	{
 		std::cerr << "Not enough arguments, expected the nginxconf and optionnaly an request" << std::endl;
 		return (1);
 	}
-	const Configuration	config(argv[1]);
+	Configuration	config;
 
 	if (argc == 2)
 	{
+		ft_readfile(argv[1], file);
+		parse_file(config, file);
 		std::system("cd unitTest && ../deleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
-		deleteTest(config.getServerConfiguration(0));
+		deleteTest(config.begin()->second[0]);
 		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
-		DeleteRequest a(argv[2], config.getServerConfiguration(0));
+		DeleteRequest a(argv[2], config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;

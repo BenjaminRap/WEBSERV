@@ -17,16 +17,6 @@ public:
 	std::string		url;
 };
 
-/// @brief This structure describe the uploads behaviour
-/// If this route accept the uploads, the post request will create a file at $path
-/// with the content of the body.
-struct SUploads
-{
-public:
-	bool		acceptUploads;
-	std::string	path;
-};
-
 /// @brief This class describe a route, a server can have multiples routes or none.
 class Route
 {
@@ -37,7 +27,7 @@ public:
 			bool auto_index, \
 			std::string root, \
 			std::string cgiFileExtension, \
-			SUploads	uploads);
+			bool	acceptUploads);
 	Route(Route const &src);
 	Route    &operator=(Route const &src);
 	~Route(void);
@@ -48,7 +38,7 @@ public:
 	const bool						&getAutoIndex(void) const;
 	const std::string				&getRoot(void) const;
 	const std::string				&getCgiFileExtension(void) const;
-	const SUploads					&getUploads(void) const;
+	const bool						&getAcceptUploads(void) const;
 
 private:
 	std::vector<EMethods>		acceptedMethods;
@@ -67,7 +57,8 @@ private:
 	/// @brief if a file, at this route has this file extension, it will call the
 	/// cgi.
 	std::string					cgiFileExtension;
-	SUploads					uploads;
+	/// @brief if a file, at this route has uploads
+	bool						acceptUploads;
 
 	Route(void);
 

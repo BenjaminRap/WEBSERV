@@ -2,8 +2,10 @@
 # Définit un serveur HTTP principal
 server {
     # Hôte et port sur lesquels ce serveur écoute
-    listen 192.168.1.10:8080;  # Hôte et port spécifiques
-    #listen [::1]:8080;        # Support IPv6 (facultatif)(je ne gere pas les ipv6)
+    listen 192.168.1.1:80;              # Listen on IPv4 address
+    listen [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80;  # Listen on IPv6 address
+    listen unix:/var/run/nginx.sock;    # Listen on Unix socket
+
     root	/unitTest/;
     # Définit les noms de domaine gérés par ce serveur
     server_name www.example.com example.com;
@@ -63,6 +65,7 @@ server {
 
     # Autoriser les uploads de fichiers
     location /upload {
+		uploads on;
         root /var/www/uploads;
     }
 
