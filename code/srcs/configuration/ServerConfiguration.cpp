@@ -84,7 +84,6 @@ std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 	const std::map<unsigned short, std::string>	&errorPages = rhs.getErrorPages();
 	const std::map<std::string, Route>			&routes = rhs.getRoutes();
 
-	o << "SERVER :" << std::endl;		
 	o << "root:" << rhs.getRoot() << std::endl;
 	o << "client_max_body_size:" << rhs.getMaxClientBodySize() << std::endl;
     for (size_t i = 0; i < serverNames.size(); i++)

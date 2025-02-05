@@ -72,3 +72,21 @@ bool	Configuration::getReuseAddr(void) const
 {
 	return (_reuseAddr);
 }
+
+std::ostream & operator<<(std::ostream & o, Configuration const & rhs)
+{
+	size_t	i = 1;
+
+	for (std::map<Host, std::vector<ServerConfiguration> >::const_iterator it = rhs.begin(); it != rhs.end(); ++it)
+	{
+		std::cout << "Host " << i << ":" << std::endl;
+		for (size_t j = 0; j < it->second.size(); j++)
+		{
+			std::cout << "Server " << j + 1 << ":" << std::endl;
+			std::cout << it->second[j] << std::endl; 
+		}
+		std::cout << std::endl;
+		i++;
+	}
+	return (o);
+}

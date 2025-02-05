@@ -28,11 +28,15 @@ typedef struct ipv6_s {
     uint8_t ipv6[16];
 
 	bool operator<(const ipv6_s& other) const {
-        return std::memcmp(ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;
+        return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;
 	}
 
     bool operator==(const ipv6_s& other) const {
-        return std::memcmp(ipv6, other.ipv6, sizeof(uint8_t [16])) == 0;
+        return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) == 0;
+	}
+
+	bool operator==(const uint8_t (&other)[16]) const {
+        return std::memcmp(this->ipv6, other, sizeof(uint8_t [16])) == 0;
 	}
 
     uint8_t const (&getRef(void) const)[16] {
@@ -58,6 +62,7 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 void	skip_line(std::string &file, size_t &i, size_t &line);
 void	skip_wspace(std::string &file, size_t &i, size_t &line);
 short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len);
+uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line);
 void	parse_ipv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip);
 void	parse_host(std::string &file, size_t &i, size_t &line, ip_t &ip);
 void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip);
