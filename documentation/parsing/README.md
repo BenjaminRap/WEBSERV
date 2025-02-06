@@ -8,11 +8,13 @@ Our hosts are parsed into an Host class, and our servers into a ServerConfigurat
 What it looks like ? <br>
 
 ## __Configuration file :__ <br>
+
 ![alt text](ServerConfigurationExample.png) <br>
 <br>
 
 ## __Configuration class :__ 
 <br>
+
 ![alt text](ConfigurationClass.png) <br>
 <br>
 
