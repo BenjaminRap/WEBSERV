@@ -16,10 +16,10 @@ void	parse_host(std::string &file, size_t &i, size_t &line, ip_t &ip)
 		parse_ip_unix(file, i, line, ip.unix_adrr);
 	}
 	else
-		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	skip_wspace(file, i, line);
 	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -30,15 +30,15 @@ void	parse_ipv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, 
 
 	ipv4 = real_atoi(file, i, line, 255, 3) << 24;
 	if (file[i] != '.')
-		throw (WrongIpFormatException(line));
+		throw (CustomLineException("Wrong IP format", line));
 	i++;
 	ipv4 = ipv4 | real_atoi(file, i, line, 255, 3) << 16;
 	if (file[i] != '.')
-		throw (WrongIpFormatException(line));
+		throw (CustomLineException("Wrong IP format", line));
 	i++;
 	ipv4 = ipv4 | real_atoi(file, i, line, 255, 3) << 8;
 	if (file[i] != '.')
-		throw (WrongIpFormatException(line));
+		throw (CustomLineException("Wrong IP format", line));
 	i++;
 	ipv4 = ipv4 | real_atoi(file, i, line, 255, 3);
 	parse_port(file, i, line, port);
@@ -61,12 +61,12 @@ void	parse_ipv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_
 		j++;
 		ipv6.ipv6[j] = ft_hextoint(file, i, line);
 		if (file[i] != ':' && j != 15)
-			throw (WrongIpFormatException(line));
+			throw (CustomLineException("Wrong IP format", line));
 		if (j != 15)
 			i++;
 	}
 	if (file[i] != ']')
-		throw (WrongIpFormatException(line));
+		throw (CustomLineException("Wrong IP format", line));
 	i++;
 	parse_port(file, i, line, port);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
@@ -87,7 +87,7 @@ void	parse_ip_unix(std::string &file, size_t &i, size_t &line, std::vector<std::
 void	parse_port(std::string &file, size_t &i, size_t &line, in_port_t &port)
 {
 	if (file[i] != ':')
-		throw (WrongIpFormatException(line));
+		throw (CustomLineException("Wrong IP format", line));
 	i++;
 	port = real_atoi(file, i, line, 9999, 4);
 }

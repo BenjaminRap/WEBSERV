@@ -83,309 +83,86 @@ void	insert_host(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::v
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
 std::map<std::string, Route> &routes, std::string &root, ip_t &ip);
 
-class   NumberOfArgumentException : public std::exception
-	{
-		public :
-		
-		virtual const char *what() const throw()
-		{
-			return ("Error: Wrong number of argument.");
-		}
-	};
-
-	class   OpenFileException : public std::exception
-	{
-		public :
-		
-		virtual const char *what() const throw()
-		{
-			return ("Error: Couldn't open configuration file.");
-		}
-	};
-
-	class   ReadFileException : public std::exception
-	{
-		public :
-		
-		virtual const char *what() const throw()
-		{
-			return ("Error: Couldn't read configuration file.");
-		}
-	};
-
-	class   NoServerFoundException : public std::exception
-	{
-		public :
-		
-		virtual const char *what() const throw()
-		{
-			return ("Error: Couldn't find a server in configuration file.");
-		}
-	};
-
-	class   MissingHostException : public std::exception
-	{
-		public :
-		
-		virtual const char *what() const throw()
-		{
-			return ("Error: Missing host");
-		}
-	};
-
-	class UnexpectedKeyWordException : public std::exception
+	class CustomException : public std::exception
 	{
 		public:
-			UnexpectedKeyWordException(size_t line, std::string word)
-				: line(line), word(word), error(errorMsg()) {}
+			CustomException(std::string message) : message(message)
+			{
+				error = errorMsg();
+			}
 
 			std::string errorMsg() const
 			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: unexpected keyword:" + word + "\nline: " + oss.str());
+				return ("Error parsing: " + message);
 			}
 
 			virtual const char* what() const throw()
 			{
 				return (error.c_str());
 			}
-			virtual ~UnexpectedKeyWordException() throw() {}
+			virtual ~CustomException() throw() {}
+
+		private:
+			std::string error;
+			std::string message;
+	};
+
+	class CustomLineException : public std::exception
+	{
+		public:
+			CustomLineException(std::string message, size_t line) : line(line)
+			{
+				this->message = message;
+				error = errorMsg();
+			}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error parsing: " + message + "\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~CustomLineException() throw() {}
+
+		private:
+			size_t		line;
+			std::string error;
+			std::string message;
+	};
+
+	class CustomKeyWordAndLineException : public std::exception
+	{
+		public:
+			CustomKeyWordAndLineException(std::string message, size_t line, std::string word) \
+			: line(line), word(word)
+			{
+				this->message = message;
+				error = errorMsg();
+			}
+
+			std::string errorMsg() const
+			{
+				std::ostringstream oss;
+				oss << line;
+				return ("Error parsing: " + message + ": " + word + "\nline: " + oss.str());
+			}
+
+			virtual const char* what() const throw()
+			{
+				return (error.c_str());
+			}
+			virtual ~CustomKeyWordAndLineException() throw() {}
 
 		private:
 			size_t		line;
 			std::string word;
 			std::string error;
-	};
-
-	class WrongIpFormatException : public std::exception
-	{
-		public:
-			WrongIpFormatException(size_t line)
-				: line(line), error(errorMsg()) {}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: IP Host/Port Format \nline: " + oss.str() + "\nExpected format: listen 0.0.0.0:0000");
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~WrongIpFormatException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-	};
-
-	class MultipleDefinitionException : public std::exception
-	{
-		public:
-			MultipleDefinitionException(size_t line, std::string def) : line(line), def(def)
-			{
-				error = errorMsg();
-			}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Multiple definition of: " + def + "\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~MultipleDefinitionException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-			std::string def;
-	};
-
-	class MissingSemiColonException : public std::exception
-	{
-		public:
-			MissingSemiColonException(size_t line) : line(line), error(errorMsg()) {}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Missing semi-colon\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~MissingSemiColonException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-	};
-
-	class UnclosedBraceException : public std::exception
-	{
-		public:
-			UnclosedBraceException(size_t line) : line(line), error(errorMsg()) {}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Unclosed brace\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~UnclosedBraceException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-	};
-
-	class MissingErrorPageException : public std::exception
-	{
-		public:
-			MissingErrorPageException(size_t line) : line(line), error(errorMsg()) {}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Missing error page\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~MissingErrorPageException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-	};
-
-	class WrongServerNameException : public std::exception
-	{
-		public:
-			WrongServerNameException(size_t line, std::string def) : line(line), def(def)
-			{
-				error = errorMsg();
-			}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Wrong server name: " + def + "\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~WrongServerNameException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-			std::string def;
-	};
-
-	class PathNotFoundException : public std::exception
-	{
-		public:
-			PathNotFoundException(size_t line) : line(line), error(errorMsg()) {}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Path not found\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~PathNotFoundException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-	};
-
-	class ParsedNumberOutOfRangeException : public std::exception
-	{
-		public:
-			ParsedNumberOutOfRangeException(size_t line) : line(line), error(errorMsg()) {}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Parsed number out of range\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~ParsedNumberOutOfRangeException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-	};
-
-	class WrongPathException : public std::exception
-	{
-		public:
-			WrongPathException(size_t line, std::string def) : line(line), def(def)
-			{
-				error = errorMsg();
-			}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error: Wrong path: " + def + "\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~WrongPathException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-			std::string def;
-	};
-
-	class   OutOfRangeException : public std::exception
-	{
-		public :
-		
-		virtual const char *what() const throw()
-		{
-			return ("Error: Element out of range.");
-		}
+			std::string message;
 	};
 
 #endif

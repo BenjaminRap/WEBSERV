@@ -9,7 +9,7 @@ int	main(int argc, char **argv)
 	try
 	{
 		if (argc > 2)
-			throw (NumberOfArgumentException());
+			throw (CustomException("Wrong number of arguments"));
 		if (argc == 2)
 		{
 			ft_readfile(argv[1], file);
