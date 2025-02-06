@@ -11,7 +11,9 @@ enum	RequestState
 	REQUEST_STATUS_LINE,
 	REQUEST_HEADERS,
 	REQUEST_EMPTY_LINE,
-	REQUEST_BODY
+	REQUEST_BODY,
+	REQUEST_DONE,
+	CONNECTION_CLOSED
 };
 
 class RequestHandler
@@ -25,17 +27,20 @@ private:
 	RequestHandler(const RequestHandler& ref);
 
 	RequestHandler&	operator=(const RequestHandler& ref);
+
+	void			readStatusLine();
+	void			readHeaders();
+	void			executeRequest();
+	void			writeBodyFromBuffer();
 public:
 	RequestHandler();
 	~RequestHandler();
 
-	FlowState	processRequest(int socketFd);
-	FlowState	redirectBody(int socketFd);
-	FlowState	readRequest(int socketFd);
-	int			readStatusLine();
-	int			readHeaders();
-	int			executeRequest();
-	int			readBodyFromBuffer();
+	RequestState	redirectBodySocketToFile(int socketFd);
+	RequestState	redirectSocketToBuffer(int socketFd);
+
+	RequestState	readRequest();
+	bool			isRequestBody(void);
 };
 
 #endif // !REQUEST_HANDLER_HPP

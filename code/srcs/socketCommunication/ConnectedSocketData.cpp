@@ -23,7 +23,14 @@ void	ConnectedSocketData::callback(uint32_t events)
 {
 	if (events & EPOLLIN)
 	{
-		_requestHandler.processRequest(_fd);
+		if (_requestHandler.isRequestBody())
+		{
+			
+		}
+		else
+		{
+			
+		}
 	}
 	if (events & EPOLLOUT)
 	{
