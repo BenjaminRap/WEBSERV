@@ -5,19 +5,19 @@
 # include <iostream>
 # include <map>
 # include <cstdlib>
-# include <sstream>
 # include <fstream>
 # include <cstring>
 # include <utility>
 # include <netinet/in.h>
 # include "Configuration.hpp"
+# include "exception.hpp"
 
 # define WSPACE "\t\n\v\f\r "
 # define SEP_WSPACE "\t\n\v\f\r ;"
 # define SEP_WSPACE_ARG "\t\n\v\f\r ;{}"
 # define DIGITS "0123456789"
 
-# define ERROR_403_STR "/custom_404.html"
+# define ERROR_403_STR "/custom_403.html"
 # define ERROR_403_INT 403
 # define ERROR_404_STR "/custom_404.html"
 # define ERROR_404_INT 404
@@ -84,87 +84,5 @@ void	ft_readfile(const char *path, std::string &buff);
 void	insert_host(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
 std::map<std::string, Route> &routes, std::string &root, ip_t &ip);
-
-	class CustomException : public std::exception
-	{
-		public:
-			CustomException(std::string message) : message(message)
-			{
-				error = errorMsg();
-			}
-
-			std::string errorMsg() const
-			{
-				return ("Error parsing: " + message);
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~CustomException() throw() {}
-
-		private:
-			std::string error;
-			std::string message;
-	};
-
-	class CustomLineException : public std::exception
-	{
-		public:
-			CustomLineException(std::string message, size_t line) : line(line)
-			{
-				this->message = message;
-				error = errorMsg();
-			}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error parsing: " + message + "\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~CustomLineException() throw() {}
-
-		private:
-			size_t		line;
-			std::string error;
-			std::string message;
-	};
-
-	class CustomKeyWordAndLineException : public std::exception
-	{
-		public:
-			CustomKeyWordAndLineException(std::string message, size_t line, std::string word) \
-			: line(line), word(word)
-			{
-				this->message = message;
-				error = errorMsg();
-			}
-
-			std::string errorMsg() const
-			{
-				std::ostringstream oss;
-				oss << line;
-				return ("Error parsing: " + message + ": " + word + "\nline: " + oss.str());
-			}
-
-			virtual const char* what() const throw()
-			{
-				return (error.c_str());
-			}
-			virtual ~CustomKeyWordAndLineException() throw() {}
-
-		private:
-			size_t		line;
-			std::string word;
-			std::string error;
-			std::string message;
-	};
 
 #endif

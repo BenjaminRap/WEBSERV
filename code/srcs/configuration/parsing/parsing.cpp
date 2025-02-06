@@ -170,6 +170,8 @@ void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsig
 
 void	parse_root(std::string &file, size_t &i, size_t &line, std::string &root)
 {
+	if (!root.empty())
+		throw (CustomLineException("Multiple definition of root", line));
 	skip_wspace(file, i, line);
 	root = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
