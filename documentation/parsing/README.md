@@ -8,10 +8,10 @@ Our host are parsed into an Host class, and our servers into a ServerConfigurati
 What it looks like ?
 
 ## __Configuration file :__
-![alt text](Configuration.png)
+![alt text](ServerConfigurationExample.png)
 
 ## __Configuration class :__
-![alt text](ServerConfigurationExample.png)
+![alt text](ConfigurationClass.png)
 
 ## __Host :__
 Since there is multiples host the server will be copied multiples times and stored
