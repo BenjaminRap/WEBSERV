@@ -96,6 +96,8 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (CustomException("Missing host"));
+	if (errorPages.find(ERROR_403_INT) == errorPages.end())
+		errorPages.insert(std::make_pair(ERROR_403_INT, ERROR_403_STR));
 	if (errorPages.find(ERROR_404_INT) == errorPages.end())
 		errorPages.insert(std::make_pair(ERROR_404_INT, ERROR_404_STR));
 	if (errorPages.find(ERROR_405_INT) == errorPages.end())

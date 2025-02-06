@@ -19,21 +19,8 @@ Configuration::Configuration(void)
 {
 	if (_instanciated)
 		throw std::logic_error("Error : Trying to instanciate a Configuration multiples times");
-
-	// uint8_t								ip[16];
-	// std::memset((char *)ip, '\0', sizeof(ip));
-	// const Host								host(ip, (in_port_t)8080);
-
-	// const Host								host(static_cast<in_addr_t>(0), static_cast<in_port_t>(8080));
-
-	// const std::string						unixSocketPath("/tmp/test.sock");
-	// const Host								host(unixSocketPath);
-	const std::vector<ServerConfiguration>	serverConfigurations;
-
 	_maxEvents = 500;
 	_maxConnectionBySocket = 100;
-	// (*this)[host] = serverConfigurations;
-	// (*this)[host].push_back(ServerConfiguration());
 	_reuseAddr = true;
 	Configuration::_instanciated = true;
 }
