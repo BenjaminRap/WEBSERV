@@ -1,11 +1,11 @@
 # **PARSING OF CONFIGURATION FILE EXPLAINED**
 
-The configuration file is parsed into a Configuration class.
-The Configuration class is a map which contains our hosts.
-Each host may have multiples server.
-Our host are parsed into an Host class, and our servers into a ServerConfiguration class.
-
-What it looks like ?
+The configuration file is parsed into a Configuration class.<br>
+The Configuration class is a map which contains our hosts.<br>
+Each host may have multiples servers.<br>
+Our hosts are parsed into an Host class, and our servers into a ServerConfiguration class.<br>
+<br>
+What it looks like ?<br>
 
 ## __Configuration file :__
 ![alt text](ServerConfigurationExample.png)
