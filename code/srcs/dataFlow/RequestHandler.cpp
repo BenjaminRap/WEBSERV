@@ -99,6 +99,8 @@ void	RequestHandler::readHeaders()
 
 void	RequestHandler::executeRequest()
 {
+	if (_state != REQUEST_EMPTY_LINE)
+		return ;
 }
 
 void	RequestHandler::writeBodyFromBuffer()

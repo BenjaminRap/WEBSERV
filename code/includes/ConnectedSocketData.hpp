@@ -23,6 +23,8 @@ private:
 	ConnectedSocketData(const FdData &ref);
 
 	ConnectedSocketData&	operator=(const FdData& ref);
+	
+	RequestState			processRequest();
 public:
 	ConnectedSocketData(int fd, SocketsHandler &socketsHandler);
 	~ConnectedSocketData(void);
