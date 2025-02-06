@@ -14,12 +14,12 @@ void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::strin
 	redirection.responseStatusCode = 0;
 	skip_wspace(file, i, line);
 	if (file[i] != '/')
-		throw (PathNotFoundException(line));
+		throw (CustomLineException("Path not found", line));
 	path = file.substr(i, file.find_first_of(SEP_WSPACE_ARG, i) - i);
 	i = file.find_first_of(SEP_WSPACE_ARG, i);
 	skip_wspace(file, i, line);
 	if (file[i] != '{')
-		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	i++;
 	while (i < file.size() && file[i] != '}')
 	{
@@ -57,11 +57,13 @@ void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::strin
 		else if (file[i] == '#')
 			skip_line(file, i, line);
 		else if (file[i] != '}')
-			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		else if (i == std::string::npos)
+			throw (CustomLineException("Unexpected error", line));
 		skip_wspace(file, i, line);
 	}
 	if (file[i] != '}')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Unclosed brace", line));
 	i++;
 	if (acceptedMethods.empty())
 	{
@@ -86,10 +88,10 @@ void	parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &aut
 		i += 3;
 	}
 	else
-		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	skip_wspace(file, i, line);
 	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -102,7 +104,7 @@ void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<s
 		i = file.find_first_of(SEP_WSPACE, i);
 	}
 	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -127,10 +129,10 @@ void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std
 			acceptedMethods.push_back(DELETE);
 		}
 		else if (file[i] != ';')
-			throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	}
 	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection)
@@ -141,7 +143,7 @@ void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedire
 	redirection.url = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
 	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -159,9 +161,9 @@ void	parse_route_uploads(std::string &file, size_t &i, size_t &line, bool &accep
 		i += 3;
 	}
 	else
-		throw (UnexpectedKeyWordException(line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	skip_wspace(file, i, line);
 	if (file[i] != ';')
-		throw (MissingSemiColonException(line));
+		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }

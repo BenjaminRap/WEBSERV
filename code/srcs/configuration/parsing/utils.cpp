@@ -6,14 +6,16 @@ void	ft_readfile(const char *path, std::string &buff)
 
 	file.open(path, file.in);
 	if (file.fail())
-		throw (OpenFileException());
-	if (!std::getline(file, buff, '\0'))
-		throw (ReadFileException());
+		throw (CustomException("Couldn't open file"));
+	std::getline(file, buff, '\0');
+	file.close();
 }
 
 void	skip_line(std::string &file, size_t &i, size_t &line)
 {
 	i = file.find('\n', i);
+	if (i == std::string::npos)
+		throw (CustomLineException("Unexpected error", line));
 	if (i != file.size())
 		line++;
 	i++;
@@ -21,6 +23,8 @@ void	skip_line(std::string &file, size_t &i, size_t &line)
 
 void	skip_wspace(std::string &file, size_t &i, size_t &line)
 {
+	if (i == std::string::npos)
+		throw (CustomLineException("Unexpected error", line));
 	while (std::isspace(static_cast<unsigned char>(file[i])))
 	{
 		if (file[i] == '\n')
@@ -40,7 +44,7 @@ short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len
 		len++;
 	}
 	if (nb > max || nb < 0)
-		throw (ParsedNumberOutOfRangeException(line));
+		throw (CustomLineException("Wrong number format", line));
 	return (nb);
 }
 
@@ -57,7 +61,7 @@ uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line)
 		j--;
 	}
 	if (j != 0)
-		throw (WrongIpFormatException(line));
+		throw (CustomLineException("Wrong IP format", line));
 	return (nb);
 }
 

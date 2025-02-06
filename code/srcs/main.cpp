@@ -122,13 +122,13 @@ void	getTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/unitTest/", "\t\t\t\t\t", config);
+//	testGetRequest("/unitTest/", "\t\t\t\t\t", config);
 	testGetRequest("/", "\t\t\t\t\t\t", config);
 	testGetRequest("/unitTest/srcs/", "\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
+//	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
 //	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
 //	testGetRequest("", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
@@ -197,6 +197,7 @@ int	main(int argc, char **argv)
 		std::system("cd unitTest && ../deleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
 		getTest(config.begin()->second[0]);
+//		deleteTest(config.begin()->second[0]);
 		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
 		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
