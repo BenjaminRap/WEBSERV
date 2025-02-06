@@ -85,9 +85,9 @@ FlowState	FlowBuffer::redirectBufferContentToFd
  * @param customRead The function that will read the data in the srcFd. If no parameter
  * is entered, the default customRead is readFromFdWithType and readData is a FdType.
  * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read,
- * FLOW_BUFFER_FULL if the buffer is full and FLOW_MORE if there is more to
- * read. In the latter case, we should wait for an EPOLLIN event before calling
- * this function again.
+ * FLOW_BUFFER_FULL if the buffer is full and nothing could be read, and FLOW_MORE
+ * if there is more to read. In the latter case, we should wait for an EPOLLIN
+ * event before calling this function again.
  * BUFFER_FULL also means that there is more to read.
  */
 template <typename ReadData>
@@ -109,5 +109,5 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 	if (rd == 0)
 		return (FLOW_DONE);
 	_bufferLength += rd;
-	return ((_bufferLength >= _bufferCapacity) ? FLOW_BUFFER_FULL : FLOW_MORE);
+	return (FLOW_MORE);
 }
