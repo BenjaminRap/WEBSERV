@@ -1,84 +1,60 @@
-#nginx ex :
-# Définit un serveur HTTP principal
-server {
-    # Hôte et port sur lesquels ce serveur écoute
-    listen 192.168.1.1:80;              # Listen on IPv4 address
-    listen [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80;  # Listen on IPv6 address
-    listen unix:/var/run/nginx.sock;    # Listen on Unix socket
+server {													# Server1
+															# The first server, it will be stored 3 times in the map
+															# because there is 3 host below, once for each host.
 
-    root	/unitTest/;
-    # Définit les noms de domaine gérés par ce serveur
-    server_name www.example.com example.com;
+    listen 192.168.1.1:80;             						# Host1
+    listen [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80; 	# Host2
+    listen unix:/var/run/nginx.sock;    					# Host3
 
-    # Limite la taille du corps des requêtes
-    client_max_body_size 5000000;
+    root	/unitTest/;										# root of the server
 
-    # Configuration des pages d'erreur par défaut
-    error_page 404 /custom_404.html ;
+    server_name www.example.com example.com;				# names of the server, it may have multiples names
+
+    client_max_body_size 5000000;							# max client body size for the server
+
+    error_page 404 /custom_404.html ;						# error pages, if they aren't specified our server define them
     error_page 500 502 503 504 /custom_50x.html;
 
-    location /custom_404.html {
+    location /custom_404.html {								# Route1
         root /var/www/error_pages;
-        #internal;
     }
 
-    location /custom_50x.html {
+    location /custom_50x.html {								# Route2
         root /var/www/error_pages;
-        #internal;
     }
 
-    # Exemple de route avec restrictions sur les méthodes HTTP
-    location /api {
-        request_method GET POST;
+    location /api {											# Route3
+        request_method GET POST;							# specifying autorised methods
 
-        root /var/www/api;
+        root /var/www/api;									# root for the Route
+        index index.html index2.html;						# indexs for the Route
+    }
+
+    location /redirect-me {									# Route4
+        return 301 https://new-destination.example.com;		# redirection, with the status code and the url
+    }
+
+    location /kapouet {										# Route5
+        root /tmp/www;
+        autoindex on;										# activate autoindex (autoindex is set to off by default)
         index index.html;
     }
 
-    # Redirection HTTP
-    location /redirect-me {
-        return 301 https://new-destination.example.com;
-    }
-
-    # Gestion de la recherche dans un répertoire
-    location /kapouet {
-        root /tmp/www;  # Racine des fichiers
-        autoindex on;   # Active le listing des répertoires
-        index index.html;
-    }
-
-    # Désactive le listing pour cette route
-    location /no-listing {
+    location /no-listing {									# Route6
         root /var/www/no-listing;
-        autoindex off;
+        autoindex off;										# desactivate autoindex (autoindex was already off)
         index index.html;
-    }
-
-    # Exécution de CGI pour les fichiers avec une extension spécifique
-  #  location ~ \.php$ {
-  #      # Utilise FastCGI pour exécuter le CGI
-  #      include fastcgi_params;
-  #      fastcgi_pass php-fpm:9000;  # Exemple avec PHP-FPM
-  #      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-  #      fastcgi_param PATH_INFO $fastcgi_path_info;
-  #  }
-
-    # Autoriser les uploads de fichiers
-    location /upload {
-		uploads on;
-        root /var/www/uploads;
-    }
-
-    # Définit un fichier par défaut pour les requêtes vers des répertoires
-    location / {
-        root /var/www/html;
-        index index.html index.htm;
     }
 }
 
-# Un autre serveur avec une configuration par défaut différente
-server {
-	listen 192.168.1.1:80;
+server {													# Server2
+
+	error_page 404 /custom_404.html ;
+
+	listen 192.168.1.1:80;									# Host1
+															# Since this host has the same url as the one defined
+															# above, the server will be added to the corresponding host.
+
     root /www/data;
 
     location / {
@@ -86,10 +62,6 @@ server {
 
     location /images/ {
     }
-
-   # location ~ \.(mp3|mp4) {
-   #     root /www/media;
-	#}
 }
 
 #explanation of all configuration :
