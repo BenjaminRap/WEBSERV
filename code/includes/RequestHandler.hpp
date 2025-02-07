@@ -3,6 +3,7 @@
 
 # include "FlowBuffer.hpp"
 # include "Request.hpp"
+# include "Response.hpp"
 
 # define REQUEST_BUFFER_SIZE 1024
 
@@ -28,19 +29,20 @@ private:
 
 	RequestHandler&	operator=(const RequestHandler& ref);
 
-	void			readStatusLine();
-	void			readHeaders();
-	void			executeRequest();
-	void			writeBodyFromBuffer();
+	void			readStatusLine(Response &response);
+	void			readHeaders(Response &response);
+	void			executeRequest(Response &response);
+	void			writeBodyFromBuffer(Response &response);
 public:
 	RequestHandler();
 	~RequestHandler();
 
-	RequestState	redirectBodySocketToFile(int socketFd);
-	RequestState	redirectSocketToBuffer(int socketFd);
+	RequestState	redirectBodySocketToFile(int socketFd, Response &response);
+	RequestState	redirectSocketToBuffer(int socketFd, Response &response);
 
-	RequestState	readRequest();
+	RequestState	readRequest(Response &response);
 	bool			isRequestBody(void);
+	void			setNewRequest();
 };
 
 #endif // !REQUEST_HANDLER_HPP

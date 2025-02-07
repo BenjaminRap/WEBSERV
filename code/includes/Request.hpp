@@ -36,7 +36,12 @@ private:
 	 * @brief The body of the client socket if there is a remaining body.
 	 * If there is no remaining body, this variable is set to NULL.
 	 */
-	Body								*body;
+	Body								*_body;
+public:
+	void	reset();
+	Body	*getBody();
+	int		parseStatusLine(char *line, size_t lineLength);
+	int		parseHeader(char *line, size_t lineLength);
 };
 
 #endif // !REQUEST_HPP

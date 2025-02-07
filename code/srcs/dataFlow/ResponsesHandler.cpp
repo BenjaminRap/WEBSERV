@@ -86,3 +86,9 @@ void	ResponsesHandler::addResponse
 {
 	_responses.push(RawResponse(firstPart, firstPartLength));
 }
+
+
+Response&	ResponsesHandler::getCurrentResponse()
+{
+	return (_currentResponse);
+}

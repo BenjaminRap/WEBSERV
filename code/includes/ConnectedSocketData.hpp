@@ -24,7 +24,7 @@ private:
 
 	ConnectedSocketData&	operator=(const FdData& ref);
 	
-	RequestState			processRequest();
+	RequestState			processRequest(Response &response);
 public:
 	ConnectedSocketData(int fd, SocketsHandler &socketsHandler);
 	~ConnectedSocketData(void);

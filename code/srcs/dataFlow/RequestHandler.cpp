@@ -19,30 +19,7 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-/**
- * the return of parsing functions : 0 : OK, -1 : parsing error, other : errors
- */
-int	parseStatusLine(char *line, size_t lineLength)
-{
-	std::cout << "statusLine : " << std::string(line, lineLength) << ", length : " << lineLength << std::endl;
-	return (0);
-}
-int	parseHeader(char *line, size_t lineLength)
-{
-	std::cout << "header : " << std::string(line, lineLength) << ", length : " << lineLength << std::endl;
-	return (0);
-}
-Body	*getBody()
-{
-	return (NULL);
-}
-
-void	setResponseCode(int code)
-{
-	(void)code;
-}
-
-void	RequestHandler::readStatusLine()
+void	RequestHandler::readStatusLine(Response &response)
 {
 	char	*line;
 	size_t	lineLength;
@@ -56,20 +33,20 @@ void	RequestHandler::readStatusLine()
 			return ;
 	}
 	while (lineLength == 0);
-	const int	parsingReturn = parseStatusLine(line, lineLength);
+	const int	parsingReturn = _request.parseStatusLine(line, lineLength);
 	if (parsingReturn != 0)
 	{
 		if (parsingReturn == -1)
-			setResponseCode(400);
+			response.setResponseCode(400, "Bad Request");
 		else
-			setResponseCode(500);
+			response.setResponseCode(500, "Internal Server Error");
 		_state = REQUEST_DONE;
 		return ;
 	}
 	_state = REQUEST_HEADERS;
 }
 
-void	RequestHandler::readHeaders()
+void	RequestHandler::readHeaders(Response &response)
 {
 	char	*line;
 	size_t	lineLength;
@@ -84,30 +61,31 @@ void	RequestHandler::readHeaders()
 			_state = REQUEST_EMPTY_LINE;
 			return ;
 		}
-		const int	parsingReturn = parseHeader(line, lineLength);
+		const int	parsingReturn = _request.parseHeader(line, lineLength);
 		if (parsingReturn != 0)
 		{
 			if (parsingReturn == -1)
-				setResponseCode(400);
+				response.setResponseCode(400, "Bad Request");
 			else
-				setResponseCode(500);
+				response.setResponseCode(500, "Internal Server Error");
 			_state = REQUEST_DONE;
 			return ;
 		}
 	}
 }
 
-void	RequestHandler::executeRequest()
+void	RequestHandler::executeRequest(Response &response)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
+	(void)response;
 }
 
-void	RequestHandler::writeBodyFromBuffer()
+void	RequestHandler::writeBodyFromBuffer(Response &response)
 {
 	if (_state != REQUEST_BODY)
 		return ;
-	Body * const	body = getBody();
+	Body * const	body = _request.getBody();
 
 	if (body == NULL)
 	{
@@ -118,7 +96,7 @@ void	RequestHandler::writeBodyFromBuffer()
 	
 	if (flowState == FLOW_ERROR)
 	{
-		setResponseCode(500);
+		response.setResponseCode(500, "Internal Server Error");
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_DONE && body->getFinished())
@@ -127,9 +105,9 @@ void	RequestHandler::writeBodyFromBuffer()
 
 /*************************public Member function*******************************/
 
-RequestState			RequestHandler::redirectBodySocketToFile(int socketFd)
+RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &response)
 {
-	Body * const	body = getBody();
+	Body * const	body = _request.getBody();
 	
 	if (body == NULL)
 		return (REQUEST_DONE);
@@ -139,7 +117,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd)
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		setResponseCode(500);
+		response.setResponseCode(500, "Internal Server Error");
 		_state = REQUEST_DONE;
 	}
 	else if (body->getFinished())
@@ -148,7 +126,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd)
 }
 
 
-RequestState	RequestHandler::redirectSocketToBuffer(int socketFd)
+RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &response)
 {
 	FdType			socketType = SOCKETFD;
 	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer(socketFd, socketType);
@@ -157,24 +135,30 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd)
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		setResponseCode(500);
+		response.setResponseCode(500, "Internal Server Error");
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_BUFFER_FULL)
 	{
-		setResponseCode(400);
+		response.setResponseCode(400, "Bad Request");
 		_state = REQUEST_DONE;
 	}
 	return (_state);
 }
 
-RequestState			RequestHandler::readRequest()
+RequestState			RequestHandler::readRequest(Response &response)
 {
-	readStatusLine();
-	readHeaders();
-	executeRequest();
-	writeBodyFromBuffer();
+	readStatusLine(response);
+	readHeaders(response);
+	executeRequest(response);
+	writeBodyFromBuffer(response);
 	return (_state);
+}
+
+
+void			RequestHandler::setNewRequest()
+{
+	_request.reset();
 }
 
 /*****************************Getter / Setter**********************************/

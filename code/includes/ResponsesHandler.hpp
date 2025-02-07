@@ -5,6 +5,7 @@
 
 # include "RawResponse.hpp"
 # include "FlowBuffer.hpp"
+# include "Response.hpp"
 
 # define RESPONSE_BUFFER_SIZE 1024
 
@@ -17,6 +18,7 @@
 class ResponsesHandler
 {
 private:
+	Response				_currentResponse;
 	/**
 	 * @brief A queue of all the responses. They will be written to the client in
 	 * the same order that the client send the requests.
@@ -45,6 +47,7 @@ public:
 	FlowState	sendResponsesToSocket(int socketFd);
 	void		addResponse(char *firstPart, std::size_t firstPartLength, int bodyFd);
 	void		addResponse(char *firstPart, std::size_t firstPartLength);
+	Response&	getCurrentResponse();
 };
 
 #endif // !RESPONSES_HANDLER_HPP

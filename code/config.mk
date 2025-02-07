@@ -16,7 +16,9 @@ DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							ResponsesHandler.cpp	\
 							RequestHandler.cpp		\
 							Body.cpp				\
-							SizedBody.cpp
+							SizedBody.cpp			\
+							Request.cpp				\
+							Response.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
 CONFIGURATION_DIR		:=	configuration/

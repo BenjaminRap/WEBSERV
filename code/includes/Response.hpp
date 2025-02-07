@@ -41,6 +41,8 @@ private:
 	 * is set to -1.
 	 */
 	int									_bodyFd;
+public:
+	void	setResponseCode(int code, std::string text);
 };
 
 #endif // !RESPONSE_HPP
