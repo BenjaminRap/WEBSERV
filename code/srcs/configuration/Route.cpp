@@ -1,13 +1,13 @@
 #include "Route.hpp"
 #include <iostream>
 
-Route::Route(	std::vector<EMethods> acceptedMethods, \
-			SRedirection redirection, \
-			std::vector<std::string> index, \
-			bool auto_index, \
-			std::string root, \
-			std::string cgiFileExtension, \
-			bool acceptUploads) : \
+Route::Route(const std::vector<EMethods> &acceptedMethods, \
+			const SRedirection &redirection, \
+			const std::vector<std::string> &index, \
+			const bool &auto_index, \
+			const std::string &root, \
+			const std::string &cgiFileExtension, \
+			const bool	&acceptUploads) : \
 			acceptedMethods(acceptedMethods), \
 			redirection(redirection), \
 			index(index), \

@@ -1,11 +1,11 @@
 #include "ServerConfiguration.hpp"
 #include "exception.hpp"
 
-ServerConfiguration::ServerConfiguration(	std::vector<std::string> serverNames, \
-											std::map<unsigned short, std::string> errorPages, \
-											size_t maxClientBodySize, \
-											std::map<std::string, Route> routes, \
-											std::string root) : \
+ServerConfiguration::ServerConfiguration(	const std::vector<std::string> &serverNames, \
+											const std::map<unsigned short, std::string> &errorPages, \
+											const size_t &maxClientBodySize, \
+											const std::map<std::string, Route> &routes, \
+											const std::string &root) : \
 											serverNames(serverNames), \
 											errorPages(errorPages), \
 											maxClientBodySize(maxClientBodySize), \
