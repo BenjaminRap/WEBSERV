@@ -2,7 +2,7 @@
 
 The configuration file is parsed into a Configuration class.<br>
 The Configuration class is a map which contains our hosts.<br>
-Each host may have multiples servers.<br>
+Each host may have multiples servers (vector of servers).<br>
 Our hosts are parsed into an Host class, and our servers into a ServerConfiguration class.<br>
 <br>
 What it looks like ? <br>
@@ -110,11 +110,11 @@ const std::string							getLocation(std::string loc) const;
 ```
 <br>
 
-**Route attributes**
-![alt text](route_attribute.png)
+**Route attributes** <br>
+![alt text](route_attribute.png) <br>
 
-__Accepted Methods :__
-If one or multiples request method are specified they are added to a vector.
+__Accepted Methods :__ <br>
+If one or multiples request method are specified they are added to a vector. <br>
 ```
 enum EMethods
 {
@@ -125,11 +125,11 @@ enum EMethods
 
 std::vector<EMethods>		acceptedMethods;
 ```
-If none are specified they are all added to accepted methods by deafault.
+If none are specified they are all added to accepted methods by deafault. <br>
 
-__Redirection :__
-If there is a redirection the status code and the url are stored into
-the appropriate class, if there isn't these values are empty.
+__Redirection :__ <br>
+If there is a redirection the status code and the url are stored into <br>
+the appropriate class, if there isn't these values are empty. <br>
 ```
 SRedirection				redirection;
 
@@ -141,24 +141,24 @@ public:
 };
 ```
 
-__Index :__
-If the index keyword is specified, all the following paths will be stored
-into a vector.
+__Index :__ <br>
+If the index keyword is specified, all the following paths will be stored <br>
+into a vector. <br>
 ```
 std::vector<std::string>	index;
 ```
 
-__Auto Index :__
-If the auto_index keyword is specified it will be set to on or off
-depending on the following word. If it isn't specified it is set to 
-off by default.
+__Auto Index :__ <br>
+If the auto_index keyword is specified it will be set to on or off <br>
+depending on the following word. If it isn't specified it is set to  <br>
+off by default. <br>
 ```
 bool	auto_index;
 ```
 
-__root :__
-The path of the root is stored in a string if specified, otherwise
-the string stays empty.
+__root :__ <br>
+The path of the root is stored in a string if specified, otherwise <br>
+the string stays empty. <br>
 ```
 std::string	root;
 ```
