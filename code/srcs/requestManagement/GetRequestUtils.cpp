@@ -34,7 +34,7 @@ void	fixPath(std::string &path)
 	found = path.find("/../", 0);
 	while (found != std::string::npos)
 	{
-		foundBack = path.find_last_of('/', found - 1);
+		foundBack = path.find_last_of('/', found - 1); // erreur si found trop petit
 		if (found == 0)
 			path.erase(0, 3);
 		else
@@ -47,13 +47,16 @@ void	fixPath(std::string &path)
 		path = "/";
 }
 
+/**
+ * @throw an throw a std::bad_alloc
+ */
 void checkType(std::string &path, GetRequest get)
 {
 	char lastChar = path[path.length() - 1];
 	if (lastChar != '/')
 	{
 		path += "/"; // Can throw
-		get.setResponse(301, "Moved Permanently",path);
+		get.setResponse(301, "Moved Permanently",path); // throw
 	}
 	else
 		get.setUrl(path);
@@ -79,6 +82,9 @@ int	isDirOrFile(const std::string& path)
 		return (FILE);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 int	ls(const std::string& path, std::list<std::string> &lst)
 {
 	DIR							*dw;
@@ -93,11 +99,14 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 			return (ERROR500);
 	}
 	while ((res = readdir(dw)))
-		lst.push_back(res->d_name);
+		lst.push_back(res->d_name); // throw
 	closedir(dw);
 	return (0);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 std::string	buildPage(std::list<std::string>	&files, const std::string& path)
 {
 	std::string								result;
@@ -124,6 +133,9 @@ std::string	buildPage(std::list<std::string>	&files, const std::string& path)
 	return (result);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 {
 	size_t		size;
@@ -135,25 +147,30 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 		temp = get.getUrl() + indexs[i];
 		if (isDirOrFile(temp) == FILE)
 		{
-			get.setResponse(200, "OK", temp);
+			get.setResponse(200, "OK", temp); // throw
 			return (true);
 		}
 	}
 	return (false);
 }
 
-
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void	fixUrl(GetRequest& get, std::string& url)
 {
-	if (*url.begin() != '/')
-		get.setResponse(400, "Bad Request", "Bad Request");
+	if (*url.begin() != '/') // erreur si url empty
+		get.setResponse(400, "Bad Request", "Bad Request"); // throw
 	else
 	{
 		fixPath(url);
-		get.setUrl(url);
+		get.setUrl(url); // throw
 	}
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void	autoIndexCase(GetRequest &get)
 {
 	std::list<std::string>	files;
@@ -161,13 +178,16 @@ void	autoIndexCase(GetRequest &get)
 
 	response = ls(get.getUrl(), files);
 	if (response == FORBIDEN)
-		get.setResponse(403, "Forbidden", get.getError(403));
+		get.setResponse(403, "Forbidden", get.getError(403)); // throw
 	else if (response == ERROR500)
-		get.setResponse(500, "Internal Server Error", get.getError(500));
+		get.setResponse(500, "Internal Server Error", get.getError(500)); // throw
 	else
 		get.file = buildPage(files, get.getUrl()); // Can throw as fuck
 }
 
+/**
+ * @brief Can throw a std::bad_alloc
+ */
 void	directoryCase(GetRequest &get)
 {
 	checkType(get.getUrl(), get); // Can throw
@@ -176,11 +196,11 @@ void	directoryCase(GetRequest &get)
 	if (get.getIsRoot())
 	{
 		const std::vector<std::string>	&indexs = get.getIndexVec();
-		if (findIndex(get, indexs))
+		if (findIndex(get, indexs)) // throw
 			return ;
 	}
 	if (get.getAutoIndex())
-		autoIndexCase(get);
+		autoIndexCase(get); // throw
 	else
-		get.setResponse(403, "Forbidden", get.getError(403));
+		get.setResponse(403, "Forbidden", get.getError(403)); // throw
 }

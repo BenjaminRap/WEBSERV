@@ -18,14 +18,16 @@ void			delString(const std::string& toDel, std::string &str);
 void			fixPath(std::string &path);
 std::string		getParentPath(const std::string &path);
 
-
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void	checkEnd(std::string &path, DeleteRequest &del)
 {
 	char lastChar = path[path.length() - 1];
 	if (lastChar != '/')
 	{
 		path += "/";
-		del.setResponse(409, "Conflict", "Conflict");
+		del.setResponse(409, "Conflict", "Conflict"); // throw
 	}
 	else
 		del.setUrl(path);
@@ -45,26 +47,32 @@ bool	canWrite(const std::string &path)
 	return (true);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 int	directoryCase(const std::string &path, DeleteRequest &del)
 {
-	checkEnd(del.getUrl(), del);
+	checkEnd(del.getUrl(), del); //throw
 	if (del.code == 409)
 		del.setResponse(409, "Conflict", "Conflict");
 	else if (!canWrite(path) || removeDirectory(path, del) != 0
 			|| !canWrite(getParentPath(path)) || std::remove(path.c_str()) != 0)
-		del.setResponse(500, "Internal Server Error", "Internal Server Error");
+		del.setResponse(500, "Internal Server Error", "Internal Server Error"); // throw
 	else
-		del.setResponse(204, "No Content", "No Content");
+		del.setResponse(204, "No Content", "No Content"); // throw
 	return (del.code);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 std::string	getParentPath(const std::string &path)
 {
 	size_t	found;
 	std::string temp;
 
-	temp = path;
-	found = temp.find_last_of('/', temp.length() - 2);
+	temp = path; // throw
+	found = temp.find_last_of('/', temp.length() - 2); // probleme si length est trop petit
 	temp.erase(found + 1, temp.length() - found);
 	return (temp);
 }
@@ -98,6 +106,9 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 	return (0);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 int	fileCase(const std::string &path, DeleteRequest &del)
 {
 	if (!canWrite(getParentPath(path)))

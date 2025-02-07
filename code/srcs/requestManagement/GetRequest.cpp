@@ -29,6 +29,9 @@ bool	checkAllowMeth(const Route &root, EMethods meth)
 	return (false);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void replaceUrl(const std::string& location, const std::string& root, std::string &url)
 {
 	size_t found;
@@ -44,6 +47,9 @@ void replaceUrl(const std::string& location, const std::string& root, std::strin
 	std::cout << "URL : " << url << std::endl;
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void	buildNewURl(std::string root, std::string &url)
 {
 	if (!root.empty() && root[root.size() - 1] == '/')
@@ -51,6 +57,9 @@ void	buildNewURl(std::string root, std::string &url)
 	url.insert(0, root); // Throws
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void	addRoot(GetRequest &get, const ServerConfiguration& config)
 {
 	const Route	*temp = config.getOneRoutes(get.getUrl());
@@ -64,12 +73,12 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	get.setIsRoot(true);
 	if (!checkAllowMeth(*temp, GET))
 	{
-		get.setResponse(405, "Method Not Allowed", config.getErrorPage(405));
+		get.setResponse(405, "Method Not Allowed", config.getErrorPage(405)); // throw
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setResponse(301, "Moved Permanently", redir);
+		get.setResponse(301, "Moved Permanently", redir); // throw
 	else
 	{
 		get.setAutoIndex(temp->getAutoIndex());
@@ -77,12 +86,15 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	}
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _autoIndex(false), _index(0), _isRoot(false), code(0)
 {
 	int			temp;
 
 	this->_config = &config;
-	fixUrl(*this, url);
+	fixUrl(*this, url); // throw
 	if (this->code == 400)
 		return ;
 	addRoot(*this, config); // 2 Functions that can throw
@@ -94,14 +106,17 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _au
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == FILE)
-		setResponse(200, "OK", this->_url);
+		setResponse(200, "OK", this->_url); // throw
 	else
-		setResponse(404, "Not Found", config.getErrorPage(404));
+		setResponse(404, "Not Found", config.getErrorPage(404)); // throw
 }
 
+/**
+ * @throw Can throw
+ */
 GetRequest::GetRequest() : _config(), _root()
 {
-	_url = "NULL";
+	_url = "NULL"; // throw
 	_autoIndex = false;
 	_index = 0;
 	code = 0;
@@ -114,30 +129,39 @@ GetRequest::~GetRequest()
 
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 GetRequest &GetRequest::operator=(const GetRequest &src)
 {
-	this->_url = src._url;
+	this->_url = src._url; // throw
 	this->_autoIndex = src._autoIndex;
 	this->_index = src._index;
 	this->code = src.code;
 	this->_config = src._config;
 	this->_root = src._root;
-	this->file = src.file;
+	this->file = src.file; // throw
 
 	return (*this);
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 GetRequest::GetRequest(const GetRequest &src) : _config(), _root(), _autoIndex(), _index(), code()
 {
 	if (this == &src)
 		return;
-	*this = src;
+	*this = src; // throw
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void GetRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
 {
 	this->code = newcode;
-	this->statusText = status;
+	this->statusText = status; // throw
 	this->file = newfile;
 }
 
@@ -151,6 +175,9 @@ void GetRequest::setAutoIndex(bool src)
 	this->_autoIndex = src;
 }
 
+/**
+ * @throw Can throw a std::bad_alloc
+ */
 void GetRequest::setUrl(const std::string& src)
 {
 	this->_url = src;
