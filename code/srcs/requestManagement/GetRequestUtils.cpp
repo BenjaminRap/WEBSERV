@@ -93,7 +93,7 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 			return (ERROR500);
 	}
 	while ((res = readdir(dw)))
-		lst.push_back(res->d_name); // Can throw
+		lst.push_back(res->d_name);
 	closedir(dw);
 	return (0);
 }
@@ -165,12 +165,12 @@ void	autoIndexCase(GetRequest &get)
 	else if (response == ERROR500)
 		get.setResponse(500, "Internal Server Error", get.getError(500));
 	else
-		get.file = buildPage(files, get.getUrl());
+		get.file = buildPage(files, get.getUrl()); // Can throw as fuck
 }
 
 void	directoryCase(GetRequest &get)
 {
-	checkType(get.getUrl(), get);
+	checkType(get.getUrl(), get); // Can throw
 	if (get.code == 301)
 		return;
 	if (get.getIsRoot())

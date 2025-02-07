@@ -38,16 +38,17 @@ void replaceUrl(const std::string& location, const std::string& root, std::strin
 	found = url.find(location);
 	while (found != std::string::npos)
 	{
-		url.replace(found, location.length(), root);
+		url.replace(found, location.length(), root); // Throws
 		found = url.find(location, found + root.length());
 	}
+	std::cout << "URL : " << url << std::endl;
 }
 
 void	buildNewURl(std::string root, std::string &url)
 {
 	if (!root.empty() && root[root.size() - 1] == '/')
 		root.erase(root.size() - 1);
-	url.insert(0, root);
+	url.insert(0, root); // Throws
 }
 
 void	addRoot(GetRequest &get, const ServerConfiguration& config)
@@ -56,7 +57,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 
 	if (temp == NULL)
 	{
-		buildNewURl(config.getRoot(), get.getUrl());
+		buildNewURl(config.getRoot(), get.getUrl()); // Throws
 		return ;
 	}
 	get.setRoot(temp);
@@ -72,7 +73,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	else
 	{
 		get.setAutoIndex(temp->getAutoIndex());
-		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
+		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl()); // Throws
 	}
 }
 
@@ -84,11 +85,11 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _au
 	fixUrl(*this, url);
 	if (this->code == 400)
 		return ;
-	addRoot(*this, config);
+	addRoot(*this, config); // 2 Functions that can throw
 	if (this->code == 301 || this->code == 405)
 		return ;
 	if (this->_url[0] != '.')
-		this->_url.insert(0, ".");
+		this->_url.insert(0, "."); // Throws
 	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(*this);
