@@ -78,6 +78,7 @@ void	RequestHandler::executeRequest(Response &response)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
+	_state = REQUEST_DONE;
 	(void)response;
 }
 
