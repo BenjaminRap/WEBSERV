@@ -72,7 +72,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	else
 	{
 		get.setAutoIndex(temp->getAutoIndex());
-		replaceUrl(get.getUrl(), temp->getRoot(), get.getUrl()); // ici ARGS 1 doit etre la location
+		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
 	}
 }
 

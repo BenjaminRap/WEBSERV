@@ -128,7 +128,7 @@ void	getTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-//	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
+	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
 //	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
 //	testGetRequest("", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
