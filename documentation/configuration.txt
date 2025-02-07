@@ -31,7 +31,7 @@ server {													# Server1
     }
 
     location /redirect-me {									# Route4
-        return 301 https://new-destination.example.com;		# redirection, with the status code and the url
+        return 301 https://redir.example.com;				# redirection, with the status code and the url
     }
 
     location /kapouet {										# Route5
@@ -51,7 +51,7 @@ server {													# Server2
 
 	error_page 404 /custom_404.html ;
 
-	listen 192.168.1.1:80;									# Host1
+	listen [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80;	# Host1
 															# Since this host has the same url as the one defined
 															# above, the server will be added to the corresponding host.
 

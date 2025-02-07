@@ -25,8 +25,7 @@ public :
 	const std::string							&getErrorPage(unsigned short error) const;
 	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
 	const size_t								&getMaxClientBodySize(void) const;
-	const std::map<std::string, Route>			&getRoutes(void) const;
-	const Route									*getOneRoutes(std::string path) const;
+
 
 private :
 	std::vector<std::string>				serverNames;
@@ -34,6 +33,8 @@ private :
 	/// Associate an error with a page, returned to the client.
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize;
+	/// @brief string : std::string location, class Route,
+	/// Associate a location, with the corresponding Route.
 	std::map<std::string, Route>			routes;
 	std::string								root;
 

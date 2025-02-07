@@ -1,4 +1,5 @@
 #include "ServerConfiguration.hpp"
+#include "exception.hpp"
 
 ServerConfiguration::ServerConfiguration(	std::vector<std::string> serverNames, \
 											std::map<unsigned short, std::string> errorPages, \
@@ -49,7 +50,11 @@ const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 
 const std::string				&ServerConfiguration::getErrorPage(unsigned short error) const
 {
-    return (this->errorPages.find(error)->second);
+	std::map<unsigned short, std::string>::const_iterator it = this->errorPages.find(error);
+
+	if (it == this->errorPages.end())
+		throw (CustomException("Non existing error_page"));
+    return (it->second);
 }
 
 const std::map<unsigned short, std::string>	&ServerConfiguration::getErrorPages(void) const
@@ -75,6 +80,16 @@ const Route	*ServerConfiguration::getOneRoutes(std::string path) const
 			return (&it->second);
 	}
 	return (NULL);
+}
+
+const std::string	ServerConfiguration::getLocation(std::string path) const
+{
+	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
+	{
+		if (it->first.find(path) == 0)
+			return (it->first);
+	}
+	return ("");
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
