@@ -76,7 +76,7 @@ const Route	*ServerConfiguration::getOneRoutes(std::string path) const
 {
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (it->first.find(path) == 0)
+		if (path.find(it->first) == 0)
 			return (&it->second);
 	}
 	return (NULL);
@@ -86,7 +86,7 @@ const std::string	ServerConfiguration::getLocation(std::string path) const
 {
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (it->first.find(path) == 0)
+		if (path.find(it->first) == 0)
 			return (it->first);
 	}
 	return ("");
