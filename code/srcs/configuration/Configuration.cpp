@@ -3,6 +3,7 @@
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string
 #include <vector>                   // for vector
+#include <cstring>
 
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
@@ -23,6 +24,7 @@ Configuration::Configuration(void)
 	_maxConnectionBySocket = 100;
 	_reuseAddr = true;
 	Configuration::_instanciated = true;
+	_instanciated = true;
 }
 
 /**
@@ -30,7 +32,7 @@ Configuration::Configuration(void)
  */
 Configuration::~Configuration(void)
 {
-	Configuration::_instanciated = false;
+	_instanciated = false;
 }
 
 /**

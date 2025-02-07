@@ -31,11 +31,11 @@ private:
 	}				_addr;
 	
 	Host(void);
+	Host&	operator=(const Host& ref);
 
-	// Host&	operator=(const Host& ref);
 public:
 	Host(in_addr_t addrIPV4, in_port_t port);
-	Host(const uint8_t (&addrIPV6)[16], in_port_t port);
+	Host(const uint8_t	(&addrIPV6)[16], in_port_t port);
 	Host(const std::string &path);
 	Host(const Host &ref);
 	~Host(void);

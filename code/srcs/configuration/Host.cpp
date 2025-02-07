@@ -41,8 +41,7 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
  * @param addrIPV4 The address to listen to, in an IPV6 format
  * @param port The port to listen to.
  */
-Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
-	_family(AF_INET6)
+Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) : _family(AF_INET6)
 {
 	sockaddr_in6	&addr = this->_addr.ipv6;
 

@@ -34,9 +34,9 @@ private:
 	 */
 	bool			_reuseAddr;
 
-	// Configuration(const Configuration& ref);
+	Configuration(const Configuration& ref);
+	Configuration&	operator=(const Configuration& ref);
 
-	// Configuration&	operator=(const Configuration& ref);	
 public:
 	Configuration(void);
 	~Configuration(void);
