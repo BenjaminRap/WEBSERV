@@ -21,6 +21,8 @@ int	main(void)
 		ft_readfile(DEFAULT_CONFIG_PATH, file);
 		parse_file(conf, file);
 
+		std::cout << conf << std::endl;
+
 		while(getSignalStatus() == NO_SIGNAL)
 		{
 			try
