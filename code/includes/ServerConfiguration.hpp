@@ -25,7 +25,9 @@ public :
 	const std::string							&getErrorPage(unsigned short error) const;
 	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
 	const size_t								&getMaxClientBodySize(void) const;
-
+	const std::map<std::string, Route>			&getRoutes(void) const;
+	const Route									*getOneRoutes(std::string path) const;
+	const std::string							getLocation(std::string loc) const;
 
 private :
 	std::vector<std::string>				serverNames;
