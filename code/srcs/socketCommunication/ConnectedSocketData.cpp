@@ -22,9 +22,6 @@ ConnectedSocketData::~ConnectedSocketData(void)
 void	removeConnectedSocket()
 {
 }
-void	sendResponse()
-{
-}
 
 RequestState	ConnectedSocketData::processRequest(Response &response)
 {
@@ -43,7 +40,7 @@ RequestState	ConnectedSocketData::processRequest(Response &response)
 	}
 	while  (requestState == REQUEST_DONE)
 	{
-		sendResponse();
+		_responsesHandler.addCurrentResponseToQueue();
 		_requestHandler.setNewRequest();
 		requestState = _requestHandler.readRequest(response);
 	}

@@ -45,8 +45,7 @@ public:
 	~ResponsesHandler();
 
 	FlowState	sendResponsesToSocket(int socketFd);
-	void		addResponse(char *firstPart, std::size_t firstPartLength, int bodyFd);
-	void		addResponse(char *firstPart, std::size_t firstPartLength);
+	void		addCurrentResponseToQueue();
 	Response&	getCurrentResponse();
 };
 

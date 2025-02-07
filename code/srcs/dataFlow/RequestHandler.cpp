@@ -158,6 +158,7 @@ RequestState			RequestHandler::readRequest(Response &response)
 
 void			RequestHandler::setNewRequest()
 {
+	_state = REQUEST_STATUS_LINE;
 	_request.reset();
 }
 

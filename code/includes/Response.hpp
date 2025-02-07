@@ -43,6 +43,7 @@ private:
 	int									_bodyFd;
 public:
 	void	setResponseCode(int code, std::string text);
+	void	reset();
 };
 
 #endif // !RESPONSE_HPP
