@@ -19,10 +19,6 @@ ConnectedSocketData::~ConnectedSocketData(void)
 
 /***************************Member functions***********************************/
 
-void	removeConnectedSocket()
-{
-}
-
 RequestState	ConnectedSocketData::processRequest(Response &response)
 {
 	RequestState	requestState;
@@ -54,10 +50,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 	if (events & EPOLLIN)
 	{
 		if (processRequest(response) == CONNECTION_CLOSED)
-		{
-			removeConnectedSocket();
 			return ;
-		}
 	}
 	if (events & EPOLLOUT)
 	{
