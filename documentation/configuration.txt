@@ -31,7 +31,7 @@ server {													# Server1
     }
 
     location /redirect-me {									# Route4
-        return 301 https://new-destination.example.com;		# redirection, with the status code and the url
+        return 301 https://redir.example.com;				# redirection, with the status code and the url
     }
 
     location /kapouet {										# Route5
