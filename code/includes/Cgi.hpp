@@ -15,7 +15,7 @@ private:
 	
 	Cgi&	operator=(const Cgi &cgi);
 public:
-	Cgi(pid_t pid, int stdinFd, int stdoutFd);
+	Cgi(const char *path, char * const * argv, char * const * envp);
 	~Cgi();
 
 	pid_t	getPid() const;
