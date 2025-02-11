@@ -22,7 +22,8 @@ DATA_FLOW_FILES			:=	RawResponse.cpp			\
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
 CGI_DIR					:=	cgi/
-CGI_FILES				:=	callCgi.cpp
+CGI_FILES				:=	callCgi.cpp				\
+							Cgi.cpp
 CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
