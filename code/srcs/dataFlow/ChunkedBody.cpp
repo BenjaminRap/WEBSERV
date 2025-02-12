@@ -1,8 +1,12 @@
+#include <algorithm>
+
 #include "ChunkedBody.hpp"
 
+/**********************Constructors/Destructors********************************/
 
 ChunkedBody::ChunkedBody(int fd) :
-	Body(fd)
+	Body(fd),
+	_chunkSize(0)
 {
 }
 
@@ -10,13 +14,54 @@ ChunkedBody::~ChunkedBody()
 {
 }
 
+/*************************Static functions*************************************/
 
-FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
+ssize_t	ChunkedBody::writeToFile(int fd, char *buffer, size_t bufferCapacity, ChunkedBody &chunkedBody)
 {
-
+	return (chunkedBody.writeToFd(fd, buffer, bufferCapacity));
 }
 
-FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
+/*************************Private Member Functions*****************************/
+
+int		ChunkedBody::parseChunkSize(char *start, char *end)
+{
+	(void)start;
+	(void)end;
+	return (0);
+}
+
+ssize_t	ChunkedBody::readChunkedBodyLength(char *buffer, size_t bufferCapacity)
+{
+	if (_state != CHUNKED_SIZE)
+		return (0);
+	char * const	last = buffer + bufferCapacity;
+	char * const	endLine = std::find(buffer, last, '\n');
+	
+	if (endLine == last)
+		return (0);
+	const int ret = parseChunkSize(buffer, endLine);
+	return (std::distance(buffer, last));
+}
+
+ssize_t	ChunkedBody::writeToFd(int fd, char *buffer, size_t bufferCapacity)
+{
+	readChunkedBodyLength(buffer, bufferCapacity);
+	return (0);
+}
+
+/*************************Public Member Functions******************************/
+
+FlowState	ChunkedBody::writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
 {
 
+	return (flowBuffer.redirectBufferContentToFd(getFd(), *this, ChunkedBody::writeToFile));
+}
+
+FlowState	ChunkedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
+{
+	FdType	socketType = SOCKETFD;
+
+	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this, \
+		readFromFdWithType,
+		ChunkedBody::writeToFile));
 }
