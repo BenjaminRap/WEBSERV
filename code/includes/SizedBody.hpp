@@ -10,6 +10,7 @@ private:
 	size_t	_numCharsWritten;
 	
 	SizedBody(const SizedBody& ref);
+	SizedBody();
 	
 	SizedBody&	operator=(const SizedBody& ref);
 public:
