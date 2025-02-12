@@ -111,6 +111,7 @@ public:
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
 	bool		getLine(char **lineStart, size_t *length);
+	void		moveContentToStartOfBuffer();
 };
 
 

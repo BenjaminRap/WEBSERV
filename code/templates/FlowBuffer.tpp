@@ -101,7 +101,11 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 	size_t	remainingCapacity;
 
 	if (_bufferLength >= _bufferCapacity)
-		return (FLOW_BUFFER_FULL);
+	{
+		if (_numCharsWritten == 0)
+			return (FLOW_BUFFER_FULL);
+		moveContentToStartOfBuffer();
+	}
 	remainingCapacity = _bufferCapacity - _bufferLength;
 	const ssize_t rd = customRead(srcFd, _buffer + _bufferLength, remainingCapacity, readData);
 	if (rd == -1)

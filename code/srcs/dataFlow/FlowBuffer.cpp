@@ -5,6 +5,7 @@
 #include <stdexcept>       // for logic_error
 #include <string>          // for basic_string
 #include <algorithm>
+#include <cstring>
 
 #include "FlowBuffer.hpp"  // for FlowBuffer, FdType, readFromFdWithType
 
@@ -133,4 +134,16 @@ ssize_t	writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &f
 	if (written == -1)
 		return (1);
 	return ((size_t)written == bufferCapacity ? written : -1);
+}
+
+/**
+ * @brief Moves the content of this buffer to the start of the buffer, setting
+ * the _numCharsWritten to 0. Memmove is much more efficient than a read, so instead
+ * of reading a small count, we should call this function before.
+ */
+void		FlowBuffer::moveContentToStartOfBuffer()
+{
+	_bufferLength -= _numCharsWritten;
+	std::memmove(_buffer, _buffer + _numCharsWritten, _bufferLength);
+	_numCharsWritten = 0;
 }
