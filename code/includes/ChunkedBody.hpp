@@ -25,9 +25,10 @@ private:
 	
 
 	ssize_t	readChunkedBodyLength(char *buffer, size_t bufferCapacity);
+	ssize_t	writeChunkedBodyData(int fd, char *buffer, size_t bufferCapacity);
 	int		parseChunkSize(char *start, char *end);
 public:
-	ChunkedBody(int fd);
+	ChunkedBody(int fd, Response &response);
 	~ChunkedBody();
 	
 	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, ChunkedBody &chunkedBody);

@@ -4,9 +4,10 @@
 
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd) :
+ChunkedBody::ChunkedBody(int fd, Response &response) :
 	Body(fd),
-	_chunkSize(0)
+	_chunkSize(0),
+	_response(response)
 {
 }
 
@@ -40,12 +41,37 @@ ssize_t	ChunkedBody::readChunkedBodyLength(char *buffer, size_t bufferCapacity)
 	if (endLine == last)
 		return (0);
 	const int ret = parseChunkSize(buffer, endLine);
+	if (ret != 0)
+	{
+		if (ret  == -1)
+			_response.setResponseCode(400, "Bad Request");
+		else
+			_response.setResponseCode(500, "Internal Server Error");
+		return (-1);
+	}
 	return (std::distance(buffer, last));
+}
+
+ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *buffer, size_t bufferCapacity)
+{
 }
 
 ssize_t	ChunkedBody::writeToFd(int fd, char *buffer, size_t bufferCapacity)
 {
-	readChunkedBodyLength(buffer, bufferCapacity);
+	ssize_t	totalWritten = 0;
+	
+	{
+		const ssize_t	written = readChunkedBodyLength(buffer, bufferCapacity);
+		if (written == -1)
+			return (-1);
+		totalWritten += written;
+	}
+	{
+		const ssize_t	written = writeChunkedBodyData(fd, buffer, bufferCapacity);
+		if (written == -1)
+			return (-1);
+		totalWritten += written;
+	}
 	return (0);
 }
 
