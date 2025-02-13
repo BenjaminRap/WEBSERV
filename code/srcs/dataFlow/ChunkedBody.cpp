@@ -60,8 +60,8 @@ ssize_t	ChunkedBody::readChunkedBodyLength(char *start, char *last)
 
 ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *start, char *last)
 {
-	const size_t	bufferLength = std::distance(start, last);
-	const size_t	charsToWrite = std::min(bufferLength, _chunkSize);
+	const size_t	contentLength = std::distance(start, last);
+	const size_t	charsToWrite = std::min(contentLength, _chunkSize);
 	const ssize_t	written = write(fd, start, charsToWrite);
 	if (written == -1)
 	{

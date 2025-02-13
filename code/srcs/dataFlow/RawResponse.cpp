@@ -11,7 +11,7 @@
 /**
  * @brief Create a RawResponse instance. This class takes responsability
  * for closing the fd and deallocating the first part buffer.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * @throw This function throw (std::logic_error) if contentLength is superior to
  * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
  * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
  * @param firstPart The first part of the response. It is composed by the status line,
@@ -39,7 +39,7 @@ RawResponse::RawResponse
 /**
  * @brief Create a RawResponse instance without body fd. This class takes responsability
  * for closing the fd and deallocating the first part buffer.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * @throw This function throw (std::logic_error) if contentLength is superior to
  * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
  * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
  * @param firstPart The first part of the response. It is composed by the status line,
@@ -95,7 +95,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	FdType			destType = SOCKETFD;
 	FdType			srcType = FILEFD;
 
-	if (_firstPart.getBufferLength() != 0)
+	if (_firstPart.getContentLength() != 0)
 	{
 		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
 

@@ -67,7 +67,7 @@ private:
 	 * @brief The number of chars that has been written in this buffer, the chars
 	 * with an index superior to this number are undefined and shouldn't be use.
 	 */
-	size_t	_bufferLength;
+	size_t	_contentLength;
 	/**
 	 * @brief The number of chars from the buffer that has already be written in
 	 * the destination.
@@ -79,7 +79,7 @@ private:
 	FlowBuffer&	operator=(const FlowBuffer &flowBuffer);
 public:
 	FlowBuffer(const FlowBuffer& ref);
-	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
+	FlowBuffer(char *buffer, size_t bufferCapacity, size_t contentLength);
 	~FlowBuffer();
 
 	template <typename ReadData, typename WriteData>
@@ -107,7 +107,7 @@ public:
 		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType
 	);
 
-	size_t		getBufferLength(void) const;
+	size_t		getContentLength(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
 	bool		getLine(char **lineStart, char **lineLast);

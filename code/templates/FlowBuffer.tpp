@@ -60,17 +60,17 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
 )
 {
-	if (_numCharsWritten < _bufferLength)
+	if (_numCharsWritten < _contentLength)
 	{
-		const size_t	numCharsToWrite = _bufferLength - _numCharsWritten;
+		const size_t	numCharsToWrite = _contentLength - _numCharsWritten;
 		const ssize_t	written = customWrite(destFd, _buffer + _numCharsWritten, numCharsToWrite, writeData);
 		if (written == -1)
 			return (FLOW_ERROR);
 		_numCharsWritten += written;
 	}
-	if (_numCharsWritten >= _bufferLength)
+	if (_numCharsWritten >= _contentLength)
 	{
-		_bufferLength = 0;
+		_contentLength = 0;
 		_numCharsWritten = 0;
 		return (FLOW_DONE);
 	}
@@ -100,18 +100,18 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 {
 	size_t	remainingCapacity;
 
-	if (_bufferLength >= _bufferCapacity)
+	if (_contentLength >= _bufferCapacity)
 	{
 		if (_numCharsWritten == 0)
 			return (FLOW_BUFFER_FULL);
 		moveContentToStartOfBuffer();
 	}
-	remainingCapacity = _bufferCapacity - _bufferLength;
-	const ssize_t rd = customRead(srcFd, _buffer + _bufferLength, remainingCapacity, readData);
+	remainingCapacity = _bufferCapacity - _contentLength;
+	const ssize_t rd = customRead(srcFd, _buffer + _contentLength, remainingCapacity, readData);
 	if (rd == -1)
 		return (FLOW_ERROR);
 	if (rd == 0)
 		return (FLOW_DONE);
-	_bufferLength += rd;
+	_contentLength += rd;
 	return (FLOW_MORE);
 }
