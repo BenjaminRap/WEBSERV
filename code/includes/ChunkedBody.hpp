@@ -8,7 +8,7 @@ enum ChunkedBodyState
 {
 	CHUNKED_SIZE,
 	CHUNKED_CONTENT,
-	CHUNKED_EMPTY,
+	CHUNKED_CONTENT_ENDLINE,
 	CHUNKED_TRAILERS,
 	CHUNKED_DONE
 };
@@ -16,6 +16,8 @@ enum ChunkedBodyState
 class ChunkedBody : public Body
 {
 private:
+	static const std::string	endLine;
+
 	size_t				_chunkSize;
 	ChunkedBodyState	_state;
 	Response			&_response;
@@ -26,6 +28,7 @@ private:
 
 	ssize_t	readChunkedBodyLength(char *start, char *last);
 	ssize_t	writeChunkedBodyData(int fd, char *start, char *last);
+	ssize_t	readChunkedBodyEndLine(char *start, char *last);
 	int		parseChunkSize(char *start, char *end);
 public:
 	ChunkedBody(int fd, Response &response);

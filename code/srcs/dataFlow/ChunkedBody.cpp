@@ -2,6 +2,8 @@
 
 #include "ChunkedBody.hpp"
 
+const std::string	ChunkedBody::endLine("\n\r");
+
 /**********************Constructors/Destructors********************************/
 
 ChunkedBody::ChunkedBody(int fd, Response &response) :
@@ -35,8 +37,7 @@ ssize_t	ChunkedBody::readChunkedBodyLength(char *start, char *last)
 {
 	if (_state != CHUNKED_SIZE)
 		return (0);
-	static const std::string	endLine("\n\r");
-	char * const				pos = std::search(start, last, endLine.begin(), endLine.end());
+	char * const	pos = std::search(start, last, endLine.begin(), endLine.end());
 	
 	if (pos == last)
 		return (0);
@@ -49,7 +50,10 @@ ssize_t	ChunkedBody::readChunkedBodyLength(char *start, char *last)
 			_response.setResponseCode(500, "Internal Server Error");
 		return (-1);
 	}
-	_state = CHUNKED_CONTENT;
+	if (_chunkSize == 0)
+		_state = CHUNKED_TRAILERS;
+	else
+		_state = CHUNKED_CONTENT;
 	return (std::distance(start, pos + endLine.size()));
 }
 
@@ -64,13 +68,31 @@ ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *start, char *last)
 		return (-1);
 	_chunkSize -= written;
 	if (_chunkSize == 0)
-		_state = CHUNKED_EMPTY;
+		_state = CHUNKED_CONTENT_ENDLINE;
 	return (written);
+}
+
+
+ssize_t	ChunkedBody::readChunkedBodyEndLine(char *start, char *last)
+{
+	if (_state != CHUNKED_CONTENT_ENDLINE
+		|| (size_t)std::distance(start, last) < endLine.size())
+	{
+		return (0);
+	}
+	if (endLine.compare(0, endLine.size(), start, endLine.size()) != 0)
+	{
+		_response.setResponseCode(400, "Bad Request");
+		return (-1);
+	}
+	_state = CHUNKED_SIZE;
+	return (endLine.size());
 }
 
 ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 {
-	ssize_t	totalWritten = 0;
+	static const std::string	endLine("\n\r");
+	ssize_t						totalWritten = 0;
 	
 	{
 		const ssize_t	written = readChunkedBodyLength(start, end);
@@ -80,6 +102,12 @@ ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 	}
 	{
 		const ssize_t	written = writeChunkedBodyData(fd, start + totalWritten, end);
+		if (written == -1)
+			return (-1);
+		totalWritten += written;
+	}
+	{
+		const ssize_t	written = readChunkedBodyEndLine(start + totalWritten, end);
 		if (written == -1)
 			return (-1);
 		totalWritten += written;
