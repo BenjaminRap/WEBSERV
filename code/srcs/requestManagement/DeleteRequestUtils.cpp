@@ -64,7 +64,7 @@ std::string	getParentPath(const std::string &path)
 	std::string	temp;
 
 	temp = path;
-	found = temp.find_last_of('/', temp.length() - 2); // probleme si length est trop petit
+	found = temp.find_last_of('/', temp.length() - 2);
 	temp.erase(found + 1, temp.length() - found);
 	return (temp);
 }
