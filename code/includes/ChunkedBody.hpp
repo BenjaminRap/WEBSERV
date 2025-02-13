@@ -24,8 +24,8 @@ private:
 	ChunkedBody(const ChunkedBody &chunkedBody);
 	
 
-	ssize_t	readChunkedBodyLength(char *buffer, size_t bufferCapacity);
-	ssize_t	writeChunkedBodyData(int fd, char *buffer, size_t bufferCapacity);
+	ssize_t	readChunkedBodyLength(char *start, char *last);
+	ssize_t	writeChunkedBodyData(int fd, char *start, char *last);
 	int		parseChunkSize(char *start, char *end);
 public:
 	ChunkedBody(int fd, Response &response);
@@ -33,7 +33,7 @@ public:
 	
 	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, ChunkedBody &chunkedBody);
 	
-	ssize_t		writeToFd(int fd, char *buffer, size_t bufferCapacity);
+	ssize_t		writeToFd(int fd, char *start, char *last);
 	FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer);
 	FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd);
 };

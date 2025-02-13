@@ -17,9 +17,9 @@ ChunkedBody::~ChunkedBody()
 
 /*************************Static functions*************************************/
 
-ssize_t	ChunkedBody::writeToFile(int fd, char *buffer, size_t bufferCapacity, ChunkedBody &chunkedBody)
+ssize_t	ChunkedBody::writeToFile(int fd, char *buffer, size_t count, ChunkedBody &chunkedBody)
 {
-	return (chunkedBody.writeToFd(fd, buffer, bufferCapacity));
+	return (chunkedBody.writeToFd(fd, buffer, buffer + count));
 }
 
 /*************************Private Member Functions*****************************/
@@ -31,16 +31,16 @@ int		ChunkedBody::parseChunkSize(char *start, char *end)
 	return (0);
 }
 
-ssize_t	ChunkedBody::readChunkedBodyLength(char *buffer, size_t bufferCapacity)
+ssize_t	ChunkedBody::readChunkedBodyLength(char *start, char *last)
 {
 	if (_state != CHUNKED_SIZE)
 		return (0);
-	char * const	last = buffer + bufferCapacity;
-	char * const	endLine = std::find(buffer, last, '\n');
+	static const std::string	endLine("\n\r");
+	char * const				pos = std::search(start, last, endLine.begin(), endLine.end());
 	
-	if (endLine == last)
+	if (pos == last)
 		return (0);
-	const int ret = parseChunkSize(buffer, endLine);
+	const int ret = parseChunkSize(start, pos);
 	if (ret != 0)
 	{
 		if (ret  == -1)
@@ -49,25 +49,37 @@ ssize_t	ChunkedBody::readChunkedBodyLength(char *buffer, size_t bufferCapacity)
 			_response.setResponseCode(500, "Internal Server Error");
 		return (-1);
 	}
-	return (std::distance(buffer, last));
+	_state = CHUNKED_CONTENT;
+	return (std::distance(start, pos + endLine.size()));
 }
 
-ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *buffer, size_t bufferCapacity)
+ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *start, char *last)
 {
+	if (_state != CHUNKED_CONTENT)
+		return (0);
+	const size_t	bufferLength = std::distance(start, last);
+	const size_t	charsToWrite = std::min(bufferLength, _chunkSize);
+	const ssize_t	written = write(fd, start, charsToWrite);
+	if (written == -1)
+		return (-1);
+	_chunkSize -= written;
+	if (_chunkSize == 0)
+		_state = CHUNKED_EMPTY;
+	return (written);
 }
 
-ssize_t	ChunkedBody::writeToFd(int fd, char *buffer, size_t bufferCapacity)
+ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 {
 	ssize_t	totalWritten = 0;
 	
 	{
-		const ssize_t	written = readChunkedBodyLength(buffer, bufferCapacity);
+		const ssize_t	written = readChunkedBodyLength(start, end);
 		if (written == -1)
 			return (-1);
 		totalWritten += written;
 	}
 	{
-		const ssize_t	written = writeChunkedBodyData(fd, buffer, bufferCapacity);
+		const ssize_t	written = writeChunkedBodyData(fd, start + totalWritten, end);
 		if (written == -1)
 			return (-1);
 		totalWritten += written;
