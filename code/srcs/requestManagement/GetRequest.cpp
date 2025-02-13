@@ -63,7 +63,7 @@ void	addRoot(GetRequest &get, const ServerConfiguration& config)
 	get.setIsRoot(true);
 	if (!checkAllowMeth(*temp, GET))
 	{
-		get.setResponse(405, "Method Not Allowed", config.getErrorPage(405));
+		get.setResponse(405, "Not Allowed", config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
@@ -149,9 +149,6 @@ void	GetRequest::setAutoIndex(bool src)
 	this->_autoIndex = src;
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
 void	GetRequest::setUrl(const std::string& src)
 {
 	this->_url = src;

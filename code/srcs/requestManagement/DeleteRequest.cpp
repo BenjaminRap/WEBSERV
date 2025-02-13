@@ -38,7 +38,7 @@ void	addRoot(DeleteRequest &del, const ServerConfiguration& config)
 	del.setIsRoot(true);
 	if (!checkAllowMeth(*temp, DELETE))
 	{
-		del.setResponse(405, "Method Not Allowed", config.getErrorPage(405));
+		del.setResponse(405, "Not Allowed", config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;

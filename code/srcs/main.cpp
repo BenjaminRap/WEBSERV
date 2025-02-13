@@ -41,7 +41,7 @@ void	makeGet(const std::string& test, int code, const std::string& response, con
 
 	std::cout << BMAG << "Request : "<< BCYN << test << tab;
 	if (a.code == code && a.statusText == response)
-		std::cout << BGRN << "OK" << CRESET << std::endl;
+		std::cout << BGRN << "OK | " << code << " [" << response << "]" << CRESET << std::endl;
 	else
 	{
 		std::cout << BRED << "KO : " << a.code << " | " << a.statusText << CRESET << "\t";
@@ -114,43 +114,39 @@ void	getTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Classic Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/main.html", "\t\t\t\t\t", config);
-	testGetRequest("/fake/main.cpp", "\t\t\t\t", config);
-	testGetRequest("/fake/../main.html", "\t\t\t\t", config);
-	testGetRequest("/fake/../../../../../../../../main.html", "\t", config);
-	testGetRequest("/../main.html", "\t\t\t\t\t", config);
+	testGetRequest("/get/main.html", "\t\t\t\t\t", config);
+	testGetRequest("/get/fake/main.cpp", "\t\t\t\t\t", config);
+	testGetRequest("/get/fake/../main.html", "\t\t\t\t", config);
+	testGetRequest("/get/fake/../../../../../../../../main.html", "\t\t", config);
+	testGetRequest("/get/../main.html", "\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-//	testGetRequest("/unitTest/", "\t\t\t\t\t", config);
-	testGetRequest("/", "\t\t\t\t\t\t", config);
-	testGetRequest("/unitTest/srcs/", "\t\t\t\t", config);
+	testGetRequest("/get/srcs/", "\t\t\t\t\t\t", config); // /unitTest/get/srcs/ // 		root /unitTest/;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/srcs", "\t\t\t\t\t\t", config);
-//	testGetRequest("/redirect-me", "\t\t\t\t\t", config);
-//	testGetRequest("", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/srcs", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/fake/", "\t\t\t\t\t", config);
-	testGetRequest("/nonono/", "\t\t\t\t\t", config);
+	testGetRequest("/get/fake/", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/nonono/", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 405 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/unitTest/upload/", "\t\t\t\t", config);
+	testGetRequest("/get/405/", "\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t 404 Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/unitTest/uplo/", "\t\t\t\t", config);
-	testGetRequest("/gknrk", "\t\t\t\t\t", config);
-	testGetRequest("/bin/", "\t\t\t\t\t\t", config);
+	testGetRequest("/unitTest/uplo/", "\t\t\t\t\t", config);
+	testGetRequest("/gknrk", "\t\t\t\t\t\t", config);
+	testGetRequest("/bin/", "\t\t\t\t\t\t\t", config);
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t Auto Index" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testGetRequest("/unitTest/autoindex/", "\t\t\t\t", config);
-	testGetRequest("/unitTest/autoindex/dir/", "\t\t\t", config);
+	testGetRequest("/get/auto/", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/auto2/", "\t\t\t\t\t\t", config);
 }
 
 void	deleteTest(const ServerConfiguration &config)
@@ -194,18 +190,18 @@ int	main(int argc, char **argv)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-//		std::system("cd unitTest && ../deleteTest.sh"); // For our server
-//		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
+		std::system("cd unitTest && ../getTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/getTest.sh"); // For nginx
 		getTest(config.begin()->second[0]);
 //		deleteTest(config.begin()->second[0]);
-//		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
-//		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
+		std::system("cd unitTest && ../removeGetTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/removeGetTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-		DeleteRequest a(argv[2], config.begin()->second[0]);
+		GetRequest a(argv[2], config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;

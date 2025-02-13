@@ -49,7 +49,7 @@ void	fixPath(std::string &path)
 		path = "/";
 }
 
-void	checkType(std::string &path, GetRequest get)
+void	checkType(std::string &path, GetRequest &get)
 {
 	char lastChar = path[path.length() - 1];
 
