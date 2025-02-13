@@ -93,8 +93,7 @@ ssize_t	ChunkedBody::readChunkedBodyEndLine(char *start, char *last)
 
 ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 {
-	static const std::string	endLine("\n\r");
-	ssize_t						totalWritten = 0;
+	ssize_t	totalWritten = 0;
 	
 	while (_state != CHUNKED_TRAILERS && _state != CHUNKED_DONE)
 	{
