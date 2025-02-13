@@ -29,10 +29,7 @@ bool	checkAllowMeth(const Route &root, EMethods meth)
 	return (false);
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
-void replaceUrl(const std::string& location, const std::string& root, std::string &url)
+void	replaceUrl(const std::string& location, const std::string& root, std::string &url)
 {
 	size_t found;
 
@@ -41,82 +38,69 @@ void replaceUrl(const std::string& location, const std::string& root, std::strin
 	found = url.find(location);
 	while (found != std::string::npos)
 	{
-		url.replace(found, location.length(), root); // Throws
+		url.replace(found, location.length(), root);
 		found = url.find(location, found + root.length());
 	}
-	std::cout << "URL : " << url << std::endl;
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
 void	buildNewURl(std::string root, std::string &url)
 {
 	if (!root.empty() && root[root.size() - 1] == '/')
 		root.erase(root.size() - 1);
-	url.insert(0, root); // Throws
+	url.insert(0, root);
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
 void	addRoot(GetRequest &get, const ServerConfiguration& config)
 {
 	const Route	*temp = config.getOneRoutes(get.getUrl());
 
 	if (temp == NULL)
 	{
-		buildNewURl(config.getRoot(), get.getUrl()); // Throws
+		buildNewURl(config.getRoot(), get.getUrl());
 		return ;
 	}
 	get.setRoot(temp);
 	get.setIsRoot(true);
 	if (!checkAllowMeth(*temp, GET))
 	{
-		get.setResponse(405, "Method Not Allowed", config.getErrorPage(405)); // throw
+		get.setResponse(405, "Method Not Allowed", config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setResponse(301, "Moved Permanently", redir); // throw
+		get.setResponse(301, "Moved Permanently", redir);
 	else
 	{
 		get.setAutoIndex(temp->getAutoIndex());
-		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl()); // Throws
+		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
 	}
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
 GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _autoIndex(false), _index(0), _isRoot(false), code(0)
 {
 	int			temp;
 
 	this->_config = &config;
-	fixUrl(*this, url); // throw
+	fixUrl(*this, url);
 	if (this->code == 400)
 		return ;
-	addRoot(*this, config); // 2 Functions that can throw
+	addRoot(*this, config);
 	if (this->code == 301 || this->code == 405)
 		return ;
 	if (this->_url[0] != '.')
-		this->_url.insert(0, "."); // Throws
+		this->_url.insert(0, ".");
 	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == FILE)
-		setResponse(200, "OK", this->_url); // throw
+		setResponse(200, "OK", this->_url);
 	else
-		setResponse(404, "Not Found", config.getErrorPage(404)); // throw
+		setResponse(404, "Not Found", config.getErrorPage(404));
 }
 
-/**
- * @throw Can throw
- */
 GetRequest::GetRequest() : _config(), _root()
 {
-	_url = "NULL"; // throw
+	_url = "NULL";
 	_autoIndex = false;
 	_index = 0;
 	code = 0;
@@ -126,51 +110,41 @@ GetRequest::GetRequest() : _config(), _root()
 
 GetRequest::~GetRequest()
 {
-
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
 GetRequest &GetRequest::operator=(const GetRequest &src)
 {
-	this->_url = src._url; // throw
+	this->_url = src._url;
 	this->_autoIndex = src._autoIndex;
 	this->_index = src._index;
 	this->code = src.code;
 	this->_config = src._config;
 	this->_root = src._root;
-	this->file = src.file; // throw
+	this->file = src.file;
 
 	return (*this);
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
 GetRequest::GetRequest(const GetRequest &src) : _config(), _root(), _autoIndex(), _index(), code()
 {
 	if (this == &src)
 		return;
-	*this = src; // throw
+	*this = src;
 }
 
-/**
- * @throw Can throw a std::bad_alloc
- */
-void GetRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
+void	GetRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
 {
 	this->code = newcode;
-	this->statusText = status; // throw
+	this->statusText = status;
 	this->file = newfile;
 }
 
-bool GetRequest::getAutoIndex() const
+bool	GetRequest::getAutoIndex() const
 {
 	return (this->_autoIndex);
 }
 
-void GetRequest::setAutoIndex(bool src)
+void	GetRequest::setAutoIndex(bool src)
 {
 	this->_autoIndex = src;
 }
@@ -178,17 +152,17 @@ void GetRequest::setAutoIndex(bool src)
 /**
  * @throw Can throw a std::bad_alloc
  */
-void GetRequest::setUrl(const std::string& src)
+void	GetRequest::setUrl(const std::string& src)
 {
 	this->_url = src;
 }
 
-std::string &GetRequest::getUrl()
+std::string	&GetRequest::getUrl()
 {
 	return (this->_url);
 }
 
-std::vector<std::string> GetRequest::getIndexVec()
+std::vector<std::string>	GetRequest::getIndexVec()
 {
 	return (this->_root->getIndex());
 }
@@ -198,12 +172,12 @@ void	GetRequest::setRoot(const Route *root)
 	this->_root = root;
 }
 
-void GetRequest::setIsRoot(bool src)
+void	GetRequest::setIsRoot(bool src)
 {
 	this->_isRoot = src;
 }
 
-bool GetRequest::getIsRoot() const
+bool	GetRequest::getIsRoot() const
 {
 	return (this->_isRoot);
 }

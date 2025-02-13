@@ -194,18 +194,18 @@ int	main(int argc, char **argv)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-		std::system("cd unitTest && ../deleteTest.sh"); // For our server
-		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
+//		std::system("cd unitTest && ../deleteTest.sh"); // For our server
+//		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
 		getTest(config.begin()->second[0]);
 //		deleteTest(config.begin()->second[0]);
-		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
-		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
+//		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
+//		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-		GetRequest a(argv[2], config.begin()->second[0]);
+		DeleteRequest a(argv[2], config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
