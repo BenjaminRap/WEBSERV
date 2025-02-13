@@ -21,19 +21,19 @@ RequestHandler::~RequestHandler()
 
 void	RequestHandler::readStatusLine(Response &response)
 {
-	char	*line;
-	size_t	lineLength;
+	char	*lineStart;
+	char	*lineLast;
 
 	if (_state != REQUEST_STATUS_LINE)
 		return ;
 	// skip empty lines
 	do
 	{
-		if (!_flowBuffer.getLine(&line, &lineLength))
+		if (!_flowBuffer.getLine(&lineStart, &lineLast))
 			return ;
 	}
-	while (lineLength == 0);
-	const int	parsingReturn = _request.parseStatusLine(line, lineLength);
+	while (lineStart + 1 == lineLast);
+	const int	parsingReturn = _request.parseStatusLine(lineStart, lineLast);
 	if (parsingReturn != 0)
 	{
 		if (parsingReturn == -1)
@@ -48,20 +48,20 @@ void	RequestHandler::readStatusLine(Response &response)
 
 void	RequestHandler::readHeaders(Response &response)
 {
-	char	*line;
-	size_t	lineLength;
+	char	*lineStart;
+	char	*lineLast;
 
 	if (_state != REQUEST_HEADERS)
 		return ;
-	while (_flowBuffer.getLine(&line, &lineLength))
+	while (_flowBuffer.getLine(&lineStart, &lineLast))
 	{
-		if (lineLength == 0)
+		if (lineStart + 1 == lineLast)
 		{
 			std::cout << "empty line !" << std::endl;
 			_state = REQUEST_EMPTY_LINE;
 			return ;
 		}
-		const int	parsingReturn = _request.parseHeader(line, lineLength);
+		const int	parsingReturn = _request.parseHeader(lineStart, lineLast);
 		if (parsingReturn != 0)
 		{
 			if (parsingReturn == -1)
@@ -147,7 +147,7 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &resp
 	return (_state);
 }
 
-RequestState			RequestHandler::readRequest(Response &response)
+RequestState	RequestHandler::readRequest(Response &response)
 {
 	readStatusLine(response);
 	readHeaders(response);

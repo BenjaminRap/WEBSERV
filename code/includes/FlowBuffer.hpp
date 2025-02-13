@@ -110,7 +110,7 @@ public:
 	size_t		getBufferLength(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
-	bool		getLine(char **lineStart, size_t *length);
+	bool		getLine(char **lineStart, char **lineLast);
 	void		moveContentToStartOfBuffer();
 };
 

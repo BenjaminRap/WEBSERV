@@ -78,7 +78,7 @@ const char	*FlowBuffer::getBuffer() const
  * of the line, otherwise, this variable isn't changed.
  * @return True if there is a line, false otherwise.,
  */
-bool		FlowBuffer::getLine(char **lineStart, size_t *length)
+bool		FlowBuffer::getLine(char **lineStart, char **lineLast)
 {
 	char * const	start = _buffer + _numCharsWritten;
 	char * const	afterEnd = _buffer + _bufferLength;
@@ -87,7 +87,7 @@ bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 	if (breakline == afterEnd)
 		return (false);
 	*lineStart = start;
-	*length = std::distance(start, breakline - 1); // -1 because we remove the /n
+	*lineLast = breakline;
 	_numCharsWritten += std::distance(start, breakline + 1); // +1 because we go past the /n
 	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
 	{
