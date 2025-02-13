@@ -40,8 +40,8 @@ private:
 public:
 	void	reset();
 	Body	*getBody();
-	int		parseStatusLine(char *line, size_t lineLength);
-	int		parseHeader(char *line, size_t lineLength);
+	int		parseStatusLine(char *start, char *end);
+	int		parseHeader(char *start, char *end);
 };
 
 #endif // !REQUEST_HPP

@@ -6,10 +6,11 @@ const std::string	ChunkedBody::endLine("\n\r");
 
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd, Response &response) :
+ChunkedBody::ChunkedBody(int fd, Response &response, Request &request) :
 	Body(fd),
 	_chunkSize(0),
-	_response(response)
+	_response(response),
+	_request(request)
 {
 }
 
@@ -91,6 +92,33 @@ ssize_t	ChunkedBody::readChunkedBodyEndLine(char *start, char *last)
 	return (endLine.size());
 }
 
+
+ssize_t	ChunkedBody::readTrailer(char *start, char *last)
+{
+	char * const	pos = std::search(start, last, endLine.begin(), endLine.end());
+	
+	if (pos == last)
+		return (0);
+	if (pos == start)
+	{
+		setFinished();
+		_state = CHUNKED_DONE;
+		return (endLine.size());
+	}
+	const int	ret = _request.parseHeader(start, pos);
+	if (ret != 0)
+	{
+		if (ret  == -1)
+			_response.setResponseCode(400, "Bad Request");
+		else
+			_response.setResponseCode(500, "Internal Server Error");
+		setFinished();
+		_state = CHUNKED_DONE;
+		return (-1);
+	}
+	return (std::distance(start, pos + endLine.size()));
+}
+
 ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 {
 	ssize_t	totalWritten = 0;
@@ -99,27 +127,42 @@ ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 	{
 		if (_state == CHUNKED_SIZE)
 		{
-			const ssize_t	written = readChunkedBodyLength(start, end);
-			if (written <= 0)
-				return (written);
+			const ssize_t	written = readChunkedBodyLength(start + totalWritten, end);
+			if (written == 0)
+				return (totalWritten);
+			else if (written == -1)
+				return (-1);
 			totalWritten += written;
 		}
 		if (_state == CHUNKED_CONTENT)
 		{
 			const ssize_t	written = writeChunkedBodyData(fd, start + totalWritten, end);
-			if (written <= 0)
-				return (written);
+			if (written == 0)
+				return (totalWritten);
+			else if (written == -1)
+				return (-1);
 			totalWritten += written;
 		}
 		if (_state == CHUNKED_CONTENT_ENDLINE)
 		{
 			const ssize_t	written = readChunkedBodyEndLine(start + totalWritten, end);
-			if (written <= 0)
-				return (written);
+			if (written == 0)
+				return (totalWritten);
+			else if (written == -1)
+				return (-1);
 			totalWritten += written;
 		}
 	}
-	return (0);
+	while (_state == CHUNKED_TRAILERS)
+	{
+		const ssize_t	written = readTrailer(start + totalWritten, end);
+		if (written == 0)
+			return (totalWritten);
+		else if (written == -1)
+			return (-1);
+		totalWritten += written;
+	}
+	return (totalWritten);
 }
 
 /*************************Public Member Functions******************************/

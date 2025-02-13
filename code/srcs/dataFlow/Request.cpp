@@ -11,14 +11,14 @@ Body	*Request::getBody()
 	return (_body);
 }
 
-int		Request::parseStatusLine(char *line, size_t lineLength)
+int		Request::parseStatusLine(char *start, char *last)
 {
-	std::cout << "status line : " << std::string(line, lineLength) << std::endl;
+	std::cout << "status line : " << std::string(start, last) << std::endl;
 	return (0);
 }
 
-int		Request::parseHeader(char *line, size_t lineLength)
+int		Request::parseHeader(char *start, char *last)
 {
-	std::cout << "header :" << std::string(line, lineLength) << std::endl;
+	std::cout << "header :" << std::string(start, last) << std::endl;
 	return (0);
 }

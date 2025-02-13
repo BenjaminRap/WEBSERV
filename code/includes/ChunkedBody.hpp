@@ -3,6 +3,7 @@
 
 # include "Body.hpp"
 # include "Response.hpp"
+# include "Request.hpp"
 
 enum ChunkedBodyState
 {
@@ -21,6 +22,7 @@ private:
 	size_t				_chunkSize;
 	ChunkedBodyState	_state;
 	Response			&_response;
+	Request				&_request;
 
 	ChunkedBody();
 	ChunkedBody(const ChunkedBody &chunkedBody);
@@ -29,9 +31,10 @@ private:
 	ssize_t	readChunkedBodyLength(char *start, char *last);
 	ssize_t	writeChunkedBodyData(int fd, char *start, char *last);
 	ssize_t	readChunkedBodyEndLine(char *start, char *last);
+	ssize_t	readTrailer(char *start, char *last);
 	int		parseChunkSize(char *start, char *end);
 public:
-	ChunkedBody(int fd, Response &response);
+	ChunkedBody(int fd, Response &response, Request &request);
 	~ChunkedBody();
 	
 	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, ChunkedBody &chunkedBody);
