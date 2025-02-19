@@ -74,7 +74,7 @@ int	isDirOrFile(const std::string& path)
 		if (errno == EACCES)
 			return (FORBIDEN);
 		else
-		return (NF);
+			return (NF);
 	}
 	if (S_ISDIR(stats.st_mode) == DIRE)
 		return (DIRE);
