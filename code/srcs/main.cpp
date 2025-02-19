@@ -4,6 +4,7 @@
 #include "ServerConfiguration.hpp"
 #include "Configuration.hpp"
 #include "DeleteRequest.hpp"
+#include "PutRequest.hpp"
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
@@ -201,15 +202,17 @@ int	main(int argc, char **argv)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-		GetRequest a(argv[2], config.begin()->second[0]);
+		PutRequest a(argv[2], "\\twdw\\", config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << CRESET << std::endl;
 		std::cout << BMAG << "Code : "<< BWHT << a.code << CRESET << std::endl;
 		std::cout << BMAG << "File : "<< BWHT << a.file << CRESET << std::endl;
+		std::cout << BMAG << "FD : "<< BWHT << a.fd << CRESET << std::endl;
 		std::cout << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+		close(a.fd);
 	}
 	return (0);
 }
