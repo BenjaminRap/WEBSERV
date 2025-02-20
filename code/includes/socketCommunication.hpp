@@ -3,13 +3,17 @@
 
 # define NO_SIGNAL -1
 
+# include <stdint.h>
 # include <cerrno>
 # include <string>
 # include <iostream>
 # include <cstring>
+# include <vector>
+# include <sys/socket.h>
 
 class SocketsHandler;
 class Configuration;
+typedef struct sockaddr sockaddr;
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &SocketsHandler);
 void	handleIOEvents(const Configuration &conf);
@@ -18,7 +22,9 @@ void	signalHandler(int signal);
 int		getReturnCodeWithSignal();
 int		setReusableAddr(int fd, bool reuseAddr);
 int		setIPV6Only(int fd, bool isIPV6Only);
-void	acceptConnection(int fd, void *data);
+int		removeUnixSocketIfExists(const char sun_path[108]);
+int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
+			std::vector<std::string> &socketsToRemove);
 
 template <typename ReturnType>
 ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);

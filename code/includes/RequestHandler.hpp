@@ -1,0 +1,48 @@
+#ifndef REQUEST_HANDLER_HPP
+# define REQUEST_HANDLER_HPP
+
+# include "FlowBuffer.hpp"
+# include "Request.hpp"
+# include "Response.hpp"
+
+# define REQUEST_BUFFER_SIZE 1024
+
+enum	RequestState
+{
+	REQUEST_STATUS_LINE,
+	REQUEST_HEADERS,
+	REQUEST_EMPTY_LINE,
+	REQUEST_BODY,
+	REQUEST_DONE,
+	CONNECTION_CLOSED
+};
+
+class RequestHandler
+{
+private:
+	char			_buffer[REQUEST_BUFFER_SIZE];
+	FlowBuffer		_flowBuffer;
+	RequestState	_state;
+	Request			_request;
+
+	RequestHandler(const RequestHandler& ref);
+
+	RequestHandler&	operator=(const RequestHandler& ref);
+
+	void			readStatusLine(Response &response);
+	void			readHeaders(Response &response);
+	void			executeRequest(Response &response);
+	void			writeBodyFromBuffer(Response &response);
+public:
+	RequestHandler();
+	~RequestHandler();
+
+	RequestState	redirectBodySocketToFile(int socketFd, Response &response);
+	RequestState	redirectSocketToBuffer(int socketFd, Response &response);
+
+	RequestState	readRequest(Response &response);
+	bool			isRequestBody(void);
+	void			setNewRequest();
+};
+
+#endif // !REQUEST_HANDLER_HPP

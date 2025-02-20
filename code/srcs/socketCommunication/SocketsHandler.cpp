@@ -1,29 +1,23 @@
-#include <sys/epoll.h>         // for epoll_event, epoll_ctl, epoll_create
-#include <sys/socket.h>        // for bind, socklen_t, AF_UNIX
-#include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
-#include <sys/un.h>            // for sockaddr_un, sa_family_t
-#include <unistd.h>            // for close
-#include <stdint.h>            // for uint32_t
-#include <cerrno>              // for errno, ENOENT
-#include <cstring>             // for strerror
-#include <cstdio>              // for size_t, remove, NULL
-#include <exception>           // for exception
-#include <iostream>            // for basic_ostream, operator<<, endl, cerr
-#include <list>                // for list, operator!=, _List_const_iterator
-#include <map>                 // for operator!=, _Rb_tree_const_iterator
-#include <stdexcept>           // for logic_error
-#include <string>              // for basic_string, char_traits, string
-#include <utility>             // for pair
-#include <vector>              // for vector
+#include <stdint.h>                 // for uint32_t
+#include <sys/epoll.h>              // for epoll_event, epoll_ctl, epoll_create
+#include <sys/socket.h>             // for AF_UNIX, bind, sockaddr, socklen_t
+#include <sys/un.h>                 // for sa_family_t
+#include <unistd.h>                 // for close
+#include <cstdio>                   // for size_t, NULL
+#include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, endl
+#include <list>                     // for list, _List_const_iterator, opera...
+#include <map>                      // for operator!=, _Rb_tree_const_iterator
+#include <stdexcept>                // for logic_error
+#include <string>                   // for char_traits, basic_string, string
+#include <utility>                  // for pair
+#include <vector>                   // for vector
 
-#include "Configuration.hpp"   // for Configuration
-#include "socketCommunication.hpp"
-#include "Host.hpp"            // for Host
-#include "SocketData.hpp"      // for SocketData
-#include "SocketsHandler.hpp"  // for SocketsHandler
-
-static int		removeSocketIfExists(const char sun_path[108]);
-static int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, std::vector<std::string> &socketsToRemove);
+#include "Configuration.hpp"        // for Configuration
+#include "FdData.hpp"               // for FdData
+#include "Host.hpp"                 // for Host
+#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "socketCommunication.hpp"  // for checkError, bindUnixSocket, remov...
 
 bool	SocketsHandler::_instanciated = false;
 
@@ -55,11 +49,10 @@ static size_t getUnixSocketCount(const Configuration &conf)
 SocketsHandler::SocketsHandler(const Configuration &conf) :
 	_maxEvents(conf.getMaxEvents()),
 	_eventsCount(0),
-	_socketsToRemove(getUnixSocketCount(conf))
+	_unixSocketsToRemove(getUnixSocketCount(conf))
 {
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
-	SocketsHandler::_instanciated = true;
 	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (_epfd == -1)
@@ -68,6 +61,7 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 		throw std::exception();
 		return ;
 	}
+	SocketsHandler::_instanciated = true;
 }
 
 /**
@@ -76,15 +70,16 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 SocketsHandler::~SocketsHandler()
 {
 	SocketsHandler::_instanciated = false;
-	for (std::list<SocketData>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<FdData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
-		closeSocket((*ci).getFd());
+		closeSocket((*ci)->getFd());
+		delete (*ci);
 	}
 	checkError(close(_epfd), -1, "close() :");
 	delete [] _events;
-	for (std::vector<std::string>::iterator ci = _socketsToRemove.begin(); ci != _socketsToRemove.end(); ci++)
+	for (std::vector<std::string>::iterator ci = _unixSocketsToRemove.begin(); ci != _unixSocketsToRemove.end(); ci++)
 	{
-		removeSocketIfExists((*ci).c_str());
+		removeUnixSocketIfExists((*ci).c_str());
 	}
 }
 
@@ -116,50 +111,6 @@ int	SocketsHandler::epollWaitForEvent()
 }
 
 /**
- * @brief Add the fd to the epoll listener, set the event.events and event.data.ptr
- * to a SocketData.
- * @param fd The fd of the socket to add to listeners, it will also be passed
- * to the callback function.
- * @param callback It is used as a parameter of the SocketData constructor, when
- * the epoll_wait see a read/write, we can get the SocketData callback from
- * the event.data.ptr.
- * @param data A data that will be passed to the callback.
- * @param events The events used to create the epoll_event variable
- * @return 0 on success, -1 on error and an error message written in the terminal.
- */
-int	SocketsHandler::addFdToListeners
-(
-	int fd,
-	void (&callback)(int fd, void *data),
-	void *data,
-	uint32_t events
-)
-{
-	epoll_event	event;
-
-	try
-	{
-		_socketsData.push_front(SocketData(fd, data, callback));
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "push_front() : " << e.what() << std::endl;
-		return (-1);
-	}
-	SocketData	&socketData = _socketsData.front();
-
-	socketData.setIterator(_socketsData.begin());
-	event.data.ptr = &(socketData);
-	event.events = events;
-	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
-	{
-		_socketsData.pop_front();
-		return (-1);
-	}
-	return (0);
-}
-
-/**
  * @brief Call the callback of the socket, in the epoll events at eventIndex.
  * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
  * is the result of epoll_wait or epollWaitForEvent function.
@@ -173,9 +124,9 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+	FdData	*fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
 
-	socketData.callback();
+	fdData->callback(_events[eventIndex].events);
 }
 
 /**
@@ -195,19 +146,20 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	}
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
 		return (false);
-	const SocketData	&socketData = *static_cast<SocketData *>(_events[eventIndex].data.ptr);
-	const int	fd = socketData.getFd();
+	const FdData * const	fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
+	const int	fd = fdData->getFd();
 
 	closeSocket(fd);
 	std::cout << "A connection stopped, fd : " << fd << std::endl;
 	try
 	{
-		_socketsData.erase(socketData.getIterator());
+		_socketsData.erase(fdData->getIterator());
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
+	delete fdData;
 	return (true);
 }
 
@@ -215,7 +167,7 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 /**
  * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
  * delete the socket at the host.sun_path, recreate a socket and add the socket
- * path to the SocketsHandler _socketsToRemove vector.
+ * path to the SocketsHandler _unixSocketsToRemove vector.
  * @param The fd to bind, should be a socket fd.
  * @param host The host whose address will be used to bind the socket.
  * @return 0 on success, -1 on error with an error message printed in the terminal.
@@ -231,7 +183,7 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 		const socklen_t	addrLen = host.getAddrInfo(&addr);
 	
 		if (family == AF_UNIX)
-			return (bindUnixSocket(fd, addr, addrLen, _socketsToRemove));
+			return (bindUnixSocket(fd, addr, addrLen, _unixSocketsToRemove));
 		return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
 	}
 	catch(const std::exception& e)
@@ -241,65 +193,32 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 	}
 }
 
-/**
- * @brief Remove the sockets at sun_path.
- * @param sun_path The path of the socket in the file system.
- * @return If the sockets is removed or there is no sockets, returns 0. On
- * error, return -1 and print an error message in the terminal.
- */
-static int		removeSocketIfExists(const char sun_path[108])
-{
-	struct stat fileInfos;
-
-	if (stat(sun_path, &fileInfos) == -1)
-	{
-		if (errno == ENOENT)
-			return (0);
-		std::cerr << "stat() : " << strerror(errno) << std::endl;
-		return (-1);
-	}
-	if ((fileInfos.st_mode & S_IFMT) != S_IFSOCK)
-	{
-		std::cerr << "Error : The file entered for the unix socket exists and isn't a unix socket file" << std::endl;
-		return (-1);
-	}
-	if (std::remove(sun_path) != 0)
-	{
-		std::cerr << "remove () : " << strerror(errno) << std::endl;
-		return (-1);
-	}
-	return (0);
-}
-
-/**
- * @brief Remove a preexisting socket, call bind and add the socket path to the
- * socketsToRemove vector.
- * @param fd The fd to bind, it should be a socket fd.
- * @param addr A pointer on the sockaddr structure who describe the address to
- * listen to.
- * @param addrLen The size of the addr structure (!= sizeof(sockaddr))
- * @param socketsToRemove The vector in which the socket path will be added
- * if the host family is AF_UNIX.
- * @throw It should not throw because the socketsToRemove vector should have a
- * preallocated size big enough. If the vector as been wrongly initialize it can
- * throw an std::bad_alloc.
- * @return 0 on success, -1 on eror with an error message printed in the terminal.
- */
-static int	bindUnixSocket
+int	SocketsHandler::addFdToListeners
 (
-	int fd,
-	const sockaddr *addr,
-	socklen_t addrLen,
-	std::vector<std::string> &socketsToRemove
+	FdData *FdData,
+	uint32_t events
 )
 {
-	const sockaddr_un	*addrUnix;
+	epoll_event	event;
 
-	addrUnix = (const sockaddr_un *)addr;
-	if (removeSocketIfExists(addrUnix->sun_path) == -1)
+	try
+	{
+		_socketsData.push_front(FdData);
+	}
+	catch(const std::exception& e)
+	{
+		delete FdData;
+		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (-1);
-	if (checkError(bind(fd, addr, addrLen), -1, "bind() : "))
+	}
+	FdData->setIterator(_socketsData.begin());
+	event.data.ptr = FdData;
+	event.events = events;
+	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData->getFd(), &event), -1, "epoll_ctl() :") == -1)
+	{
+		_socketsData.pop_front();
+		delete FdData;
 		return (-1);
-	socketsToRemove.push_back(addrUnix->sun_path);
+	}
 	return (0);
 }

@@ -4,9 +4,11 @@
 #include <unistd.h>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 
 #include "SocketsHandler.hpp"
 #include "Configuration.hpp"
+#include "ServerSocketData.hpp"
 
 #include "utils.cpp"
 
@@ -26,7 +28,7 @@ void	tryCreatingMultipleInstance()
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cout << e.what() << '\n';
 		verify(true);
 	}
 	try
@@ -35,7 +37,7 @@ void	tryCreatingMultipleInstance()
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cout << e.what() << '\n';
 		verify(true);
 	}
 }
@@ -62,7 +64,7 @@ void	addServerConfiguration(Host host, Configuration &conf)
 	conf[host].push_back(ServerConfiguration());
 }
 
-void	bindTwiceSameHost()
+void	bindTwiceSameHost(int errorFd)
 {
 	Configuration	conf;
 
@@ -74,10 +76,10 @@ void	bindTwiceSameHost()
 
 	std::cout << "\033[0;35m" << "Shouldn't output an error message, because map has unique key, map size = " << conf.size() << "\033[0m\n" << std::endl;
 	createAllServerSockets(conf, socketsHandler);
-	verify(true);
+	verify(!checkError(errorFd));
 }
 
-void	bindTwiceSameHostWithDiffIpFamily()
+void	bindTwiceSameHostWithDiffIpFamily(int errorFd)
 {
 	Configuration						conf;
 	uint8_t								addr[16];
@@ -92,7 +94,7 @@ void	bindTwiceSameHostWithDiffIpFamily()
 
 	printInfo("Shouldn't output an error message if IPV6Only is set");
 	createAllServerSockets(conf, socketsHandler);
-	verify(true);
+	verify(!checkError(errorFd));
 }
 
 void	tryPassingAWrongIPV6Array()
@@ -102,29 +104,26 @@ void	tryPassingAWrongIPV6Array()
 	// uint8_t								addr4[32];
 	// Configuration						conf;
 
-	std::cout << "Try passing a wrong ipv6 array (doesn't compile, see test main)" << std::endl;
+	printInfo("Try passing a wrong ipv6 array (doesn't compile, see test main)");
 	// addServerConfiguration(Host(addr2, (in_port_t)8080), conf);
 	// addServerConfiguration(Host(addr3, (in_port_t)8080), conf);
 	// addServerConfiguration(Host(addr4, (in_port_t)8080), conf);
 	verify(true);
 }
 
-void	addWrongFdToListeners()
+void	addWrongFdToListeners(int errorFd)
 {
 	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
 
-	printInfo("Try passing an fd to listeners that is inferior to 4");
-	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(1, callback, NULL, EPOLLIN);
-	verify(true);
+
 	printInfo("Try passing an fd to listeners that isn't open");
 	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(10, callback, NULL, EPOLLIN);
-	verify(true);
+	socketsHandler.addFdToListeners(new ServerSocketData(10, socketsHandler), EPOLLIN);
+	verify(checkError(errorFd));
 }
 
-void	executeCallbackWithIndexTooBig()
+void	executeCallbackWithIndexTooBig(int errorFd)
 {
 	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
@@ -132,10 +131,10 @@ void	executeCallbackWithIndexTooBig()
 	printInfo("Try executing callSocketCallback with an index too big");
 	printInfo("Should output an error");
 	socketsHandler.callSocketCallback(5);
-	verify(true);
+	verify(checkError(errorFd));
 }
 
-void	bindUnixSocketWithWrongFd()
+void	bindUnixSocketWithWrongFd(int errorFd)
 {
 	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
@@ -147,10 +146,10 @@ void	bindUnixSocketWithWrongFd()
 	printInfo("Try binding a wrong fd");
 	printInfo("Should output an error");
 	socketsHandler.bindFdToHost(-1, host);
-	verify(true);
+	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketWithExistingFile()
+void	creatingUnixSocketWithExistingFile(int errorFd)
 {
 	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
@@ -162,10 +161,10 @@ void	creatingUnixSocketWithExistingFile()
 	printInfo("Try creating a unix socket with an existing file");
 	printInfo("Should output an error");
 	socketsHandler.bindFdToHost(-1, host);
-	verify(true);
+	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketWithExistingDirectory()
+void	creatingUnixSocketWithExistingDirectory(int errorFd)
 {
 	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
@@ -177,10 +176,10 @@ void	creatingUnixSocketWithExistingDirectory()
 	printInfo("Try creating a unix socket with an existing directory");
 	printInfo("Should output an error");
 	socketsHandler.bindFdToHost(-1, host);
-	verify(true);
+	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketInNoRightFolder()
+void	creatingUnixSocketInNoRightFolder(int errorFd)
 {
 	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
@@ -192,10 +191,10 @@ void	creatingUnixSocketInNoRightFolder()
 	printInfo("Try creating a unix socket in a directory with no right");
 	printInfo("Should output an error");
 	socketsHandler.bindFdToHost(-1, host);
-	verify(true);
+	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketWithExistingSocket()
+void	creatingUnixSocketWithExistingSocket(int errorFd)
 {
 	Configuration		conf;
 	SocketsHandler		socketsHandler(conf);
@@ -216,13 +215,13 @@ void	creatingUnixSocketWithExistingSocket()
 	printInfo("Try creating a unix with an existing socket");
 	printInfo("Shouldn't output an error, even though the file is deleted, previous connection to the first socket aren't closed, the first socket close when there is no more connection");
 	socketsHandler.bindFdToHost(secondSocket, host);
-	verify(true);
+	verify(!checkError(errorFd));
 	close(firstSocket);
 	close(secondSocket);
 	std::remove(path.c_str());
 }
 
-void	creatingUnixSocketWithNothing()
+void	creatingUnixSocketWithNothing(int errorFd)
 {
 	Configuration		conf;
 	SocketsHandler		socketsHandler(conf);
@@ -237,24 +236,30 @@ void	creatingUnixSocketWithNothing()
 	printInfo("Try creating a unix with a path that points to nothing");
 	printInfo("Shouldn't output an error");
 	socketsHandler.bindFdToHost(secondSocket, host);
-	verify(true);
+	verify(!checkError(errorFd));
 	close(secondSocket);
 	std::remove(path.c_str());
 }
 
 int	main(void)
 {
+	int	tube[2];
+
+	if (redirectSTDERR(tube) == false)
+		return (EXIT_FAILURE);
 	tryCreatingMultipleInstance();
 	createAndDestroyMultipleInstance();
-	bindTwiceSameHost();
-	bindTwiceSameHostWithDiffIpFamily();
+	bindTwiceSameHost(tube[0]);
+	bindTwiceSameHostWithDiffIpFamily(tube[0]);
 	tryPassingAWrongIPV6Array();
-	addWrongFdToListeners();
-	executeCallbackWithIndexTooBig();
-	bindUnixSocketWithWrongFd();
-	creatingUnixSocketWithExistingFile();
-	creatingUnixSocketWithExistingDirectory();
-	creatingUnixSocketInNoRightFolder();
-	creatingUnixSocketWithExistingSocket();
-	creatingUnixSocketWithNothing();
+	addWrongFdToListeners(tube[0]);
+	executeCallbackWithIndexTooBig(tube[0]);
+	bindUnixSocketWithWrongFd(tube[0]);
+	creatingUnixSocketWithExistingFile(tube[0]);
+	creatingUnixSocketWithExistingDirectory(tube[0]);
+	creatingUnixSocketInNoRightFolder(tube[0]);
+	creatingUnixSocketWithExistingSocket(tube[0]);
+	creatingUnixSocketWithNothing(tube[0]);
+	close(tube[0]);
+	close(tube[1]);
 }
