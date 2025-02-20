@@ -1,6 +1,7 @@
 #ifndef ERROR_PAGES_HPP
 # define ERROR_PAGES_HPP
 
+//Forbidden error
 # define ERROR_403_STR "<!DOCTYPE html> \
 <html lang=\"fr\"> \
 <head> \
@@ -14,6 +15,9 @@
 </body> \
 </html>"
 # define ERROR_403_INT 403
+
+
+//Not found error
 # define ERROR_404_STR "<!DOCTYPE html> \
 <html lang=\"fr\"> \
 <head> \
@@ -27,6 +31,8 @@
 </body> \
 </html>"
 # define ERROR_404_INT 404
+
+//Method not allowed error
 # define ERROR_405_STR "<!DOCTYPE html> \
 <html lang=\"fr\"> \
 <head> \
@@ -40,6 +46,8 @@
 </body> \
 </html>"
 # define ERROR_405_INT 405
+
+//Internal servor error
 # define ERROR_500_STR "<!DOCTYPE html> \
 <html lang=\"fr\"> \
 <head> \
@@ -54,6 +62,7 @@
 </html>"
 # define ERROR_500_INT 500
 
+//Version not supported error
 # define ERROR_505_STR "<!DOCTYPE html> \
 <html lang=\"fr\"> \
 <head> \
@@ -66,6 +75,6 @@
     <p>HTTP Version Not Supported</p> \
 </body> \
 </html>"
-# define ERROR_505_INT 500
+# define ERROR_505_INT 505
 
 #endif
