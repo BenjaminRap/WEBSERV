@@ -1,15 +1,23 @@
 #include "PutRequest.hpp"
 
 #include <iostream>
+#define DIRE 1
+#define FILE 2
+#define NF 3
 
 #define DIRE	1
 #define FILE	2
 #define NF		3
+#define FORBIDEN -1
+#define ERROR500 -2
+
 
 void						fixPath(std::string &path);
 bool						checkAllowMeth(const Route &root, EMethods meth);
 void						buildNewURl(std::string root, std::string &url);
-void						replaceUrl(const std::string &location, const std::string &root, std::string &url);
+void						replaceUrl(const std::string &location, const std::string &root, std::string &url);\
+int							isDirOrFile(const std::string& path);
+bool						canWrite(const std::string &path);
 
 void	fixUrl(PutRequest &put, std::string &url)
 {
@@ -21,6 +29,9 @@ void	fixUrl(PutRequest &put, std::string &url)
 		put.setUrl(url);
 	}
 }
+
+
+
 
 void	addRoot(PutRequest &put, const ServerConfiguration& config)
 {
@@ -54,7 +65,6 @@ bool	checkFileName(const std::string &fileName)
 	return (true);
 }
 
-
 void	PutRequest::parsing(std::string &url, const ServerConfiguration &config)
 {
 	this->_config = &config;
@@ -81,18 +91,18 @@ PutRequest::PutRequest(std::string url, std::string fileName, const ServerConfig
 		return ;
 	}
 	path = this->_url + fileName;
-	this->fd = open(path.c_str(), O_CREAT | O_EXCL , 0666);
-	if (errno == EEXIST)
+	if (isDirOrFile(path) != NF)
 		this->setResponse(409, "Conflict", "Conflict");
-	else if (fd == -1)
-	{
-		if (errno == EACCES)
-			this->setResponse(403, "Forbidden", this->getError(403));
-		else
-			this->setResponse(500, "Internal Server Error", this->getError(500));
-	}
+	else if (!canWrite(this->_url))
+		this->setResponse(403, "Forbidden", "Forbidden");
 	else
-		this->setResponse(201, "Created", path);
+	{
+		this->fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
+		if (fd == -1)
+			this->setResponse(500, "Internal Server Error", this->getError(500));
+		else
+			this->setResponse(201, "Created", path);
+	}
 }
 
 PutRequest::PutRequest() : _config(), _root()

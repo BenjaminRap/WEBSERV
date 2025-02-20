@@ -202,7 +202,7 @@ int	main(int argc, char **argv)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-		PutRequest a(argv[2], "\\twdw\\", config.begin()->second[0]);
+		PutRequest a(argv[2], "test.txt", config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
