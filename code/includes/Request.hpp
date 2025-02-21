@@ -37,11 +37,42 @@ private:
 	 * If there is no remaining body, this variable is set to NULL.
 	 */
 	Body								*_body;
+
+	Request(void);
 public:
+	Request(std::string line);
+	~Request(void);
+
 	void	reset();
 	Body	*getBody();
 	int		parseStatusLine(char *line, size_t lineLength);
 	int		parseHeader(char *line, size_t lineLength);
+};
+
+std::ostream & operator<<(std::ostream & o, Request const & rhs);
+
+class RequestException : public std::exception
+{
+	public:
+		RequestException(std::string message) : message(message)
+		{
+			error = errorMsg();
+		}
+
+		std::string errorMsg() const
+		{
+			return ("Error parsing request: " + message);
+		}
+
+		virtual const char* what() const throw()
+		{
+			return (error.c_str());
+		}
+		virtual ~RequestException() throw() {}
+
+	private:
+		std::string error;
+		std::string message;
 };
 
 #endif // !REQUEST_HPP
