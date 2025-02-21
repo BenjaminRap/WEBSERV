@@ -16,7 +16,7 @@ bool	checkAllowMeth(const Route &root, EMethods meth)
 	return (false);
 }
 
-void	delString(const std::string& toDel, std::string &str)
+void	delString(const std::string &toDel, std::string &str)
 {
 	size_t	found;
 	size_t	len;
@@ -37,7 +37,7 @@ void	buildNewURl(std::string root, std::string &url)
 	url.insert(0, root);
 }
 
-void	replaceUrl(const std::string& location, const std::string& root, std::string &url)
+void	replaceUrl(const std::string &location, const std::string &root, std::string &url)
 {
 	size_t found;
 
@@ -85,7 +85,7 @@ void	fixUrl(ARequest &req, std::string &url)
 	}
 }
 
-void	addRoot(ARequest &get, const ServerConfiguration& config)
+void	addRoot(ARequest &get, const ServerConfiguration &config)
 {
 	const Route	*temp = config.getOneRoutes(get.getUrl());
 

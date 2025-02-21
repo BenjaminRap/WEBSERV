@@ -19,13 +19,13 @@ class ARequest
 		ARequest();
 
 	public :
-		explicit ARequest(std::string url, const ServerConfiguration&config, EMethods method);
+		explicit ARequest(std::string &url, const ServerConfiguration&config, EMethods method);
 		virtual ~ARequest() = 0;
 		ARequest(const ARequest& src);
 		ARequest& operator=(const ARequest& src);
 
-		void					setResponse(int code, const std::string &status, const std::string& file);
-		void					setUrl(const std::string& src);
+		void					setResponse(int code, const std::string &status, const std::string &file);
+		void					setUrl(const std::string &src);
 		void					setRoot(const Route *root);
 		void					setMethod(EMethods method);
 		void					setIsRoot(bool src);

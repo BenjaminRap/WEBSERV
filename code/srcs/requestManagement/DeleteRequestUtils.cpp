@@ -12,8 +12,8 @@
 #define ERROR500 -2
 
 
-int				isDirOrFile(const std::string& path);
-int				removeDirectory(const std::string& path, DeleteRequest &del);
+int				isDirOrFile(const std::string &path);
+int				removeDirectory(const std::string &path, DeleteRequest &del);
 std::string		getParentPath(const std::string &path);
 
 void	checkEnd(std::string &path, DeleteRequest &del)

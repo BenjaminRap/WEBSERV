@@ -2,19 +2,19 @@
 
 
 bool	checkAllowMeth(const Route &root, EMethods meth);
-void	delString(const std::string& toDel, std::string &str);
+void	delString(const std::string &toDel, std::string &str);
 void	buildNewURl(std::string root, std::string &url);
-void	replaceUrl(const std::string& location, const std::string& root, std::string &url);
+void	replaceUrl(const std::string &location, const std::string &root, std::string &url);
 void	fixPath(std::string &path);
 void	fixUrl(ARequest &req, std::string &url);
-void	addRoot(ARequest &get, const ServerConfiguration& config);
+void	addRoot(ARequest &get, const ServerConfiguration &config);
 
 ARequest::ARequest() : _method(GET), _config(NULL), _root(NULL), _url(""), _code(0), _statusText(""), _file("")
 {
 	return ;
 }
 
-ARequest::ARequest(std::string url, const ServerConfiguration&config, EMethods method) : _method(method), _config(&config), _root(NULL), _url(url), _isRoot(false), _code(0)
+ARequest::ARequest(std::string &url, const ServerConfiguration&config, EMethods method) : _method(method), _config(&config), _root(NULL), _url(url), _isRoot(false), _code(0)
 {
 	fixUrl(*this, url);
 	if (getCode() == 400)
@@ -31,14 +31,14 @@ ARequest::~ARequest()
 	return ;
 }
 
-ARequest::ARequest(const ARequest& src)
+ARequest::ARequest(const ARequest &src)
 {
 	if (this != &src)
 		return ;
 	*this = src;
 }
 
-ARequest& ARequest::operator=(const ARequest& src)
+ARequest& ARequest::operator=(const ARequest &src)
 {
 	this->_config = src._config;
 	this->_root = src._root;
@@ -53,14 +53,14 @@ ARequest& ARequest::operator=(const ARequest& src)
 	return (*this);
 }
 
-void	ARequest::setResponse(int code, const std::string &status, const std::string& file)
+void	ARequest::setResponse(int code, const std::string &status, const std::string &file)
 {
 	this->_code = code;
 	this->_statusText = status;
 	this->_file = file;
 }
 
-void	ARequest::setUrl(const std::string& src)
+void	ARequest::setUrl(const std::string &src)
 {
 	this->_url = src;
 }
