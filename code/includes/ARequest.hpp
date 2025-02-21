@@ -1,13 +1,16 @@
+#ifndef AREQUEST_HPP
+# define AREQUEST_HPP
+
 #include "ServerConfiguration.hpp"
 
 class ARequest
 {
 	protected :
-		EMethods					_method; // Method of the request
-		const ServerConfiguration	*_config; // Configuration of the server
-		const Route					*_root; // Route of the request
-		std::string					_url; // Url of the request
-		bool						_isRoot; // Is the request at the root of the server
+		EMethods					_method;
+		const ServerConfiguration	*_config;
+		const Route					*_root;
+		std::string					_url;
+		bool						_isRoot;
 
 		int							_code;
 		std::string					_statusText;
@@ -34,4 +37,8 @@ class ARequest
 		int						getCode() const;
 		EMethods				getMethod() const;
 		bool					getIsRoot() const;
+
+		const std::string		&getError(unsigned short error);
 };
+
+#endif

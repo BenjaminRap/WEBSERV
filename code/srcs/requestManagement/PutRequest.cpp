@@ -11,50 +11,8 @@
 #define FORBIDEN -1
 #define ERROR500 -2
 
-
-void						fixPath(std::string &path);
-bool						checkAllowMeth(const Route &root, EMethods meth);
-void						buildNewURl(std::string root, std::string &url);
-void						replaceUrl(const std::string &location, const std::string &root, std::string &url);\
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);
-
-void	fixUrl(PutRequest &put, std::string &url)
-{
-	if (*url.begin() != '/')
-		put.setResponse(400, "Bad Request", "Bad Request");
-	else
-	{
-		fixPath(url);
-		put.setUrl(url);
-	}
-}
-
-
-
-
-void	addRoot(PutRequest &put, const ServerConfiguration& config)
-{
-	const Route	*temp = config.getOneRoutes(put.getUrl());
-
-	if (temp == NULL)
-	{
-		buildNewURl(config.getRoot(), put.getUrl());
-		return ;
-	}
-	put.setRoot(temp);
-	put.setIsRoot(true);
-	if (!checkAllowMeth(*temp, POST))
-	{
-		put.setResponse(405, "Not Allowed", config.getErrorPage(405));
-		return ;
-	}
-	const std::string &redir = temp->getRedirection().url;
-	if (!redir.empty())
-		put.setResponse(301, "Moved Permanently", redir);
-	else
-		replaceUrl(config.getLocation(put.getUrl()), temp->getRoot(), put.getUrl());
-}
 
 bool	checkFileName(const std::string &fileName)
 {
@@ -65,25 +23,11 @@ bool	checkFileName(const std::string &fileName)
 	return (true);
 }
 
-void	PutRequest::parsing(std::string &url, const ServerConfiguration &config)
-{
-	this->_config = &config;
-	fixUrl(*this, url);
-	if (this->code == 400)
-		return ;
-	addRoot(*this, config);
-	if (this->code == 301 || this->code == 405)
-		return ;
-	if (this->_url[0] != '.')
-		this->_url.insert(0, ".");
-}
-
-PutRequest::PutRequest(std::string url, std::string fileName, const ServerConfiguration &config) : _isRoot(false), code(0), fd(0)
+PutRequest::PutRequest(std::string url, std::string fileName, const ServerConfiguration &config) : ARequest(url, config, PUT), _fd(-1)
 {
 	std::string path;
 
-	parsing(url, config);
-	if (this->code != 0)
+	if (this->_code != 0)
 		return ;
 	if (!checkFileName(fileName))
 	{
@@ -97,18 +41,18 @@ PutRequest::PutRequest(std::string url, std::string fileName, const ServerConfig
 		this->setResponse(403, "Forbidden", "Forbidden");
 	else
 	{
-		this->fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
-		if (fd == -1)
+		this->_fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
+		if (this->_fd == -1)
 			this->setResponse(500, "Internal Server Error", this->getError(500));
 		else
 			this->setResponse(201, "Created", path);
 	}
 }
 
-PutRequest::PutRequest() : _config(), _root()
+PutRequest::PutRequest()
 {
 	_url = "NULL";
-	code = 0;
+	_code = 0;
 	_isRoot = false;
 	std::cerr << "The default constructor shouldn't be called" << std::endl;
 }
@@ -119,55 +63,27 @@ PutRequest::~PutRequest()
 
 PutRequest	&PutRequest::operator=(const PutRequest &src)
 {
-	this->_url = src._url;
-	this->code = src.code;
 	this->_config = src._config;
 	this->_root = src._root;
-	this->file = src.file;
+	this->_url = src._url;
+	this->_method = src._method;
+	this->_isRoot = src._isRoot;
+
+	this->_code = src._code;
+	this->_statusText = src._statusText;
+	this->_file = src._file;
+
+	this->_fd = src._fd;
 
 	return (*this);
 }
 
-PutRequest::PutRequest(const PutRequest &src) : _config(), _root(), code()
+void PutRequest::setFd(int fd)
 {
-	if (this == &src)
-		return;
-	*this = src;
+	this->_fd = fd;
 }
 
-void	PutRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
+int PutRequest::getFd(void) const
 {
-	this->code = newcode;
-	this->statusText = status;
-	this->file = newfile;
-}
-
-void	PutRequest::setUrl(const std::string &src)
-{
-	this->_url = src;
-}
-
-std::string	&PutRequest::getUrl()
-{
-	return (this->_url);
-}
-
-void	PutRequest::setRoot(const Route *root)
-{
-	this->_root = root;
-}
-
-void	PutRequest::setIsRoot(bool src)
-{
-	this->_isRoot = src;
-}
-
-bool	PutRequest::getIsRoot() const
-{
-	return (this->_isRoot);
-}
-
-std::string	PutRequest::getError(unsigned short error)
-{
-	return (this->_config->getErrorPage(error));
+	return (this->_fd);
 }

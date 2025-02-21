@@ -10,85 +10,16 @@
 int							isDirOrFile(const std::string& path);
 void						fixPath(std::string &path);
 void						directoryCase(GetRequest& get);
-void						fixUrl(GetRequest& get, std::string& url);
 std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 
-bool	checkAllowMeth(const Route &root, EMethods meth)
-{
-	const std::vector<EMethods>	&meths = root.getAcceptedMethods();
-	size_t						len;
-
-	len = meths.size();
-	if (len == 0)
-		return (true);
-	for (size_t i = 0; i < len ; i++)
-	{
-		if (meths[i] == meth)
-			return (true);
-	}
-	return (false);
-}
-
-void	replaceUrl(const std::string& location, const std::string& root, std::string &url)
-{
-	size_t found;
-
-	if (root.empty())
-		return ;
-	found = url.find(location);
-	while (found != std::string::npos)
-	{
-		url.replace(found, location.length(), root);
-		found = url.find(location, found + root.length());
-	}
-}
-
-void	buildNewURl(std::string root, std::string &url)
-{
-	if (!root.empty() && root[root.size() - 1] == '/')
-		root.erase(root.size() - 1);
-	url.insert(0, root);
-}
-
-void	addRoot(GetRequest &get, const ServerConfiguration& config)
-{
-	const Route	*temp = config.getOneRoutes(get.getUrl());
-
-	if (temp == NULL)
-	{
-		buildNewURl(config.getRoot(), get.getUrl());
-		return ;
-	}
-	get.setRoot(temp);
-	get.setIsRoot(true);
-	if (!checkAllowMeth(*temp, GET))
-	{
-		get.setResponse(405, "Not Allowed", config.getErrorPage(405));
-		return ;
-	}
-	const std::string &redir = temp->getRedirection().url;
-	if (!redir.empty())
-		get.setResponse(301, "Moved Permanently", redir);
-	else
-	{
-		get.setAutoIndex(temp->getAutoIndex());
-		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
-	}
-}
-
-GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _autoIndex(false), _index(0), _isRoot(false), code(0)
+GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequest(url, config, GET), _autoIndex(false), _index(0)
 {
 	int			temp;
 
-	this->_config = &config;
-	fixUrl(*this, url);
-	if (this->code == 400)
+	if (this->_root != NULL)
+		this->setAutoIndex(this->_root->getAutoIndex());
+	if (this->_code != 0)
 		return ;
-	addRoot(*this, config);
-	if (this->code == 301 || this->code == 405)
-		return ;
-	if (this->_url[0] != '.')
-		this->_url.insert(0, ".");
 	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(*this);
@@ -98,12 +29,11 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : _au
 		setResponse(404, "Not Found", config.getErrorPage(404));
 }
 
-GetRequest::GetRequest() : _config(), _root()
+GetRequest::GetRequest()
 {
 	_url = "NULL";
 	_autoIndex = false;
 	_index = 0;
-	code = 0;
 	_isRoot = false;
 	std::cerr << "The default constructor shouldn't be called" << std::endl;
 }
@@ -114,29 +44,27 @@ GetRequest::~GetRequest()
 
 GetRequest &GetRequest::operator=(const GetRequest &src)
 {
-	this->_url = src._url;
-	this->_autoIndex = src._autoIndex;
-	this->_index = src._index;
-	this->code = src.code;
+	this->_method = src._method;
 	this->_config = src._config;
 	this->_root = src._root;
-	this->file = src.file;
+	this->_url = src._url;
+	this->_isRoot = src._isRoot;
+
+	this->_code = src._code;
+	this->_statusText = src._statusText;
+	this->_file = src._file;
+
+	this->_autoIndex = src._autoIndex;
+	this->_index = src._index;
 
 	return (*this);
 }
 
-GetRequest::GetRequest(const GetRequest &src) : _config(), _root(), _autoIndex(), _index(), code()
+GetRequest::GetRequest(const GetRequest &src) : ARequest(src)
 {
 	if (this == &src)
 		return;
 	*this = src;
-}
-
-void	GetRequest::setResponse(int newcode, const std::string &status, const std::string& newfile)
-{
-	this->code = newcode;
-	this->statusText = status;
-	this->file = newfile;
 }
 
 bool	GetRequest::getAutoIndex() const
@@ -144,42 +72,12 @@ bool	GetRequest::getAutoIndex() const
 	return (this->_autoIndex);
 }
 
-void	GetRequest::setAutoIndex(bool src)
-{
-	this->_autoIndex = src;
-}
-
-void	GetRequest::setUrl(const std::string& src)
-{
-	this->_url = src;
-}
-
-std::string	&GetRequest::getUrl()
-{
-	return (this->_url);
-}
-
 std::vector<std::string>	GetRequest::getIndexVec()
 {
 	return (this->_root->getIndex());
 }
 
-void	GetRequest::setRoot(const Route *root)
+void	GetRequest::setAutoIndex(bool src)
 {
-	this->_root = root;
-}
-
-void	GetRequest::setIsRoot(bool src)
-{
-	this->_isRoot = src;
-}
-
-bool	GetRequest::getIsRoot() const
-{
-	return (this->_isRoot);
-}
-
-std::string	GetRequest::getError(unsigned short error)
-{
-	return (this->_config->getErrorPage(error));
+	this->_autoIndex = src;
 }

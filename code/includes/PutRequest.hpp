@@ -8,35 +8,21 @@
 #include <cerrno>
 
 #include "ServerConfiguration.hpp"
+#include "ARequest.hpp"
 
-class PutRequest
+class PutRequest : public ARequest
 {
 	private :
+		int			_fd;
 		PutRequest();
 
-		const ServerConfiguration	*_config;
-		const Route					*_root;
-		std::string					_url;
-		bool						_isRoot;
-	public :
+public :
 		explicit PutRequest(std::string url, std::string fileName, const ServerConfiguration &config);
 		PutRequest(const PutRequest& src);
 		~PutRequest();
 		PutRequest& operator=(const PutRequest& src);
 
-		void						parsing(std::string &url, const ServerConfiguration &config);
-		void						setResponse(int newcode, const std::string &status, const std::string& newfile);
-		void						setUrl(const std::string& src);
-		void						setRoot(const Route *root);
-		void						setIsRoot(bool src);
-		bool 						getIsRoot() const;
+		int getFd(void) const;
 
-		std::string					&getUrl();
-		std::string					getError(unsigned short error);
-
-
-		int				code;
-		std::string		statusText;
-		std::string		file;
-		int				fd;
+		void setFd(int fd);
 };

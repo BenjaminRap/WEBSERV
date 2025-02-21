@@ -12,42 +12,6 @@
 #define FORBIDEN -1
 #define ERROR500 -2
 
-void	delString(const std::string& toDel, std::string &str)
-{
-	size_t	found;
-	size_t	len;
-
-	len = toDel.length();
-	found = str.find(toDel, 0);
-	while (found != std::string::npos)
-	{
-		str.erase(found, len);
-		found = str.find(toDel, 0);
-	}
-}
-
-void	fixPath(std::string &path)
-{
-	size_t	found;
-	size_t	foundBack;
-
-	found = path.find("/../", 0);
-	while (found != std::string::npos)
-	{
-		if (found == 0)
-			path.erase(0, 3);
-		else
-		{
-			foundBack = path.find_last_of('/', found - 1);
-			path.erase(foundBack, found - foundBack + 3);
-		}
-		found = path.find("/../", 0);
-	}
-	delString("./", path);
-	delString("//", path);
-	if (path.empty())
-		path = "/";
-}
 
 void	checkType(std::string &path, GetRequest &get)
 {
@@ -145,17 +109,6 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 	return (false);
 }
 
-void	fixUrl(GetRequest& get, std::string& url)
-{
-	if (*url.begin() != '/')
-		get.setResponse(400, "Bad Request", "Bad Request");
-	else
-	{
-		fixPath(url);
-		get.setUrl(url);
-	}
-}
-
 void	autoIndexCase(GetRequest &get)
 {
 	std::list<std::string>	files;
@@ -167,13 +120,13 @@ void	autoIndexCase(GetRequest &get)
 	else if (response == ERROR500)
 		get.setResponse(500, "Internal Server Error", get.getError(500));
 	else
-		get.file = buildPage(files, get.getUrl());
+		get.setUrl(buildPage(files, get.getUrl()));
 }
 
 void	directoryCase(GetRequest &get)
 {
 	checkType(get.getUrl(), get);
-	if (get.code == 301)
+	if (get.getCode() == 301)
 		return;
 	if (get.getIsRoot())
 	{

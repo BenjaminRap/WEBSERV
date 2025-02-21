@@ -41,11 +41,11 @@ void	makeGet(const std::string& test, int code, const std::string& response, con
 	GetRequest a(test, config);
 
 	std::cout << BMAG << "Request : "<< BCYN << test << tab;
-	if (a.code == code && a.statusText == response)
+	if (a.getCode() == code && a.getStatusText() == response)
 		std::cout << BGRN << "OK | " << code << " [" << response << "]" << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << "KO : " << a.code << " | " << a.statusText << CRESET << "\t";
+		std::cout << BRED << "KO : " << a.getCode() << " | " << a.getStatusText() << CRESET << "\t";
 		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
 	}
 }
@@ -55,11 +55,11 @@ void	makeDelete(const std::string &desc, const std::string& test, int code, cons
 	DeleteRequest a(test, config);
 
 	std::cout << BMAG << "Test : "<< BCYN << desc << BWHT << " | (" << test << ")" << tab;
-	if (a.code == code && a.statusText == response)
+	if (a.getCode() == code && a.getStatusText() == response)
 		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << " KO : " " response : " << a.code << " | " << a.statusText << "\t";
+		std::cout << BRED << " KO : " " response : " << a.getCode() << " | " << a.getStatusText() << "\t";
 		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
 	}
 }
@@ -191,28 +191,37 @@ int	main(int argc, char **argv)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
-		std::system("cd unitTest && ../getTest.sh"); // For our server
-		std::system("cd ../tests/website && ../../code/getTest.sh"); // For nginx
-		getTest(config.begin()->second[0]);
-//		deleteTest(config.begin()->second[0]);
-		std::system("cd unitTest && ../removeGetTest.sh"); // For our server
-		std::system("cd ../tests/website && ../../code/removeGetTest.sh"); // For nginx
+//		std::system("cd unitTest && ../getTest.sh"); // For our server
+//		std::system("cd ../tests/website && ../../code/getTest.sh"); // For nginx
+
+		std::system("cd unitTest && ../deleteTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
+
+//		getTest(config.begin()->second[0]);
+		deleteTest(config.begin()->second[0]);
+
+//		std::system("cd unitTest && ../removeGetTest.sh"); // For our server
+//		std::system("cd ../tests/website && ../../code/removeGetTest.sh"); // For nginx
+
+		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
+		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
 	}
 	else if (argc == 3)
 	{
 		ft_readfile(argv[1], file);
 		parse_file(config, file);
 		PutRequest a(argv[2], "test.txt", config.begin()->second[0]);
+//		GetRequest a(argv[2], config.begin()->second[0]);
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << CRESET << std::endl;
-		std::cout << BMAG << "Code : "<< BWHT << a.code << CRESET << std::endl;
-		std::cout << BMAG << "File : "<< BWHT << a.file << CRESET << std::endl;
-		std::cout << BMAG << "FD : "<< BWHT << a.fd << CRESET << std::endl;
+		std::cout << BMAG << "Code : "<< BWHT << a.getCode() << CRESET << std::endl;
+		std::cout << BMAG << "File : "<< BWHT << a.getFile() << CRESET << std::endl;
+		std::cout << BMAG << "FD : "<< BWHT << a.getFd() << CRESET << std::endl;
 		std::cout << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		close(a.fd);
+		close(a.getFd());
 	}
 	return (0);
 }

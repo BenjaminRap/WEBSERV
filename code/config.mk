@@ -21,5 +21,6 @@ REQUEST_FILES			:=	GetRequestUtils.cpp	\
 							DeleteRequest.cpp	\
 							DeleteRequestUtils.cpp	\
 							PutRequest.cpp	\
-							ARequest.cpp
+							ARequest.cpp	\
+							ARequestUtils.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))

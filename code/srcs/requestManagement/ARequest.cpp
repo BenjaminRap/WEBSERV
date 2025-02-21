@@ -1,124 +1,20 @@
 #include "ARequest.hpp"
 
+
+bool	checkAllowMeth(const Route &root, EMethods meth);
+void	delString(const std::string& toDel, std::string &str);
+void	buildNewURl(std::string root, std::string &url);
+void	replaceUrl(const std::string& location, const std::string& root, std::string &url);
+void	fixPath(std::string &path);
+void	fixUrl(ARequest &req, std::string &url);
+void	addRoot(ARequest &get, const ServerConfiguration& config);
+
 ARequest::ARequest() : _method(GET), _config(NULL), _root(NULL), _url(""), _code(0), _statusText(""), _file("")
 {
 	return ;
 }
 
-bool	checkAllowMeth(const Route &root, EMethods meth)
-{
-	const std::vector<EMethods>	&meths = root.getAcceptedMethods();
-	size_t						len;
-
-	len = meths.size();
-	if (len == 0)
-		return (true);
-	for (size_t i = 0; i < len ; i++)
-	{
-		if (meths[i] == meth)
-			return (true);
-	}
-	return (false);
-}
-
-void	delString(const std::string& toDel, std::string &str)
-{
-	size_t	found;
-	size_t	len;
-
-	len = toDel.length();
-	found = str.find(toDel, 0);
-	while (found != std::string::npos)
-	{
-		str.erase(found, len);
-		found = str.find(toDel, 0);
-	}
-}
-
-void	buildNewURl(std::string root, std::string &url)
-{
-	if (!root.empty() && root[root.size() - 1] == '/')
-		root.erase(root.size() - 1);
-	url.insert(0, root);
-}
-
-void	replaceUrl(const std::string& location, const std::string& root, std::string &url)
-{
-	size_t found;
-
-	if (root.empty())
-		return ;
-	found = url.find(location);
-	while (found != std::string::npos)
-	{
-		url.replace(found, location.length(), root);
-		found = url.find(location, found + root.length());
-	}
-}
-
-void	fixPath(std::string &path)
-{
-	size_t	found;
-	size_t	foundBack;
-
-	found = path.find("/../", 0);
-	while (found != std::string::npos)
-	{
-		if (found == 0)
-			path.erase(0, 3);
-		else
-		{
-			foundBack = path.find_last_of('/', found - 1);
-			path.erase(foundBack, found - foundBack + 3);
-		}
-		found = path.find("/../", 0);
-	}
-	delString("./", path);
-	delString("//", path);
-	if (path.empty())
-		path = "/";
-}
-
-void	fixUrl(ARequest &req, std::string &url)
-{
-	if (*url.begin() != '/')
-		req.setResponse(400, "Bad Request", "Bad Request");
-	else
-	{
-		fixPath(url);
-		req.setUrl(url);
-	}
-}
-
-void	addRoot(ARequest &get, const ServerConfiguration& config)
-{
-	const Route	*temp = config.getOneRoutes(get.getUrl());
-
-	if (temp == NULL)
-	{
-		buildNewURl(config.getRoot(), get.getUrl());
-		return ;
-	}
-	get.setRoot(temp);
-	get.setIsRoot(true);
-	if (!checkAllowMeth(*temp, GET))
-	{
-		get.setResponse(405, "Not Allowed", config.getErrorPage(405));
-		return ;
-	}
-	const std::string &redir = temp->getRedirection().url;
-	if (!redir.empty())
-		get.setResponse(301, "Moved Permanently", redir);
-	else
-	{
-//		if (get.getMethod() == GET) a mettre dans GET directement
-//			get.setAutoIndex(temp->getAutoIndex());
-		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
-	}
-}
-
-
-ARequest::ARequest(std::string url, const ServerConfiguration&config, EMethods method) : _config(&config), _url(url), _method(method)
+ARequest::ARequest(std::string url, const ServerConfiguration&config, EMethods method) : _method(method), _config(&config), _root(NULL), _url(url), _isRoot(false), _code(0)
 {
 	fixUrl(*this, url);
 	if (getCode() == 400)
@@ -137,21 +33,23 @@ ARequest::~ARequest()
 
 ARequest::ARequest(const ARequest& src)
 {
+	if (this != &src)
+		return ;
 	*this = src;
 }
 
 ARequest& ARequest::operator=(const ARequest& src)
 {
-	if (this != &src)
-	{
-		this->_config = src._config;
-		this->_root = src._root;
-		this->_url = src._url;
-		this->_method = src._method;
-		this->_code = src._code;
-		this->_statusText = src._statusText;
-		this->_file = src._file;
-	}
+	this->_config = src._config;
+	this->_root = src._root;
+	this->_url = src._url;
+	this->_method = src._method;
+	this->_isRoot = src._isRoot;
+
+	this->_code = src._code;
+	this->_statusText = src._statusText;
+	this->_file = src._file;
+
 	return (*this);
 }
 
@@ -216,4 +114,9 @@ int	ARequest::getCode() const
 EMethods	ARequest::getMethod() const
 {
 	return (this->_method);
+}
+
+const std::string	&ARequest::getError(unsigned short error)
+{
+	return (this->_config->getErrorPage(error));
 }

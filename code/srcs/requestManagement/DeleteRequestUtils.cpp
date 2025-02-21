@@ -14,8 +14,6 @@
 
 int				isDirOrFile(const std::string& path);
 int				removeDirectory(const std::string& path, DeleteRequest &del);
-void			delString(const std::string& toDel, std::string &str);
-void			fixPath(std::string &path);
 std::string		getParentPath(const std::string &path);
 
 void	checkEnd(std::string &path, DeleteRequest &del)
@@ -47,16 +45,15 @@ bool	canWrite(const std::string &path)
 int	directoryCase(const std::string &path, DeleteRequest &del)
 {
 	checkEnd(del.getUrl(), del);
-	if (del.code == 409)
+	if (del.getCode() == 409)
 		del.setResponse(409, "Conflict", "Conflict");
 	else if (!canWrite(path) || removeDirectory(path, del) != 0
 			|| !canWrite(getParentPath(path)) || std::remove(path.c_str()) != 0)
 		del.setResponse(500, "Internal Server Error", "Internal Server Error");
 	else
 		del.setResponse(204, "No Content", "No Content");
-	return (del.code);
+	return (del.getCode());
 }
-
 
 std::string	getParentPath(const std::string &path)
 {
@@ -115,6 +112,6 @@ int	fileCase(const std::string &path, DeleteRequest &del)
 		del.setResponse(500, "Internal Server Error", "Internal Server Error");
 	else
 		del.setResponse(204, "No Content", "No Content");
-	return (del.code);
+	return (del.getCode());
 }
 
