@@ -44,7 +44,11 @@ public:
 	~Request(void);
 
 	void	reset();
-	Body	*getBody();
+	Body	*getBody() const;
+	const std::string	&getMethod(void) const;
+	const std::string	&getRequestTarget(void) const;
+	const std::string	&getProtocol(void) const;
+	const std::string	*getHeader(const std::string &key) const;
 	int		parseStatusLine(char *line, size_t lineLength);
 	int		parseHeader(char *line, size_t lineLength);
 };

@@ -5,7 +5,7 @@ void	Request::reset()
 {
 }
 
-Body	*Request::getBody()
+Body	*Request::getBody() const
 {
 	return (_body);
 }
@@ -70,13 +70,37 @@ Request::~Request(void)
 
 }
 
+const std::string	&Request::getMethod(void) const
+{
+	return (this->_statusLine._method);
+}
+
+const std::string	&Request::getRequestTarget(void) const
+{
+	return (this->_statusLine._requestTarget);
+}
+
+const std::string	&Request::getProtocol(void) const
+{
+	return (this->_statusLine._protocol);
+}
+
+const std::string	*getHeader(const std::string &key) const
+{
+	std::map<std::string, std::string>::iterator it = this->_headers.find(key);
+
+	if (it != this->_headers.end())
+		return (it.second);
+	return (NULL);
+}
+
 std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {
 	std::cout << "Method :" << rhs._statusLine._method << std::endl;
 	std::cout << "Target :" << rhs._statusLine._requestTarget << std::endl;
 	std::cout << "Protocol :" << rhs._statusLine._protocol << std::endl << std::endl;
 
-	for (std::map<std::string ,std::string>::iterator it = rhs._headers.begin(); it != rhs.end(); ++it)
+	for (std::map<std::string ,std::string>::iterator it = rhs._headers.begin(); it != rhs._headers.end(); ++it)
 	{
 		std::cout << it->first << ": " << it->second << std::endl;
 	}
