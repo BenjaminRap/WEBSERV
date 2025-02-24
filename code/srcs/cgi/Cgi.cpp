@@ -1,12 +1,14 @@
 #include <cstdlib>
+#include <unistd.h>
 
 #include "Cgi.hpp"
 #include "exceptions.hpp"
+#include "socketCommunication.hpp"
 
 static void	closeTube(int (&tube)[2])
 {
-	close(tube[0]);
-	close(tube[1]);
+	checkError(close(tube[0]), -1, "close() : ");
+	checkError(close(tube[1]), -1, "close() : ");
 }
 
 static void	cleanUp(int (&tubeSTDIN)[2], int (&tubeSTDOUT)[2])
@@ -28,8 +30,8 @@ static void	createTubes(int (&tubeSTDIN)[2], int (&tubeSTDOUT)[2])
 
 static void	redirectProgram(int (&tubeSTDIN)[2], int (&tubeSTDOUT)[2])
 {
-	if (dup2(STDIN_FILENO, tubeSTDIN[0]) == -1
-		|| dup2(STDOUT_FILENO, tubeSTDOUT[1]) == -1)
+	if (dup2(tubeSTDIN[0], STDIN_FILENO) == -1
+		|| dup2(tubeSTDOUT[1], STDOUT_FILENO) == -1)
 	{
 		cleanUp(tubeSTDIN, tubeSTDOUT);
 		std::exit(EXIT_FAILURE);
