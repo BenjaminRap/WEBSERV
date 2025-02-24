@@ -72,7 +72,7 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 	return (this->routes);
 }
 
-const Route	*ServerConfiguration::getOneRoutes(std::string path) const
+const Route	*ServerConfiguration::getOneRoutes(const std::string &path) const
 {
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
@@ -82,7 +82,7 @@ const Route	*ServerConfiguration::getOneRoutes(std::string path) const
 	return (NULL);
 }
 
-const std::string	ServerConfiguration::getLocation(std::string path) const
+const std::string	ServerConfiguration::getLocation(const std::string &path) const
 {
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
