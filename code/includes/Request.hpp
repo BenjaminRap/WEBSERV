@@ -3,6 +3,7 @@
 
 # include <string>
 # include <map>
+# include <iostream>
 
 # include "Body.hpp"
 
@@ -39,6 +40,7 @@ private:
 	Body								*_body;
 
 	Request(void);
+
 public:
 	Request(std::string line);
 	~Request(void);
@@ -49,8 +51,9 @@ public:
 	const std::string	&getRequestTarget(void) const;
 	const std::string	&getProtocol(void) const;
 	const std::string	*getHeader(const std::string &key) const;
-	int		parseStatusLine(char *line, size_t lineLength);
-	int		parseHeader(char *line, size_t lineLength);
+	const std::map<std::string, std::string>	&getHeaderMap(void) const;
+	// int		parseStatusLine(char *line, size_t lineLength);
+	// int		parseHeader(char *line, size_t lineLength);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);
