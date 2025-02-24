@@ -40,7 +40,7 @@ private:
 	 * @brief The file descriptor of the body.If there is no body, this variable
 	 * is set to -1.
 	 */
-	int									_bodyFd;
+	//int									_bodyFd;
 public:
 	void	setResponseCode(int code, std::string text);
 	void	reset();
