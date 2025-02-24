@@ -18,7 +18,7 @@ static void	cleanUp(int (&tubeSTDIN)[2], int (&tubeSTDOUT)[2])
 static void	createTubes(int (&tubeSTDIN)[2], int (&tubeSTDOUT)[2])
 {
 	if (pipe(tubeSTDIN) == -1)
-	throw SystemError("pipe() : ");
+		throw SystemError("pipe() : ");
 	if (pipe(tubeSTDOUT) == -1)
 	{
 		closeTube(tubeSTDIN);
@@ -44,7 +44,10 @@ Cgi::Cgi(const char *path, char * const * argv, char * const * envp)
 	createTubes(tubeSTDIN, tubeSTDOUT);
 	_pid = fork();
 	if (_pid == -1)
+	{
+		cleanUp(tubeSTDOUT, tubeSTDIN);
 		throw SystemError("fork() : ");
+	}
 	if (_pid == 0)
 	{
 		redirectProgram(tubeSTDIN, tubeSTDOUT);
