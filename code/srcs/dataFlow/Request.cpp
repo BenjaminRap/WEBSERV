@@ -9,19 +9,7 @@ Body	*Request::getBody() const
 	return (_body);
 }
 
-// int		Request::parseStatusLine(char *line, size_t lineLength)
-// {
-// 	std::cout << "status line : " << std::string(line, lineLength) << std::endl;
-// 	return (0);
-// }
-
-// int		Request::parseHeader(char *line, size_t lineLength)
-// {
-// 	std::cout << "header :" << std::string(line, lineLength) << std::endl;
-// 	return (0);
-// }
-
-Request::Request(std::string line)
+int		Request::parseHeader(const std::string &s)
 {
 	size_t	i = 0;
 	size_t	pos;
@@ -34,21 +22,21 @@ Request::Request(std::string line)
 	//Parsing the method
 	pos = line.find(' ', i);
 	if (pos == std::string::npos || line[pos] != ' ')
-		throw (RequestException("Wrong method!"));
+		return (1);
 	this->_statusLine._method = line.substr(i, pos - i);
 	i = pos + 1;
 
 	//Parsing the target
 	pos = line.find(' ', i);
 	if (pos == std::string::npos || line[pos] != ' ')
-		throw (RequestException("Wrong request target!"));
+		return (1);
 	this->_statusLine._requestTarget = line.substr(i, pos - i);
 	i = pos + 1;
 
 	//Parsing the protocol
 	pos = line.find("\r\n", i);
 	if (pos == std::string::npos || line[pos] != '\r' || line[pos + 1] != '\n')
-		throw (RequestException("Wrong protocol!"));
+		return (1);
 	this->_statusLine._protocol = line.substr(i, pos - i);
 	i = pos + 2;
 
@@ -64,6 +52,12 @@ Request::Request(std::string line)
 		this->_headers.insert(std::make_pair(line.substr(i, pos - i), line.substr(pos + 2, temp - (pos + 2))));
 		i = temp + 2;
 	}
+	return (0;)
+}
+
+Request::Request(std::string line)
+{
+
 }
 
 Request::~Request(void)

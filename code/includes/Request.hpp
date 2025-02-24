@@ -53,7 +53,7 @@ public:
 	const std::string	*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
 	// int		parseStatusLine(char *line, size_t lineLength);
-	// int		parseHeader(char *line, size_t lineLength);
+	int		parseHeader(const std::string &s);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);
