@@ -4,3 +4,4 @@ deps/
 WebServ
 code/.cache/
 compile_commands.json
+**/*.out
