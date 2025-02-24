@@ -70,6 +70,6 @@ fclean: clean
 re: fclean all
 
 compile_commands.json: $(MAKEFILE) $(CONFIG)
-	bear -- make $(NAME)
+	-beat --output ../compile_commands.json -- make $(NAME)
 
 .PHONY: all clean fclean re

@@ -3,4 +3,4 @@ deps/
 .vscode/
 WebServ
 code/.cache/
-code/compile_commands.json
+compile_commands.json
