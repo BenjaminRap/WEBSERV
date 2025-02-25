@@ -17,15 +17,6 @@
 # define SEP_WSPACE_ARG "\t\n\v\f\r ;{}"
 # define DIGITS "0123456789"
 
-# define ERROR_403_STR "/custom_403.html"
-# define ERROR_403_INT 403
-# define ERROR_404_STR "/custom_404.html"
-# define ERROR_404_INT 404
-# define ERROR_405_STR "/custom_405.html"
-# define ERROR_405_INT 405
-# define ERROR_500_STR "/custom_500.html"
-# define ERROR_500_INT 500
-
 typedef struct ipv6_s {
     uint8_t ipv6[16];
 

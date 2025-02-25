@@ -3,6 +3,7 @@
 
 # include <map>
 # include <stdint.h>
+# include <vector>
 
 # include "Route.hpp"
 
@@ -11,11 +12,11 @@ class ServerConfiguration
 {
 public :
 
-	ServerConfiguration(std::vector<std::string> serverNames, \
-						std::map<unsigned short, std::string> \
-						errorPages, size_t maxClientBodySize, \
-						std::map<std::string, Route> routes, \
-						std::string root);
+	ServerConfiguration(const std::vector<std::string> &serverNames, \
+						const std::map<unsigned short, std::string> &errorPages, \
+						const size_t &maxClientBodySize, \
+						const std::map<std::string, Route> &routes, \
+						const std::string &root);
 	ServerConfiguration(ServerConfiguration const &src);
     ServerConfiguration    &operator=(ServerConfiguration const &src);
 	~ServerConfiguration(void);
@@ -26,8 +27,8 @@ public :
 	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
 	const size_t								&getMaxClientBodySize(void) const;
 	const std::map<std::string, Route>			&getRoutes(void) const;
-	const Route									*getOneRoutes(std::string path) const;
-	const std::string							getLocation(std::string loc) const;
+	const Route									*getOneRoutes(const std::string &path) const;
+	const std::string							getLocation(const std::string &loc) const;
 
 private :
 	std::vector<std::string>				serverNames;

@@ -25,3 +25,4 @@ https://www.geeksforgeeks.org/fork-system-call/ : fork
 https://broux.developpez.com/articles/c/sockets/#:~:text=Les%20sockets%20sont%20des%20flux,protocole%20dit%20«%20non%20connecté%20». : sockets in c
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages : HTTP messages
 https://m4nnb3ll.medium.com/webserv-building-a-non-blocking-web-server-in-c-98-a-42-project-04c7365e4ec7 : general info on project
+https://www.browserling.com/tools/ip-to-dec : string ip to int (for testing)

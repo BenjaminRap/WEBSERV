@@ -1,5 +1,11 @@
 SOCKET_DIR				:=	socketCommunication/
-SOCKET_FILES			:=	emptyFile.cpp
+SOCKET_FILES			:=	createServerSockets.cpp	\
+							socketCommunication.cpp	\
+							SocketData.cpp			\
+							signals.cpp				\
+							SocketsHandler.cpp		\
+							setSocketsOption.cpp	\
+							socketDataCallbacks.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
@@ -15,6 +21,7 @@ PARSING_CONF_FILES		:=	parsing.cpp	\
 							parse_route.cpp	\
 							parse_host.cpp
 PARSING_CONF			:=	$(addprefix $(PARSING_CONF_DIR), $(PARSING_CONF_FILES))
+
 REQUEST_DIR				:=	requestManagement/
 REQUEST_FILES			:=	GetRequestUtils.cpp	\
 							GetRequest.cpp	\

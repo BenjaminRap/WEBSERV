@@ -3,6 +3,7 @@
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string
 #include <vector>                   // for vector
+#include <cstring>
 
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
