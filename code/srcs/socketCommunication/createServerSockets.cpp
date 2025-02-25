@@ -59,7 +59,7 @@ void	createAllServerSockets
 	SocketsHandler &socketsHandler
 )
 {
-	const uint32_t	events = EPOLLIN | EPOLLET | EPOLLERR | EPOLLHUP;
+	const uint32_t	events = EPOLLIN | EPOLLERR | EPOLLHUP;
 
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
@@ -68,7 +68,7 @@ void	createAllServerSockets
 
 		if (fd == -1)
 			continue ;
-		if (socketsHandler.addFdToListeners(fd, acceptConnection, (void *)&socketsHandler, events) == -1)
+		if (socketsHandler.addFdToListeners(fd, acceptConnection, socketsHandler, events) == -1)
 			close(fd);
 	}
 }

@@ -1,3 +1,4 @@
+#include <bits/types/sig_atomic_t.h>
 #include <csignal>
 
 #include "socketCommunication.hpp"
