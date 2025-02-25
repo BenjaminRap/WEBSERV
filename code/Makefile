@@ -40,7 +40,7 @@ DEPS_FILES		:=	$(OBJS_FILES:.o=.d)
 DEPS			:=	$(addprefix $(DEPS_DIR), $(DEPS_FILES))
 
 # RULES
-all: $(NAME)
+all: compile_commands.json $(NAME)
 
 $(NAME): $(OBJS) $(MAKEFILE) $(MAKEFILE) $(CONFIG)
 	$(CC) $(FLAGS) $(INCLUDES) $(OBJS) -o $@
@@ -68,5 +68,8 @@ fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+
+compile_commands.json: $(MAKEFILE) $(CONFIG)
+	-bear --output ../compile_commands.json -- make $(NAME)
 
 .PHONY: all clean fclean re
