@@ -2,3 +2,4 @@ objs/
 deps/
 .vscode/
 WebServ
+compile_commands.json
