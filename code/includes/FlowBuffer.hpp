@@ -114,6 +114,6 @@ public:
 };
 
 
-# include "FlowBuffer.tpp"
+# include "FlowBuffer.ipp"
 
 #endif // !FLOW_BUFFER_HPP
