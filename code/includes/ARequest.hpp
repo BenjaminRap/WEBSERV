@@ -8,7 +8,7 @@ class ARequest
 	protected :
 		EMethods					_method;
 		const ServerConfiguration	*_config;
-		const Route					*_root;
+		const Route					*_route;
 		std::string					_url;
 		bool						_isRoot;
 
@@ -26,14 +26,14 @@ class ARequest
 
 		void					setResponse(int code, const std::string &status, const std::string &file);
 		void					setUrl(const std::string &src);
-		void					setRoot(const Route *root);
+		void					setRoute(const Route *root);
 		void					setMethod(EMethods method);
 		void					setIsRoot(bool src);
 
 		std::string				&getUrl();
 		const std::string		&getStatusText() const;
 		const std::string		&getFile() const;
-		const Route				*getRoot() const;
+		const Route				*getRoute() const;
 		int						getCode() const;
 		EMethods				getMethod() const;
 		bool					getIsRoot() const;

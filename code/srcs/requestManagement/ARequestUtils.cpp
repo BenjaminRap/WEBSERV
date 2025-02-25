@@ -94,7 +94,7 @@ void	addRoot(ARequest &get, const ServerConfiguration &config)
 		buildNewURl(config.getRoot(), get.getUrl());
 		return ;
 	}
-	get.setRoot(temp);
+	get.setRoute(temp);
 	get.setIsRoot(true);
 	if (!checkAllowMeth(*temp, GET))
 	{

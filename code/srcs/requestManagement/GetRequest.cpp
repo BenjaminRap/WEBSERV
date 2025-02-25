@@ -16,8 +16,8 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 {
 	int			temp;
 
-	if (this->_root != NULL)
-		this->setAutoIndex(this->_root->getAutoIndex());
+	if (this->_route != NULL)
+		this->setAutoIndex(this->_route->getAutoIndex());
 	if (this->_code != 0)
 		return ;
 	temp = isDirOrFile(this->_url);
@@ -46,7 +46,7 @@ GetRequest &GetRequest::operator=(const GetRequest &src)
 {
 	this->_method = src._method;
 	this->_config = src._config;
-	this->_root = src._root;
+	this->_route = src._route;
 	this->_url = src._url;
 	this->_isRoot = src._isRoot;
 
@@ -74,7 +74,7 @@ bool	GetRequest::getAutoIndex() const
 
 std::vector<std::string>	GetRequest::getIndexVec()
 {
-	return (this->_root->getIndex());
+	return (this->_route->getIndex());
 }
 
 void	GetRequest::setAutoIndex(bool src)

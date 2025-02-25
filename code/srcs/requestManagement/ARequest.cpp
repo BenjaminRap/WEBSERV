@@ -9,12 +9,12 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequest &req, std::string &url);
 void	addRoot(ARequest &get, const ServerConfiguration &config);
 
-ARequest::ARequest() : _method(GET), _config(NULL), _root(NULL), _url(""), _code(0), _statusText(""), _file("")
+ARequest::ARequest() : _method(GET), _config(NULL), _route(NULL), _url(""), _code(0), _statusText(""), _file("")
 {
 	return ;
 }
 
-ARequest::ARequest(std::string &url, const ServerConfiguration&config, EMethods method) : _method(method), _config(&config), _root(NULL), _url(url), _isRoot(false), _code(0)
+ARequest::ARequest(std::string &url, const ServerConfiguration&config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoot(false), _code(0)
 {
 	fixUrl(*this, url);
 	if (getCode() == 400)
@@ -41,7 +41,7 @@ ARequest::ARequest(const ARequest &src)
 ARequest& ARequest::operator=(const ARequest &src)
 {
 	this->_config = src._config;
-	this->_root = src._root;
+	this->_route = src._route;
 	this->_url = src._url;
 	this->_method = src._method;
 	this->_isRoot = src._isRoot;
@@ -65,9 +65,9 @@ void	ARequest::setUrl(const std::string &src)
 	this->_url = src;
 }
 
-void	ARequest::setRoot(const Route *root)
+void	ARequest::setRoute(const Route *route)
 {
-	this->_root = root;
+	this->_route = route;
 }
 
 void	ARequest::setMethod(EMethods method)
@@ -101,9 +101,9 @@ const std::string	&ARequest::getFile() const
 	return (this->_file);
 }
 
-const Route	*ARequest::getRoot() const
+const Route	*ARequest::getRoute() const
 {
-	return (this->_root);
+	return (this->_route);
 }
 
 int	ARequest::getCode() const

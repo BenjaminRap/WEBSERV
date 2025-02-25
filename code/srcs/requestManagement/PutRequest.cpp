@@ -64,7 +64,7 @@ PutRequest::~PutRequest()
 PutRequest	&PutRequest::operator=(const PutRequest &src)
 {
 	this->_config = src._config;
-	this->_root = src._root;
+	this->_route = src._route;
 	this->_url = src._url;
 	this->_method = src._method;
 	this->_isRoot = src._isRoot;
