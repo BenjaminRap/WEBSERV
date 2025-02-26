@@ -1,8 +1,8 @@
 #include "ARequestType.hpp"
 
-bool	checkAllowMeth(const Route &root, EMethods meth)
+bool	checkAllowMeth(const Route &route, EMethods meth)
 {
-	const std::vector<EMethods>	&meths = root.getAcceptedMethods();
+	const std::vector<EMethods>	&meths = route.getAcceptedMethods();
 	size_t						len;
 
 	len = meths.size();
