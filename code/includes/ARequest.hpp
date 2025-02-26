@@ -7,6 +7,7 @@ class ARequest
 {
 	private:
 		ARequest();
+		ARequest(const ARequest& src);
 
 	protected :
 		EMethods					_method;
@@ -22,7 +23,6 @@ class ARequest
 	public :
 		explicit ARequest(std::string &url, const ServerConfiguration&config, EMethods method);
 		virtual ~ARequest() = 0;
-		ARequest(const ARequest& src);
 		ARequest& operator=(const ARequest& src);
 
 		void					setResponse(int code, const std::string &status, const std::string &file);

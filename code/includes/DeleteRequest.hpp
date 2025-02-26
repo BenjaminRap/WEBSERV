@@ -7,10 +7,10 @@ class DeleteRequest : public ARequest
 {
 	private :
 		DeleteRequest();
+		DeleteRequest(const DeleteRequest& src);
 
 	public :
 		explicit DeleteRequest(std::string url, const ServerConfiguration &config);
-		DeleteRequest(const DeleteRequest& src);
 		~DeleteRequest();
 		DeleteRequest& operator=(const DeleteRequest& src);
 };

@@ -44,10 +44,3 @@ DeleteRequest	&DeleteRequest::operator=(const DeleteRequest &src)
 
 	return (*this);
 }
-
-DeleteRequest::DeleteRequest(const DeleteRequest &src) : ARequest(src)
-{
-	if (this == &src)
-		return;
-	*this = src;
-}

@@ -8,13 +8,14 @@
 class GetRequest : public ARequest
 {
 	private :
-		GetRequest();
-
 		bool				_autoIndex;
 		int					_index;
+
+		GetRequest();
+		GetRequest(const GetRequest& src);
+
 	public :
 		explicit GetRequest(std::string url, const ServerConfiguration &config);
-		GetRequest(const GetRequest& src);
 		~GetRequest();
 		GetRequest& operator=(const GetRequest& src);
 

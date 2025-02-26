@@ -51,13 +51,6 @@ GetRequest &GetRequest::operator=(const GetRequest &src)
 	return (*this);
 }
 
-GetRequest::GetRequest(const GetRequest &src) : ARequest(src)
-{
-	if (this == &src)
-		return;
-	*this = src;
-}
-
 bool	GetRequest::getAutoIndex() const
 {
 	return (this->_autoIndex);
