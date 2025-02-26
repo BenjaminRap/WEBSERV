@@ -58,11 +58,26 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 	return (0);
 }
 
-std::string	buildPage(std::list<std::string>	&files, const std::string& path)
+size_t	getBuildPagelength(std::list<std::string> &files, const std::string &path)
+{
+	size_t	length;
+
+	length = 130 + 2 * path.size() + 1;
+	for (std::list<std::string>::iterator it = files.begin(); it != files.end(); it++)
+	{
+		if (*it == ".." || *it == ".")
+			continue ;
+		length += 19 + it->size() * 2;
+	}
+	return (length);
+}
+
+std::string	buildPage(std::list<std::string> &files, const std::string& path)
 {
 	std::string								result;
 	std::list<std::string>::iterator		end;
 
+	result.reserve(getBuildPagelength(files, path));
 	end = files.end();
 	result = "<html>\n<head><title>Index of ";
 	result += path;
