@@ -4,7 +4,7 @@
 # include "ServerConfiguration.hpp"
 # include "Host.hpp"
 
-# define DEFAULT_CONFIG_PATH "../documentation/configuration.txt"
+# define DEFAULT_CONFIG_PATH "./configurations/configuration.txt"
 
 /// @brief This class describe all the configuration parsed from the configuration
 /// file. This program should process multiples 'servers', each having their own
