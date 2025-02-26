@@ -1,5 +1,4 @@
 #include <cstring>
-#include <list>
 
 #include <sys/types.h>
 #include <sys/stat.h>
