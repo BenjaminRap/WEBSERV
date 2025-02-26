@@ -10,7 +10,6 @@
 /// @brief The configuration specific for each server
 class ServerConfiguration
 {
-
 public :
 
 	ServerConfiguration(const std::vector<std::string> &serverNames, \
@@ -32,7 +31,6 @@ public :
 	const std::string							getLocation(const std::string &loc) const;
 
 private :
-
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.

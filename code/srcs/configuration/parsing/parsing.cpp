@@ -105,7 +105,7 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 		errorPages.insert(std::make_pair(ERROR_405_INT, ERROR_405_STR));
 	if (errorPages.find(ERROR_500_INT) == errorPages.end())
 		errorPages.insert(std::make_pair(ERROR_500_INT, ERROR_500_STR));
-	if (errorPages.find(ERROR_500_INT) == errorPages.end())
+	if (errorPages.find(ERROR_505_INT) == errorPages.end())
 		errorPages.insert(std::make_pair(ERROR_505_INT, ERROR_505_STR));
 	insert_host(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip);
 }

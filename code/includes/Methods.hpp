@@ -8,6 +8,7 @@ enum EMethods
 {
 	GET,
 	POST,
+	PUT,
 	DELETE
 };
 

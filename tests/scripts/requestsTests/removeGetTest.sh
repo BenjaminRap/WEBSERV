@@ -1,0 +1,1 @@
+rm main.html get/ -rf
