@@ -12,7 +12,7 @@ bool	checkFileName(const std::string &fileName)
 	return (true);
 }
 
-PutRequest::PutRequest(std::string url, std::string fileName, const ServerConfiguration &config) : ARequestType(url, config, PUT), _fd(-1)
+PutRequest::PutRequest(std::string url, std::string &fileName, const ServerConfiguration &config) : ARequestType(url, config, PUT), _fd(-1)
 {
 	std::string path;
 
