@@ -9,7 +9,7 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequest &req, std::string &url);
 void	addRoot(ARequest &get, const ServerConfiguration &config);
 
-ARequest::ARequest(std::string &url, const ServerConfiguration&config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoot(false), _code(0)
+ARequest::ARequest(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoot(false), _code(0), _statusText(""), _file("")
 {
 	fixUrl(*this, url);
 	if (getCode() == 400)
