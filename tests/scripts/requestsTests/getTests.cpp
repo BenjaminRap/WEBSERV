@@ -50,20 +50,6 @@ void	makeGet(const std::string& test, int code, const std::string& response, con
 	}
 }
 
-void	makeDelete(const std::string &desc, const std::string& test, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
-{
-	DeleteRequest a(test, config);
-
-	std::cout << BMAG << "Test : "<< BCYN << desc << BWHT << " | (" << test << ")" << tab;
-	if (a.getCode() == code && a.getStatusText() == response)
-		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
-	else
-	{
-		std::cout << BRED << " KO : " " response : " << a.getCode() << " | " << a.getStatusText() << "\t";
-		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
-	}
-}
-
 std::pair<int, std::string>	askNginx(const std::string &url,const std::string &method)
 {
 	int					tube[2];
@@ -90,14 +76,6 @@ std::pair<int, std::string>	askNginx(const std::string &url,const std::string &m
 	close(tube[0]);
 	close(tube[1]);
 	return (std::pair<int, std::string>(status, statusText));
-}
-
-void	testDeleteRequest(const std::string &desc, const std::string &url, const std::string &tab, const ServerConfiguration &config)
-{
-	std::pair<int, std::string>	nginxResult;
-
-	nginxResult = askNginx(url, "DELETE");
-	makeDelete(desc, url, nginxResult.first, nginxResult.second, tab, config);
 }
 
 void	testGetRequest(const std::string &url, const std::string &tab, const ServerConfiguration &config)
@@ -150,33 +128,6 @@ void	getTest(const ServerConfiguration &config)
 	testGetRequest("/get/auto2/", "\t\t\t\t\t\t", config);
 }
 
-void	deleteTest(const ServerConfiguration &config)
-{
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest \n\t- test.sh\n\t- removeTest.sh" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t File Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testDeleteRequest("Normal Case", "/delete/full/classic", "\t\t\t\t\t", config);
-	testDeleteRequest("Normal Case (\"../\" in URL)","/delete/full/../../delete/full/noback", "\t", config);
-	testDeleteRequest("No Perm file","/delete/full/noperms", "\t\t\t\t\t", config);
-	testDeleteRequest("No Perm directory of file","/delete/cant/tryme", "\t\t\t\t", config);
-	testDeleteRequest("Only Read Perm directory of file","/delete/readme/deleteme", "\t\t", config);
-	testDeleteRequest("Not Found","/delete/emptwswdy", "\t\t\t\t\t\t", config);
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Directory Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testDeleteRequest("Url not end by \"/\"","/delete/folder/empty", "\t\t\t\t", config);
-	testDeleteRequest("Empty Directory","/delete/folder/empty/", "\t\t\t\t", config);
-	testDeleteRequest("Normal Case","/delete/folder/classic/", "\t\t\t\t\t", config);
-	testDeleteRequest("No Perms for parent dir","/delete/folder/nopermspa/", "\t\t\t", config);
-	testDeleteRequest("No Perms for the dir do del","/delete/folder/noperms/", "\t\t\t", config);
-	testDeleteRequest("Dir in Dir (But have no perms)","/delete/folder/dire/", "\t\t\t", config);
-	testDeleteRequest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/", "\t\t", config);
-	testDeleteRequest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/", "\t\t", config);
-	testDeleteRequest("Normal Case ++++++","/delete/folder/dire4/", "\t\t\t\t", config);
-}
-
 int	main(int argc, char **argv)
 {
 	std::string file;
@@ -187,56 +138,31 @@ int	main(int argc, char **argv)
 	}
 	Configuration	config;
 
-	if (argc == 2)
+	ft_readfile(argv[1], file);
+	parse_file(config, file);
+	
+	if (std::system("curl -I localhost:8181 > /dev/null 2>&1") != 0)
 	{
-		ft_readfile(argv[1], file);
-		parse_file(config, file);
-//		std::system("cd unitTest && ../getTest.sh"); // For our server
-//		std::system("cd ../tests/website && ../../code/getTest.sh"); // For nginx
-		
-		if (std::system("curl -I localhost:8181 > /dev/null 2>&1") != 0)
-		{
-			std::cout << "Nginx server not running, exiting" << std::endl;
-			return (EXIT_FAILURE);
-		}
-
-		if (std::system("mkdir -p ./unitTest && cd ./unitTest && ../../tests/scripts/requestsTests/deleteTest.sh") != 0  // For our server
-			|| std::system("cd ../tests/website && ../scripts/requestsTests/deleteTest.sh") != 0)  // For nginx
-		{
-			std::cout << "Error executing the delete init scripts" << std::endl;
-			return (EXIT_FAILURE);
-		}
-
-//		getTest(config.begin()->second[0]);
-		deleteTest(config.begin()->second[0]);
-
-//		std::system("cd unitTest && ../removeGetTest.sh"); // For our server
-//		std::system("cd ../tests/website && ../../code/removeGetTest.sh"); // For nginx
-
-		if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/removeDeleteTest.sh && rmdir ../unitTest") != 0 // For our server
-			|| std::system("cd ../tests/website && ../scripts/requestsTests/removeDeleteTest.sh") != 0) // For nginx
-		{
-			std::cout << "Error executing the delete cleaning scripts" << std::endl;
-			return (EXIT_FAILURE);
-		}
+		std::cout << "Nginx server not running, exiting" << std::endl;
+		return (EXIT_FAILURE);
 	}
-	else if (argc == 3)
+
+	if (std::system("mkdir -p ./unitTest && cd ./unitTest && ../../tests/scripts/requestsTests/getTest.sh") != 0  // For our server
+		|| std::system("cd ../tests/website && ../scripts/requestsTests/getTest.sh") != 0)  // For nginx
 	{
-		ft_readfile(argv[1], file);
-		parse_file(config, file);
-		PutRequest a(argv[2], "test.txt", config.begin()->second[0]);
-//		GetRequest a(argv[2], config.begin()->second[0]);
-		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
-		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		std::cout << CRESET << std::endl;
-		std::cout << BMAG << "Code : "<< BWHT << a.getCode() << CRESET << std::endl;
-		std::cout << BMAG << "File : "<< BWHT << a.getFile() << CRESET << std::endl;
-		std::cout << BMAG << "FD : "<< BWHT << a.getFd() << CRESET << std::endl;
-		std::cout << std::endl;
-		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-		close(a.getFd());
+		std::cout << "Error executing the get init scripts" << std::endl;
+		return (EXIT_FAILURE);
 	}
-	return (0);
+
+		getTest(config.begin()->second[0]);
+
+
+	if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/removeGetTest.sh && rmdir ../unitTest") != 0 // For our server
+		|| std::system("cd ../tests/website && ../scripts/requestsTests/removeGetTest.sh") != 0) // For nginx
+	{
+		std::cout << "Error executing the get cleaning scripts" << std::endl;
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
 }
 
