@@ -200,8 +200,12 @@ int	main(int argc, char **argv)
 			return (EXIT_FAILURE);
 		}
 
-		std::system("cd unitTest && ../deleteTest.sh"); // For our server
-		std::system("cd ../tests/website && ../../code/deleteTest.sh"); // For nginx
+		if (std::system("mkdir -p ./unitTest && cd ./unitTest && ../../tests/scripts/requestsTests/deleteTest.sh") != 0  // For our server
+			|| std::system("cd ../tests/website && ../scripts/requestsTests/deleteTest.sh") != 0)  // For nginx
+		{
+			std::cout << "Error executing the delete init scripts" << std::endl;
+			return (EXIT_FAILURE);
+		}
 
 //		getTest(config.begin()->second[0]);
 		deleteTest(config.begin()->second[0]);
@@ -209,8 +213,12 @@ int	main(int argc, char **argv)
 //		std::system("cd unitTest && ../removeGetTest.sh"); // For our server
 //		std::system("cd ../tests/website && ../../code/removeGetTest.sh"); // For nginx
 
-		std::system("cd unitTest && ../removeDeleteTest.sh"); // For our server
-		std::system("cd ../tests/website && ../../code/removeDeleteTest.sh"); // For nginx
+		if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/removeDeleteTest.sh && rmdir ../unitTest") != 0 // For our server
+			|| std::system("cd ../tests/website && ../scripts/requestsTests/removeDeleteTest.sh") != 0) // For nginx
+		{
+			std::cout << "Error executing the delete cleaning scripts" << std::endl;
+			return (EXIT_FAILURE);
+		}
 	}
 	else if (argc == 3)
 	{
