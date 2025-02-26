@@ -26,28 +26,6 @@ ARequest::~ARequest()
 	return ;
 }
 
-ARequest::ARequest(const ARequest &src)
-{
-	if (this != &src)
-		return ;
-	*this = src;
-}
-
-ARequest& ARequest::operator=(const ARequest &src)
-{
-	this->_config = src._config;
-	this->_route = src._route;
-	this->_url = src._url;
-	this->_method = src._method;
-	this->_isRoot = src._isRoot;
-
-	this->_code = src._code;
-	this->_statusText = src._statusText;
-	this->_file = src._file;
-
-	return (*this);
-}
-
 void	ARequest::setResponse(int code, const std::string &status, const std::string &file)
 {
 	this->_code = code;

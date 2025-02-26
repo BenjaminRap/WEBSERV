@@ -33,24 +33,6 @@ GetRequest::~GetRequest()
 {
 }
 
-GetRequest &GetRequest::operator=(const GetRequest &src)
-{
-	this->_method = src._method;
-	this->_config = src._config;
-	this->_route = src._route;
-	this->_url = src._url;
-	this->_isRoot = src._isRoot;
-
-	this->_code = src._code;
-	this->_statusText = src._statusText;
-	this->_file = src._file;
-
-	this->_autoIndex = src._autoIndex;
-	this->_index = src._index;
-
-	return (*this);
-}
-
 bool	GetRequest::getAutoIndex() const
 {
 	return (this->_autoIndex);

@@ -13,11 +13,11 @@ class GetRequest : public ARequest
 
 		GetRequest();
 		GetRequest(const GetRequest& src);
+		GetRequest& operator=(const GetRequest& src);
 
 	public :
 		explicit GetRequest(std::string url, const ServerConfiguration &config);
 		~GetRequest();
-		GetRequest& operator=(const GetRequest& src);
 
 		bool						getAutoIndex() const;
 		void						setAutoIndex(bool src);

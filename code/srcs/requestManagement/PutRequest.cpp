@@ -53,23 +53,6 @@ PutRequest::~PutRequest()
 {
 }
 
-PutRequest	&PutRequest::operator=(const PutRequest &src)
-{
-	this->_config = src._config;
-	this->_route = src._route;
-	this->_url = src._url;
-	this->_method = src._method;
-	this->_isRoot = src._isRoot;
-
-	this->_code = src._code;
-	this->_statusText = src._statusText;
-	this->_file = src._file;
-
-	this->_fd = src._fd;
-
-	return (*this);
-}
-
 void PutRequest::setFd(int fd)
 {
 	this->_fd = fd;
