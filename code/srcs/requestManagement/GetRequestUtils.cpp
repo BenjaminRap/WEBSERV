@@ -36,7 +36,7 @@ int	isDirOrFile(const std::string& path)
 	if (S_ISDIR(stats.st_mode) == DIRE)
 		return (DIRE);
 	else
-		return (FILE);
+		return (LS_FILE);
 }
 
 int	ls(const std::string& path, std::list<std::string> &lst)
@@ -108,7 +108,7 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 	for (unsigned long i = 0; i < size; i++)
 	{
 		temp = get.getUrl() + indexs[i];
-		if (isDirOrFile(temp) == FILE)
+		if (isDirOrFile(temp) == LS_FILE)
 		{
 			get.setResponse(200, "OK", temp);
 			return (true);

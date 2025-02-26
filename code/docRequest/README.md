@@ -128,7 +128,7 @@ Bien, maintenant qu'on a notre vrais URL et qu'on sait qu'elle ne va plus change
 temp = isDirOrFile(this->_url);  
 if (temp == DIRE)  
     directoryCase(*this);  
-else if (temp == FILE)  
+else if (temp == LS_FILE)  
     setResponse(200, this->_url);  
 else  
     setResponse(404, config.getErrorPage(404));
@@ -143,16 +143,16 @@ if (stat(path.c_str(), &stats) == -1)
 if (S_ISDIR(stats.st_mode) == DIRE)  
     return (DIRE); // DIRE for DIRECTORY
 else  
-    return (FILE);
+    return (LS_FILE);
 ```
 
 La fonction `stat()` fait le travail, car elle stock dans sa structure si c'est un directory ou pas, on récupère cette valeur avec `S_ISDIR()`.
 
-Bien évidement `DIRE` `FILE` `NF` sont des define pour simplifier la comprehension.
+Bien évidement `DIRE` `LS_FILE` `NF` sont des define pour simplifier la comprehension.
 
 Donc, si on reprend le premier bloc de code que j'ai mis :
 - Si `DIRE` est retourner : `directoryCase(*this);` on passe a la suite.
-- Si `FILE` est retourner : `setResponse(200, this->_url);` All is good
+- Si `LS_FILE` est retourner : `setResponse(200, this->_url);` All is good
 - Si `NF` est retourner : `setResponse(404, config.getErrorPage(404));` on renvoie erreur 404
 
 Et tout est carre, on a fini.
@@ -209,7 +209,7 @@ Et ensuite on boucle dessus
 ```cpp
 for (unsigned long i = 0; i < size; i++)  
 {  
-    if (isDirOrFile(get.getUrl() + indexs[i]) == FILE)  
+    if (isDirOrFile(get.getUrl() + indexs[i]) == LS_FILE)  
     {       get.setResponse(200, get.getUrl() + indexs[i]);  
        return (true);  
     }

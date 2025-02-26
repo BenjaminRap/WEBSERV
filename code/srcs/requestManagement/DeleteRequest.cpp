@@ -13,7 +13,7 @@ DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config)
 	temp = isDirOrFile(this->_url);
 	if (temp == DIRE)
 		directoryCase(this->_url, *this);
-	else if (temp == FILE)
+	else if (temp == LS_FILE)
 		fileCase(this->_url, *this);
 	else if (temp == -1)
 		this->setResponse(403, "Forbidden", "Forbidden");
