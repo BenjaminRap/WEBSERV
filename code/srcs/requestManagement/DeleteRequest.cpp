@@ -4,7 +4,7 @@ int							isDirOrFile(const std::string& path);
 int							directoryCase(const std::string &path, DeleteRequest &del);
 int							fileCase(const std::string &path, DeleteRequest &del);
 
-DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : ARequest(url, config, DELETE)
+DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, DELETE)
 {
 	int			temp;
 

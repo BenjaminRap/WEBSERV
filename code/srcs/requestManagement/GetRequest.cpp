@@ -7,7 +7,7 @@ void						fixPath(std::string &path);
 void						directoryCase(GetRequest& get);
 std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 
-GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequest(url, config, GET), _autoIndex(false), _index(0)
+GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET), _autoIndex(false), _index(0)
 {
 	int			temp;
 

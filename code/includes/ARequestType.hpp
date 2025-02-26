@@ -10,12 +10,12 @@
 #define FORBIDEN -1
 #define ERROR500 -2
 
-class ARequest
+class ARequestType
 {
 	private:
-		ARequest();
-		ARequest(const ARequest& src);
-		ARequest& operator=(const ARequest& src);
+		ARequestType();
+		ARequestType(const ARequestType& src);
+		ARequestType& operator=(const ARequestType& src);
 
 	protected :
 		EMethods					_method;
@@ -29,8 +29,8 @@ class ARequest
 		std::string					_file;
 
 	public :
-		explicit ARequest(std::string &url, const ServerConfiguration&config, EMethods method);
-		virtual ~ARequest() = 0;
+		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
+		virtual ~ARequestType() = 0;
 
 		void					setResponse(int code, const std::string &status, const std::string &file);
 		void					setUrl(const std::string &src);

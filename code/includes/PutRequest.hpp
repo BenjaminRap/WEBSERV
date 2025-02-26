@@ -7,9 +7,9 @@
 #include <cerrno>
 
 #include "ServerConfiguration.hpp"
-#include "ARequest.hpp"
+#include "ARequestType.hpp"
 
-class PutRequest : public ARequest
+class PutRequest : public ARequestType
 {
 	private :
 		int			_fd;

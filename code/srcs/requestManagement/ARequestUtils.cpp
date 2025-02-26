@@ -1,4 +1,4 @@
-#include "ARequest.hpp"
+#include "ARequestType.hpp"
 
 bool	checkAllowMeth(const Route &root, EMethods meth)
 {
@@ -74,7 +74,7 @@ void	fixPath(std::string &path)
 		path = "/";
 }
 
-void	fixUrl(ARequest &req, std::string &url)
+void	fixUrl(ARequestType &req, std::string &url)
 {
 	if (*url.begin() != '/')
 		req.setResponse(400, "Bad Request", "Bad Request");
@@ -85,7 +85,7 @@ void	fixUrl(ARequest &req, std::string &url)
 	}
 }
 
-void	addRoot(ARequest &get, const ServerConfiguration &config)
+void	addRoot(ARequestType &get, const ServerConfiguration &config)
 {
 	const Route	*temp = config.getOneRoutes(get.getUrl());
 

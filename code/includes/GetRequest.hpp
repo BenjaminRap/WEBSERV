@@ -3,9 +3,9 @@
 
 #include <string>
 #include "ServerConfiguration.hpp"
-#include "ARequest.hpp"
+#include "ARequestType.hpp"
 
-class GetRequest : public ARequest
+class GetRequest : public ARequestType
 {
 	private :
 		bool				_autoIndex;

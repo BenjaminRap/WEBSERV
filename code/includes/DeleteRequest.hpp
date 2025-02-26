@@ -1,8 +1,8 @@
 #include <string>
 #include "ServerConfiguration.hpp"
-#include "ARequest.hpp"
+#include "ARequestType.hpp"
 
-class DeleteRequest : public ARequest
+class DeleteRequest : public ARequestType
 {
 	private :
 		DeleteRequest();
