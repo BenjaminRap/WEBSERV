@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include "parsing.hpp"
 
-#include "askNginx.cpp"
+#include "utils.cpp"
 
 #define BRED "\e[1;3;31m"
 #define BGRN "\e[1;3;32m"
