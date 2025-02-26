@@ -5,6 +5,9 @@
 
 class ARequest
 {
+	private:
+		ARequest();
+
 	protected :
 		EMethods					_method;
 		const ServerConfiguration	*_config;
@@ -15,8 +18,6 @@ class ARequest
 		int							_code;
 		std::string					_statusText;
 		std::string					_file;
-
-		ARequest();
 
 	public :
 		explicit ARequest(std::string &url, const ServerConfiguration&config, EMethods method);

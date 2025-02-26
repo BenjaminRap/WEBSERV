@@ -16,7 +16,7 @@ class PutRequest : public ARequest
 		int			_fd;
 		PutRequest();
 
-public :
+	public :
 		explicit PutRequest(std::string url, std::string fileName, const ServerConfiguration &config);
 		PutRequest(const PutRequest& src);
 		~PutRequest();

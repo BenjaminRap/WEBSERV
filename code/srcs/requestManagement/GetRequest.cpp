@@ -29,15 +29,6 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 		setResponse(404, "Not Found", config.getErrorPage(404));
 }
 
-GetRequest::GetRequest()
-{
-	_url = "NULL";
-	_autoIndex = false;
-	_index = 0;
-	_isRoot = false;
-	std::cerr << "The default constructor shouldn't be called" << std::endl;
-}
-
 GetRequest::~GetRequest()
 {
 }

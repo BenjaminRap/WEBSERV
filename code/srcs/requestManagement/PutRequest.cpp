@@ -49,14 +49,6 @@ PutRequest::PutRequest(std::string url, std::string fileName, const ServerConfig
 	}
 }
 
-PutRequest::PutRequest()
-{
-	_url = "NULL";
-	_code = 0;
-	_isRoot = false;
-	std::cerr << "The default constructor shouldn't be called" << std::endl;
-}
-
 PutRequest::~PutRequest()
 {
 }

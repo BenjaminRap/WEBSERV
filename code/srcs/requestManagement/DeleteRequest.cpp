@@ -26,14 +26,6 @@ DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config)
 		setResponse(404, "Not Found", config.getErrorPage(404));
 }
 
-DeleteRequest::DeleteRequest()
-{
-	_url = "NULL";
-	_code = 0;
-	_isRoot = false;
-	std::cerr << "The default constructor shouldn't be called" << std::endl;
-}
-
 DeleteRequest::~DeleteRequest()
 {
 }
