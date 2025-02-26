@@ -11,21 +11,6 @@
 #include <sstream>
 #include "parsing.hpp"
 
-
-#define RESPONSE404 "/custom_404.html"
-#define CLASSIC "./unitTest/main.html"
-
-
-#define FOR403 "Forbidden"
-#define NOT204 "No Content"
-#define INTERNAL500 "Internal Server Error"
-#define CON409 "Conflict"
-
-
-#define MAINCPP "./unitTest/fake/main.cpp"
-#define SRCS200 "./unitTest/srcs/index.html"
-#define AUTOINDEXBASE "<html>\n<head><title>Index of ./unitTest/autoindex/</title></head>\n<body>\n<h1>Index of./unitTest/autoindex/</h1><hr><pre><a href=\"../\">../</a>\n<a href=\"dir\">dir</a>\n<a href=\"notdir\">notdir</a>\n<a href=\"main.cpp\">main.cpp</a>\n<a href=\"test\">test</a>\n<a href=\"tnul\">tnul</a>\n<a href=\"zebi.js\">zebi.js</a>\n</pre><hr></body>\n</html>"
-#define AUTOINDEXDIR "<html>\n<head><title>Index of ./unitTest/autoindex/dir/</title></head>\n<body>\n<h1>Index of./unitTest/autoindex/dir/</h1><hr><pre><a href=\"../\">../</a>\n</pre><hr></body>\n</html>"
 #define BRED "\e[1;3;31m"
 #define BGRN "\e[1;3;32m"
 #define BYEL "\e[1;3;33m"
