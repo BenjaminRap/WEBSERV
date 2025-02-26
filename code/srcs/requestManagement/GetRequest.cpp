@@ -3,10 +3,6 @@
 #include <vector>
 #include <list>
 
-#define DIRE	1
-#define FILE	2
-#define NF		3
-
 int							isDirOrFile(const std::string& path);
 void						fixPath(std::string &path);
 void						directoryCase(GetRequest& get);

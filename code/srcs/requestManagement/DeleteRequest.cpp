@@ -1,10 +1,6 @@
 #include "DeleteRequest.hpp"
 #include <iostream>
 
-#define DIRE	1
-#define FILE	2
-#define NF		3
-
 int							isDirOrFile(const std::string& path);
 int							directoryCase(const std::string &path, DeleteRequest &del);
 int							fileCase(const std::string &path, DeleteRequest &del);

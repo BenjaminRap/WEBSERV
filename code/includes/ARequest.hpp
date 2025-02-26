@@ -3,6 +3,13 @@
 
 #include "ServerConfiguration.hpp"
 
+#define DIRE 1
+#define FILE 2
+#define NF 3
+
+#define FORBIDEN -1
+#define ERROR500 -2
+
 class ARequest
 {
 	private:

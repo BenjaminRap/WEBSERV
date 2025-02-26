@@ -1,15 +1,6 @@
 #include "PutRequest.hpp"
 
 #include <iostream>
-#define DIRE 1
-#define FILE 2
-#define NF 3
-
-#define DIRE	1
-#define FILE	2
-#define NF		3
-#define FORBIDEN -1
-#define ERROR500 -2
 
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);
