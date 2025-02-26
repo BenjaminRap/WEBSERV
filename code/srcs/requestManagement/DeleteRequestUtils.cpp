@@ -5,13 +5,6 @@
 
 #include "DeleteRequest.hpp"
 
-#define DIRE 1
-#define FILE 2
-#define NF 3
-#define FORBIDEN -1
-#define ERROR500 -2
-
-
 int				isDirOrFile(const std::string &path);
 int				removeDirectory(const std::string &path, DeleteRequest &del);
 std::string		getParentPath(const std::string &path);

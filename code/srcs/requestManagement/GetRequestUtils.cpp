@@ -6,13 +6,6 @@
 #include <cerrno>
 #include "GetRequest.hpp"
 
-#define DIRE 1
-#define FILE 2
-#define NF 3
-#define FORBIDEN -1
-#define ERROR500 -2
-
-
 void	checkType(std::string &path, GetRequest &get)
 {
 	char lastChar = path[path.length() - 1];
