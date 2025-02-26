@@ -1,7 +1,16 @@
 #include "Request.hpp"
 
+Request::Request(void)
+{
+	return ;
+}
+
 void	Request::reset()
 {
+	this->_statusLine._method.clear();
+	this->_statusLine._protocol.clear();
+	this->_statusLine._requestTarget.clear();
+	this->_headers.clear();
 }
 
 Body	*Request::getBody() const
@@ -9,55 +18,53 @@ Body	*Request::getBody() const
 	return (_body);
 }
 
-int		Request::parseHeader(const std::string &s)
+int		Request::parseStatusLine(const char *line, size_t lineLength)
 {
-	size_t	i = 0;
-	size_t	pos;
-	size_t	end = line.find("\r\n\r\n", 0);
-	size_t	temp;
-
-	if (end == std::string::npos)
-		throw (RequestException("Wrong format!"));
+	std::string	s(line, lineLength);
+	size_t		i = 0;
+	size_t		pos;
 
 	//Parsing the method
-	pos = line.find(' ', i);
-	if (pos == std::string::npos || line[pos] != ' ')
+	pos = s.find(' ', i);
+	if (pos == std::string::npos)
 		return (1);
-	this->_statusLine._method = line.substr(i, pos - i);
+	this->_statusLine._method = s.substr(i, pos - i);
 	i = pos + 1;
 
 	//Parsing the target
-	pos = line.find(' ', i);
-	if (pos == std::string::npos || line[pos] != ' ')
+	pos = s.find(' ', i);
+	if (pos == std::string::npos)
 		return (1);
-	this->_statusLine._requestTarget = line.substr(i, pos - i);
+	this->_statusLine._requestTarget = s.substr(i, pos - i);
 	i = pos + 1;
 
 	//Parsing the protocol
-	pos = line.find("\r\n", i);
-	if (pos == std::string::npos || line[pos] != '\r' || line[pos + 1] != '\n')
+	pos = s.find("\r\n", i);
+	if (pos == std::string::npos)
 		return (1);
-	this->_statusLine._protocol = line.substr(i, pos - i);
-	i = pos + 2;
-
-	//Parsing the header
-	while (line[i] && i < end)
-	{
-		pos = line.find(": ", i);
-		if (pos == std::string::npos || pos > end)
-			throw (RequestException("Wrong header!"));
-		temp = line.find("\r\n", pos);
-		if (temp == std::string::npos)
-			break;
-		this->_headers.insert(std::make_pair(line.substr(i, pos - i), line.substr(pos + 2, temp - (pos + 2))));
-		i = temp + 2;
-	}
-	return (0;)
+	this->_statusLine._protocol = s.substr(i, pos - i);
+	return (0);
 }
 
-Request::Request(std::string line)
+int		Request::parseHeader(const char *line, size_t lineLength)
 {
+	std::string	s(line, lineLength);
+	size_t	i = 0;
+	size_t	pos;
+	size_t	temp;
 
+	while (i < lineLength && !(s[i] == '\r' && s[i + 1] == '\n'))
+	{
+		pos = s.find(": ", i);
+		if (pos == std::string::npos)
+			return (1);
+		temp = s.find("\r\n", pos);
+		if (temp == std::string::npos)
+			return (1);
+		this->_headers.insert(std::make_pair(s.substr(i, pos - i), s.substr(pos + 2, temp - (pos + 2))));
+		i = temp + 2;
+	}
+	return (0);
 }
 
 Request::~Request(void)

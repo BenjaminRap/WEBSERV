@@ -29,12 +29,23 @@ void	ft_readfile(const char *path, std::string &buff)
 
 int	main(void)
 {
+	std::string	sLine = "GET /index.html HTTP/1.1\r\n";
+	std::string	sHeader = "key1: value1\r\nkey2: value2\r\n\r\n";
 	try
 	{
-		std::string	s;
-		ft_readfile("../test.txt", s);
-		Request req(s);
-		std::cout << req << std::endl;
+		Request	r;
+		if (r.parseStatusLine(sLine.c_str(), 26))
+		{
+			std::cout << "Error parsing statusLine" << std::endl;
+			r.reset();
+		}
+		else if (r.parseHeader(sHeader.c_str(), 30))
+		{
+			std::cout << "Error parsing header" << std::endl;
+			r.reset();
+		}
+		else
+			std::cout << r << std::endl;
 	}
 	catch(const std::exception& e)
 	{

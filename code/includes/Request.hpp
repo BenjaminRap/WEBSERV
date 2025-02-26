@@ -39,10 +39,9 @@ private:
 	 */
 	Body								*_body;
 
-	Request(void);
-
 public:
-	Request(std::string line);
+
+	Request(void);
 	~Request(void);
 
 	void	reset();
@@ -52,8 +51,8 @@ public:
 	const std::string	&getProtocol(void) const;
 	const std::string	*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
-	// int		parseStatusLine(char *line, size_t lineLength);
-	int		parseHeader(const std::string &s);
+	int		parseStatusLine(const char *line, size_t lineLength);
+	int		parseHeader(const char *line, size_t lineLength);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);
