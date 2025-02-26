@@ -1,5 +1,4 @@
 #include "DeleteRequest.hpp"
-#include <iostream>
 
 int							isDirOrFile(const std::string& path);
 int							directoryCase(const std::string &path, DeleteRequest &del);

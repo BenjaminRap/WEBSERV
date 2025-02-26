@@ -1,5 +1,4 @@
 #include "GetRequest.hpp"
-#include <iostream>
 #include <vector>
 #include <list>
 

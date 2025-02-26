@@ -1,7 +1,5 @@
 #include "PutRequest.hpp"
 
-#include <iostream>
-
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);
 

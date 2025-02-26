@@ -1,7 +1,7 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <dirent.h>
-#include <fstream>
+#include <cstdio>
 
 #include "DeleteRequest.hpp"
 
