@@ -6,42 +6,107 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+#include "ServerConfiguration.hpp"
 #include "parsing.hpp"
 
 #include "utils.cpp"
 
-#define BRED "\e[1;3;31m"
-#define BGRN "\e[1;3;32m"
-#define BYEL "\e[1;3;33m"
-#define BBLU "\e[1;3;34m"
-#define BMAG "\e[1;3;35m"
-#define BCYN "\e[1;3;36m"
-#define BWHT "\e[1;3;37m"
-#define CRESET "\e[0m"
+void	makePut(const std::string& url, const std::string &filename, int code, const std::string& response, const std::string& tab, const ServerConfiguration &config)
+{
+	PutRequest a(url, filename, config);
+
+	std::cout << BMAG << "Request : "<< BCYN << (url + filename) << tab;
+	if (a.getCode() == code && a.getStatusText() == response)
+		std::cout << BGRN << "OK | " << code << " [" << response << "]" << CRESET << std::endl;
+	else
+	{
+		std::cout << BRED << "KO : " << a.getCode() << " | " << a.getStatusText() << CRESET << "\t";
+		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
+	}
+}
+
+void	testPutRequest(const std::string &url, const std::string &filename, const std::string &tab, const ServerConfiguration &config)
+{
+	std::pair<int, std::string>	nginxResult;
+
+	nginxResult = askNginx(url + filename, "PUT");
+	makePut(url, filename, nginxResult.first, nginxResult.second, tab, config);
+}
+
+void	printHeader(const std::string &header)
+{
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t " << header << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+}
+
+void	putTest(const ServerConfiguration &config)
+{
+	printHeader("Allowed Case");
+	testPutRequest("/put/allowed/", "main.html", "\t\t\t\t\t", config);
+
+	printHeader("Method Not Allowed Case");
+	testPutRequest("/put/notAllowed/", "main.html", "\t\t\t\t\t", config);
+
+	printHeader("No Right on folder Case");
+	testPutRequest("/put/forbidden/", "main.html", "\t\t\t\t\t", config);
+
+	printHeader("File Already existing With right Case");
+	testPutRequest("/put/", "mainRight.html", "\t\t\t\t\t", config);
+
+	printHeader("File Already existing With no right Case");
+	testPutRequest("/put/", "mainNoRight.html", "\t\t\t\t\t", config);
+
+	printHeader("Creating directory Case");
+	testPutRequest("/put/directory", "", "\t\t\t\t\t", config);
+
+	printHeader("Creating directory that already exists, with right and empty Case");
+	testPutRequest("/put/alreadyExistingDirEmpty", "", "\t\t\t\t\t", config);
+
+	printHeader("Creating directory that already exists, with right and not empty Case");
+	testPutRequest("/put/alreadyExistingDir", "", "\t\t\t\t\t", config);
+
+	printHeader("Creating directory that already exists, with no right and empty Case");
+	testPutRequest("/put/alreadyExistingDirEmptyNoRight", "", "\t\t\t\t\t", config);
+
+	printHeader("Creating directory that already exists, with no right and not empty Case");
+	testPutRequest("/put/alreadyExistingDirNoRight", "", "\t\t\t\t\t", config);
+}
 
 int	main(int argc, char **argv)
 {
 	std::string file;
-	if (argc < 3)
+	if (argc < 2)
 	{
-		std::cerr << "Not enough arguments, expected the nginxconf and a request" << std::endl;
+		std::cerr << "Not enough arguments, expected the nginxconf." << std::endl;
 		return (1);
 	}
 	Configuration	config;
+
 	ft_readfile(argv[1], file);
 	parse_file(config, file);
-	PutRequest a(argv[2], "test.txt", config.begin()->second[0]);
-//		GetRequest a(argv[2], config.begin()->second[0]);
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BMAG << "Request : "<< BCYN << argv[2] << "\t" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << CRESET << std::endl;
-	std::cout << BMAG << "Code : "<< BWHT << a.getCode() << CRESET << std::endl;
-	std::cout << BMAG << "File : "<< BWHT << a.getFile() << CRESET << std::endl;
-	std::cout << BMAG << "FD : "<< BWHT << a.getFd() << CRESET << std::endl;
-	std::cout << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	close(a.getFd());
-	return (0);
+	
+	if (std::system("curl -I localhost:8181 > /dev/null 2>&1") != 0)
+	{
+		std::cout << "Nginx server not running, exiting" << std::endl;
+		return (EXIT_FAILURE);
+	}
+
+	if (std::system("mkdir -p ./unitTest && cd ./unitTest && ../../tests/scripts/requestsTests/initPutTest.sh") != 0  // For our server
+		|| std::system("cd ../tests/website && ../scripts/requestsTests/initPutTest.sh") != 0)  // For nginx
+	{
+		std::cout << "Error executing the get init scripts" << std::endl;
+		return (EXIT_FAILURE);
+	}
+
+	putTest(config.begin()->second[0]);
+
+	if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/cleanPutTest.sh && rmdir ../unitTest") != 0 // For our server
+		|| std::system("cd ../tests/website && ../scripts/requestsTests/cleanPutTest.sh") != 0) // For nginx
+	{
+		std::cout << "Error executing the get cleaning scripts" << std::endl;
+		return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
 }
 
