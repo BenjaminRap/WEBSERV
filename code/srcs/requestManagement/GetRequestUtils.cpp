@@ -128,7 +128,7 @@ void	autoIndexCase(GetRequest &get)
 	else if (response == ERROR500)
 		get.setResponse(500, "Internal Server Error", get.getError(500));
 	else
-		get.setUrl(buildPage(files, get.getUrl()));
+		get.setResponse(200, "OK", buildPage(files, get.getUrl()));
 }
 
 void	directoryCase(GetRequest &get)
