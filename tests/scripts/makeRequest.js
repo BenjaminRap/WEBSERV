@@ -15,7 +15,8 @@ async function	makeRequest()
 	try
 	{
 		const response = await fetch(host + url, {
-			method: method
+			method: method,
+			redirect: 'manual'
 		});
 		console.log(response.status + " " + response.statusText);
 	}
