@@ -19,7 +19,7 @@ class PutRequest : public ARequestType
 		PutRequest& operator=(const PutRequest& src);
 
 	public :
-		explicit PutRequest(std::string url, std::string &fileName, const ServerConfiguration &config);
+		explicit PutRequest(std::string url, const std::string &fileName, const ServerConfiguration &config);
 		~PutRequest();
 
 		int getFd(void) const;
