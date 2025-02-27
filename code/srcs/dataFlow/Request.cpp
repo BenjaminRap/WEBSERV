@@ -25,22 +25,22 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	size_t		pos;
 
 	//Parsing the method
-	pos = s.find(' ', i);
-	if (pos == std::string::npos)
+	pos = s.find_first_of(FWS, i);
+	if (pos == std::string::npos || s[pos] != ' ' || pos - i == 0)
 		return (1);
 	this->_statusLine._method = s.substr(i, pos - i);
 	i = pos + 1;
 
 	//Parsing the target
-	pos = s.find(' ', i);
-	if (pos == std::string::npos)
+	pos = s.find_first_of(FWS, i);
+	if (pos == std::string::npos || s[pos] != ' ' || pos - i == 0)
 		return (1);
 	this->_statusLine._requestTarget = s.substr(i, pos - i);
 	i = pos + 1;
 
 	//Parsing the protocol
-	pos = s.find("\r\n", i);
-	if (pos == std::string::npos)
+	pos = s.find_first_of(FWS, i);
+	if (pos == std::string::npos || s[pos] != '\r' || s[pos + 1] != '\n' || pos - i == 0)
 		return (1);
 	this->_statusLine._protocol = s.substr(i, pos - i);
 	return (0);
@@ -58,8 +58,8 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 		pos = s.find(": ", i);
 		if (pos == std::string::npos)
 			return (1);
-		temp = s.find("\r\n", pos);
-		if (temp == std::string::npos)
+		temp = s.find_first_of(FWS, pos + 2);
+		if (temp == std::string::npos || s[temp] != '\r' || s[temp + 1] != '\n' || pos - i == 0 || temp - (pos + 2) == 0)
 			return (1);
 		this->_headers.insert(std::make_pair(s.substr(i, pos - i), s.substr(pos + 2, temp - (pos + 2))));
 		i = temp + 2;
