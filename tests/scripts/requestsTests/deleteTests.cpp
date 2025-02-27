@@ -36,8 +36,6 @@ void	testDeleteRequest(const std::string &desc, const std::string &url, const st
 void	deleteTest(const ServerConfiguration &config)
 {
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BYEL << "Please Make sure the Following directory are present :\n\t- unitTest \n\t- test.sh\n\t- removeTest.sh" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	std::cout << BBLU << "\t File Case" << CRESET << std::endl;
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	testDeleteRequest("Normal Case", "/delete/full/classic", "\t\t\t\t\t", config);
@@ -63,9 +61,9 @@ void	deleteTest(const ServerConfiguration &config)
 int	main(int argc, char **argv)
 {
 	std::string file;
-	if (argc < 2)
+	if (argc == 1)
 	{
-		std::cerr << "Not enough arguments, expected the nginxconf and optionnaly an request" << std::endl;
+		std::cerr << "Not enough arguments, expected the nginxconf." << std::endl;
 		return (1);
 	}
 	Configuration	config;
@@ -79,8 +77,8 @@ int	main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (std::system("mkdir -p ./unitTest && cd ./unitTest && ../../tests/scripts/requestsTests/deleteTest.sh") != 0  // For our server
-		|| std::system("cd ../tests/website && ../scripts/requestsTests/deleteTest.sh") != 0)  // For nginx
+	if (std::system("mkdir -p ./unitTest && cd ./unitTest && ../../tests/scripts/requestsTests/initDeleteTest.sh") != 0  // For our server
+		|| std::system("cd ../tests/website && ../scripts/requestsTests/initDeleteTest.sh") != 0)  // For nginx
 	{
 		std::cout << "Error executing the delete init scripts" << std::endl;
 		return (EXIT_FAILURE);
@@ -89,8 +87,8 @@ int	main(int argc, char **argv)
 	deleteTest(config.begin()->second[0]);
 
 
-	if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/removeDeleteTest.sh && rmdir ../unitTest") != 0 // For our server
-		|| std::system("cd ../tests/website && ../scripts/requestsTests/removeDeleteTest.sh") != 0) // For nginx
+	if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/cleanDeleteTest.sh && rmdir ../unitTest") != 0 // For our server
+		|| std::system("cd ../tests/website && ../scripts/requestsTests/cleanDeleteTest.sh") != 0) // For nginx
 	{
 		std::cout << "Error executing the delete cleaning scripts" << std::endl;
 		return (EXIT_FAILURE);
