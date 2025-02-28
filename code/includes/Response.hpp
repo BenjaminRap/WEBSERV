@@ -2,7 +2,9 @@
 # define RESPONSE_HPP
 
 # include <string>
+# include <iostream>
 # include <map>
+# include <ctime>
 # include <stdint.h>
 
 /**
@@ -44,6 +46,15 @@ private:
 public:
 	void	setResponseCode(int code, std::string text);
 	void	reset();
+
+	uint16_t	getStatusCode(void) const;
+	const std::string	&getStatusText(void) const;
+	const std::string	&getProtocol(void) const;
+	const std::string	*getHeader(const std::string &key) const;
+	const std::map<std::string, std::string>	&getHeaderMap(void) const;
+
 };
+
+std::ostream & operator<<(std::ostream & o, Response const & rhs);
 
 #endif // !RESPONSE_HPP

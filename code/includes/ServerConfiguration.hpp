@@ -1,8 +1,8 @@
-#ifndef SERVER_CONFIGURATION_HPP
-# define SERVER_CONFIGURATION_HPP
+#ifndef SERVERCONFIGURATION_HPP
+# define SERVERCONFIGURATION_HPP
 
-# include <string>
 # include <map>
+# include <stdint.h>
 # include <vector>
 
 # include "Route.hpp"
@@ -10,13 +10,42 @@
 /// @brief The configuration specific for each server
 class ServerConfiguration
 {
-public:
+
+public :
+
+	ServerConfiguration(const std::vector<std::string> &serverNames, \
+						const std::map<unsigned short, std::string> &errorPages, \
+						const size_t &maxClientBodySize, \
+						const std::map<std::string, Route> &routes, \
+						const std::string &root);
+	ServerConfiguration(ServerConfiguration const &src);
+    ServerConfiguration    &operator=(ServerConfiguration const &src);
+	~ServerConfiguration(void);
+
+	const std::string							&getRoot(void) const;
+	const std::vector<std::string>				&getServerNames(void) const;
+	const std::string							&getErrorPage(unsigned short error) const;
+	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
+	const size_t								&getMaxClientBodySize(void) const;
+	const std::map<std::string, Route>			&getRoutes(void) const;
+	const Route									*getOneRoutes(const std::string &path) const;
+	const std::string							getLocation(const std::string &loc) const;
+
+private :
+
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize;
-	std::vector<Route>						routes;
+	/// @brief string : std::string location, class Route,
+	/// Associate a location, with the corresponding Route.
+	std::map<std::string, Route>			routes;
+	std::string								root;
+
+	ServerConfiguration(void);
 };
+
+std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs);
 
 #endif // !SERVER_CONFIGURATION_HPP
