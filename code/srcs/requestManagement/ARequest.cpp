@@ -16,7 +16,7 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 		return ;
 	addRoot(*this, config);
 	if (this->_code == 301 || this->_code == 405)
-		return ;
+		return;
 	if (this->_url[0] != '.')
 		this->_url.insert(0, ".");
 }

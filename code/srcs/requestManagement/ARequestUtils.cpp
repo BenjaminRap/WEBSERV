@@ -6,6 +6,7 @@ bool	checkAllowMeth(const Route &route, EMethods meth)
 	size_t						len;
 
 	len = meths.size();
+	std::cout << meth << std::endl;
 	if (len == 0)
 		return (true);
 	for (size_t i = 0; i < len ; i++)
@@ -96,7 +97,7 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 	}
 	get.setRoute(temp);
 	get.setIsRoot(true);
-	if (!checkAllowMeth(*temp, GET))
+	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
 		get.setResponse(405, "Not Allowed", config.getErrorPage(405));
 		return ;

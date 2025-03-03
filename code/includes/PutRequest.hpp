@@ -13,13 +13,14 @@ class PutRequest : public ARequestType
 {
 	private :
 		int			_fd;
+		std::string _fileName;
 
 		PutRequest();
 		PutRequest(const PutRequest& src);
 		PutRequest& operator=(const PutRequest& src);
 
 	public :
-		explicit PutRequest(std::string url, const std::string &fileName, const ServerConfiguration &config);
+		explicit PutRequest(std::string url, const ServerConfiguration &config);
 		~PutRequest();
 
 		int getFd(void) const;

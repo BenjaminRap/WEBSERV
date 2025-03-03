@@ -27,7 +27,10 @@ bool	canWrite(const std::string &path)
 
 	std::memset(&stats, 0, sizeof(stats));
 	if (stat(path.c_str(), &stats) == -1)
+	{
+		std::cout << path << std::endl;
 		return (false);
+	}
 	if (!(stats.st_mode & S_IWGRP))
 		return (false);
 	if (!(stats.st_mode & S_IWOTH))
