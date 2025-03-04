@@ -45,9 +45,9 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 	path = this->_url;
 	removeFileName(this->_url);
 	ret = isDirOrFile(path);
-	if (ret != NF)
+	if ((ret != NF && ret != FORBIDEN) || (this->_fileName.empty() && ret == NF))
 		this->setResponse(409, "Conflict", "Conflict");
-	else if (!canWrite( this->_url))
+	else if (!canWrite( this->_url) && ret != FORBIDEN)
 		this->setResponse(403, "Forbidden", "Forbidden");
 	else
 	{
