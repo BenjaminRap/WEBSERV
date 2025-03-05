@@ -45,3 +45,24 @@ touch main.html
 	touch get/auto2/fake/main.html
 	touch get/auto2/fake/main.cpp
 	touch get/auto2/fake/main.js
+# Test 11 : url to file with backlash
+	touch get/truc.txt
+# Test 12 : index is folder
+	mkdir -p get/indexIsFolder/index
+# Test 13: index is symlink
+	mkdir get/indexIsSymlink
+	touch get/indexIsSymlink/truc
+	ln -s $(pwd)/get/indexIsSymlink/truc $(pwd)/get/indexIsSymlink/sym
+
+# Test 14: two index : folder and file
+	mkdir -p get/indexIsFolderAndFile/main
+	touch get/indexIsFolderAndFile/main.html
+
+# Test 15: two index : symlink and file
+	mkdir -p get/indexIsSymlinkAndFile/
+	touch get/indexIsSymlinkAndFile/main.html
+	ln -s $(pwd)/get/indexIsSymlinkAndFile/main.html $(pwd)/get/indexIsSymlinkAndFile/sym
+
+#Test 16: folder that ends with '.'
+	mkdir get/endWith./
+	touch get/endWith./index.html

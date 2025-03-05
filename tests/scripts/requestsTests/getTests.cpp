@@ -72,6 +72,22 @@ void	getTest(const ServerConfiguration &config)
 	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 	testGetRequest("/get/auto/", "\t\t\t\t\t\t", config);
 	testGetRequest("/get/auto2/", "\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Folder With File Name" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	testGetRequest("/get/truc.txt/", "\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Index Specials" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	testGetRequest("/get/indexIsFolder/", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/indexIsSymlink/", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/indexIsFolderAndFile/", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/indexIsSymlinkAndFile/", "\t\t\t\t\t\t", config);
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t Fix Url Errors" << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	testGetRequest("/get//main.html", "\t\t\t\t\t\t", config);
+	testGetRequest("/get/endWith./index.html", "\t\t\t\t\t\t", config);
 }
 
 int	main(int argc, char **argv)
