@@ -21,7 +21,7 @@ class GetRequest : public ARequestType
 
 		bool						getAutoIndex() const;
 		void						setAutoIndex(bool src);
-		std::vector<std::string>	getIndexVec();
+		const std::vector<std::string>	&getIndexVec();
 };
 
 #endif

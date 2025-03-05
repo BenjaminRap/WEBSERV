@@ -6,7 +6,6 @@ bool	checkAllowMeth(const Route &route, EMethods meth)
 	size_t						len;
 
 	len = meths.size();
-	std::cout << meth << std::endl;
 	if (len == 0)
 		return (true);
 	for (size_t i = 0; i < len ; i++)
@@ -26,7 +25,7 @@ void	delString(const std::string &toDel, std::string &str)
 	found = str.find(toDel, 0);
 	while (found != std::string::npos)
 	{
-		str.erase(found, len);
+		str.erase(found, len - 1);
 		found = str.find(toDel, 0);
 	}
 }
@@ -69,7 +68,7 @@ void	fixPath(std::string &path)
 		}
 		found = path.find("/../", 0);
 	}
-	delString("./", path);
+	delString("/./", path);
 	delString("//", path);
 	if (path.empty())
 		path = "/";
@@ -96,7 +95,7 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 		return ;
 	}
 	get.setRoute(temp);
-	get.setIsRoot(true);
+	get.setIsRoute(true);
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
 		get.setResponse(405, "Not Allowed", config.getErrorPage(405));

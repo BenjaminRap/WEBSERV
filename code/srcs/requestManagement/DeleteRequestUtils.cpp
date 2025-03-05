@@ -27,10 +27,7 @@ bool	canWrite(const std::string &path)
 
 	std::memset(&stats, 0, sizeof(stats));
 	if (stat(path.c_str(), &stats) == -1)
-	{
-		std::cout << path << std::endl;
 		return (false);
-	}
 	if (!(stats.st_mode & S_IWGRP))
 		return (false);
 	if (!(stats.st_mode & S_IWOTH))
@@ -73,27 +70,26 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 		return (ERROR500);
 	while ((res = readdir(dw)))
 	{
-		if (std::strcmp(res->d_name, ".") == 0 || std::strcmp(res->d_name, "..") == 0)
-			continue ;
-		temp = path + res->d_name;
-		if (std::remove(temp.c_str()) == -1)
+		try
 		{
-			if (isDirOrFile(temp) == DIRE)
+			if (std::strcmp(res->d_name, ".") == 0 || std::strcmp(res->d_name, "..") == 0)
+				continue ;
+			temp = path + res->d_name;
+			if (std::remove(temp.c_str()) == -1)
 			{
-				try
-				{
+				if (isDirOrFile(temp) == DIRE)
 					directoryCase(temp + "/", del);
-				} catch (std::exception & e)
+				else
 				{
 					closedir(dw);
 					return (ERROR500);
 				}
 			}
-			else
-			{
-				closedir(dw);
-				return (ERROR500);
-			}
+		}
+		catch (std::exception & e)
+		{
+			closedir(dw);
+			return (ERROR500);
 		}
 	}
 	closedir(dw);

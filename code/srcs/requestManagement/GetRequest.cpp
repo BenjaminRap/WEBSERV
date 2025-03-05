@@ -33,7 +33,7 @@ bool	GetRequest::getAutoIndex() const
 	return (this->_autoIndex);
 }
 
-std::vector<std::string>	GetRequest::getIndexVec()
+const std::vector<std::string>	&GetRequest::getIndexVec()
 {
 	return (this->_route->getIndex());
 }

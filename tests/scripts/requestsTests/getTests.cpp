@@ -119,7 +119,7 @@ int	main(int argc, char **argv)
 		getTest(config.begin()->second[0]);
 
 
-	if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/cleanGetTest.sh && rmdir ../unitTest") != 0 // For our server
+	if (std::system("cd ./unitTest && ../../tests/scripts/requestsTests/cleanGetTest.sh") != 0 // For our server
 		|| std::system("cd ../tests/website && ../scripts/requestsTests/cleanGetTest.sh") != 0) // For nginx
 	{
 		std::cout << "Error executing the get cleaning scripts" << std::endl;

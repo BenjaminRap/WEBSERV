@@ -30,8 +30,10 @@ int	isDirOrFile(const std::string& path)
 	{
 		if (errno == EACCES)
 			return (FORBIDEN);
-		else
+		else if (errno == ENOENT || errno == ENOTDIR)
 			return (NF);
+		else
+			return (ERROR500);
 	}
 	if (S_ISDIR(stats.st_mode) == DIRE)
 		return (DIRE);
@@ -53,7 +55,16 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 			return (ERROR500);
 	}
 	while ((res = readdir(dw)))
-		lst.push_back(res->d_name);
+	{
+		try {
+			lst.push_back(res->d_name);
+		}
+		catch (std::bad_alloc &e)
+		{
+			closedir(dw);
+			return (ERROR500);
+		}
+	}
 	closedir(dw);
 	return (0);
 }
@@ -87,7 +98,7 @@ std::string	buildPage(std::list<std::string> &files, const std::string& path)
 
 	for (std::list<std::string>::iterator it = files.begin(); it != end; it++)
 	{
-		if (*it == ".." || *it == ".")
+		if ((*it)[0] == '.')
 			continue ;
 		result += "<a href=\"";
 		result += *it;
@@ -136,7 +147,7 @@ void	directoryCase(GetRequest &get)
 	checkType(get.getUrl(), get);
 	if (get.getCode() == 301)
 		return;
-	if (get.getIsRoot())
+	if (get.getIsRoute())
 	{
 		const std::vector<std::string>	&indexs = get.getIndexVec();
 		if (findIndex(get, indexs))

@@ -9,7 +9,7 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &get, const ServerConfiguration &config);
 
-ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoot(false), _code(0), _statusText(""), _file("")
+ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoute(false), _code(0), _statusText(""), _file("")
 {
 	fixUrl(*this, url);
 	if (getCode() == 400)
@@ -48,14 +48,14 @@ void	ARequestType::setMethod(EMethods method)
 	this->_method = method;
 }
 
-void ARequestType::setIsRoot(bool src)
+void ARequestType::setIsRoute(bool src)
 {
-	this->_isRoot = src;
+	this->_isRoute = src;
 }
 
-bool ARequestType::getIsRoot() const
+bool ARequestType::getIsRoute() const
 {
-	return (this->_isRoot);
+	return (this->_isRoute);
 }
 
 

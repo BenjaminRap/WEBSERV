@@ -22,7 +22,7 @@ class ARequestType
 		const ServerConfiguration	*_config;
 		const Route					*_route;
 		std::string					_url;
-		bool						_isRoot;
+		bool						_isRoute;
 
 		int							_code;
 		std::string					_statusText;
@@ -36,7 +36,7 @@ class ARequestType
 		void					setUrl(const std::string &src);
 		void					setRoute(const Route *root);
 		void					setMethod(EMethods method);
-		void					setIsRoot(bool src);
+		void					setIsRoute(bool src);
 
 		std::string				&getUrl();
 		const std::string		&getStatusText() const;
@@ -44,7 +44,7 @@ class ARequestType
 		const Route				*getRoute() const;
 		int						getCode() const;
 		EMethods				getMethod() const;
-		bool					getIsRoot() const;
+		bool					getIsRoute() const;
 
 		const std::string		&getError(unsigned short error);
 };

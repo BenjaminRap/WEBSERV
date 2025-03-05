@@ -3,24 +3,14 @@
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);
 
-bool	checkFileName(const std::string &fileName)
-{
-	if (fileName.empty())
-		return (false);
-	if (fileName.find('/') != std::string::npos)
-		return (false);
-	return (true);
-}
-
-
-std::string getName(std::string path)
+std::string getName(std::string &path)
 {
 	size_t	pos;
 
 	pos = path.find_last_of('/');
 	if (pos == std::string::npos)
-		return (path);
-	return (path.erase(0, pos + 1));
+		return (path.substr());
+	return (path.substr(pos + 1));
 }
 
 void	removeFileName(std::string &url)
