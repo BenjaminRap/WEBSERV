@@ -4,6 +4,8 @@
 # include <string>
 # include <map>
 # include <iostream>
+# include <sstream>
+# include <iomanip>
 
 # include "Body.hpp"
 
@@ -53,6 +55,7 @@ public:
 	const std::string	&getProtocol(void) const;
 	const std::string	*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
+	int		expand_url(std::string &url);
 	int		parseStatusLine(const char *line, size_t lineLength);
 	int		parseHeader(const char *line, size_t lineLength);
 };

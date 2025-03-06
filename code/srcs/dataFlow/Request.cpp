@@ -67,6 +67,27 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 	return (0);
 }
 
+int	Request::expand_url(std::string &url)
+{
+	size_t	i = url.find("%", 0);
+	int	v;
+
+	while (i != std::string::npos)
+	{
+		if (i < url.size() - 1 && (std::isdigit(url[i + 1]) || (std::isxdigit(url[i + 1]) && std::isupper(url[i + 1]))) && (std::isdigit(url[i + 2]) || (std::isxdigit(url[i + 2]) && std::isupper(url[i + 2]))))
+		{
+			std::stringstream	s(url.substr(i + 1, 2));
+			s >> std::hex >> v;
+			url.erase(i, 3);
+			url.insert(i, 1, static_cast<char>(v));
+			i = url.find("%", i + 1);
+		}
+		else
+			return (1);
+	}
+	return (0);
+}
+
 Request::~Request(void)
 {
 
