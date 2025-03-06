@@ -12,8 +12,8 @@ int	main(void)
 {
 	try
 	{
-		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-			return (EXIT_FAILURE);
+		// if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+		// 	return (EXIT_FAILURE);
 
 		Configuration	conf;
 		std::string		file;
@@ -23,18 +23,18 @@ int	main(void)
 
 		std::cout << conf << std::endl;
 
-		while(getSignalStatus() == NO_SIGNAL)
-		{
-			try
-			{
-				handleIOEvents(conf);
-			}
-			catch(const std::exception& e)
-			{
-				std::cerr << e.what() << std::endl;
-			}
-		}
-		return (getReturnCodeWithSignal());
+		// while(getSignalStatus() == NO_SIGNAL)
+		// {
+		// 	try
+		// 	{
+		// 		handleIOEvents(conf);
+		// 	}
+		// 	catch(const std::exception& e)
+		// 	{
+		// 		std::cerr << e.what() << std::endl;
+		// 	}
+		// }
+		// return (getReturnCodeWithSignal());
 	}
 	catch(const std::exception& e)
 	{
