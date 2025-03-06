@@ -16,7 +16,8 @@ public :
 						const std::map<unsigned short, std::string> &errorPages, \
 						const size_t &maxClientBodySize, \
 						const std::map<std::string, Route> &routes, \
-						const std::string &root);
+						const std::string &root, \
+						const std::vector<std::string> &index);
 	ServerConfiguration(ServerConfiguration const &src);
     ServerConfiguration    &operator=(ServerConfiguration const &src);
 	~ServerConfiguration(void);
@@ -29,6 +30,7 @@ public :
 	const std::map<std::string, Route>			&getRoutes(void) const;
 	const Route									*getOneRoutes(const std::string &path) const;
 	const std::string							getLocation(const std::string &loc) const;
+	const std::vector<std::string>				&getIndex(void) const;
 
 private :
 	std::vector<std::string>				serverNames;
@@ -40,6 +42,7 @@ private :
 	/// Associate a location, with the corresponding Route.
 	std::map<std::string, Route>			routes;
 	std::string								root;
+	std::vector<std::string>				index;
 
 	ServerConfiguration(void);
 };

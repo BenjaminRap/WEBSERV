@@ -70,7 +70,6 @@ const std::string				&Route::getRoot(void) const
 	return (root);
 }
 
-
 const std::string				&Route::getCgiFileExtension(void) const
 {
 	return (cgiFileExtension);
@@ -79,6 +78,11 @@ const std::string				&Route::getCgiFileExtension(void) const
 const bool					&Route::getAcceptUploads(void) const
 {
 	return (acceptUploads);
+}
+
+void							Route::setIndex(const std::vector<std::string> &v)
+{
+	this->index = v;
 }
 
 std::ostream & operator<<(std::ostream & o, Route const & rhs)

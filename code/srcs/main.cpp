@@ -19,8 +19,8 @@ int	main(int argc, char **argv)
 	}
 	try
 	{
-		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-			return (EXIT_FAILURE);
+		// if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+		// 	return (EXIT_FAILURE);
 
 		Configuration	conf;
 		std::string		file;
@@ -30,7 +30,6 @@ int	main(int argc, char **argv)
 		else
 			ft_readfile(DEFAULT_CONFIG_PATH, file);
 		parse_file(conf, file);
-
 		while(getSignalStatus() == NO_SIGNAL)
 		{
 			try
