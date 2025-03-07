@@ -35,10 +35,11 @@ int	isDirOrFile(const std::string& path)
 		else
 			return (ERROR500);
 	}
-	if (S_ISDIR(stats.st_mode) == DIRE)
+	if (S_ISDIR(stats.st_mode))
 		return (DIRE);
-	else
+	else if (S_ISREG(stats.st_mode))
 		return (LS_FILE);
+	return (NF);
 }
 
 int	ls(const std::string& path, std::list<std::string> &lst)
@@ -114,14 +115,19 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 {
 	size_t		size;
 	std::string	temp;
+	int			ret;
 
 	size = indexs.size();
 	for (unsigned long i = 0; i < size; i++)
 	{
 		temp = get.getUrl() + indexs[i];
-		if (isDirOrFile(temp) == LS_FILE)
+		ret = isDirOrFile(temp);
+		if (ret == LS_FILE || ret == DIRE)
 		{
-			get.setResponse(200, "OK", temp);
+			if (ret == DIRE)
+				get.setResponse(301, "Moved Permanently", temp + "/");
+			else
+				get.setResponse(200, "OK", temp);
 			return (true);
 		}
 	}
