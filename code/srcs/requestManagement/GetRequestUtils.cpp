@@ -153,6 +153,8 @@ void	directoryCase(GetRequest &get)
 		if (findIndex(get, indexs))
 			return ;
 	}
+	if (findIndex(get, get.getDefaultIndexVec()))
+		return ;
 	if (get.getAutoIndex())
 		autoIndexCase(get);
 	else

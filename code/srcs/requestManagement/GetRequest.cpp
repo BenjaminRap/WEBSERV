@@ -38,6 +38,11 @@ const std::vector<std::string>	&GetRequest::getIndexVec()
 	return (this->_route->getIndex());
 }
 
+const std::vector<std::string>	&GetRequest::getDefaultIndexVec()
+{
+	return (this->_config->getIndex());
+}
+
 void	GetRequest::setAutoIndex(bool src)
 {
 	this->_autoIndex = src;

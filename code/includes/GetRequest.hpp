@@ -19,9 +19,10 @@ class GetRequest : public ARequestType
 		explicit GetRequest(std::string url, const ServerConfiguration &config);
 		~GetRequest();
 
-		bool						getAutoIndex() const;
-		void						setAutoIndex(bool src);
+		bool							getAutoIndex() const;
+		void							setAutoIndex(bool src);
 		const std::vector<std::string>	&getIndexVec();
+		const std::vector<std::string>	&getDefaultIndexVec();
 };
 
 #endif
