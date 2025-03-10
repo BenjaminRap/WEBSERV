@@ -1,10 +1,20 @@
 SOCKET_DIR				:=	socketCommunication/
-SOCKET_FILES			:=	
+SOCKET_FILES			:=	createServerSockets.cpp	\
+							socketCommunication.cpp	\
+							FdData.cpp				\
+							signals.cpp				\
+							SocketsHandler.cpp		\
+							setSocketsOption.cpp	\
+							unixSocket.cpp			\
+							ConnectedSocketData.cpp	\
+							ServerSocketData.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
 DATA_FLOW_DIR			:=	dataFlow/
 DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							FlowBuffer.cpp			\
+							ResponsesHandler.cpp	\
+							RequestHandler.cpp		\
 							Body.cpp				\
 							SizedBody.cpp			\
 							Request.cpp				\
