@@ -118,6 +118,7 @@ std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 	{
 		o << index[i] << " ";
 	}
+	o << std::endl;
 	o << "error pages :" << std::endl;
 	for (std::map<unsigned short, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it)
 	{
