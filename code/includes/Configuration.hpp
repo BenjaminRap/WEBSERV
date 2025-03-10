@@ -4,6 +4,8 @@
 # include "ServerConfiguration.hpp"
 # include "Host.hpp"
 
+# define DEFAULT_CONFIG_PATH "./configurations/configuration.txt"
+
 /// @brief This class describe all the configuration parsed from the configuration
 /// file. This program should process multiples 'servers', each having their own
 /// configuration
@@ -33,8 +35,7 @@ private:
 	bool			_reuseAddr;
 
 	Configuration(const Configuration& ref);
-
-	Configuration&	operator=(const Configuration& ref);	
+	Configuration&	operator=(const Configuration& ref);
 public:
 	Configuration(void);
 	~Configuration(void);
@@ -43,5 +44,7 @@ public:
 	unsigned int	getMaxEvents(void) const;
 	bool			getReuseAddr(void) const;
 };
+
+std::ostream & operator<<(std::ostream & o, Configuration const & rhs);
 
 #endif // !CONFIGURATION_HPP

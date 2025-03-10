@@ -29,6 +29,6 @@ int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
 template <typename ReturnType>
 ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);
 
-# include "errorCheck.tpp"
+# include "errorCheck.ipp"
 
 #endif // !SOCKET_COMMUNICATION_HPP
