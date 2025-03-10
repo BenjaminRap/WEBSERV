@@ -19,7 +19,9 @@ TEMPLATES_DIR	:=	templates/
 INCLUDES		:=	-I$(HEADERS_DIR) -I$(TEMPLATES_DIR)
 
 SRCS_DIR		:=	srcs/
+
 SRCS_FILES		:=	$(SOCKET) $(CONFIGURATION) $(PARSING_CONF) $(DATA_FLOW) $(REQUEST)
+
 SRCS			:=	$(addprefix $(SRCS_DIR), $(SRCS_FILES))
 
 ifndef MAIN

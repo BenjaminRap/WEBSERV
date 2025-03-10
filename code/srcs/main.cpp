@@ -8,6 +8,7 @@
 #include "Configuration.hpp"        // for Configuration
 #include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
 
+<<<<<<< HEAD
 int	main(int argc, char **argv)
 {
 	if (argc == 1)
@@ -17,11 +18,38 @@ int	main(int argc, char **argv)
 		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
 	return (EXIT_FAILURE);
 	}
+=======
+#include "Request.hpp"
+#include "Response.hpp"
+
+/**
+ * @brief Create a mostly uninitialize Configuration and call the function to
+ * handle write and read request. It call the handleIoEvents till he receive a signal.
+ * @return Return the signal + 128
+ */
+
+ # include <fstream>
+
+void	ft_readfile(const char *path, std::string &buff)
+{
+	std::ifstream	file;
+
+	file.open(path, file.in);
+	if (file.fail())
+		throw (RequestException("Couldn't open file"));
+	std::getline(file, buff, '\0');
+	file.close();
+}
+
+int	main(void)
+{
+
+>>>>>>> requestsAndResponses
 	try
 	{
-		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-			return (EXIT_FAILURE);
+		Response	r;
 
+<<<<<<< HEAD
 		Configuration	conf;
 		std::string		file;
 
@@ -42,9 +70,58 @@ int	main(int argc, char **argv)
 			}
 		}
 		return (getReturnCodeWithSignal());
+=======
+		r.setResponseCode(200, "OK");
+		std::cout << r << std::endl;
+>>>>>>> requestsAndResponses
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << e.what() << '\n';
 	}
+	
+
+	// std::string	sLine = "GET /index.html HTTP/1.1\r\n";
+	// std::string	sHeader = "1: 1\r\n22: 22\r\n333: 333\r\na: a\r\n\r\n";
+
+	// try
+	// {
+	// Request	r;
+
+	// 	if (r.parseStatusLine(sLine.c_str(), 26))
+	// 	{
+	// 		std::cout << "Error parsing statusLine" << std::endl;
+	// 		r.reset();
+	// 	}
+	// 	else if (r.parseHeader(sHeader.c_str(), 32))
+	// 	{
+	// 		std::cout << "Error parsing header" << std::endl;
+	// 		r.reset();
+	// 	}
+	// 	else
+	// 		std::cout << r << std::endl;
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << e.what() << '\n';
+	// }
+
+
+	// if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+	// 	return (EXIT_FAILURE);
+
+	// Configuration	conf;
+
+	// while(getSignalStatus() == NO_SIGNAL)
+	// {
+	// 	try
+	// 	{
+	// 		handleIOEvents(conf);
+	// 	}
+	// 	catch(const std::exception& e)
+	// 	{
+	// 		std::cerr << e.what() << std::endl;
+	// 	}
+	// }
+	// return (getReturnCodeWithSignal());
 }

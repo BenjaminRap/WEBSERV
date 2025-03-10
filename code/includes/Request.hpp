@@ -3,8 +3,13 @@
 
 # include <string>
 # include <map>
+# include <iostream>
+# include <sstream>
+# include <iomanip>
 
 # include "Body.hpp"
+
+# define FWS "\t\n\v\f\r "
 
 /**
  * @brief the class that stores all the data send by the client, it shouldn't be
@@ -37,11 +42,48 @@ private:
 	 * If there is no remaining body, this variable is set to NULL.
 	 */
 	Body								*_body;
+
 public:
+
+	Request(void);
+	~Request(void);
+
 	void	reset();
-	Body	*getBody();
-	int		parseStatusLine(char *line, size_t lineLength);
-	int		parseHeader(char *line, size_t lineLength);
+	Body	*getBody() const;
+	const std::string	&getMethod(void) const;
+	const std::string	&getRequestTarget(void) const;
+	const std::string	&getProtocol(void) const;
+	const std::string	*getHeader(const std::string &key) const;
+	const std::map<std::string, std::string>	&getHeaderMap(void) const;
+	int		expand_url(std::string &url);
+	int		parseStatusLine(const char *line, size_t lineLength);
+	int		parseHeader(const char *line, size_t lineLength);
+};
+
+std::ostream & operator<<(std::ostream & o, Request const & rhs);
+
+class RequestException : public std::exception
+{
+	public:
+		RequestException(std::string message) : message(message)
+		{
+			error = errorMsg();
+		}
+
+		std::string errorMsg() const
+		{
+			return ("Error parsing request: " + message);
+		}
+
+		virtual const char* what() const throw()
+		{
+			return (error.c_str());
+		}
+		virtual ~RequestException() throw() {}
+
+	private:
+		std::string error;
+		std::string message;
 };
 
 #endif // !REQUEST_HPP
