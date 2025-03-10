@@ -19,8 +19,8 @@ int	main(int argc, char **argv)
 	}
 	try
 	{
-		// if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-		// 	return (EXIT_FAILURE);
+		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+			return (EXIT_FAILURE);
 
 		Configuration	conf;
 		std::string		file;

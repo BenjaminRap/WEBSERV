@@ -3,7 +3,6 @@
 #include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
 #include <sys/un.h>            // for sockaddr_un, sa_family_t
 #include <unistd.h>            // for close
-#include <stdint.h>            // for uint32_t
 #include <cerrno>              // for errno, ENOENT
 #include <cstring>             // for strerror
 #include <cstdio>              // for size_t, remove, NULL
@@ -59,7 +58,6 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 {
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
-	SocketsHandler::_instanciated = true;
 	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
 	if (_epfd == -1)
@@ -68,6 +66,7 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 		throw std::exception();
 		return ;
 	}
+	SocketsHandler::_instanciated = true;
 }
 
 /**
@@ -116,50 +115,6 @@ int	SocketsHandler::epollWaitForEvent()
 }
 
 /**
- * @brief Add the fd to the epoll listener, set the event.events and event.data.ptr
- * to a SocketData.
- * @param fd The fd of the socket to add to listeners, it will also be passed
- * to the callback function.
- * @param callback It is used as a parameter of the SocketData constructor, when
- * the epoll_wait see a read/write, we can get the SocketData callback from
- * the event.data.ptr.
- * @param data A data that will be passed to the callback.
- * @param events The events used to create the epoll_event variable
- * @return 0 on success, -1 on error and an error message written in the terminal.
- */
-int	SocketsHandler::addFdToListeners
-(
-	int fd,
-	void (&callback)(int fd, void *data),
-	void *data,
-	uint32_t events
-)
-{
-	epoll_event	event;
-
-	try
-	{
-		_socketsData.push_front(SocketData(fd, data, callback));
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << "push_front() : " << e.what() << std::endl;
-		return (-1);
-	}
-	SocketData	&socketData = _socketsData.front();
-
-	socketData.setIterator(_socketsData.begin());
-	event.data.ptr = &(socketData);
-	event.events = events;
-	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &event), -1, "epoll_ctl() :") == -1)
-	{
-		_socketsData.pop_front();
-		return (-1);
-	}
-	return (0);
-}
-
-/**
  * @brief Call the callback of the socket, in the epoll events at eventIndex.
  * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
  * is the result of epoll_wait or epollWaitForEvent function.
@@ -173,9 +128,9 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	const SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
 
-	socketData.callback();
+	socketData.callback(_events[eventIndex].events);
 }
 
 /**
