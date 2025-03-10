@@ -8,21 +8,28 @@
 #include "Configuration.hpp"        // for Configuration
 #include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
 
-int	main(void)
+int	main(int argc, char **argv)
 {
+	if (argc == 1)
+		std::cout << "No argument supplied, using the default path for the configuration." << std::endl;
+	else if (argc > 2)
+	{
+		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
+	return (EXIT_FAILURE);
+	}
 	try
 	{
-		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
-			return (EXIT_FAILURE);
+		// if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+		// 	return (EXIT_FAILURE);
 
 		Configuration	conf;
 		std::string		file;
 
-		ft_readfile(DEFAULT_CONFIG_PATH, file);
+		if (argc == 2)
+			ft_readfile(argv[1], file);
+		else
+			ft_readfile(DEFAULT_CONFIG_PATH, file);
 		parse_file(conf, file);
-
-		std::cout << conf << std::endl;
-
 		while(getSignalStatus() == NO_SIGNAL)
 		{
 			try
@@ -41,4 +48,3 @@ int	main(void)
 		std::cerr << e.what() << std::endl;
 	}
 }
- 
