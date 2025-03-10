@@ -74,6 +74,6 @@ void	parse_route_uploads(std::string &file, size_t &i, size_t &line, bool &accep
 void	ft_readfile(const char *path, std::string &buff);
 void	insert_host(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::map<std::string, Route> &routes, std::string &root, ip_t &ip);
+std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index);
 
 #endif

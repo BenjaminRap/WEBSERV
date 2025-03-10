@@ -24,7 +24,6 @@ Configuration::Configuration(void)
 	_maxConnectionBySocket = 100;
 	_reuseAddr = true;
 	Configuration::_instanciated = true;
-	_instanciated = true;
 }
 
 /**
@@ -32,7 +31,7 @@ Configuration::Configuration(void)
  */
 Configuration::~Configuration(void)
 {
-	_instanciated = false;
+	Configuration::_instanciated = false;
 }
 
 /**

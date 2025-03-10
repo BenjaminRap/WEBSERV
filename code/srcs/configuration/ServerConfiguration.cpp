@@ -5,12 +5,14 @@ ServerConfiguration::ServerConfiguration(	const std::vector<std::string> &server
 											const std::map<unsigned short, std::string> &errorPages, \
 											const size_t &maxClientBodySize, \
 											const std::map<std::string, Route> &routes, \
-											const std::string &root) : \
+											const std::string &root, \
+											const std::vector<std::string> &index) : \
 											serverNames(serverNames), \
 											errorPages(errorPages), \
 											maxClientBodySize(maxClientBodySize), \
 											routes(routes), \
-											root(root) \
+											root(root), \
+											index(index)
 {
 	return ;
 }
@@ -29,6 +31,7 @@ ServerConfiguration    &ServerConfiguration::operator=(ServerConfiguration const
 		this->maxClientBodySize = src.maxClientBodySize;
 		this->routes = src.routes;
 		this->root = src.root;
+		this->index = src.index;
 	}
 	return (*this);
 }
@@ -92,11 +95,17 @@ const std::string	ServerConfiguration::getLocation(const std::string &path) cons
 	return ("");
 }
 
+const std::vector<std::string>				&ServerConfiguration::getIndex(void) const
+{
+	return (this->index);
+}
+
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 {
 	const std::vector<std::string>				&serverNames = rhs.getServerNames();
 	const std::map<unsigned short, std::string>	&errorPages = rhs.getErrorPages();
 	const std::map<std::string, Route>			&routes = rhs.getRoutes();
+	const std::vector<std::string>				&index = rhs.getIndex();
 
 	o << "root:" << rhs.getRoot() << std::endl;
 	o << "client_max_body_size:" << rhs.getMaxClientBodySize() << std::endl;
@@ -104,6 +113,11 @@ std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 	{
     	o << "server_name " << i << ":" << serverNames[i] << std::endl;
     }
+	o << "index : ";
+	for (size_t i = 0; i < index.size(); i++)
+	{
+		o << index[i] << " ";
+	}
 	o << "error pages :" << std::endl;
 	for (std::map<unsigned short, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it)
 	{
