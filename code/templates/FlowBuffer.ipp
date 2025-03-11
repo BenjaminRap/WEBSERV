@@ -109,5 +109,5 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 	if (rd == 0)
 		return (FLOW_DONE);
 	_bufferLength += rd;
-	return (FLOW_MORE);
+	return ((_bufferLength >= _bufferCapacity) ? FLOW_BUFFER_FULL : FLOW_MORE);
 }

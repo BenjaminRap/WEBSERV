@@ -5,7 +5,8 @@
 # include <sys/epoll.h>
 # include <vector>
 # include <string>
-# include <iostream>
+
+# include "socketCommunication.hpp"
 
 class Configuration;
 class Host;

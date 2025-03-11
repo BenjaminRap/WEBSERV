@@ -18,6 +18,7 @@ Configuration::Configuration(void)
 {
 	if (_instanciated)
 		throw std::logic_error("Error : Trying to instanciate a Configuration multiples times");
+	Configuration::_instanciated = true;
 }
 
 /**

@@ -34,3 +34,13 @@ PARSING_CONF_FILES		:=	parsing.cpp				\
 							parse_route.cpp			\
 							parse_host.cpp
 PARSING_CONF			:=	$(addprefix $(PARSING_CONF_DIR), $(PARSING_CONF_FILES))
+
+REQUEST_DIR				:=	requestManagement/
+REQUEST_FILES			:=	GetRequestUtils.cpp	\
+							GetRequest.cpp	\
+							DeleteRequest.cpp	\
+							DeleteRequestUtils.cpp	\
+							PutRequest.cpp	\
+							ARequest.cpp	\
+							ARequestUtils.cpp
+REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))

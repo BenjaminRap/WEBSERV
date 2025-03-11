@@ -36,7 +36,6 @@ private:
 
 	Configuration(const Configuration& ref);
 	Configuration&	operator=(const Configuration& ref);
-
 public:
 	Configuration(void);
 	~Configuration(void);
