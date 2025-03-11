@@ -15,7 +15,7 @@ int	main(int argc, char **argv)
 	else if (argc > 2)
 	{
 		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
-	return (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	try
 	{
