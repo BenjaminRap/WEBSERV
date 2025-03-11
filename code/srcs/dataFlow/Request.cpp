@@ -20,71 +20,40 @@ Body	*Request::getBody() const
 
 int		Request::parseStatusLine(const char *line, size_t lineLength)
 {
-	std::string	s(line, lineLength);
-	size_t		i = 0;
-	size_t		pos;
-
 	//Parsing the method
-	pos = s.find_first_of(FWS, i);
-	if (pos == std::string::npos || s[pos] != ' ' || pos - i == 0)
+	const char	*meth = std::find(line, line + lineLength, ' ');
+	if (*meth != ' ')
 		return (1);
-	this->_statusLine._method = s.substr(i, pos - i);
-	i = pos + 1;
+	this->_statusLine._method = std::string(line, meth - line);
 
 	//Parsing the target
-	pos = s.find_first_of(FWS, i);
-	if (pos == std::string::npos || s[pos] != ' ' || pos - i == 0)
+	const char	*targ = std::find(meth + 1, line + lineLength, ' ');
+	if (*targ != ' ')
 		return (1);
-	this->_statusLine._requestTarget = s.substr(i, pos - i);
-	i = pos + 1;
+	this->_statusLine._requestTarget = std::string(meth + 1, targ - (meth + 1));
 
 	//Parsing the protocol
-	pos = s.find_first_of(FWS, i);
-	if (pos == std::string::npos || s[pos] != '\r' || s[pos + 1] != '\n' || pos - i == 0)
+	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
+	if (*prot != '\r' || *(prot + 1) != '\n')
 		return (1);
-	this->_statusLine._protocol = s.substr(i, pos - i);
+	this->_statusLine._protocol = std::string(targ + 1, prot - (targ + 1));
 	return (0);
 }
 
 int		Request::parseHeader(const char *line, size_t lineLength)
 {
-	std::string	s(line, lineLength);
-	size_t	i = 0;
-	size_t	pos;
-	size_t	temp;
+	const char *	pos;
+	const char *	temp;
 
-	while (i < lineLength && !(s[i] == '\r' && s[i + 1] == '\n'))
-	{
-		pos = s.find(": ", i);
-		if (pos == std::string::npos)
-			return (1);
-		temp = s.find_first_of(FWS, pos + 2);
-		if (temp == std::string::npos || s[temp] != '\r' || s[temp + 1] != '\n' || pos - i == 0 || temp - (pos + 2) == 0)
-			return (1);
-		this->_headers.insert(std::make_pair(s.substr(i, pos - i), s.substr(pos + 2, temp - (pos + 2))));
-		i = temp + 2;
-	}
-	return (0);
-}
-
-int	Request::expand_url(std::string &url)
-{
-	size_t	i = url.find("%", 0);
-	int	v;
-
-	while (i != std::string::npos)
-	{
-		if (i < url.size() - 1 && (std::isdigit(url[i + 1]) || (std::isxdigit(url[i + 1]) && std::isupper(url[i + 1]))) && (std::isdigit(url[i + 2]) || (std::isxdigit(url[i + 2]) && std::isupper(url[i + 2]))))
-		{
-			std::stringstream	s(url.substr(i + 1, 2));
-			s >> std::hex >> v;
-			url.erase(i, 3);
-			url.insert(i, 1, static_cast<char>(v));
-			i = url.find("%", i + 1);
-		}
-		else
-			return (1);
-	}
+	pos = std::find(line, line + lineLength, ':');
+	if (*pos == '\0' || *(pos + 1) != ' ')
+		return (1);
+	temp = std::find(line, line + lineLength, '\r');
+	if (*temp == '\0' || *(temp + 1) != '\n')
+		return (2);
+	std::string key(line, pos - line);
+	std::string value(pos + 2, temp - (pos + 2));
+	this->_headers.insert(std::make_pair(key, value));
 	return (0);
 }
 

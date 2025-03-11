@@ -19,26 +19,19 @@
 
  # include <fstream>
 
-void	ft_readfile(const char *path, std::string &buff)
-{
-	std::ifstream	file;
-
-	file.open(path, file.in);
-	if (file.fail())
-		throw (RequestException("Couldn't open file"));
-	std::getline(file, buff, '\0');
-	file.close();
-}
-
 int	main(void)
 {
 
 	try
 	{
-		Response	r;
-
-		r.setResponseCode(200, "OK");
-		std::cout << r << std::endl;
+		Request r;
+		const char	*s = "Host: example.com\r\n";
+		const char	*p = "GET /index.html HTTP/1.1\r\n";
+		if (r.parseHeader(s, 19) || r.parseStatusLine(p, 26))
+			std::cout << "problem" << std::endl;
+		else
+			std::cout << r << std::endl;
+		return (r.parseHeader(s, 19));
 	}
 	catch(const std::exception& e)
 	{
