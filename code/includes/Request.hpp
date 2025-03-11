@@ -6,6 +6,7 @@
 # include <iostream>
 # include <sstream>
 # include <iomanip>
+# include <algorithm>
 
 # include "Body.hpp"
 
@@ -55,35 +56,10 @@ public:
 	const std::string	&getProtocol(void) const;
 	const std::string	*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
-	int		expand_url(std::string &url);
 	int		parseStatusLine(const char *line, size_t lineLength);
 	int		parseHeader(const char *line, size_t lineLength);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);
-
-class RequestException : public std::exception
-{
-	public:
-		RequestException(std::string message) : message(message)
-		{
-			error = errorMsg();
-		}
-
-		std::string errorMsg() const
-		{
-			return ("Error parsing request: " + message);
-		}
-
-		virtual const char* what() const throw()
-		{
-			return (error.c_str());
-		}
-		virtual ~RequestException() throw() {}
-
-	private:
-		std::string error;
-		std::string message;
-};
 
 #endif // !REQUEST_HPP
