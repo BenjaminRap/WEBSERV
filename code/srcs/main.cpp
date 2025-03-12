@@ -1,10 +1,10 @@
+#include "Configuration.hpp"
+#include "parsing.hpp"
 #include <csignal>                  // for signal, SIG_ERR, SIGINT
 #include <cstdlib>                  // for EXIT_FAILURE
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
 #include <string>                   // for basic_string
-
-#include "parsing.hpp"
 #include "Configuration.hpp"        // for Configuration
 #include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
 
@@ -19,6 +19,9 @@ int	main(int argc, char **argv)
 	}
 	try
 	{
+		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+			return (EXIT_FAILURE);
+
 		Configuration	conf;
 		std::string		file;
 
@@ -35,7 +38,7 @@ int	main(int argc, char **argv)
 			}
 			catch(const std::exception& e)
 			{
-				std::cerr << e.what() << std::endl;
+				std::cerr << e.what() << '\n';
 			}
 		}
 		return (getReturnCodeWithSignal());
