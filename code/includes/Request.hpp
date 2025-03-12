@@ -2,12 +2,14 @@
 # define REQUEST_HPP
 
 # include <string>
+# include <cstring>
 # include <map>
 # include <iostream>
 # include <sstream>
 # include <iomanip>
 # include <algorithm>
 
+# include "Methods.hpp"
 # include "Body.hpp"
 
 # define FWS "\t\n\v\f\r "
@@ -27,7 +29,7 @@ private:
 		/**
 		 * @brief The method requested by the client.
 		 */
-		std::string						_method;
+		EMethods						_method;
 		/**
 		 * @brief A path on the element the methods is applied to.
 		 */
@@ -35,7 +37,6 @@ private:
 		/**
 		 * @brief The version of HTTP, in our case : HTTP/1.1.
 		 */
-		std::string						_protocol;
 	}									_statusLine;
 	std::map<std::string, std::string>	_headers;
 	/**
@@ -50,10 +51,9 @@ public:
 	~Request(void);
 
 	void	reset();
-	Body	*getBody() const;
-	const std::string	&getMethod(void) const;
+	Body				*getBody() const;
+	EMethods			getMethod(void) const;
 	const std::string	&getRequestTarget(void) const;
-	const std::string	&getProtocol(void) const;
 	const std::string	*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
 	int		parseStatusLine(const char *line, size_t lineLength);

@@ -26,12 +26,12 @@ int	main(void)
 	{
 		Request r;
 		const char	*s = "Host: example.com\r\n";
-		const char	*p = "GET /index.html HTTP/1.1\r\n";
-		if (r.parseHeader(s, 19) || r.parseStatusLine(p, 26))
+		const char	*p = "PUT /index.html HTTP/1.1\r\n";
+		if (r.parseHeader(s, 19) || r.parseStatusLine(p, 29))
 			std::cout << "problem" << std::endl;
 		else
 			std::cout << r << std::endl;
-		return (r.parseHeader(s, 19));
+		return (0);
 	}
 	catch(const std::exception& e)
 	{
