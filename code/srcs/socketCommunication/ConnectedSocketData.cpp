@@ -31,7 +31,7 @@ RequestState	ConnectedSocketData::processRequest(Response &response)
 	{
 		requestState = _requestHandler.redirectSocketToBuffer(_fd, response);
 		
-		if (requestState != CONNECTION_CLOSED || requestState != REQUEST_DONE)
+		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
 			requestState = _requestHandler.readRequest(response);
 	}
 	while  (requestState == REQUEST_DONE)
