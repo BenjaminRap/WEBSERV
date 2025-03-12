@@ -15,6 +15,7 @@ bool	Configuration::_instanciated = false;
  * instance of this class.
  */
 Configuration::Configuration(void)
+	: _maxConnectionBySocket(10000), _maxEvents(10000), _reuseAddr(true)
 {
 	if (_instanciated)
 		throw std::logic_error("Error : Trying to instanciate a Configuration multiples times");
