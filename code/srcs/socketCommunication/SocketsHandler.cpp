@@ -1,17 +1,19 @@
-#include <stdint.h>                 // for uint32_t
-#include <sys/epoll.h>              // for epoll_event, epoll_ctl, epoll_create
-#include <sys/socket.h>             // for AF_UNIX, bind, sockaddr, socklen_t
-#include <sys/un.h>                 // for sa_family_t
-#include <unistd.h>                 // for close
-#include <cstdio>                   // for size_t, NULL
-#include <exception>                // for exception
-#include <iostream>                 // for basic_ostream, operator<<, endl
-#include <list>                     // for list, _List_const_iterator, opera...
-#include <map>                      // for operator!=, _Rb_tree_const_iterator
-#include <stdexcept>                // for logic_error
-#include <string>                   // for char_traits, basic_string, string
-#include <utility>                  // for pair
-#include <vector>                   // for vector
+#include <sys/epoll.h>         // for epoll_event, epoll_ctl, epoll_create
+#include <sys/socket.h>        // for bind, socklen_t, AF_UNIX
+#include <sys/stat.h>          // for stat, S_IFMT, S_IFSOCK
+#include <sys/un.h>            // for sockaddr_un, sa_family_t
+#include <unistd.h>            // for close
+#include <cerrno>              // for errno, ENOENT
+#include <cstring>             // for strerror
+#include <cstdio>              // for size_t, remove, NULL
+#include <exception>           // for exception
+#include <iostream>            // for basic_ostream, operator<<, endl, cerr
+#include <list>                // for list, operator!=, _List_const_iterator
+#include <map>                 // for operator!=, _Rb_tree_const_iterator
+#include <stdexcept>           // for logic_error
+#include <string>              // for basic_string, char_traits, string
+#include <utility>             // for pair
+#include <vector>              // for vector
 
 #include "Configuration.hpp"        // for Configuration
 #include "FdData.hpp"               // for FdData
@@ -124,9 +126,15 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
+<<<<<<< HEAD
 	FdData	*fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
 
 	fdData->callback(_events[eventIndex].events);
+=======
+	SocketData	&socketData = *(static_cast<SocketData *>(_events[eventIndex].data.ptr));
+
+	socketData.callback(_events[eventIndex].events);
+>>>>>>> main
 }
 
 /**

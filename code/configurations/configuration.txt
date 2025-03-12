@@ -45,6 +45,8 @@ server {													# Server1
         autoindex off;										# desactivate autoindex (autoindex was already off)
         index index.html;
     }
+
+	index test.html ;
 }
 
 server {													# Server2

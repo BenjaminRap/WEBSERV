@@ -47,17 +47,42 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 		return (flowState);
 }
 
-#include <iostream>
-
-void		ResponsesHandler::addCurrentResponseToQueue()
+/**
+ * @brief Add a response at the end of the _responses queue. The response has a
+ * body fd.
+ * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
+ * It can also throw (std::bad_alloc) if the push fail.
+ * @param firstPart The first part of the response. It is composed by the status line,
+ * the headers, the empty line and, maybe, a part of the body.
+ * @param firstPartLength The length of firstPart.
+ * @param bodyFd The fd of the body.
+ */
+void	ResponsesHandler::addResponse
+(
+	char *firstPart,
+	std::size_t firstPartLength,
+	int bodyFd
+)
 {
-	std::cout << "Add response to queue" << std::endl;
-	//_responses.push(RawResponse(_currentResponse));
-	_currentResponse.reset();
+	_responses.push(RawResponse(firstPart, firstPartLength, bodyFd, _responseBuffer));
 }
 
-
-Response&	ResponsesHandler::getCurrentResponse()
+/**
+ * @brief Add a response at the end of the _responses queue. The response doesn't
+ * have a body fd.
+ * @throw This function throw (std::logic_error) if bufferLength is superior to
+ * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
+ * It can also throw (std::bad_alloc) if the push fail.
+ * @param firstPart The first part of the response. It is composed by the status line,
+ * the headers, the empty line and, maybe, a part of the body.
+ * @param firstPartLength The length of firstPart.
+ */
+void	ResponsesHandler::addResponse
+(
+	char *firstPart,
+	std::size_t firstPartLength
+)
 {
-	return (_currentResponse);
+	_responses.push(RawResponse(firstPart, firstPartLength));
 }

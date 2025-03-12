@@ -50,6 +50,7 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 	std::map<std::string, Route>			routes;
 	std::string								root;
 	ip_t									ip;
+	std::vector<std::string>				index;
 
 	while (i < file.size() && file[i] != '}')
 	{
@@ -86,6 +87,11 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 			i += 4;
 			parse_root(file, i, line, root);
 		}
+		else if (!file.compare(i, 5, "index"))
+		{
+			i += 5;
+			parse_route_index(file, i, line, index);
+		}
 		else if (file[i] != '}')
 			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
@@ -105,9 +111,9 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 		errorPages.insert(std::make_pair(ERROR_405_INT, ERROR_405_STR));
 	if (errorPages.find(ERROR_500_INT) == errorPages.end())
 		errorPages.insert(std::make_pair(ERROR_500_INT, ERROR_500_STR));
-	if (errorPages.find(ERROR_500_INT) == errorPages.end())
+	if (errorPages.find(ERROR_505_INT) == errorPages.end())
 		errorPages.insert(std::make_pair(ERROR_505_INT, ERROR_505_STR));
-	insert_host(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip);
+	insert_host(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
 }
 
 void	parse_maxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)

@@ -4,7 +4,6 @@
 #include <unistd.h>        // for read, write
 #include <stdexcept>       // for logic_error
 #include <string>          // for basic_string
-#include <algorithm>
 
 #include "FlowBuffer.hpp"  // for FlowBuffer, FdType, readFromFdWithType
 
@@ -122,15 +121,10 @@ ssize_t	readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &
  * @param fdType The type of fd, either FILEFD or SOCKETFD. It is used to determine
  * if the function will use send (for sockets) or write (for files).
  * @return Return the number of bytes read, or -1 on error.
- * @note When writing to a file, write() can return a value in the range [0, bufferCapacity].
- * The causes can be multiples (see man 2 write).It this case, we return an error.
  */
 ssize_t	writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType)
 {
 	if (fdType == SOCKETFD)
 		return (send(fd, buffer, bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL));
-	const ssize_t written = write(fd, buffer, bufferCapacity);
-	if (written == -1)
-		return (1);
-	return ((size_t)written == bufferCapacity ? written : -1);
+	return(write(fd, buffer, bufferCapacity));
 }

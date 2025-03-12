@@ -13,12 +13,7 @@ SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 DATA_FLOW_DIR			:=	dataFlow/
 DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							FlowBuffer.cpp			\
-							ResponsesHandler.cpp	\
-							RequestHandler.cpp		\
-							Body.cpp				\
-							SizedBody.cpp			\
-							Request.cpp				\
-							Response.cpp
+							ResponsesHandler.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
@@ -34,3 +29,13 @@ PARSING_CONF_FILES		:=	parsing.cpp	\
 							parse_route.cpp	\
 							parse_host.cpp
 PARSING_CONF			:=	$(addprefix $(PARSING_CONF_DIR), $(PARSING_CONF_FILES))
+
+REQUEST_DIR				:=	requestManagement/
+REQUEST_FILES			:=	GetRequestUtils.cpp	\
+							GetRequest.cpp	\
+							DeleteRequest.cpp	\
+							DeleteRequestUtils.cpp	\
+							PutRequest.cpp	\
+							ARequest.cpp	\
+							ARequestUtils.cpp
+REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))

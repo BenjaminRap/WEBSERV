@@ -1,10 +1,5 @@
-#include <stddef.h>                 // for size_t, NULL
-#include <unistd.h>                 // for close
-#include <string>                   // for basic_string
-
-#include "FlowBuffer.hpp"           // for FlowState, FdType, FlowBuffer
-#include "RawResponse.hpp"          // for RawResponse
-#include "socketCommunication.hpp"  // for checkError
+#include "RawResponse.hpp"
+#include "socketCommunication.hpp"
 
 /*************************Constructors / Destructors***************************/
 

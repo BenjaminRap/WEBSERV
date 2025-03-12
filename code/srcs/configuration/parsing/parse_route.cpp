@@ -102,6 +102,7 @@ void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<s
 		skip_wspace(file, i, line);
 		index.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
 		i = file.find_first_of(SEP_WSPACE, i);
+		skip_wspace(file, i, line);
 	}
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));

@@ -18,15 +18,15 @@
  * and FLOW_MORE if there is more to read/write. In the latter case, we should
  * wait for an EPOLLIN/EPOLLOUT event before calling this function again.
  */
-template <typename ReadData, typename WriteData>
+template <typename Data>
 FlowState	FlowBuffer::redirectContent
 (
 	int srcFd,
-	ReadData &readData,
+	Data &readData,
 	int destFd,
-	WriteData &writeData,
-	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData),
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
+	Data &writeData,
+	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data),
+	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data)
 )
 {
 	const FlowState	readState = redirectFdContentToBuffer(srcFd, readData, customRead);
@@ -52,12 +52,12 @@ FlowState	FlowBuffer::redirectContent
  * and FLOW_MORE if there is more to write. In the latter case, we should
  * wait for an EPOLLOUT event before calling this function again.
  */
-template <typename WriteData>
+template <typename Data>
 FlowState	FlowBuffer::redirectBufferContentToFd
 (
 	int destFd,
-	WriteData &writeData,
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
+	Data &writeData,
+	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data)
 )
 {
 	if (_numCharsWritten < _bufferLength)
@@ -85,6 +85,7 @@ FlowState	FlowBuffer::redirectBufferContentToFd
  * @param customRead The function that will read the data in the srcFd. If no parameter
  * is entered, the default customRead is readFromFdWithType and readData is a FdType.
  * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read,
+<<<<<<< HEAD
  * FLOW_BUFFER_FULL if the buffer is full and nothing could be read, and FLOW_MORE
  * if there is more to read. In the latter case, we should wait for an EPOLLIN
  * event before calling this function again.
@@ -96,6 +97,19 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 	int srcFd,
 	ReadData &readData,
 	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData)
+=======
+ * FLOW_BUFFER_FULL if the buffer is full and FLOW_MORE if there is more to
+ * read. In the latter case, we should wait for an EPOLLIN event before calling
+ * this function again.
+ * BUFFER_FULL also means that there is more to read.
+ */
+template <typename Data>
+FlowState	FlowBuffer::redirectFdContentToBuffer
+(
+	int srcFd,
+	Data &readData,
+	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data)
+>>>>>>> main
 )
 {
 	size_t	remainingCapacity;
@@ -109,5 +123,9 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 	if (rd == 0)
 		return (FLOW_DONE);
 	_bufferLength += rd;
+<<<<<<< HEAD
 	return (FLOW_MORE);
+=======
+	return ((_bufferLength >= _bufferCapacity) ? FLOW_BUFFER_FULL : FLOW_MORE);
+>>>>>>> main
 }

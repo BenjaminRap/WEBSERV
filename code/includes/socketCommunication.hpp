@@ -13,7 +13,7 @@
 
 class SocketsHandler;
 class Configuration;
-typedef struct sockaddr sockaddr;
+class SocketData;
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &SocketsHandler);
 void	handleIOEvents(const Configuration &conf);
@@ -22,9 +22,7 @@ void	signalHandler(int signal);
 int		getReturnCodeWithSignal();
 int		setReusableAddr(int fd, bool reuseAddr);
 int		setIPV6Only(int fd, bool isIPV6Only);
-int		removeUnixSocketIfExists(const char sun_path[108]);
-int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
-			std::vector<std::string> &socketsToRemove);
+void	acceptConnection(SocketData& socketData, SocketsHandler *socketsHandler, uint32_t events);
 
 template <typename ReturnType>
 ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);

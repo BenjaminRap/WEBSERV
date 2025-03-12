@@ -39,6 +39,7 @@ public:
 	const std::string				&getRoot(void) const;
 	const std::string				&getCgiFileExtension(void) const;
 	const bool						&getAcceptUploads(void) const;
+	void							setIndex(const std::vector<std::string> &v);
 
 private:
 	std::vector<EMethods>		acceptedMethods;

@@ -8,30 +8,40 @@
 #include "Configuration.hpp"        // for Configuration
 #include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
 
-#include "Request.hpp"
-#include "Response.hpp"
-
-/**
- * @brief Create a mostly uninitialize Configuration and call the function to
- * handle write and read request. It call the handleIoEvents till he receive a signal.
- * @return Return the signal + 128
- */
-
- # include <fstream>
-
-int	main(void)
+int	main(int argc, char **argv)
 {
-
+	if (argc == 1)
+		std::cout << "No argument supplied, using the default path for the configuration." << std::endl;
+	else if (argc > 2)
+	{
+		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
+	return (EXIT_FAILURE);
+	}
 	try
 	{
-		Request r;
-		const char	*s = "Host: example.com\r\n";
-		const char	*p = "PUT /index.html HTTP/1.1\r\n";
-		if (r.parseHeader(s, 19) || r.parseStatusLine(p, 29))
-			std::cout << "problem" << std::endl;
+		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+			return (EXIT_FAILURE);
+
+		Configuration	conf;
+		std::string		file;
+
+		if (argc == 2)
+			ft_readfile(argv[1], file);
 		else
-			std::cout << r << std::endl;
-		return (0);
+			ft_readfile(DEFAULT_CONFIG_PATH, file);
+		parse_file(conf, file);
+		while(getSignalStatus() == NO_SIGNAL)
+		{
+			try
+			{
+				handleIOEvents(conf);
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
+		}
+		return (getReturnCodeWithSignal());
 	}
 	catch(const std::exception& e)
 	{

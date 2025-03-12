@@ -82,35 +82,35 @@ public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
-	template <typename ReadData, typename WriteData>
+	template <typename Data>
 	FlowState	redirectContent
 	(
 		int srcFd,
-		ReadData &readData,
+		Data &readData,
 		int destFd,
-		WriteData &writeData,
-		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType,
-		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData) = writeToFdWithType
+		Data &writeData,
+		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data) = readFromFdWithType,
+		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data) = writeToFdWithType
 	);
-	template <typename WriteData>
+	template <typename Data>
 	FlowState	redirectBufferContentToFd
 	(
 		int destFd,
-		WriteData &writeData,
-		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData) = writeToFdWithType
+		Data &writeData,
+		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, Data &data) = writeToFdWithType
 	);
-	template <typename ReadData>
+	template <typename Data>
 	FlowState	redirectFdContentToBuffer
 	(
 		int srcFd,
-		ReadData &readData,
-		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType
+		Data &readData,
+		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, Data &data) = readFromFdWithType
 	);
 
 	size_t		getBufferLength(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
-	bool		getLine(char **lineStart, size_t *length);
+
 };
 
 

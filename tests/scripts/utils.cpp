@@ -6,8 +6,12 @@
 #include <fcntl.h>
 #include <cstring>
 
+<<<<<<< HEAD
 #include "FdData.hpp"
 #include "FlowBuffer.hpp"
+=======
+#include "SocketData.hpp"
+>>>>>>> main
 
 void	verify(bool test)
 {
@@ -22,9 +26,15 @@ void	printInfo(std::string infos)
 	std::cout << "\033[0;35m" << infos << "\033[0m\n" << std::endl;
 }
 
+<<<<<<< HEAD
 void	callback(FdData &FdData, int *data, uint32_t events)
 {
 	(void)FdData;
+=======
+void	callback(SocketData &socketData, int *data, uint32_t events)
+{
+	(void)socketData;
+>>>>>>> main
 	(void)data;
 	(void)events;
 }

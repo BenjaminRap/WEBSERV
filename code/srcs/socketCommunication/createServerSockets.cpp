@@ -71,18 +71,7 @@ const Configuration &conf,
 
 		if (fd == -1)
 			continue ;
-		try
-		{
-			ServerSocketData * const serverSocketData = new ServerSocketData(fd, socketsHandler);
-			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
-			{
-				delete serverSocketData;
-				close(fd);
-			}
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
+		if (socketsHandler.addFdToListeners(fd, acceptConnection, socketsHandler, events) == -1)
+			close(fd);
 	}
 }
