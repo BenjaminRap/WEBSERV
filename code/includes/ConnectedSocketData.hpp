@@ -26,7 +26,7 @@ private:
 	
 	RequestState			processRequest(Response &response);
 public:
-	ConnectedSocketData(int fd, SocketsHandler &socketsHandler);
+	ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration);
 	~ConnectedSocketData(void);
 
 	void	callback(uint32_t events);

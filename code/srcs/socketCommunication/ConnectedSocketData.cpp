@@ -4,8 +4,8 @@
 
 /*************************Constructors / Destructors***************************/
 
-ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler) :
-	FdData(fd, socketsHandler),
+ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
+	FdData(fd, socketsHandler, serverConfiguration),
 	_responsesHandler(),
 	_requestHandler()
 {

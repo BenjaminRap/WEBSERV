@@ -9,11 +9,12 @@ class SocketsHandler;
 /**
  * @throw Throw a std::invalid argument if the fd is inferior to 4.
  */
-FdData::FdData(int fd, SocketsHandler& socketsHandler) :
+FdData::FdData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
 	_fd(fd),
 	_iterator(),
 	_isIteratorSet(false),
-	_socketsHandler(socketsHandler)
+	_socketsHandler(socketsHandler),
+	_serverConfigurations(serverConfigurations)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");

@@ -66,14 +66,15 @@ const Configuration &conf,
 
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
-		const Host	&host = (*ci).first;
-		const int	fd = createServerSocket(host, conf, socketsHandler);
+		const Host								&host = ci->first;
+		const std::vector<ServerConfiguration>	&serverConfigurations = ci->second;
+		const int								fd = createServerSocket(host, conf, socketsHandler);
 
 		if (fd == -1)
 			continue ;
 		try
 		{
-			ServerSocketData * const serverSocketData = new ServerSocketData(fd, socketsHandler);
+			ServerSocketData * const serverSocketData = new ServerSocketData(fd, socketsHandler, serverConfigurations);
 			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
 			{
 				delete serverSocketData;

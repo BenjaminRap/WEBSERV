@@ -1,6 +1,7 @@
 #ifndef FD_DATA_HPP
 # define FD_DATA_HPP
 
+# include "ServerConfiguration.hpp"
 # include <stdint.h>
 # include <list>
 
@@ -18,22 +19,23 @@ protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
-	int								_fd;
+	int										_fd;
 	/**
 	 * @brief The iterator of this instance in the SocketsHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
-	std::list<FdData *>::iterator	_iterator;
+	std::list<FdData *>::iterator			_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a good argument.
 	 */
-	bool							_isIteratorSet;
+	bool									_isIteratorSet;
 	/**
 	 * @brief The class managing all the sockets.
 	 */
-	SocketsHandler					&_socketsHandler;
+	SocketsHandler							&_socketsHandler;
+	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
-	FdData(int fd, SocketsHandler &socketsHandler);
+	FdData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
 private:
 	FdData(void);
 	FdData(const FdData &ref);

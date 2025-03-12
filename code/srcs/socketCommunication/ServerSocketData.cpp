@@ -15,8 +15,8 @@
 
 //***********************Cosntructors / Destructors****************************/
 
-ServerSocketData::ServerSocketData(int fd , SocketsHandler &socketsHandler) :
-	FdData(fd, socketsHandler)
+ServerSocketData::ServerSocketData(int fd , SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
+	FdData(fd, socketsHandler, serverConfiguration)
 {
 
 }
@@ -49,7 +49,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		return ;
 	try
 	{
-		ConnectedSocketData * const connectedSocketData = new ConnectedSocketData(newConnectionFd, _socketsHandler);
+		ConnectedSocketData * const connectedSocketData = new ConnectedSocketData(newConnectionFd, _socketsHandler, _serverConfigurations);
 		if (_socketsHandler.addFdToListeners(connectedSocketData, newConnectionEvents) == -1)
 		{
 			delete connectedSocketData;

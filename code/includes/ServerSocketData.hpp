@@ -18,7 +18,7 @@ private:
 	
 	void	acceptConnection(uint32_t events);
 public:
-	ServerSocketData(int fd , SocketsHandler &socketsHandler);
+	ServerSocketData(int fd , SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
 	~ServerSocketData(void);
 
 	void	callback(uint32_t events);
