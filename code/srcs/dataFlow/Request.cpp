@@ -7,8 +7,6 @@ Request::Request(void)
 
 void	Request::reset()
 {
-	this->_statusLine._method.clear();
-	this->_statusLine._protocol.clear();
 	this->_statusLine._requestTarget.clear();
 	this->_headers.clear();
 }
@@ -23,20 +21,30 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	//Parsing the method
 	const char	*meth = std::find(line, line + lineLength, ' ');
 	if (*meth != ' ')
-		return (1);
-	this->_statusLine._method = std::string(line, meth - line);
+		return (400);
+	if (!std::memcmp(line, "GET", 3))
+		this->_statusLine._method = GET;
+	else if (!std::memcmp(line, "POST", 4))
+		this->_statusLine._method = POST;
+	else if (!std::memcmp(line, "DELETE", 6))
+		this->_statusLine._method = DELETE;
+	else if (!std::memcmp(line, "PUT", 3))
+		this->_statusLine._method = PUT;
+	else
+		return (501);
 
 	//Parsing the target
 	const char	*targ = std::find(meth + 1, line + lineLength, ' ');
 	if (*targ != ' ')
-		return (1);
+		return (400);
 	this->_statusLine._requestTarget = std::string(meth + 1, targ - (meth + 1));
 
 	//Parsing the protocol
 	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
 	if (*prot != '\r' || *(prot + 1) != '\n')
-		return (1);
-	this->_statusLine._protocol = std::string(targ + 1, prot - (targ + 1));
+		return (400);
+	if (std::memcmp(targ + 1, "HTTP/1.1", 8))
+		return (505);
 	return (0);
 }
 
@@ -62,7 +70,7 @@ Request::~Request(void)
 
 }
 
-const std::string	&Request::getMethod(void) const
+EMethods	Request::getMethod(void) const
 {
 	return (this->_statusLine._method);
 }
@@ -70,11 +78,6 @@ const std::string	&Request::getMethod(void) const
 const std::string	&Request::getRequestTarget(void) const
 {
 	return (this->_statusLine._requestTarget);
-}
-
-const std::string	&Request::getProtocol(void) const
-{
-	return (this->_statusLine._protocol);
 }
 
 const std::string	*Request::getHeader(const std::string &key) const
@@ -94,10 +97,11 @@ const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
 std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {
 	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
+	std::string	method[4] = {"GET", "POST", "DELETE", "PUT"};
 
-	std::cout << "Method :" << rhs.getMethod() << std::endl;
+	std::cout << "Method :" << method[rhs.getMethod()] << std::endl;
 	std::cout << "Target :" << rhs.getRequestTarget() << std::endl;
-	std::cout << "Protocol :" << rhs.getProtocol() << std::endl << std::endl;
+	std::cout << "Protocol :" << "HTTP/1.1" << std::endl << std::endl;
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{

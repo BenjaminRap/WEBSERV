@@ -8,8 +8,8 @@ enum EMethods
 {
 	GET,
 	POST,
-	PUT,
-	DELETE
+	DELETE,
+	PUT
 };
 
 #endif // !METHODS_HPP
