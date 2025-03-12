@@ -2,3 +2,5 @@ objs/
 deps/
 .vscode/
 WebServ
+.cache
+compile_commands.json
