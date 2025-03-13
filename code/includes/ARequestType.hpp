@@ -40,6 +40,7 @@ class ARequestType
 		void					setIsRoute(bool src);
 
 		std::string				&getUrl();
+		const std::string		&getStatusText() const;
 		const std::string		&getFile() const;
 		const Route				*getRoute() const;
 		int						getCode() const;

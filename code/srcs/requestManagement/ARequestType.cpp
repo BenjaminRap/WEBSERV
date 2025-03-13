@@ -62,6 +62,19 @@ std::string	&ARequestType::getUrl()
 	return (this->_url);
 }
 
+/**
+ * @brief Returns the status text corresponding to the current code.
+ * @throw If the current code doesn't correspond to a status text, throw a std::logic_error
+ * @note This function should only be called if the request is done.
+ */
+const std::string	&ARequestType::getStatusText() const
+{
+	const std::map<int, std::string>::const_iterator	it = ARequestType::_statuses.find(this->_code);
+	if (it == _statuses.end())
+		throw std::logic_error("Unkown status code !");
+	return (it->second);
+}
+
 const std::string	&ARequestType::getFile() const
 {
 	return (this->_file);
