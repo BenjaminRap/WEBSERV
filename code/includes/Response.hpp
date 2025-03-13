@@ -44,13 +44,13 @@ private:
 	 */
 	int									_bodyFd;
 public:
-	void	setResponse(int code);
-	void	reset();
+	void										setResponse(int code, const std::string &redirection);
+	void										reset();
 
-	uint16_t	getStatusCode(void) const;
-	const std::string	&getStatusText(void) const;
-	const std::string	&getProtocol(void) const;
-	const std::string	*getHeader(const std::string &key) const;
+	uint16_t									getStatusCode(void) const;
+	const std::string							&getStatusText(void) const;
+	const std::string							&getProtocol(void) const;
+	const std::string							*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
 
 };

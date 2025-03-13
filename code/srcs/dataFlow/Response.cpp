@@ -1,7 +1,7 @@
 #include "Response.hpp"
 #include "ARequestType.hpp"
 
-void	Response::setResponse(int code)
+void	Response::setResponse(int code, const std::string &redirection)
 {
 	this->_statusLine._statusCode = code;
 	this->_statusLine._statusText = ARequestType::getStatusText(code);
@@ -11,6 +11,8 @@ void	Response::setResponse(int code)
 	this->_headers.rbegin()->second.erase(this->_headers.rbegin()->second.size() - 1, 1);
 	this->_headers.insert(std::make_pair("Server", "WebServ de bg"));
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
+	if (redirection.empty() == false)
+		this->_headers.insert(std::make_pair("Location", redirection));
 }
 
 void	Response::reset()

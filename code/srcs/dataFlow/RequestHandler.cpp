@@ -56,7 +56,7 @@ void	RequestHandler::readStatusLine(Response &response)
 	const int	statusCode = _request.parseStatusLine(line, lineLength);
 	if (statusCode != 0)
 	{
-		response.setResponse(statusCode);
+		response.setResponse(statusCode, "");
 		_state = REQUEST_DONE;
 	}
 	else
@@ -80,7 +80,7 @@ void	RequestHandler::readHeaders(Response &response)
 		const int	statusCode = _request.parseHeader(line, lineLength);
 		if (statusCode != 0)
 		{
-			response.setResponse(statusCode);
+			response.setResponse(statusCode, "");
 			_state = REQUEST_DONE;
 			return ;
 		}
@@ -98,7 +98,7 @@ void	RequestHandler::executeRequest(Response &response)
 	{
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
-			response.setResponse(getRequest.getCode());
+			response.setResponse(getRequest.getCode(), getRequest.getRedirection());
 			std::cout << "GET" << std::endl;
 			break;
 		}
@@ -108,13 +108,13 @@ void	RequestHandler::executeRequest(Response &response)
 		}
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
-			response.setResponse(putRequest.getCode());
+			response.setResponse(putRequest.getCode(), putRequest.getRedirection());
 			std::cout << "PUT" << std::endl;
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
-			response.setResponse(deleteRequest.getCode());
+			response.setResponse(deleteRequest.getCode(), deleteRequest.getRedirection());
 			std::cout << "DELETE" << std::endl;
 			break;
 		}
@@ -138,7 +138,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 	
 	if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(500);
+		response.setResponse(500, "");
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_DONE && body->getFinished())
@@ -159,7 +159,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(500);
+		response.setResponse(500, "");
 		_state = REQUEST_DONE;
 	}
 	else if (body->getFinished())
@@ -176,12 +176,12 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &resp
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(500);
+		response.setResponse(500, "");
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_BUFFER_FULL)
 	{
-		response.setResponse(400);
+		response.setResponse(400, "");
 		_state = REQUEST_DONE;
 	}
 	return (_state);
