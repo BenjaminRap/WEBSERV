@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "RequestHandler.hpp"
-#include "SizedBody.hpp"
 
 /************************Constructors/Destructors******************************/
 
@@ -33,17 +32,14 @@ void	RequestHandler::readStatusLine(Response &response)
 			return ;
 	}
 	while (lineLength == 0);
-	const int	parsingReturn = _request.parseStatusLine(line, lineLength);
-	if (parsingReturn != 0)
+	const int	statusCode = _request.parseStatusLine(line, lineLength);
+	if (statusCode != 0)
 	{
-		if (parsingReturn == -1)
-			response.setResponse(400);
-		else
-			response.setResponse(500);
+		response.setResponse(statusCode);
 		_state = REQUEST_DONE;
-		return ;
 	}
-	_state = REQUEST_HEADERS;
+	else
+		_state = REQUEST_HEADERS;
 }
 
 void	RequestHandler::readHeaders(Response &response)
@@ -57,17 +53,13 @@ void	RequestHandler::readHeaders(Response &response)
 	{
 		if (lineLength == 0)
 		{
-			std::cout << "empty line !" << std::endl;
 			_state = REQUEST_EMPTY_LINE;
 			return ;
 		}
-		const int	parsingReturn = _request.parseHeader(line, lineLength);
-		if (parsingReturn != 0)
+		const int	statusCode = _request.parseHeader(line, lineLength);
+		if (statusCode != 0)
 		{
-			if (parsingReturn == -1)
-				response.setResponse(400);
-			else
-				response.setResponse(500);
+			response.setResponse(statusCode);
 			_state = REQUEST_DONE;
 			return ;
 		}
