@@ -1,6 +1,5 @@
 #include "ARequestType.hpp"
 
-
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);
 void	buildNewURl(std::string root, std::string &url);
