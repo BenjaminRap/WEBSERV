@@ -94,11 +94,11 @@ void	RequestHandler::executeRequest(Response &response)
 
 	const ServerConfiguration	serverConfiguration = getServerConfiguration();
 	_state = REQUEST_DONE;
-	(void)response;
 	switch (_request.getMethod())
 	{
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
+			response.setResponse(getRequest.getCode());
 			std::cout << "GET" << std::endl;
 			break;
 		}
@@ -108,11 +108,13 @@ void	RequestHandler::executeRequest(Response &response)
 		}
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
+			response.setResponse(putRequest.getCode());
 			std::cout << "PUT" << std::endl;
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
+			response.setResponse(deleteRequest.getCode());
 			std::cout << "DELETE" << std::endl;
 			break;
 		}
