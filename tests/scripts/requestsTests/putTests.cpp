@@ -107,7 +107,7 @@ int	main(int argc, char **argv)
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 		std::cout << CRESET << std::endl;
 		std::cout << BMAG << "Code : "<< BWHT <<  a.getCode() << CRESET << std::endl;
-		std::cout << BMAG << "File : "<< BWHT << a.getFile() << CRESET << std::endl;
+		std::cout << BMAG << "File : "<< BWHT << a.getRedirection() << CRESET << std::endl;
 		std::cout << BMAG << "FD : "<< BWHT <<  a.getFd() << CRESET << std::endl;
 		std::cout << std::endl;
 		std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
