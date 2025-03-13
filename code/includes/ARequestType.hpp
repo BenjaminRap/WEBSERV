@@ -27,21 +27,19 @@ class ARequestType
 		bool						_isRoute;
 
 		int							_code;
-		std::string					_statusText;
 		std::string					_file;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
 		virtual ~ARequestType() = 0;
 
-		void					setResponse(int code, const std::string &status, const std::string &file);
+		void					setResponse(int code, const std::string &file);
 		void					setUrl(const std::string &src);
 		void					setRoute(const Route *root);
 		void					setMethod(EMethods method);
 		void					setIsRoute(bool src);
 
 		std::string				&getUrl();
-		const std::string		&getStatusText() const;
 		const std::string		&getFile() const;
 		const Route				*getRoute() const;
 		int						getCode() const;

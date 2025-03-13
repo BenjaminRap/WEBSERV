@@ -77,7 +77,7 @@ void	fixPath(std::string &path)
 void	fixUrl(ARequestType &req, std::string &url)
 {
 	if (*url.begin() != '/')
-		req.setResponse(400, "Bad Request", "Bad Request");
+		req.setResponse(400, "Bad Request");
 	else
 	{
 		fixPath(url);
@@ -98,12 +98,12 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 	get.setIsRoute(true);
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
-		get.setResponse(405, "Not Allowed", config.getErrorPage(405));
+		get.setResponse(405, config.getErrorPage(405));
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setResponse(301, "Moved Permanently", redir);
+		get.setResponse(301, redir);
 	else
 		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
 }

@@ -13,7 +13,7 @@ void	checkType(std::string &path, GetRequest &get)
 	if (lastChar != '/')
 	{
 		path += "/";
-		get.setResponse(301, "Moved Permanently",path);
+		get.setResponse(301, path);
 	}
 	else
 		get.setUrl(path);
@@ -125,9 +125,9 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 		if (ret == LS_FILE || ret == DIRE)
 		{
 			if (ret == DIRE)
-				get.setResponse(301, "Moved Permanently", temp + "/");
+				get.setResponse(301, temp + "/");
 			else
-				get.setResponse(200, "OK", temp);
+				get.setResponse(200, temp);
 			return (true);
 		}
 	}
@@ -141,11 +141,11 @@ void	autoIndexCase(GetRequest &get)
 
 	response = ls(get.getUrl(), files);
 	if (response == FORBIDEN)
-		get.setResponse(403, "Forbidden", get.getError(403));
+		get.setResponse(403, get.getError(403));
 	else if (response == ERROR500)
-		get.setResponse(500, "Internal Server Error", get.getError(500));
+		get.setResponse(500, get.getError(500));
 	else
-		get.setResponse(200, "OK", buildPage(files, get.getUrl()));
+		get.setResponse(200, buildPage(files, get.getUrl()));
 }
 
 void	directoryCase(GetRequest &get)
@@ -164,5 +164,5 @@ void	directoryCase(GetRequest &get)
 	if (get.getAutoIndex())
 		autoIndexCase(get);
 	else
-		get.setResponse(403, "Forbidden", get.getError(403));
+		get.setResponse(403, get.getError(403));
 }
