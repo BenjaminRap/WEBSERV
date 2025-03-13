@@ -1,9 +1,12 @@
 #ifndef REQUEST_HANDLER_HPP
 # define REQUEST_HANDLER_HPP
 
+# include <vector>
+
 # include "FlowBuffer.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
+# include "ServerConfiguration.hpp"
 
 # define REQUEST_BUFFER_SIZE 1024
 
@@ -20,10 +23,11 @@ enum	RequestState
 class RequestHandler
 {
 private:
-	char			_buffer[REQUEST_BUFFER_SIZE];
-	FlowBuffer		_flowBuffer;
-	RequestState	_state;
-	Request			_request;
+	char									_buffer[REQUEST_BUFFER_SIZE];
+	FlowBuffer								_flowBuffer;
+	RequestState							_state;
+	Request									_request;
+	const std::vector<ServerConfiguration>	&_serverConfs;
 
 	RequestHandler(const RequestHandler& ref);
 
@@ -34,7 +38,7 @@ private:
 	void			executeRequest(Response &response);
 	void			writeBodyFromBuffer(Response &response);
 public:
-	RequestHandler();
+	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();
 
 	RequestState	redirectBodySocketToFile(int socketFd, Response &response);

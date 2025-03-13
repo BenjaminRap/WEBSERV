@@ -7,7 +7,7 @@
 ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
 	FdData(fd, socketsHandler, serverConfiguration),
 	_responsesHandler(),
-	_requestHandler()
+	_requestHandler(serverConfiguration)
 {
 
 }

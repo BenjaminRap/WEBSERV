@@ -4,11 +4,12 @@
 
 /************************Constructors/Destructors******************************/
 
-RequestHandler::RequestHandler() :
+RequestHandler::RequestHandler(const std::vector<ServerConfiguration>	&serverConfs) :
 	_buffer(),
 	_flowBuffer(_buffer, REQUEST_BUFFER_SIZE, 0),
 	_state(REQUEST_STATUS_LINE),
-	_request()
+	_request(),
+	_serverConfs(serverConfs)
 {
 }
 
@@ -70,6 +71,7 @@ void	RequestHandler::executeRequest(Response &response)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
+
 	_state = REQUEST_DONE;
 	(void)response;
 }

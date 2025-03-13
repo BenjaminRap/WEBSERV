@@ -50,14 +50,15 @@ public:
 	Request(void);
 	~Request(void);
 
-	void	reset();
-	Body				*getBody() const;
-	EMethods			getMethod(void) const;
-	const std::string	&getRequestTarget(void) const;
-	const std::string	*getHeader(const std::string &key) const;
+	void										reset();
+	int											parseStatusLine(const char *line, size_t lineLength);
+	int											parseHeader(const char *line, size_t lineLength);
+
+	Body										*getBody() const;
+	EMethods									getMethod(void) const;
+	const std::string							&getRequestTarget(void) const;
+	const std::string							*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
-	int		parseStatusLine(const char *line, size_t lineLength);
-	int		parseHeader(const char *line, size_t lineLength);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);
