@@ -1,9 +1,10 @@
 #include "Response.hpp"
+#include "ARequestType.hpp"
 
-void	Response::setResponseCode(int code, std::string text)
+void	Response::setResponseCode(int code)
 {
 	this->_statusLine._statusCode = code;
-	this->_statusLine._statusText = text;
+	this->_statusLine._statusText = ARequestType::getStatusText(code);
 	this->_statusLine._protocol = "HTTP/1.1";
 	const std::time_t	now = std::time(NULL);
 	this->_headers.insert(std::make_pair("Date", std::asctime(std::localtime(&now))));

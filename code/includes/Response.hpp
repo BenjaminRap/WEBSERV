@@ -44,7 +44,7 @@ private:
 	 */
 	int									_bodyFd;
 public:
-	void	setResponseCode(int code, std::string text);
+	void	setResponseCode(int code);
 	void	reset();
 
 	uint16_t	getStatusCode(void) const;
