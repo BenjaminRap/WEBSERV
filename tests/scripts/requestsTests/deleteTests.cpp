@@ -16,11 +16,11 @@ void	makeDelete(const std::string &desc, const std::string& test, int code, cons
 	DeleteRequest a(test, config);
 
 	std::cout << BMAG << "Test : "<< BCYN << desc << BWHT << " | (" << test << ")" << tab;
-	if (a.getCode() == code && a.getStatusText() == response)
+	if (a.getCode() == code && ARequestType::getStatusText(a.getCode()) == response)
 		std::cout << BGRN << " OK : " << code << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << " KO : " " response : " << a.getCode() << " | " << a.getStatusText() << "\t";
+		std::cout << BRED << " KO : " " response : " << a.getCode() << " | " << ARequestType::getStatusText(a.getCode()) << "\t";
 		std::cout << BGRN << " nginx: " << code << " | " << response << CRESET  << std::endl;
 	}
 }

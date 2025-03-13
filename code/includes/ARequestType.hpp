@@ -33,6 +33,8 @@ class ARequestType
 		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
 		virtual ~ARequestType() = 0;
 
+		static const std::string		&getStatusText(int code);
+
 		void					setResponse(int code, const std::string &file);
 		void					setUrl(const std::string &src);
 		void					setRoute(const Route *root);
@@ -40,7 +42,6 @@ class ARequestType
 		void					setIsRoute(bool src);
 
 		std::string				&getUrl();
-		const std::string		&getStatusText() const;
 		const std::string		&getFile() const;
 		const Route				*getRoute() const;
 		int						getCode() const;

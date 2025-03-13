@@ -16,11 +16,11 @@ void	makePut(const std::string& url, int code, const std::string& response, cons
 	PutRequest a(url, config);
 
 	std::cout << BMAG << "Request : "<< BCYN << url << tab;
-	if (a.getCode() == code && a.getStatusText() == response)
+	if (a.getCode() == code && ARequestType::getStatusText(a.getCode()) == response)
 		std::cout << BGRN << "OK | " << code << " [" << response << "]" << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << "KO : " << a.getCode() << " | " << a.getStatusText() << CRESET << "\t";
+		std::cout << BRED << "KO : " << a.getCode() << " | " << ARequestType::getStatusText(a.getCode()) << CRESET << "\t";
 		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
 	}
 }

@@ -17,11 +17,11 @@ void	makeGet(const std::string& test, int code, const std::string& response, con
 	GetRequest a(test, config);
 
 	std::cout << BMAG << "Request : "<< BCYN << test << tab;
-	if (a.getCode() == code && a.getStatusText() == response)
+	if (a.getCode() == code && ARequestType::getStatusText(a.getCode()) == response)
 		std::cout << BGRN << "OK | " << code << " [" << response << "]" << CRESET << std::endl;
 	else
 	{
-		std::cout << BRED << "KO : " << a.getCode() << " | " << a.getStatusText() << CRESET << "\t";
+		std::cout << BRED << "KO : " << a.getCode() << " | " << ARequestType::getStatusText(a.getCode()) << CRESET << "\t";
 		std::cout << BGRN << "nginx : " << code << " | " << response << CRESET << std::endl;
 	}
 }
