@@ -8,7 +8,7 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &get, const ServerConfiguration &config);
 
-ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoute(false), _code(0), _file("")
+ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoute(false), _code(0), _redirection("")
 {
 	fixUrl(*this, url);
 	if (getCode() == 400)
@@ -38,10 +38,16 @@ const std::string	&ARequestType::getStatusText(int code)
 	return (it->second);
 }
 
-void	ARequestType::setResponse(int code, const std::string &file)
+void	ARequestType::setRedirectionResponse(int code, const std::string &redirection)
 {
 	this->_code = code;
-	this->_file = file;
+	this->_redirection = redirection;
+}
+
+
+void	ARequestType::setResponse(int code)
+{
+	this->_code = code;
 }
 
 void	ARequestType::setUrl(const std::string &src)
@@ -74,9 +80,9 @@ std::string	&ARequestType::getUrl()
 	return (this->_url);
 }
 
-const std::string	&ARequestType::getFile() const
+const std::string	&ARequestType::getRedirection() const
 {
-	return (this->_file);
+	return (this->_redirection);
 }
 
 const Route	*ARequestType::getRoute() const

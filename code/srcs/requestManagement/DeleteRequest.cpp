@@ -16,9 +16,9 @@ DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config)
 	else if (temp == LS_FILE)
 		fileCase(this->_url, *this);
 	else if (temp == -1)
-		this->setResponse(403, "Forbidden");
+		this->setResponse(403);
 	else
-		setResponse(404, config.getErrorPage(404));
+		setResponse(404);
 }
 
 DeleteRequest::~DeleteRequest()

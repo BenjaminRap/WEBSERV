@@ -19,9 +19,9 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == LS_FILE)
-		setResponse(200, this->_url);
+		setResponse(200);
 	else
-		setResponse(404, config.getErrorPage(404));
+		setResponse(404);
 }
 
 GetRequest::~GetRequest()

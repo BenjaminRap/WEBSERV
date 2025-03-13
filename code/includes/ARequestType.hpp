@@ -27,28 +27,29 @@ class ARequestType
 		bool						_isRoute;
 
 		int							_code;
-		std::string					_file;
+		std::string					_redirection;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
 		virtual ~ARequestType() = 0;
 
-		static const std::string		&getStatusText(int code);
+		static const std::string	&getStatusText(int code);
 
-		void					setResponse(int code, const std::string &file);
-		void					setUrl(const std::string &src);
-		void					setRoute(const Route *root);
-		void					setMethod(EMethods method);
-		void					setIsRoute(bool src);
+		void						setRedirectionResponse(int code, const std::string &redirection);
+		void						setResponse(int code);
+		void						setUrl(const std::string &src);
+		void						setRoute(const Route *root);
+		void						setMethod(EMethods method);
+		void						setIsRoute(bool src);
 
-		std::string				&getUrl();
-		const std::string		&getFile() const;
-		const Route				*getRoute() const;
-		int						getCode() const;
-		EMethods				getMethod() const;
-		bool					getIsRoute() const;
+		std::string					&getUrl();
+		const std::string			&getRedirection() const;
+		const Route					*getRoute() const;
+		int							getCode() const;
+		EMethods					getMethod() const;
+		bool						getIsRoute() const;
 
-		const std::string		&getError(unsigned short error);
+		const std::string			&getError(unsigned short error);
 };
 
 #endif

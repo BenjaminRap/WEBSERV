@@ -36,16 +36,16 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 	removeFileName(this->_url);
 	ret = isDirOrFile(path);
 	if ((ret != NF && ret != FORBIDEN) || (this->_fileName.empty() && ret == NF))
-		this->setResponse(409, "Conflict");
+		this->setResponse(409);
 	else if (!canWrite( this->_url) && ret != FORBIDEN)
-		this->setResponse(403, "Forbidden");
+		this->setResponse(403);
 	else
 	{
 		this->_fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
 		if (this->_fd == -1)
-			this->setResponse(500, this->getError(500));
+			this->setResponse(500);
 		else
-			this->setResponse(201, path);
+			this->setResponse(201);
 	}
 }
 
