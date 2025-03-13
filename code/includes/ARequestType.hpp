@@ -13,6 +13,8 @@
 class ARequestType
 {
 	private:
+		static const std::map<int, std::string>	_statuses;
+
 		ARequestType();
 		ARequestType(const ARequestType& src);
 		ARequestType& operator=(const ARequestType& src);
