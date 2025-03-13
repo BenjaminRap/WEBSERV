@@ -1,7 +1,7 @@
 #include "Response.hpp"
 #include "ARequestType.hpp"
 
-void	Response::setResponseCode(int code)
+void	Response::setResponse(int code)
 {
 	this->_statusLine._statusCode = code;
 	this->_statusLine._statusText = ARequestType::getStatusText(code);

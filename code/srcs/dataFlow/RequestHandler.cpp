@@ -37,9 +37,9 @@ void	RequestHandler::readStatusLine(Response &response)
 	if (parsingReturn != 0)
 	{
 		if (parsingReturn == -1)
-			response.setResponseCode(400);
+			response.setResponse(400);
 		else
-			response.setResponseCode(500);
+			response.setResponse(500);
 		_state = REQUEST_DONE;
 		return ;
 	}
@@ -65,9 +65,9 @@ void	RequestHandler::readHeaders(Response &response)
 		if (parsingReturn != 0)
 		{
 			if (parsingReturn == -1)
-				response.setResponseCode(400);
+				response.setResponse(400);
 			else
-				response.setResponseCode(500);
+				response.setResponse(500);
 			_state = REQUEST_DONE;
 			return ;
 		}
@@ -97,7 +97,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 	
 	if (flowState == FLOW_ERROR)
 	{
-		response.setResponseCode(500);
+		response.setResponse(500);
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_DONE && body->getFinished())
@@ -118,7 +118,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponseCode(500);
+		response.setResponse(500);
 		_state = REQUEST_DONE;
 	}
 	else if (body->getFinished())
@@ -135,12 +135,12 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &resp
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponseCode(500);
+		response.setResponse(500);
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_BUFFER_FULL)
 	{
-		response.setResponseCode(400);
+		response.setResponse(400);
 		_state = REQUEST_DONE;
 	}
 	return (_state);
