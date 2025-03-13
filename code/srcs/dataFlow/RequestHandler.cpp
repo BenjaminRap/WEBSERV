@@ -1,6 +1,9 @@
 #include <iostream>
 
 #include "RequestHandler.hpp"
+#include "GetRequest.hpp"
+#include "PutRequest.hpp"
+#include "DeleteRequest.hpp"
 
 /************************Constructors/Destructors******************************/
 
@@ -18,6 +21,23 @@ RequestHandler::~RequestHandler()
 }
 
 /************************private Member function*******************************/
+
+
+const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
+{
+	if (_serverConfs.size() == 0)
+		throw std::logic_error("The ServerConfiguration vector is empty !");
+	const std::string * const host = _request.getHeader("Host");
+	if (host == NULL)
+		return (_serverConfs[0]);
+	for (std::vector<ServerConfiguration>::const_iterator serverIt = _serverConfs.begin(); serverIt != _serverConfs.end(); serverIt++)
+	{
+		const std::vector<std::string>	serverNames = serverIt->getServerNames();
+		if (std::find(serverNames.begin(), serverNames.end(), *host) != serverNames.end())
+			return (*serverIt);
+	}
+	return (_serverConfs[0]);
+}
 
 void	RequestHandler::readStatusLine(Response &response)
 {
@@ -72,8 +92,33 @@ void	RequestHandler::executeRequest(Response &response)
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
 
+	const ServerConfiguration	serverConfiguration = getServerConfiguration();
 	_state = REQUEST_DONE;
 	(void)response;
+	switch (_request.getMethod())
+	{
+		case GET: {
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
+			std::cout << "GET" << std::endl;
+			break;
+		}
+		case POST: {
+			std::cout << "POST" << std::endl;
+			break;
+		}
+		case PUT: {
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
+			std::cout << "PUT" << std::endl;
+			break;
+		}
+		case DELETE: {
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
+			std::cout << "DELETE" << std::endl;
+			break;
+		}
+		default:
+			throw std::logic_error("executeRequest called with a request method invalid !");
+	}
 }
 
 void	RequestHandler::writeBodyFromBuffer(Response &response)

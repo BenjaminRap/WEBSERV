@@ -33,20 +33,21 @@ private:
 
 	RequestHandler&	operator=(const RequestHandler& ref);
 
-	void			readStatusLine(Response &response);
-	void			readHeaders(Response &response);
-	void			executeRequest(Response &response);
-	void			writeBodyFromBuffer(Response &response);
+	void						readStatusLine(Response &response);
+	void						readHeaders(Response &response);
+	void						executeRequest(Response &response);
+	void						writeBodyFromBuffer(Response &response);
+	const ServerConfiguration	&getServerConfiguration(void) const;
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();
 
-	RequestState	redirectBodySocketToFile(int socketFd, Response &response);
-	RequestState	redirectSocketToBuffer(int socketFd, Response &response);
+	RequestState				redirectBodySocketToFile(int socketFd, Response &response);
+	RequestState				redirectSocketToBuffer(int socketFd, Response &response);
 
-	RequestState	readRequest(Response &response);
-	bool			isRequestBody(void);
-	void			setNewRequest();
+	RequestState				readRequest(Response &response);
+	bool						isRequestBody(void);
+	void						setNewRequest(void);
 };
 
 #endif // !REQUEST_HANDLER_HPP
