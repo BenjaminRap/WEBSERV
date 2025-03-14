@@ -13,7 +13,7 @@ private:
 	
 	SizedBody&	operator=(const SizedBody& ref);
 public:
-	SizedBody(int fd, size_t size);
+	SizedBody(int fd, size_t size, bool isBlocking);
 	~SizedBody();
 	
 	size_t	getSize() const;
@@ -22,7 +22,6 @@ public:
 	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, SizedBody &sizedBody);
 
 	FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer);
-	FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd);
 };
 
 #endif // !SIZED_BODY_HPP

@@ -93,12 +93,16 @@ void	RequestHandler::executeRequest(Response &response)
 		return ;
 
 	const ServerConfiguration	serverConfiguration = getServerConfiguration();
-	_state = REQUEST_DONE;
+	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
 			response.setResponse(getRequest.getCode(), getRequest.getRedirection());
+			if (getRequest.getCode() >= 200 && getRequest.getCode() < 300)
+				_state = REQUEST_BODY;
+			else
+				_state = REQUEST_DONE;
 			std::cout << "GET" << std::endl;
 			break;
 		}
@@ -109,18 +113,21 @@ void	RequestHandler::executeRequest(Response &response)
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
 			response.setResponse(putRequest.getCode(), putRequest.getRedirection());
+			_state = REQUEST_DONE;
 			std::cout << "PUT" << std::endl;
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
 			response.setResponse(deleteRequest.getCode(), deleteRequest.getRedirection());
+			_state = REQUEST_DONE;
 			std::cout << "DELETE" << std::endl;
 			break;
 		}
 		default:
 			throw std::logic_error("executeRequest called with a request method invalid !");
 	}
+	std::cout << response << std::endl;
 }
 
 void	RequestHandler::writeBodyFromBuffer(Response &response)

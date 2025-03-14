@@ -18,28 +18,28 @@
  * and FLOW_MORE if there is more to read/write. In the latter case, we should
  * wait for an EPOLLIN/EPOLLOUT event before calling this function again.
  */
-template <typename ReadData, typename WriteData>
-FlowState	FlowBuffer::redirectContent
-(
-	int srcFd,
-	ReadData &readData,
-	int destFd,
-	WriteData &writeData,
-	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData),
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
-)
-{
-	const FlowState	readState = redirectFdContentToBuffer(srcFd, readData, customRead);
-
-
-	if (readState == FLOW_ERROR)
-		return (FLOW_ERROR);
-	const FlowState writeState = redirectBufferContentToFd(destFd, writeData, customWrite);
-
-	if (writeState == FLOW_DONE)
-		return ((readState == FLOW_BUFFER_FULL) ? FLOW_MORE : readState);
-	return (writeState);
-}
+// template <typename ReadData, typename WriteData>
+// FlowState	FlowBuffer::redirectContent
+// (
+// 	int srcFd,
+// 	ReadData &readData,
+// 	int destFd,
+// 	WriteData &writeData,
+// 	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData),
+// 	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
+// )
+// {
+// 	const FlowState	readState = redirectFdContentToBuffer(srcFd, readData, customRead);
+//
+//
+// 	if (readState == FLOW_ERROR)
+// 		return (FLOW_ERROR);
+// 	const FlowState writeState = redirectBufferContentToFd(destFd, writeData, customWrite);
+//
+// 	if (writeState == FLOW_DONE)
+// 		return ((readState == FLOW_BUFFER_FULL) ? FLOW_MORE : readState);
+// 	return (writeState);
+// }
 
 /**
  * @brief Redirect the data from this instance's buffer to destFd.

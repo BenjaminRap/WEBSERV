@@ -23,7 +23,7 @@ private:
 	 * @brief A queue of all the responses. They will be written to the client in
 	 * the same order that the client send the requests.
 	 */
-	std::queue<RawResponse>	_responses;
+	std::queue<RawResponse *>	_responses;
 	/**
 	 * @brief The buffer that will be passed in the responseBuffer constructor.
 	 * It will be used to store parts of the response body before sending it to

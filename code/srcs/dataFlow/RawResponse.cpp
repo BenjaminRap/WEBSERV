@@ -26,11 +26,11 @@ RawResponse::RawResponse
 (
 	char *firstPart,
 	size_t firstPartLength,
-	int bodyFd,
+	Body *body,
 	FlowBuffer &bodyFlowBuffer
 ) :
 	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_bodyFd(bodyFd),
+	_body(body),
 	_bodyBuffer(&bodyFlowBuffer)
 {
 
@@ -53,16 +53,8 @@ RawResponse::RawResponse
 	size_t firstPartLength
 ) :
 	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_bodyFd(-1),
+	_body(NULL),
 	_bodyBuffer(NULL)
-{
-
-}
-
-RawResponse::RawResponse(const RawResponse& ref) :
-	_firstPart(ref._firstPart),
-	_bodyFd(ref._bodyFd),
-	_bodyBuffer(ref._bodyBuffer)
 {
 
 }
@@ -73,9 +65,9 @@ RawResponse::RawResponse(const RawResponse& ref) :
  */
 RawResponse::~RawResponse()
 {
-	if (_bodyFd != -1)
+	if (_body != NULL)
 	{
-		checkError(close(_bodyFd), -1, "close() : ");
+		delete _body;
 	}
 	delete [] _firstPart.getBuffer();
 }
@@ -100,10 +92,14 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
 
 		if (flowState == FLOW_DONE)
-			return ((_bodyFd == -1) ? FLOW_DONE : FLOW_MORE);
+			return ((_body == NULL) ? FLOW_DONE : FLOW_MORE);
 		return (flowState);
 	}
-	if (_bodyFd == -1)
+	if (_body == NULL)
 		return (FLOW_DONE);
-	return (_bodyBuffer->redirectContent(_bodyFd, srcType, socketFd, destType));
+	if (_body->getIsBlocking() == false)
+		std::cout << srcType;
+		//reading from the body
+	//writing to the socket
+	return (FLOW_DONE);
 }

@@ -5,8 +5,8 @@
 #include "SizedBody.hpp"
 #include "FlowBuffer.hpp"
 
-SizedBody::SizedBody(int fd, size_t size) :
-	Body(fd),
+SizedBody::SizedBody(int fd, size_t size, bool isBlocking) :
+	Body(fd, isBlocking),
 	_size(size),
 	_numCharsWritten(0)
 {
@@ -51,11 +51,11 @@ FlowState	SizedBody::writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
 	return (flowBuffer.redirectBufferContentToFd(getFd(), *this, SizedBody::writeToFile));
 }
 
-FlowState	SizedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
-{
-	FdType	socketType = SOCKETFD;
-
-	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this, \
-		readFromFdWithType,
-		SizedBody::writeToFile));
-}
+// FlowState	SizedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
+// {
+// 	FdType	socketType = SOCKETFD;
+//
+// 	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this,
+// 		readFromFdWithType,
+// 		SizedBody::writeToFile));
+// }

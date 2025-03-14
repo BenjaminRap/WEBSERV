@@ -82,16 +82,16 @@ public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
-	template <typename ReadData, typename WriteData>
-	FlowState	redirectContent
-	(
-		int srcFd,
-		ReadData &readData,
-		int destFd,
-		WriteData &writeData,
-		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType,
-		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData) = writeToFdWithType
-	);
+	// template <typename ReadData, typename WriteData>
+	// FlowState	redirectContent
+	// (
+	// 	int srcFd,
+	// 	ReadData &readData,
+	// 	int destFd,
+	// 	WriteData &writeData,
+	// 	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType,
+	// 	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData) = writeToFdWithType
+	// );
 	template <typename WriteData>
 	FlowState	redirectBufferContentToFd
 	(

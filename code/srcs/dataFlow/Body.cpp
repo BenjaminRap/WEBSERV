@@ -3,8 +3,9 @@
 #include "Body.hpp"
 #include "socketCommunication.hpp"
 
-Body::Body(int fd) :
-	_fd(fd)
+Body::Body(int fd, bool isBlocking) :
+	_fd(fd),
+	_isBlocking(isBlocking)
 {
 }
 
@@ -20,10 +21,16 @@ int	Body::getFd() const
 
 void	Body::setFinished()
 {
-	_finished = true;	
+	_finished = true;
 }
 
 bool	Body::getFinished() const
 {
 	return (_finished);
+}
+
+
+bool	Body::getIsBlocking() const
+{
+	return (_isBlocking);
 }

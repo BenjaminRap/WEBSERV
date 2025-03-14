@@ -3,6 +3,7 @@
 
 # include <cstddef>
 
+# include "Body.hpp"
 # include "FlowBuffer.hpp"
 
 /**
@@ -21,11 +22,7 @@ private:
 	 * allocated in the heap.
 	 */
 	FlowBuffer	_firstPart;
-	/**
-	 * @brief The file descriptor of the body. If there is no body, or it has already
-	 * been included in firstPart, this variable is set to -1.
-	 */
-	int			_bodyFd;
+	Body		*_body;
 	/**
 	 * @brief A pointer on the ResponsesHandler FlowBuffer. It allows this class
 	 * to redirect the content from _bodyFd to the client socket Fd. If there is
@@ -34,11 +31,11 @@ private:
 	FlowBuffer	*_bodyBuffer;
 
 	RawResponse();
+	RawResponse(const RawResponse& ref);
 
 	RawResponse&	operator=(const RawResponse& ref);
 public:
-	RawResponse(const RawResponse& ref);
-	RawResponse(char *firstPart, size_t firstPartLength, int bodyFd, FlowBuffer &bodyFlowBuffer);
+	RawResponse(char *firstPart, size_t firstPartLength, Body *body, FlowBuffer &bodyFlowBuffer);
 	RawResponse(char *firstPart, size_t firstPartLength);
 	~RawResponse();
 

@@ -35,12 +35,13 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 	if (_responses.size() == 0)
 		return (FLOW_DONE);
 
-	RawResponse		&response = _responses.front();
-	const FlowState	flowState = response.sendResponseToSocket(socketFd);
+	RawResponse		*response = _responses.front();
+	const FlowState	flowState = response->sendResponseToSocket(socketFd);
 
 	if (flowState == FLOW_DONE)
 	{
 		_responses.pop();
+		delete response;
 		return ((_responses.size() == 0) ? FLOW_DONE : FLOW_MORE);
 	}
 	else
@@ -52,7 +53,7 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 void		ResponsesHandler::addCurrentResponseToQueue()
 {
 	std::cout << "Add response to queue" << std::endl;
-	//_responses.push(RawResponse(_currentResponse));
+	// _responses.push(new RawResponse(_currentResponse));
 	_currentResponse.reset();
 }
 
