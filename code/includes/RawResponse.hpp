@@ -4,6 +4,7 @@
 # include <cstddef>
 
 # include "FlowBuffer.hpp"
+# include "Response.hpp"
 
 /**
  * @brief This class stores all the data that will be sent to the client as a
@@ -35,11 +36,12 @@ private:
 
 	RawResponse();
 
-	RawResponse&	operator=(const RawResponse& ref);
 public:
 	RawResponse(const RawResponse& ref);
+	RawResponse&	operator=(const RawResponse& ref);
 	RawResponse(char *firstPart, size_t firstPartLength, int bodyFd, FlowBuffer &bodyFlowBuffer);
 	RawResponse(char *firstPart, size_t firstPartLength);
+	RawResponse(const Response &src, FlowBuffer &bodyFlowBuffer);
 	~RawResponse();
 
 	FlowState	sendResponseToSocket(int socketFd);

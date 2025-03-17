@@ -7,20 +7,9 @@
 #include <string>                   // for basic_string
 #include "Configuration.hpp"        // for Configuration
 #include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
-
-<<<<<<< HEAD
-int	main(int argc, char **argv)
-{
-	if (argc == 1)
-		std::cout << "No argument supplied, using the default path for the configuration." << std::endl;
-	else if (argc > 2)
-	{
-		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
-	return (EXIT_FAILURE);
-	}
-=======
 #include "Request.hpp"
 #include "Response.hpp"
+#include "RawResponse.hpp"
 
 /**
  * @brief Create a mostly uninitialize Configuration and call the function to
@@ -28,52 +17,13 @@ int	main(int argc, char **argv)
  * @return Return the signal + 128
  */
 
- # include <fstream>
-
-void	ft_readfile(const char *path, std::string &buff)
-{
-	std::ifstream	file;
-
-	file.open(path, file.in);
-	if (file.fail())
-		throw (RequestException("Couldn't open file"));
-	std::getline(file, buff, '\0');
-	file.close();
-}
-
 int	main(void)
 {
-
->>>>>>> requestsAndResponses
 	try
 	{
 		Response	r;
-
-<<<<<<< HEAD
-		Configuration	conf;
-		std::string		file;
-
-		if (argc == 2)
-			ft_readfile(argv[1], file);
-		else
-			ft_readfile(DEFAULT_CONFIG_PATH, file);
-		parse_file(conf, file);
-		while(getSignalStatus() == NO_SIGNAL)
-		{
-			try
-			{
-				handleIOEvents(conf);
-			}
-			catch(const std::exception& e)
-			{
-				std::cerr << e.what() << std::endl;
-			}
-		}
-		return (getReturnCodeWithSignal());
-=======
 		r.setResponseCode(200, "OK");
-		std::cout << r << std::endl;
->>>>>>> requestsAndResponses
+		RawResponse r2(r);
 	}
 	catch(const std::exception& e)
 	{

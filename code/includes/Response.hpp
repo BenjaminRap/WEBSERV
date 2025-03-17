@@ -6,6 +6,8 @@
 # include <map>
 # include <ctime>
 # include <stdint.h>
+# include <sstream>
+# include <cstring>
 
 /**
  * @brief The classe that stores all the data that will be sent to the client.
@@ -48,12 +50,15 @@ public:
 	void	reset();
 
 	uint16_t	getStatusCode(void) const;
+	int			getBodyFd(void) const;
+	char		*getRawData(void) const;
 	const std::string	&getStatusText(void) const;
 	const std::string	&getProtocol(void) const;
 	const std::string	*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
 
 };
+
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs);
 

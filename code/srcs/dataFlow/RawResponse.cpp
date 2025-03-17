@@ -59,6 +59,13 @@ RawResponse::RawResponse
 
 }
 
+RawResponse::RawResponse(const Response &src, FlowBuffer &bodyFlowBuffer) : \
+_firstPart(src.getRawData(), std::strlen(src.getRawData()), std::strlen(src.getRawData())), \
+_bodyFd(src.getBodyFd()), \
+_bodyBuffer(&bodyFlowBuffer)
+{
+}
+
 RawResponse::RawResponse(const RawResponse& ref) :
 	_firstPart(ref._firstPart),
 	_bodyFd(ref._bodyFd),

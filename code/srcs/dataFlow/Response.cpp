@@ -21,6 +21,21 @@ void	Response::reset()
 	this->_bodyFd = -1;
 }
 
+int			Response::getBodyFd(void) const
+{
+	return (this->_bodyFd);
+}
+char		*Response::getRawData(void) const
+{
+	std::stringstream s;
+	s << *this;
+	std::string header = s.str();
+	char *raw_data = new char[header.size() + 1];
+	std::memcpy(raw_data, header.c_str(), header.size() + 1);
+	std::cout << raw_data << std::endl;
+	return (raw_data);
+}
+
 uint16_t	Response::getStatusCode(void) const
 {
 	return (this->_statusLine._statusCode);
@@ -54,11 +69,12 @@ std::ostream & operator<<(std::ostream & o, Response const & rhs)
 {
 	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
 
-	std::cout << rhs.getProtocol() << " " << rhs.getStatusCode() << " " << rhs.getStatusText() << std::endl;
+	o << rhs.getProtocol() << " " << rhs.getStatusCode() << " " << rhs.getStatusText() << "\r\n";
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{
-		std::cout << it->first << ": " << it->second << std::endl;
+		o << it->first << ": " << it->second << "\r\n";
 	}
+	o << "\r\n";
 	return (o);
 }
