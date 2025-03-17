@@ -34,3 +34,10 @@ bool	Body::getIsBlocking() const
 {
 	return (_isBlocking);
 }
+
+ssize_t	Body::callInstanceWriteToFd(int fd, char *buffer, size_t bufferCapacity, Body &body)
+{
+	if (body.getFd() != fd)
+		throw std::logic_error("Body writeFlowBufferToFd function called with the wrong fd !");
+	return (body.writeToFd(buffer, bufferCapacity));
+}

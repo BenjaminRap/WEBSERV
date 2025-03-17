@@ -141,7 +141,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const FlowState flowState = body->writeBodyFromBufferToFile(_flowBuffer);
+	const FlowState flowState = _flowBuffer.redirectBufferContentToFd(body->getFd(), *body, Body::callInstanceWriteToFd);
 	
 	if (flowState == FLOW_ERROR)
 	{

@@ -18,6 +18,8 @@ private:
 	
 protected:
 	void	setFinished();
+
+	virtual ssize_t		writeToFd(char *buffer, size_t bufferCapacity) = 0;
 public:
 	Body(int fd, bool isBlocking);
 	virtual ~Body();
@@ -26,8 +28,7 @@ public:
 	bool		getFinished() const;
 	bool		getIsBlocking() const;
 	
-	virtual FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer) = 0;
-	virtual FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd) = 0;
+	static ssize_t	callInstanceWriteToFd(int fd, char *buffer, size_t bufferCapacity, Body &body);
 };
 
 #endif // !BODY_HPP

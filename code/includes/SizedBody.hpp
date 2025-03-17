@@ -15,13 +15,9 @@ private:
 public:
 	SizedBody(int fd, size_t size, bool isBlocking);
 	~SizedBody();
-	
-	size_t	getSize() const;
-	void	addCharsWritten(size_t add);
-	
-	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, SizedBody &sizedBody);
 
-	FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer);
+
+	ssize_t	writeToFd(char *buffer, size_t bufferCapacity) = 0;
 };
 
 #endif // !SIZED_BODY_HPP

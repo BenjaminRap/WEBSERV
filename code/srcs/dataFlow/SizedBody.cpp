@@ -19,43 +19,17 @@ SizedBody::~SizedBody()
 
 }
 
-size_t	SizedBody::getSize() const
+ssize_t	SizedBody::writeToFd(char *buffer, size_t bufferCapacity)
 {
-	return (_size);
-}
-
-void	SizedBody::addCharsWritten(size_t add)
-{
-	_numCharsWritten += add;
+	const size_t	numCharsToWrite = std::min(_size, bufferCapacity);
+	const ssize_t	written = write(getFd(), buffer, numCharsToWrite);
+	
+	if (written == -1)
+		return (-1);
+	_numCharsWritten += written;
 	if (_numCharsWritten == _size)
 		setFinished();
 	else if (_numCharsWritten > _size)
 		std::cerr << "Logic Error: addCharsWritten() : _numCharsWritten superior to _size" << std::endl;	
-}
-
-ssize_t	SizedBody::writeToFile(int fd, char *buffer, size_t bufferCapacity, SizedBody &sizedBody)
-{
-	const size_t	numCharsToWrite = std::min(sizedBody.getSize(), bufferCapacity);
-	const ssize_t	written = write(fd, buffer, numCharsToWrite);
-	
-	if (written == -1)
-		return (-1);
-	sizedBody.addCharsWritten(written);
-	if (written == -1)
-		return (-1);
 	return (((size_t)written != numCharsToWrite) ? -1 : written);
 }
-
-FlowState	SizedBody::writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
-{
-	return (flowBuffer.redirectBufferContentToFd(getFd(), *this, SizedBody::writeToFile));
-}
-
-// FlowState	SizedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
-// {
-// 	FdType	socketType = SOCKETFD;
-//
-// 	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this,
-// 		readFromFdWithType,
-// 		SizedBody::writeToFile));
-// }
