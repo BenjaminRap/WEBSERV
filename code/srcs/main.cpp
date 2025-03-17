@@ -23,7 +23,6 @@ int	main(void)
 	{
 		Response	r;
 		r.setResponseCode(200, "OK");
-		RawResponse r2(r);
 	}
 	catch(const std::exception& e)
 	{
