@@ -10,11 +10,17 @@ SOCKET_FILES			:=	createServerSockets.cpp	\
 							ServerSocketData.cpp
 SOCKET					:=	$(addprefix $(SOCKET_DIR), $(SOCKET_FILES))
 
+REQUEST_HANDLING_DIR	:=	dataFlow/requestHandling/
+REQUEST_HANDLING_FILES	:=	RequestHandler.cpp		\
+							RequestHandlerRedirection.cpp	\
+							RequestHandlerParsing.cpp		\
+							RequestHandlerExecution.cpp
+REQUEST_HANDLING		:=	$(addprefix $(REQUEST_HANDLING_DIR), $(REQUEST_HANDLING_FILES))
+
 DATA_FLOW_DIR			:=	dataFlow/
 DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							FlowBuffer.cpp			\
 							ResponsesHandler.cpp	\
-							RequestHandler.cpp		\
 							Body.cpp				\
 							SizedBody.cpp			\
 							Request.cpp				\

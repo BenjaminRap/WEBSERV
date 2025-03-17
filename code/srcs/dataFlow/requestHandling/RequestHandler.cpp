@@ -1,0 +1,43 @@
+#include <iostream>
+
+#include "RequestHandler.hpp"
+
+/************************Constructors/Destructors******************************/
+
+RequestHandler::RequestHandler(const std::vector<ServerConfiguration>	&serverConfs) :
+	_buffer(),
+	_flowBuffer(_buffer, REQUEST_BUFFER_SIZE, 0),
+	_state(REQUEST_STATUS_LINE),
+	_request(),
+	_serverConfs(serverConfs)
+{
+}
+
+RequestHandler::~RequestHandler()
+{
+}
+
+/************************private Member function*******************************/
+
+RequestState			RequestHandler::readRequest(Response &response)
+{
+	readStatusLine(response);
+	readHeaders(response);
+	executeRequest(response);
+	writeBodyFromBuffer(response);
+	return (_state);
+}
+
+
+void			RequestHandler::setNewRequest()
+{
+	_state = REQUEST_STATUS_LINE;
+	_request.reset();
+}
+
+/*****************************Getter / Setter**********************************/
+
+bool		RequestHandler::isRequestBody(void)
+{
+	return (_state == REQUEST_BODY);
+}
