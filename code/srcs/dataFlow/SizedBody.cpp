@@ -19,7 +19,7 @@ SizedBody::~SizedBody()
 
 }
 
-ssize_t	SizedBody::writeToFd(char *buffer, size_t bufferCapacity)
+ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 {
 	const size_t	numCharsToWrite = std::min(_size, bufferCapacity);
 	const ssize_t	written = write(getFd(), buffer, numCharsToWrite);

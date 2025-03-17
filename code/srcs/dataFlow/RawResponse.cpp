@@ -84,12 +84,9 @@ RawResponse::~RawResponse()
  */
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	FdType			destType = SOCKETFD;
-	FdType			srcType = FILEFD;
-
 	if (_firstPart.getBufferLength() != 0)
 	{
-		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
+		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd);
 
 		if (flowState == FLOW_DONE)
 			return ((_body == NULL) ? FLOW_DONE : FLOW_MORE);
@@ -98,7 +95,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	if (_body == NULL)
 		return (FLOW_DONE);
 	if (_body->getIsBlocking() == false)
-		std::cout << srcType;
+		std::cout << "bouh !";
 		//reading from the body
 	//writing to the socket
 	return (FLOW_DONE);

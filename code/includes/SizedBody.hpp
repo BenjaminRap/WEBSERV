@@ -17,7 +17,7 @@ public:
 	~SizedBody();
 
 
-	ssize_t	writeToFd(char *buffer, size_t bufferCapacity) = 0;
+	ssize_t	writeToFd(const void *buffer, size_t bufferCapacity) = 0;
 };
 
 #endif // !SIZED_BODY_HPP

@@ -141,7 +141,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const FlowState flowState = _flowBuffer.redirectBufferContentToFd(body->getFd(), *body, Body::callInstanceWriteToFd);
+	const FlowState flowState = _flowBuffer.redirectBufferContentToFd<Body&>(*body, Body::callInstanceWriteToFd);
 	
 	if (flowState == FLOW_ERROR)
 	{
@@ -160,7 +160,9 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 	
 	if (body == NULL)
 		return (REQUEST_DONE);
-	const FlowState flowState = body->redirectBodyFromSocketToFile(_flowBuffer, socketFd);
+	const FlowState flowState = body->getIsBlocking() ?
+		_flowBuffer.redirectFdContentToBuffer<int>(socketFd)
+		: _flowBuffer.redirectContent<int, Body&>(socketFd, *body, Body::callInstanceWriteToFd);
 
 	if (flowState == FLOW_DONE)
 		_state = CONNECTION_CLOSED;
@@ -176,8 +178,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 
 RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &response)
 {
-	FdType			socketType = SOCKETFD;
-	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer(socketFd, socketType);
+	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
 
 	if (flowState == FLOW_DONE)
 		_state = CONNECTION_CLOSED;

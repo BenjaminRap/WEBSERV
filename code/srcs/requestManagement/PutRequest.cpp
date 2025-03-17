@@ -1,4 +1,5 @@
 #include "PutRequest.hpp"
+#include "socketCommunication.hpp"
 
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);
@@ -42,8 +43,11 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 	else
 	{
 		this->_fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
-		if (this->_fd == -1)
+		if (this->_fd == -1
+			|| checkError(fcntl(this->_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC), -1, "fcntl() : ") == -1)
+		{
 			this->setResponse(500);
+		}
 		else
 			this->setResponse(201);
 	}

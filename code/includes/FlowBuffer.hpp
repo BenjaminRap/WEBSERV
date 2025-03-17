@@ -37,18 +37,6 @@ enum FlowState
 };
 
 /**
- * @brief The differents type of a file descriptor.
- */
-enum FdType
-{
-	SOCKETFD,
-	FILEFD
-};
-
-ssize_t		writeToFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType);
-ssize_t		readFromFdWithType(int fd, char *buffer, size_t bufferCapacity, FdType &fdType);
-
-/**
  * @brief This class has a buffer and informations about the buffer. It also
  * has member functions to redirect content, using his internal buffer.
  */
@@ -82,29 +70,25 @@ public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
-	// template <typename ReadData, typename WriteData>
-	// FlowState	redirectContent
-	// (
-	// 	int srcFd,
-	// 	ReadData &readData,
-	// 	int destFd,
-	// 	WriteData &writeData,
-	// 	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType,
-	// 	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData) = writeToFdWithType
-	// );
+	template <typename ReadData, typename WriteData>
+	FlowState	redirectContent
+	(
+		ReadData readData,
+		WriteData writeData,
+		ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity) = write,
+		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
+	);
 	template <typename WriteData>
 	FlowState	redirectBufferContentToFd
 	(
-		int destFd,
-		WriteData &writeData,
-		ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData) = writeToFdWithType
+		WriteData writeData,
+		ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity) = write
 	);
 	template <typename ReadData>
 	FlowState	redirectFdContentToBuffer
 	(
-		int srcFd,
-		ReadData &readData,
-		ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData) = readFromFdWithType
+		ReadData readData,
+		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
 	);
 
 	size_t		getBufferLength(void) const;

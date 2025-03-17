@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <netinet/in.h>             // for sockaddr_in
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLIN, EPOLLERR, EPOLLET, EPOLLHUP
@@ -47,6 +48,11 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 
 	if (checkError(newConnectionFd, -1, "accept() : ") == -1)
 		return ;
+	if (checkError(fcntl(newConnectionFd, F_SETFL, O_NONBLOCK | FD_CLOEXEC), -1, "fcntl() : ") == -1)
+	{
+		checkError(close(newConnectionFd), -1, "close() : ");
+		return ;
+	}
 	try
 	{
 		ConnectedSocketData * const connectedSocketData = new ConnectedSocketData(newConnectionFd, _socketsHandler, _serverConfigurations);
@@ -63,7 +69,6 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	{
 		std::cerr << e.what() << '\n';
 	}
-	
 }
 
 void	ServerSocketData::callback(uint32_t events)
