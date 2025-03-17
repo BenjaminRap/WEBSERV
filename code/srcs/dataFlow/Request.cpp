@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include "SizedBody.hpp"
 
 Request::Request(void)
 {
@@ -9,6 +10,11 @@ void	Request::reset()
 {
 	this->_statusLine._requestTarget.clear();
 	this->_headers.clear();
+	if (_body != NULL)
+	{
+		delete _body;
+		_body = NULL;
+	}
 }
 
 Body	*Request::getBody() const
@@ -67,7 +73,8 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 
 Request::~Request(void)
 {
-
+	if (_body != NULL)
+		delete _body;
 }
 
 EMethods	Request::getMethod(void) const
@@ -92,6 +99,24 @@ const std::string	*Request::getHeader(const std::string &key) const
 const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
 {
 	return (this->_headers);
+}
+
+
+bool	stringToSizeT(const  std::string &str, size_t &outValue);
+
+bool	Request::setBodyFromHeaders(int destFd, bool isBlocking)
+{
+	if (destFd == -1)
+		return (true);
+	const std::string * const	contentLengthString = getHeader("Content-Length");
+	if (contentLengthString != NULL)
+	{
+		size_t contentLength = 0;
+		if (stringToSizeT(*contentLengthString, contentLength) == false)
+			return (false);
+		_body = new SizedBody(destFd, contentLength, isBlocking);
+	}
+	return (true);
 }
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs)

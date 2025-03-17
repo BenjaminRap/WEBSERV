@@ -51,3 +51,7 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							ARequestUtils.cpp		\
 							statuses.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
+
+UTILS_DIR				:=	utils/
+UTILS_FILES				:=	conversion.cpp
+UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))
