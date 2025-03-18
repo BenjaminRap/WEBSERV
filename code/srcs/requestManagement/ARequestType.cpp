@@ -29,7 +29,8 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_isRoute(false),
 	_code(0),
 	_redirection(""),
-	_fd(-1)
+	_inFd(-1),
+	_outFd(-1)
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -127,15 +128,32 @@ const std::string	&ARequestType::getError(unsigned short error)
 }
 
 
-int	ARequestType::getFd() const
+int	ARequestType::getInFd() const
 {
-	return (_fd);
+	return (_inFd);
 }
 
-void	ARequestType::closeFd()
+void	ARequestType::closeInFd()
 {
-	if (_fd < 0)
+	if (_inFd < 0)
 		return ;
-	checkError(close(_fd), -1, "close() : ");
-	_fd = -1;
+	checkError(close(_inFd), -1, "close() : ");
+	if (_inFd  == _outFd)
+		_outFd = -1;
+	_inFd = -1;
+}
+
+int	ARequestType::getOutFd() const
+{
+	return (_outFd);
+}
+
+void	ARequestType::closeOutFd()
+{
+	if (_outFd < 0)
+		return ;
+	checkError(close(_outFd), -1, "close() : ");
+	if (_outFd == _inFd)
+		_inFd = -1;
+	_outFd = -1;
 }

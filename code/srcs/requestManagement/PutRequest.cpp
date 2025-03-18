@@ -51,9 +51,9 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 		this->setResponse(HTTP_FORBIDDEN);
 	else
 	{
-		this->_fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
-		if (this->_fd == -1
-			|| checkError(fcntl(this->_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC), -1, "fcntl() : ") == -1)
+		this->_inFd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
+		if (this->_inFd == -1
+			|| checkError(fcntl(this->_inFd, F_SETFL, O_NONBLOCK | FD_CLOEXEC), -1, "fcntl() : ") == -1)
 		{
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		}

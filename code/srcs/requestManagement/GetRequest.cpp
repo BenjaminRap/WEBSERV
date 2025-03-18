@@ -33,8 +33,8 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 		setResponse(HTTP_NOT_FOUND);
 	if (this->_code == HTTP_OK)
 	{
-		this->_fd = open(this->_url.c_str(), O_RDONLY);
-		if (this->_fd == -1)
+		this->_outFd = open(this->_url.c_str(), O_RDONLY);
+		if (this->_outFd == -1)
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	}
 }

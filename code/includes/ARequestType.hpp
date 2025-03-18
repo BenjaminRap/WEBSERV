@@ -25,7 +25,8 @@ class ARequestType
 
 		int							_code;
 		std::string					_redirection;
-		int							_fd;
+		int							_inFd;
+		int							_outFd;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
@@ -46,8 +47,10 @@ class ARequestType
 		int							getCode() const;
 		EMethods					getMethod() const;
 		bool						getIsRoute() const;
-		int							getFd() const;
-		void						closeFd();
+		int							getInFd() const;
+		void						closeInFd();
+		int							getOutFd() const;
+		void						closeOutFd();
 
 		const std::string			&getError(unsigned short error);
 };
