@@ -37,8 +37,8 @@ CONFIGURATION			:=	$(addprefix $(CONFIGURATION_DIR), $(CONFIGURATION_FILES))
 PARSING_CONF_DIR		:=	configuration/parsing/
 PARSING_CONF_FILES		:=	parsing.cpp				\
 							utils.cpp				\
-							parse_route.cpp			\
-							parse_host.cpp
+							parseRoute.cpp			\
+							parseHost.cpp
 PARSING_CONF			:=	$(addprefix $(PARSING_CONF_DIR), $(PARSING_CONF_FILES))
 
 REQUEST_DIR				:=	requestManagement/
