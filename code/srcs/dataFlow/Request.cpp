@@ -1,15 +1,16 @@
-#include <algorithm>      // for find
-#include <cstring>        // for memcmp, NULL, size_t
-#include <exception>      // for exception
-#include <iostream>       // for basic_ostream, operator<<, endl, cout, basi...
-#include <map>            // for map, operator!=, _Rb_tree_const_iterator
-#include <string>         // for basic_string, char_traits, string, operator<<
-#include <utility>        // for pair, make_pair
+#include <algorithm>      			// for find
+#include <cstring>        			// for memcmp, NULL, size_t
+#include <exception>      			// for exception
+#include <iostream>       			// for basic_ostream, operator<<, endl, cout, basi...
+#include <map>            			// for map, operator!=, _Rb_tree_const_iterator
+#include <string>         			// for basic_string, char_traits, string, operator<<
+#include <utility>        			// for pair, make_pair
 
-#include "ABody.hpp"      // for ABody
-#include "EMethods.hpp"   // for EMethods
-#include "Request.hpp"    // for Request, operator<<
-#include "SizedBody.hpp"  // for SizedBody
+#include "ABody.hpp"      			// for ABody
+#include "EMethods.hpp"   			// for EMethods
+#include "Request.hpp"    			// for Request, operator<<
+#include "SizedBody.hpp"  			// for SizedBody
+#include "requestStatusCode.hpp"	// for HTTP_...
 
 Request::Request(void) : _body(NULL)
 {
@@ -37,7 +38,7 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	//Parsing the method
 	const char	*meth = std::find(line, line + lineLength, ' ');
 	if (*meth != ' ')
-		return (400);
+		return (HTTP_BAD_REQUEST);
 	if (!std::memcmp(line, "GET", 3))
 		this->statusLine.method = GET;
 	else if (!std::memcmp(line, "POST", 4))
@@ -47,21 +48,21 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	else if (!std::memcmp(line, "PUT", 3))
 		this->statusLine.method = PUT;
 	else
-		return (501);
+		return (HTTP_NOT_IMPLEMENTED);
 
 	//Parsing the target
 	const char	*targ = std::find(meth + 1, line + lineLength, ' ');
 	if (*targ != ' ')
-		return (400);
+		return (HTTP_BAD_REQUEST);
 	this->statusLine.requestTarget = std::string(meth + 1, targ - (meth + 1));
 
 	//Parsing the protocol
 	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
 	if (*prot != '\r' || *(prot + 1) != '\n')
-		return (400);
+		return (HTTP_BAD_REQUEST);
 	if (std::memcmp(targ + 1, "HTTP/1.1", 8))
-		return (505);
-	return (0);
+		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
+	return (HTTP_OK);
 }
 
 int		Request::parseHeader(const char *line, size_t lineLength)
@@ -71,14 +72,14 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 
 	pos = std::find(line, line + lineLength, ':');
 	if (*pos == '\0' || *(pos + 1) != ' ')
-		return (1);
+		return (HTTP_BAD_REQUEST);
 	temp = std::find(line, line + lineLength, '\r');
 	if (*temp == '\0' || *(temp + 1) != '\n')
-		return (2);
+		return (HTTP_BAD_REQUEST);
 	std::string key(line, pos - line);
 	std::string value(pos + 2, temp - (pos + 2));
 	this->_headers.insert(std::make_pair(key, value));
-	return (0);
+	return (HTTP_OK);
 }
 
 Request::~Request(void)
@@ -121,18 +122,18 @@ int	Request::setBodyFromHeaders(int destFd, bool isBlocking)
 	{
 		size_t contentLength = 0;
 		if (stringToSizeT(*contentLengthString, contentLength) == false)
-			return (400);
+			return (HTTP_BAD_REQUEST);
 		try
 		{
 			_body = new SizedBody(destFd, contentLength, isBlocking);
 		}
 		catch (const std::exception&)
 		{
-			return (500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 		}
-		return (0);
+		return (HTTP_OK);
 	}
-	return (411);
+	return (HTTP_OK);
 }
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs)

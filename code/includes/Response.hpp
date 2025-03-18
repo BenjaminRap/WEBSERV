@@ -6,6 +6,8 @@
 # include <map>       // for map
 # include <string>    // for string, basic_string
 
+# include "ABody.hpp"
+
 /**
  * @brief The classe that stores all the data that will be sent to the client.
  * This class should be converted into a RawResponse to be used.
@@ -41,8 +43,16 @@ private:
 	 * @brief The file descriptor of the body.If there is no body, this variable
 	 * is set to -1.
 	 */
-	int									_bodyFd;
+	int									_bodySrcFd;
+	ABody								*_body;
+
+	Response(const Response& ref);
+
+	Response&	operator=(const Response& response);
 public:
+	Response(void);
+	~Response(void);
+
 	void										setResponse(int code, const std::string &redirection);
 	void										reset();
 

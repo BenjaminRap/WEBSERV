@@ -13,6 +13,7 @@
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for operator<<, Response (ptr only)
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "requestStatusCode.hpp"	// for HTTP_...
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 {
@@ -30,6 +31,34 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 	return (_serverConfs[0]);
 }
 
+void	RequestHandler::processRequestResult(ARequestType *requestResult, Response &response)
+{
+	response.setResponse(requestResult->getCode(), requestResult->getRedirection());
+	if (ARequestType::isStatusCodeError(requestResult->getCode()))
+	{
+		_state = REQUEST_DONE;
+		return ;
+	}
+
+	{
+		const int inFd = requestResult->getInFd();
+		const int status = _request.setBodyFromHeaders(inFd, false);
+
+		if (_request.getBody() != NULL)
+		{
+			requestResult->getInFdResponsability();
+			_state = REQUEST_BODY;
+		}
+		else
+			_state = REQUEST_DONE;
+		if (status != HTTP_OK)
+		{
+			response.setResponse(status, "");
+			return ;
+		}
+	}
+}
+
 void	RequestHandler::executeRequest(Response &response)
 {
 	if (_state != REQUEST_EMPTY_LINE)
@@ -40,18 +69,18 @@ void	RequestHandler::executeRequest(Response &response)
 	switch (_request.getMethod())
 	{
 		case GET: {
-			const GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
-			break;
-		}
-		case POST: {
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
+			processRequestResult(&getRequest, response);
 			break;
 		}
 		case PUT: {
-			const PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
+			processRequestResult(&putRequest, response);
 			break;
 		}
 		case DELETE: {
-			const DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
+			processRequestResult(&deleteRequest, response);
 			break;
 		}
 		default:

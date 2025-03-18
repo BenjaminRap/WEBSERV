@@ -1,13 +1,33 @@
-#include <stdint.h>          // for uint16_t
-#include <ctime>             // for asctime, localtime, time, NULL, time_t
-#include <iostream>          // for basic_ostream, operator<<, basic_ios, cout
-#include <iterator>          // for reverse_iterator
-#include <map>               // for map, operator!=, _Rb_tree_const_iterator
-#include <string>            // for basic_string, char_traits, string, opera...
-#include <utility>           // for make_pair, pair
+#include <stdint.h>         		// for uint16_t
+#include <ctime>             		// for asctime, localtime, time, NULL, time_t
+#include <iostream>          		// for basic_ostream, operator<<, basic_ios, cout
+#include <iterator>          		// for reverse_iterator
+#include <map>               		// for map, operator!=, _Rb_tree_const_iterator
+#include <string>            		// for basic_string, char_traits, string, opera...
+#include <utility>           		// for make_pair, pair
 
-#include "ARequestType.hpp"  // for ARequestType
-#include "Response.hpp"      // for Response, operator<<
+#include "ARequestType.hpp"  		// for ARequestType
+#include "requestStatusCode.hpp"	// for HTTP_...
+#include "socketCommunication.hpp"	// for checkError
+#include "Response.hpp"      		// for Response, operator<<
+
+
+Response::Response(void) :
+	_statusLine(),
+	_headers(),
+	_bodySrcFd(-1),
+	_body(NULL)
+{
+	reset();
+}
+
+Response::~Response(void)
+{
+	if (_bodySrcFd != -1)
+		checkError(close(_bodySrcFd), -1, "close() : ");
+	if (_body != NULL)
+		delete _body;
+}
 
 void	Response::setResponse(int code, const std::string &redirection)
 {
@@ -25,11 +45,11 @@ void	Response::setResponse(int code, const std::string &redirection)
 
 void	Response::reset()
 {
-	this->_statusLine.statusCode = 0;
-	this->_statusLine.statusText.clear();
-	this->_statusLine.protocol.clear();
+	this->_statusLine.statusCode = HTTP_INTERNAL_SERVER_ERROR;
+	this->_statusLine.statusText = ARequestType::getStatusText(HTTP_INTERNAL_SERVER_ERROR);
 	this->_headers.clear();
-	this->_bodyFd = -1;
+	this->_bodySrcFd = -1;
+	this->_body = NULL;
 }
 
 uint16_t	Response::getStatusCode(void) const

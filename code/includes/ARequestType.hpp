@@ -33,6 +33,7 @@ class ARequestType
 		virtual ~ARequestType() = 0;
 
 		static const std::string	&getStatusText(int code);
+		static bool					isStatusCodeError(int code);
 
 		void						setRedirectionResponse(int code, const std::string &redirection);
 		void						setResponse(int code);
@@ -49,6 +50,8 @@ class ARequestType
 		bool						getIsRoute() const;
 		int							getInFdResponsability();
 		int							getOutFdResponsability();
+		int							getInFd() const;
+		int							getOutFd() const;
 
 		const std::string			&getError(unsigned short error);
 };

@@ -20,6 +20,8 @@ enum	RequestState
 	CONNECTION_CLOSED
 };
 
+class ARequestType;
+
 class RequestHandler
 {
 private:
@@ -37,7 +39,9 @@ private:
 	void						readHeaders(Response &response);
 	void						executeRequest(Response &response);
 	void						writeBodyFromBuffer(Response &response);
+
 	const ServerConfiguration	&getServerConfiguration(void) const;
+	void						processRequestResult(ARequestType *request, Response &response);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();

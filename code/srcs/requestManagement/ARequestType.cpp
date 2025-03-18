@@ -150,3 +150,20 @@ int	ARequestType::getOutFdResponsability()
 	_outFd = -1;
 	return (outFdSave);
 }
+
+
+int	ARequestType::getInFd() const
+{
+	return (_inFd);
+}
+
+int	ARequestType::getOutFd() const
+{
+	return (_outFd);
+}
+
+
+bool	ARequestType::isStatusCodeError(int code)
+{
+	return (code >= 400 && code < 600);
+}
