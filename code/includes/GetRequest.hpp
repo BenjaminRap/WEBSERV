@@ -2,6 +2,7 @@
 # define GETREQUEST_HPP
 
 #include <string>
+#include <fcntl.h>
 #include "ServerConfiguration.hpp"
 #include "ARequestType.hpp"
 
@@ -10,6 +11,7 @@ class GetRequest : public ARequestType
 	private :
 		bool				_autoIndex;
 		int					_index;
+		int					_fd;
 
 		GetRequest();
 		GetRequest(const GetRequest& src);
@@ -23,6 +25,9 @@ class GetRequest : public ARequestType
 		void							setAutoIndex(bool src);
 		const std::vector<std::string>	&getIndexVec();
 		const std::vector<std::string>	&getDefaultIndexVec();
+
+		int								getFd() const;
+		void							setFd(int fd);
 };
 
 #endif

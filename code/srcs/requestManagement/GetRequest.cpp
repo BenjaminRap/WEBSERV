@@ -9,7 +9,7 @@ void						fixPath(std::string &path);
 void						directoryCase(GetRequest& get);
 std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 
-GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET), _autoIndex(false), _index(0)
+GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET), _autoIndex(false), _index(0), _fd(-1)
 {
 	int			temp;
 
@@ -24,6 +24,12 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 		setResponse(HTTP_OK);
 	else
 		setResponse(HTTP_NOT_FOUND);
+	if (this->_code == 200)
+	{
+		this->_fd = open(this->_url.c_str(), O_RDONLY);
+		if (this->_fd == -1)
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+	}
 }
 
 GetRequest::~GetRequest()
@@ -48,4 +54,14 @@ const std::vector<std::string>	&GetRequest::getDefaultIndexVec()
 void	GetRequest::setAutoIndex(bool src)
 {
 	this->_autoIndex = src;
+}
+
+int		GetRequest::getFd() const
+{
+	return (this->_fd);
+}
+
+void	GetRequest::setFd(int fd)
+{
+	this->_fd = fd;
 }
