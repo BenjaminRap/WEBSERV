@@ -1,6 +1,8 @@
 // IWYU pragma: private, include "socketCommunication.hpp"
 
-#include "socketCommunication.hpp"
+#include <iostream>
+#include <cerrno>
+#include <cstring>
 
 /**
  * @brief Check if the value is the same as the error value. If true, print the
