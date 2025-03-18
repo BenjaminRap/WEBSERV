@@ -47,10 +47,8 @@ class ARequestType
 		int							getCode() const;
 		EMethods					getMethod() const;
 		bool						getIsRoute() const;
-		int							getInFd() const;
-		void						closeInFd();
-		int							getOutFd() const;
-		void						closeOutFd();
+		int							getInFdResponsability();
+		int							getOutFdResponsability();
 
 		const std::string			&getError(unsigned short error);
 };

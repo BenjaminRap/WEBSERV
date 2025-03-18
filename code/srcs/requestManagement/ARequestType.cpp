@@ -44,7 +44,10 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 
 ARequestType::~ARequestType()
 {
-	return ;
+	if (_inFd >= 0)
+		checkError(close(_inFd), -1, "close() : ");
+	if (_outFd >= 0 && _outFd != _inFd)
+		checkError(close(_outFd), -1, "close() : ");
 }
 
 /**
@@ -128,32 +131,22 @@ const std::string	&ARequestType::getError(unsigned short error)
 }
 
 
-int	ARequestType::getInFd() const
+int	ARequestType::getInFdResponsability()
 {
-	return (_inFd);
-}
+	const int	inFdSave = _inFd;
 
-void	ARequestType::closeInFd()
-{
-	if (_inFd < 0)
-		return ;
-	checkError(close(_inFd), -1, "close() : ");
-	if (_inFd  == _outFd)
+	if (_inFd == _outFd)
 		_outFd = -1;
 	_inFd = -1;
+	return (inFdSave);
 }
 
-int	ARequestType::getOutFd() const
+int	ARequestType::getOutFdResponsability()
 {
-	return (_outFd);
-}
+	const int	outFdSave = _outFd;
 
-void	ARequestType::closeOutFd()
-{
-	if (_outFd < 0)
-		return ;
-	checkError(close(_outFd), -1, "close() : ");
 	if (_outFd == _inFd)
 		_inFd = -1;
 	_outFd = -1;
+	return (outFdSave);
 }
