@@ -28,10 +28,10 @@ int	main(int argc, char **argv)
 		std::string		file;
 
 		if (argc == 2)
-			ft_readfile(argv[1], file);
+			readfile(argv[1], file);
 		else
-			ft_readfile(DEFAULT_CONFIG_PATH, file);
-		parse_file(conf, file);
+			readfile(DEFAULT_CONFIG_PATH, file);
+		parseFile(conf, file);
 		while(getSignalStatus() == NO_SIGNAL)
 		{
 			try

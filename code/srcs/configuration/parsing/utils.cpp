@@ -13,7 +13,7 @@
 #include "exception.hpp"            // for CustomLineException, CustomException
 #include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ft_hextoint
 
-void	ft_readfile(const char *path, std::string &buff)
+void	readfile(const char *path, std::string &buff)
 {
 	std::ifstream	file;
 
@@ -24,7 +24,7 @@ void	ft_readfile(const char *path, std::string &buff)
 	file.close();
 }
 
-void	skip_line(std::string &file, size_t &i, size_t &line)
+void	skipLine(std::string &file, size_t &i, size_t &line)
 {
 	i = file.find('\n', i);
 	if (i == std::string::npos)
@@ -34,7 +34,7 @@ void	skip_line(std::string &file, size_t &i, size_t &line)
 	i++;
 }
 
-void	skip_wspace(std::string &file, size_t &i, size_t &line)
+void	skipWSpace(std::string &file, size_t &i, size_t &line)
 {
 	if (i == std::string::npos)
 		throw (CustomLineException("Unexpected error", line));
@@ -46,7 +46,7 @@ void	skip_wspace(std::string &file, size_t &i, size_t &line)
 	}
 }
 
-short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len)
+short	realAtoi(std::string &file, size_t &i, size_t &line, short max, short len)
 {
 	short	nb = 0;
 
@@ -61,7 +61,7 @@ short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len
 	return (nb);
 }
 
-uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line)
+uint8_t	hexToInt(std::string &file, size_t &i, size_t &line)
 {
 	int		j = 2;
 	short	nb = 0;
@@ -78,7 +78,7 @@ uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line)
 	return (nb);
 }
 
-void	insert_host(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
+void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
 std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index)
 {

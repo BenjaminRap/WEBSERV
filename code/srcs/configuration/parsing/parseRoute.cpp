@@ -9,7 +9,7 @@
 #include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
 #include "parsing.hpp"    // for skip_wspace, WSPACE, SEP_WSPACE, SEP_WSPACE...
 
-void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
+void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
 {
 	std::vector<EMethods>		acceptedMethods;
 	std::vector<std::string>	index;
@@ -21,55 +21,55 @@ void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::strin
 	bool						acceptUploads = 0;
 
 	redirection.responseStatusCode = 0;
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (file[i] != '/')
 		throw (CustomLineException("Path not found", line));
 	path = file.substr(i, file.find_first_of(SEP_WSPACE_ARG, i) - i);
 	i = file.find_first_of(SEP_WSPACE_ARG, i);
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (file[i] != '{')
 		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	i++;
 	while (i < file.size() && file[i] != '}')
 	{
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 		if (!file.compare(i, 4, "root"))
 		{
 			i += 4;
-			parse_root(file, i, line, root);
+			parseRoot(file, i, line, root);
 		}
 		else if (!file.compare(i, 9, "autoindex"))
 		{
 			i += 9;
-			parse_route_autoindex(file, i, line, auto_index);
+			parseRouteAutoIndex(file, i, line, auto_index);
 		}
 		else if (!file.compare(i, 5, "index"))
 		{
 			i += 5;
-			parse_route_index(file, i, line, index);
+			parseRouteIndex(file, i, line, index);
 		}
 		else if (!file.compare(i, 14, "request_method"))
 		{
 			i += 14;
-			parse_route_accepted_method(file, i, line, acceptedMethods);
+			parseRouteAcceptedMethod(file, i, line, acceptedMethods);
 		}
 		else if (!file.compare(i, 6, "return"))
 		{
 			i += 6;
-			parse_route_redirection(file, i, line, redirection);
+			parseRouteRedirection(file, i, line, redirection);
 		}
 		else if (!file.compare(i, 7, "uploads"))
 		{
 			i += 7;
-			parse_route_uploads(file, i, line, acceptUploads);
+			parseRouteUploads(file, i, line, acceptUploads);
 		}
 		else if (file[i] == '#')
-			skip_line(file, i, line);
+			skipLine(file, i, line);
 		else if (file[i] != '}')
 			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
 			throw (CustomLineException("Unexpected error", line));
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 	}
 	if (file[i] != '}')
 		throw (CustomLineException("Unclosed brace", line));
@@ -83,9 +83,9 @@ void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::strin
 	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, acceptUploads)));
 }
 
-void	parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &auto_index)
+void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)
 {
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (!file.compare(i, 2, "on"))
 	{
 		auto_index = true;
@@ -98,31 +98,31 @@ void	parse_route_autoindex(std::string &file, size_t &i, size_t &line, bool &aut
 	}
 	else
 		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
-void	parse_route_index(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index)
+void	parseRouteIndex(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index)
 {
 	while (i < file.size() && file[i] != ';')
 	{
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 		index.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
 		i = file.find_first_of(SEP_WSPACE, i);
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 	}
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
-void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods)
+void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods)
 {
 	while (i < file.size() && file[i] != ';')
 	{
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 		if (!file.compare(i, 3, "GET"))
 		{
 			i += 3;
@@ -145,11 +145,11 @@ void	parse_route_accepted_method(std::string &file, size_t &i, size_t &line, std
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
-void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection)
+void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection)
 {
-	skip_wspace(file, i, line);
-	redirection.responseStatusCode = real_atoi(file, i, line, 999, 3);
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
+	redirection.responseStatusCode = realAtoi(file, i, line, 999, 3);
+	skipWSpace(file, i, line);
 	redirection.url = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
 	if (file[i] != ';')
@@ -157,9 +157,9 @@ void	parse_route_redirection(std::string &file, size_t &i, size_t &line, SRedire
 	i++;
 }
 
-void	parse_route_uploads(std::string &file, size_t &i, size_t &line, bool &acceptUploads)
+void	parseRouteUploads(std::string &file, size_t &i, size_t &line, bool &acceptUploads)
 {
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (!file.compare(i, 2, "on"))
 	{
 		acceptUploads = true;
@@ -172,7 +172,7 @@ void	parse_route_uploads(std::string &file, size_t &i, size_t &line, bool &accep
 	}
 	else
 		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
