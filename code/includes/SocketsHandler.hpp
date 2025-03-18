@@ -10,7 +10,7 @@
 
 class Configuration;
 class Host;
-class FdData;
+class AFdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
@@ -27,7 +27,7 @@ private:
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<FdData*>		_socketsData;
+	std::list<AFdData*>		_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -64,7 +64,7 @@ public:
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
-	int		addFdToListeners(FdData *FdData, uint32_t events);
+	int		addFdToListeners(AFdData *FdData, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);

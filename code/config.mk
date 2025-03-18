@@ -1,7 +1,7 @@
 SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
-							FdData.cpp				\
+							AFdData.cpp				\
 							signals.cpp				\
 							SocketsHandler.cpp		\
 							setSocketsOption.cpp	\
@@ -21,7 +21,7 @@ DATA_FLOW_DIR			:=	dataFlow/
 DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							FlowBuffer.cpp			\
 							ResponsesHandler.cpp	\
-							Body.cpp				\
+							ABody.cpp				\
 							SizedBody.cpp			\
 							Request.cpp				\
 							Response.cpp

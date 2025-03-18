@@ -1,34 +1,34 @@
-#ifndef BODY_HPP
-# define BODY_HPP
+#ifndef A_BODY_HPP
+# define A_BODY_HPP
 
 # include <stddef.h>
 
 # include "FlowBuffer.hpp"
 
-class Body
+class ABody
 {
 private:
 	int			_fd;
 	bool		_finished;
 	const  bool	_isBlocking;
 
-	Body(const Body& ref);
+	ABody(const ABody& ref);
 	
-	Body&	operator=(const Body& ref);
+	ABody&	operator=(const ABody& ref);
 	
 protected:
 	void	setFinished();
 
 	virtual ssize_t		writeToFd(const void *buffer, size_t bufferCapacity) = 0;
 public:
-	Body(int fd, bool isBlocking);
-	virtual ~Body();
+	ABody(int fd, bool isBlocking);
+	virtual ~ABody();
 	
 	int			getFd() const;
 	bool		getFinished() const;
 	bool		getIsBlocking() const;
 	
-	static ssize_t	callInstanceWriteToFd(Body &body, const void *buffer, size_t bufferCapacity);
+	static ssize_t	callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity);
 };
 
-#endif // !BODY_HPP
+#endif // !A_BODY_HPP

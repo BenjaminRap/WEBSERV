@@ -17,7 +17,7 @@ void	Request::reset()
 	}
 }
 
-Body	*Request::getBody() const
+ABody	*Request::getBody() const
 {
 	return (_body);
 }

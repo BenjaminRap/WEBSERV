@@ -1,41 +1,41 @@
 #include <unistd.h>
 
-#include "Body.hpp"
+#include "ABody.hpp"
 #include "socketCommunication.hpp"
 
-Body::Body(int fd, bool isBlocking) :
+ABody::ABody(int fd, bool isBlocking) :
 	_fd(fd),
 	_isBlocking(isBlocking)
 {
 }
 
-Body::~Body()
+ABody::~ABody()
 {
 	checkError(close(_fd), -1, "close() : ");
 }
 
-int	Body::getFd() const
+int	ABody::getFd() const
 {
 	return (_fd);
 }
 
-void	Body::setFinished()
+void	ABody::setFinished()
 {
 	_finished = true;
 }
 
-bool	Body::getFinished() const
+bool	ABody::getFinished() const
 {
 	return (_finished);
 }
 
 
-bool	Body::getIsBlocking() const
+bool	ABody::getIsBlocking() const
 {
 	return (_isBlocking);
 }
 
-ssize_t	Body::callInstanceWriteToFd(Body &body, const void *buffer, size_t bufferCapacity)
+ssize_t	ABody::callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity)
 {
 	return (body.writeToFd(buffer, bufferCapacity));
 }

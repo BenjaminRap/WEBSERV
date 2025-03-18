@@ -9,7 +9,7 @@
 #include <string>                   // for char_traits, basic_string
 	
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
-#include "FdData.hpp"               // for FdData
+#include "AFdData.hpp"               // for FdData
 #include "ServerSocketData.hpp"     // for ServerSocketData
 #include "SocketsHandler.hpp"       // for SocketsHandler
 #include "socketCommunication.hpp"  // for checkError
@@ -17,7 +17,7 @@
 //***********************Cosntructors / Destructors****************************/
 
 ServerSocketData::ServerSocketData(int fd , SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	FdData(fd, socketsHandler, serverConfiguration)
+	AFdData(fd, socketsHandler, serverConfiguration)
 {
 
 }

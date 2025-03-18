@@ -9,8 +9,8 @@
 # include <iomanip>
 # include <algorithm>
 
-# include "Methods.hpp"
-# include "Body.hpp"
+# include "EMethods.hpp"
+# include "ABody.hpp"
 
 # define FWS "\t\n\v\f\r "
 
@@ -43,7 +43,7 @@ private:
 	 * @brief The body of the client socket if there is a remaining body.
 	 * If there is no remaining body, this variable is set to NULL.
 	 */
-	Body								*_body;
+	ABody								*_body;
 
 public:
 
@@ -55,7 +55,7 @@ public:
 	int											parseHeader(const char *line, size_t lineLength);
 	int											setBodyFromHeaders(int destFd, bool isBlocking);
 
-	Body										*getBody() const;
+	ABody										*getBody() const;
 	EMethods									getMethod(void) const;
 	const std::string							&getRequestTarget(void) const;
 	const std::string							*getHeader(const std::string &key) const;

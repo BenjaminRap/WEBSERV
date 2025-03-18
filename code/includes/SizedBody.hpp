@@ -1,9 +1,9 @@
 #ifndef SIZED_BODY_HPP
 # define SIZED_BODY_HPP
 
-# include "Body.hpp"
+# include "ABody.hpp"
 
-class SizedBody : public Body
+class SizedBody : public ABody
 {
 private:
 	size_t	_size;

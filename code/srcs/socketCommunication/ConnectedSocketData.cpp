@@ -5,7 +5,7 @@
 /*************************Constructors / Destructors***************************/
 
 ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	FdData(fd, socketsHandler, serverConfiguration),
+	AFdData(fd, socketsHandler, serverConfiguration),
 	_responsesHandler(),
 	_requestHandler(serverConfiguration)
 {

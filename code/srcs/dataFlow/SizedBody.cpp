@@ -6,7 +6,7 @@
 #include "FlowBuffer.hpp"
 
 SizedBody::SizedBody(int fd, size_t size, bool isBlocking) :
-	Body(fd, isBlocking),
+	ABody(fd, isBlocking),
 	_size(size),
 	_numCharsWritten(0)
 {

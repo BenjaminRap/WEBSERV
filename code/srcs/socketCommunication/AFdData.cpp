@@ -3,13 +3,13 @@
 #include <stdexcept>   // for invalid_argument, logic_error
 #include <string>      // for char_traits, basic_string
 
-#include "FdData.hpp"  // for FdData
+#include "AFdData.hpp"  // for FdData
 class SocketsHandler;
 
 /**
  * @throw Throw a std::invalid argument if the fd is inferior to 4.
  */
-FdData::FdData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
+AFdData::AFdData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
 	_fd(fd),
 	_iterator(),
 	_isIteratorSet(false),
@@ -20,14 +20,14 @@ FdData::FdData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerC
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 }
 
-FdData::~FdData(void)
+AFdData::~AFdData(void)
 {
 }
 
 /**
  * @return The fd of the socket.
  */
-int	FdData::getFd() const
+int	AFdData::getFd() const
 {
 	return (this->_fd);
 }
@@ -39,7 +39,7 @@ int	FdData::getFd() const
  * a std::logic_error.
  * @return A const reference on the iterator pointing to this object.
  */
-const std::list<FdData *>::iterator	&FdData::getIterator() const
+const std::list<AFdData *>::iterator	&AFdData::getIterator() const
 {
 	if (_isIteratorSet)
 		return (this->_iterator);
@@ -55,7 +55,7 @@ const std::list<FdData *>::iterator	&FdData::getIterator() const
  * If the FdData pointed by the iterator isn't this class, print an error.
  * @param iterator The iterator that points to this FdData.
  */
-void	FdData::setIterator(const std::list<FdData *>::iterator &iterator)
+void	AFdData::setIterator(const std::list<AFdData *>::iterator &iterator)
 {
 	if (_isIteratorSet)
 	{

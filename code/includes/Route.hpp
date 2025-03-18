@@ -5,7 +5,7 @@
 # include <string>
 # include <iostream>
 
-# include "Methods.hpp"
+# include "EMethods.hpp"
 
 /// @brief This structure describe a redirection.
 /// A redirection has a status code, in the range [300,400[ : ex : 301

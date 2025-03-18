@@ -3,7 +3,7 @@
 
 # include <cstddef>
 
-# include "Body.hpp"
+# include "ABody.hpp"
 # include "FlowBuffer.hpp"
 
 /**
@@ -22,7 +22,7 @@ private:
 	 * allocated in the heap.
 	 */
 	FlowBuffer	_firstPart;
-	Body		*_body;
+	ABody		*_body;
 	/**
 	 * @brief A pointer on the ResponsesHandler FlowBuffer. It allows this class
 	 * to redirect the content from _bodyFd to the client socket Fd. If there is
@@ -35,7 +35,7 @@ private:
 
 	RawResponse&	operator=(const RawResponse& ref);
 public:
-	RawResponse(char *firstPart, size_t firstPartLength, Body *body, FlowBuffer &bodyFlowBuffer);
+	RawResponse(char *firstPart, size_t firstPartLength, ABody *body, FlowBuffer &bodyFlowBuffer);
 	RawResponse(char *firstPart, size_t firstPartLength);
 	~RawResponse();
 

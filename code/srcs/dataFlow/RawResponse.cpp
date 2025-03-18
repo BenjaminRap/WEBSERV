@@ -26,7 +26,7 @@ RawResponse::RawResponse
 (
 	char *firstPart,
 	size_t firstPartLength,
-	Body *body,
+	ABody *body,
 	FlowBuffer &bodyFlowBuffer
 ) :
 	_firstPart(firstPart, firstPartLength, firstPartLength),

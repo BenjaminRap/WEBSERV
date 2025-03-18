@@ -1,5 +1,5 @@
-#ifndef METHODS_HPP
-# define METHODS_HPP
+#ifndef E_METHODS_HPP
+# define E_METHODS_HPP
 
 /**
  * @brief The availables methods that this http server can manage.
@@ -12,4 +12,4 @@ enum EMethods
 	PUT
 };
 
-#endif // !METHODS_HPP
+#endif // !E_METHODS_HPP

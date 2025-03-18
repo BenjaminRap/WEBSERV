@@ -16,7 +16,7 @@
 #include <vector>              // for vector
 
 #include "Configuration.hpp"        // for Configuration
-#include "FdData.hpp"               // for FdData
+#include "AFdData.hpp"               // for FdData
 #include "Host.hpp"                 // for Host
 #include "SocketsHandler.hpp"       // for SocketsHandler
 #include "socketCommunication.hpp"  // for checkError, bindUnixSocket, remov...
@@ -72,7 +72,7 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 SocketsHandler::~SocketsHandler()
 {
 	SocketsHandler::_instanciated = false;
-	for (std::list<FdData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<AFdData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
 		closeSocket((*ci)->getFd());
 		delete (*ci);
@@ -126,7 +126,7 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	FdData	*fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
+	AFdData	*fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
 
 	fdData->callback(_events[eventIndex].events);
 }
@@ -148,7 +148,7 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	}
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
 		return (false);
-	const FdData * const	fdData = static_cast<FdData *>(_events[eventIndex].data.ptr);
+	const AFdData * const	fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
 	const int	fd = fdData->getFd();
 
 	closeSocket(fd);
@@ -197,7 +197,7 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 
 int	SocketsHandler::addFdToListeners
 (
-	FdData *FdData,
+	AFdData *FdData,
 	uint32_t events
 )
 {

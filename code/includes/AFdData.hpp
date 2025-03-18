@@ -1,5 +1,5 @@
-#ifndef FD_DATA_HPP
-# define FD_DATA_HPP
+#ifndef A_FD_DATA_HPP
+# define A_FD_DATA_HPP
 
 # include "ServerConfiguration.hpp"
 # include <stdint.h>
@@ -13,7 +13,7 @@ class SocketsHandler;
  * receive an events (EPOLLIN/EPOLLOUT/...).
  * This class is abstract, so it can only be used through its childs.
  */
-class FdData
+class AFdData
 {
 protected:
 	/**
@@ -24,7 +24,7 @@ protected:
 	 * @brief The iterator of this instance in the SocketsHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
-	std::list<FdData *>::iterator			_iterator;
+	std::list<AFdData *>::iterator			_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a good argument.
 	 */
@@ -35,20 +35,20 @@ protected:
 	SocketsHandler							&_socketsHandler;
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
-	FdData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
+	AFdData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
 private:
-	FdData(void);
-	FdData(const FdData &ref);
+	AFdData(void);
+	AFdData(const AFdData &ref);
 
-	FdData&	operator=(const FdData& ref);
+	AFdData&	operator=(const AFdData& ref);
 public:
-	virtual ~FdData(void);
+	virtual ~AFdData(void);
 
 	virtual void							callback(uint32_t events) = 0;
 
 	int										getFd() const;
-	const std::list<FdData *>::iterator		&getIterator() const;
-	void									setIterator(const std::list<FdData *>::iterator &iterator);
+	const std::list<AFdData *>::iterator		&getIterator() const;
+	void									setIterator(const std::list<AFdData *>::iterator &iterator);
 };
 
-#endif // !FD_DATA_HPP
+#endif // !A_FD_DATA_HPP
