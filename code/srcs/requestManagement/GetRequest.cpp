@@ -24,7 +24,7 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 		setResponse(HTTP_OK);
 	else
 		setResponse(HTTP_NOT_FOUND);
-	if (this->_code == 200)
+	if (this->_code == HTTP_OK)
 	{
 		this->_fd = open(this->_url.c_str(), O_RDONLY);
 		if (this->_fd == -1)
