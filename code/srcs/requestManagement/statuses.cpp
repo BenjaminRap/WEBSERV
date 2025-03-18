@@ -4,12 +4,13 @@ std::map<int, std::string>	getStatuses(void)
 {
 	std::map<int, std::string>	_statuses;
 
+	// 1xx - Informational Responses
     _statuses.insert(std::make_pair(100, "Continue"));
     _statuses.insert(std::make_pair(101, "Switching Protocols"));
     _statuses.insert(std::make_pair(102, "Processing"));
     _statuses.insert(std::make_pair(103, "Early Hints"));
 
-    // 2xx - Succès
+    // 2xx - Successful Responses
     _statuses.insert(std::make_pair(200, "OK"));
     _statuses.insert(std::make_pair(201, "Created"));
     _statuses.insert(std::make_pair(202, "Accepted"));
@@ -21,7 +22,7 @@ std::map<int, std::string>	getStatuses(void)
     _statuses.insert(std::make_pair(208, "Already Reported"));
     _statuses.insert(std::make_pair(226, "IM Used"));
 
-    // 3xx - Redirection
+    // 3xx - Redirection Messages
     _statuses.insert(std::make_pair(300, "Multiple Choices"));
     _statuses.insert(std::make_pair(301, "Moved Permanently"));
     _statuses.insert(std::make_pair(302, "Found"));
@@ -30,7 +31,7 @@ std::map<int, std::string>	getStatuses(void)
     _statuses.insert(std::make_pair(307, "Temporary Redirect"));
     _statuses.insert(std::make_pair(308, "Permanent Redirect"));
 
-    // 4xx - Erreurs client
+    // 4xx - Client Errors
     _statuses.insert(std::make_pair(400, "Bad Request"));
     _statuses.insert(std::make_pair(401, "Unauthorized"));
     _statuses.insert(std::make_pair(402, "Payment Required"));
@@ -61,7 +62,7 @@ std::map<int, std::string>	getStatuses(void)
     _statuses.insert(std::make_pair(431, "Request Header Fields Too Large"));
     _statuses.insert(std::make_pair(451, "Unavailable For Legal Reasons"));
 
-    // 5xx - Erreurs serveur
+    // 5xx - Server Errors
     _statuses.insert(std::make_pair(500, "Internal Server Error"));
     _statuses.insert(std::make_pair(501, "Not Implemented"));
     _statuses.insert(std::make_pair(502, "Bad Gateway"));
