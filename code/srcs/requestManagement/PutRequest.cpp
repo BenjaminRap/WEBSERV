@@ -1,6 +1,14 @@
-#include "PutRequest.hpp"
-#include "socketCommunication.hpp"
-#include "requestStatusCode.hpp"
+#include <fcntl.h>                  // for fcntl, open, FD_CLOEXEC, F_SETFL
+#include <cstring>                  // for size_t
+#include <string>                   // for basic_string, string
+
+#include "ARequestType.hpp"         // for NF, ARequestType
+#include "EMethods.hpp"             // for EMethods
+#include "PutRequest.hpp"           // for PutRequest
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_CONFLICT
+#include "socketCommunication.hpp"  // for checkError
+
+class ServerConfiguration;  // lines 9-9
 
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);

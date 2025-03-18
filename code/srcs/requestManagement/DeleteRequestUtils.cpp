@@ -1,10 +1,13 @@
-#include <sys/stat.h>
-#include <cstring>
-#include <dirent.h>
-#include <cstdio>
+#include <dirent.h>               // for closedir, dirent, opendir, readdir
+#include <sys/stat.h>             // for stat, S_IWGRP, S_IWOTH
+#include <cstdio>                 // for remove, size_t
+#include <cstring>                // for strcmp, memset
+#include <exception>              // for exception
+#include <string>                 // for allocator, basic_string, string
 
-#include "DeleteRequest.hpp"
-#include "requestStatusCode.hpp"
+#include "ARequestType.hpp"       // for DIRE
+#include "DeleteRequest.hpp"      // for DeleteRequest
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_CO...
 
 int				isDirOrFile(const std::string &path);
 int				removeDirectory(const std::string &path, DeleteRequest &del);

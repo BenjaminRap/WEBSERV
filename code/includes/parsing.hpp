@@ -1,16 +1,19 @@
 #ifndef	PARSING_HPP
 # define PARSING_HPP
 
-# include <string>
-# include <iostream>
-# include <map>
-# include <cstdlib>
-# include <fstream>
-# include <cstring>
-# include <utility>
-# include <netinet/in.h>
-# include "Configuration.hpp"
-# include "exception.hpp"
+# include <netinet/in.h>  // for in_port_t, in_addr_t
+# include <stdint.h>      // for uint8_t
+# include <cstring>       // for size_t, memcmp
+# include <map>           // for map, operator<
+# include <string>        // for string, basic_string, operator<
+# include <vector>        // for vector, operator<
+
+# include "EMethods.hpp"  // for EMethods
+
+class Configuration;
+class Route;
+class ServerConfiguration;
+struct SRedirection;
 
 # define WSPACE "\t\n\v\f\r "
 # define SEP_WSPACE "\t\n\v\f\r ;"

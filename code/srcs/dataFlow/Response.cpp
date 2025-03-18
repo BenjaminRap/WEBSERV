@@ -1,5 +1,13 @@
-#include "Response.hpp"
-#include "ARequestType.hpp"
+#include <stdint.h>          // for uint16_t
+#include <ctime>             // for asctime, localtime, time, NULL, time_t
+#include <iostream>          // for basic_ostream, operator<<, basic_ios, cout
+#include <iterator>          // for reverse_iterator
+#include <map>               // for map, operator!=, _Rb_tree_const_iterator
+#include <string>            // for basic_string, char_traits, string, opera...
+#include <utility>           // for make_pair, pair
+
+#include "ARequestType.hpp"  // for ARequestType
+#include "Response.hpp"      // for Response, operator<<
 
 void	Response::setResponse(int code, const std::string &redirection)
 {

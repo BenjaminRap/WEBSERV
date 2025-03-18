@@ -1,5 +1,17 @@
-#include "parsing.hpp"
-#include "error_pages.hpp"
+#include <cctype>                   // for isdigit
+#include <cstdlib>                  // for size_t, atol
+#include <map>                      // for map, _Rb_tree_iterator, operator==
+#include <string>                   // for basic_string, string, operator==
+#include <utility>                  // for make_pair, pair
+#include <vector>                   // for vector
+
+#include "Configuration.hpp"        // for Configuration
+#include "Host.hpp"                 // for Host
+#include "Route.hpp"                // for Route
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "error_pages.hpp"          // for ERROR_403_INT, ERROR_404_INT, ERR...
+#include "exception.hpp"            // for CustomLineException, CustomKeyWor...
+#include "parsing.hpp"              // for skip_wspace, ip_s, SEP_WSPACE, ip_t
 
 void	parse_file(Configuration &config, std::string &file)
 {

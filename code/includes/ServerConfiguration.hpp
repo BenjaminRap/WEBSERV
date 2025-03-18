@@ -1,11 +1,13 @@
 #ifndef SERVERCONFIGURATION_HPP
 # define SERVERCONFIGURATION_HPP
 
-# include <map>
-# include <stdint.h>
-# include <vector>
+# include <stddef.h>   // for size_t
+# include <iosfwd>     // for ostream
+# include <map>        // for map
+# include <string>     // for string, basic_string
+# include <vector>     // for vector
 
-# include "Route.hpp"
+# include "Route.hpp"  // for Route
 
 /// @brief The configuration specific for each server
 class ServerConfiguration

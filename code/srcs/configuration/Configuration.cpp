@@ -1,11 +1,14 @@
-#include <netinet/in.h>             // for in_addr_t, in_port_t
-#include <map>                      // for map
+#include <stddef.h>                 // for size_t
+#include <iostream>                 // for basic_ostream, operator<<, cout
+#include <map>                      // for _Rb_tree_const_iterator, operator!=
 #include <stdexcept>                // for logic_error
+#include <string>                   // for char_traits, basic_string
+#include <utility>                  // for pair
 #include <vector>                   // for vector
 
-#include "Configuration.hpp"        // for Configuration
+#include "Configuration.hpp"        // for Configuration, operator<<
 #include "Host.hpp"                 // for Host
-#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "ServerConfiguration.hpp"  // for operator<<, ServerConfiguration
 
 bool	Configuration::_instanciated = false;
 

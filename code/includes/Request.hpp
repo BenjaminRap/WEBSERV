@@ -1,16 +1,14 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include <string>
-# include <cstring>
-# include <map>
-# include <iostream>
-# include <sstream>
-# include <iomanip>
-# include <algorithm>
+# include <cstring>       // for size_t
+# include <iostream>      // for ostream
+# include <map>           // for map
+# include <string>        // for string, basic_string
 
-# include "EMethods.hpp"
-# include "ABody.hpp"
+# include "EMethods.hpp"  // for EMethods
+
+class ABody;
 
 # define FWS "\t\n\v\f\r "
 

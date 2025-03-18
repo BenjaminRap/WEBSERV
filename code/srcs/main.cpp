@@ -1,12 +1,12 @@
-#include "Configuration.hpp"
-#include "parsing.hpp"
-#include <csignal>                  // for signal, SIG_ERR, SIGINT
+#include <csignal>                  // for signal, SIG_ERR, SIGINT, SIGPIPE
 #include <cstdlib>                  // for EXIT_FAILURE
 #include <exception>                // for exception
-#include <iostream>                 // for char_traits, basic_ostream, opera...
-#include <string>                   // for basic_string
-#include "Configuration.hpp"        // for Configuration
-#include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
+#include <iostream>                 // for basic_ostream, operator<<, cerr
+#include <string>                   // for char_traits, basic_string, string
+
+#include "Configuration.hpp"        // for Configuration, DEFAULT_CONFIG_PATH
+#include "parsing.hpp"              // for ft_readfile, parse_file
+#include "socketCommunication.hpp"  // for checkError, getReturnCodeWithSignal
 
 int	main(int argc, char **argv)
 {

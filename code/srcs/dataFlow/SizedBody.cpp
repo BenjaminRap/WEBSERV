@@ -1,9 +1,11 @@
-#include <algorithm>
-#include <unistd.h>
-#include <iostream>
-
-#include "SizedBody.hpp"
-#include "FlowBuffer.hpp"
+#include <stddef.h>       // for size_t
+#include <sys/types.h>    // for ssize_t
+#include <unistd.h>       // for write
+#include <algorithm>      // for min
+#include <iostream>       // for char_traits, basic_ostream, operator<<, cerr
+//
+#include "ABody.hpp"      // for ABody
+#include "SizedBody.hpp"  // for SizedBody
 
 SizedBody::SizedBody(int fd, size_t size, bool isBlocking) :
 	ABody(fd, isBlocking),

@@ -1,5 +1,8 @@
 #include "DeleteRequest.hpp"
-#include "requestStatusCode.hpp"
+#include "EMethods.hpp"           // for EMethods
+#include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_NOT_FOUND
+
+class ServerConfiguration;
 
 int							isDirOrFile(const std::string& path);
 int							directoryCase(const std::string &path, DeleteRequest &del);

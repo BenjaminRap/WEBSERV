@@ -1,10 +1,9 @@
-#include <stddef.h>                 // for size_t, NULL
-#include <unistd.h>                 // for close
-#include <string>                   // for basic_string
+#include <stddef.h>         // for NULL, size_t
+#include <iostream>         // for operator<<, basic_ios, basic_ostream, cout
 
-#include "FlowBuffer.hpp"           // for FlowState, FdType, FlowBuffer
-#include "RawResponse.hpp"          // for RawResponse
-#include "socketCommunication.hpp"  // for checkError
+#include "ABody.hpp"        // for ABody
+#include "FlowBuffer.hpp"   // for FlowState, FlowBuffer
+#include "RawResponse.hpp"  // for RawResponse
 
 /*************************Constructors / Destructors***************************/
 

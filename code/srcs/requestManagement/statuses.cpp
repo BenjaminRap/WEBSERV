@@ -1,4 +1,8 @@
-#include "ARequestType.hpp"
+#include <map>               // for map
+#include <string>            // for basic_string, string
+#include <utility>           // for make_pair
+
+#include "ARequestType.hpp"  // for ARequestType
 
 std::map<int, std::string>	getStatuses(void)
 {

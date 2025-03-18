@@ -1,5 +1,15 @@
-#include "Request.hpp"
-#include "SizedBody.hpp"
+#include <algorithm>      // for find
+#include <cstring>        // for memcmp, NULL, size_t
+#include <exception>      // for exception
+#include <iostream>       // for basic_ostream, operator<<, endl, cout, basi...
+#include <map>            // for map, operator!=, _Rb_tree_const_iterator
+#include <string>         // for basic_string, char_traits, string, operator<<
+#include <utility>        // for pair, make_pair
+
+#include "ABody.hpp"      // for ABody
+#include "EMethods.hpp"   // for EMethods
+#include "Request.hpp"    // for Request, operator<<
+#include "SizedBody.hpp"  // for SizedBody
 
 Request::Request(void) : _body(NULL)
 {

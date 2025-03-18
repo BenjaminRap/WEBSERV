@@ -1,8 +1,17 @@
-#include <unistd.h>
+#include <stddef.h>                 // for NULL
+#include <unistd.h>                 // for close
+#include <map>                      // for map, operator==
+#include <stdexcept>                // for logic_error
+#include <string>                   // for string, basic_string
+#include <utility>                  // for pair
 
-#include "ARequestType.hpp"
-#include "requestStatusCode.hpp"
-#include "socketCommunication.hpp"
+#include "ARequestType.hpp"         // for ARequestType
+#include "EMethods.hpp"             // for EMethods
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "socketCommunication.hpp"  // for checkError
+
+class Route;
 
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);

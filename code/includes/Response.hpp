@@ -1,11 +1,10 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <string>
-# include <iostream>
-# include <map>
-# include <ctime>
-# include <stdint.h>
+# include <stdint.h>  // for uint16_t
+# include <iostream>  // for ostream
+# include <map>       // for map
+# include <string>    // for string, basic_string
 
 /**
  * @brief The classe that stores all the data that will be sent to the client.

@@ -1,5 +1,12 @@
-#include "ARequestType.hpp"
-#include "requestStatusCode.hpp"
+#include <stddef.h>                 // for size_t, NULL
+#include <string>                   // for basic_string, string
+#include <vector>                   // for vector
+
+#include "ARequestType.hpp"         // for ARequestType
+#include "EMethods.hpp"             // for EMethods
+#include "Route.hpp"                // for Route, SRedirection
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
 
 bool	checkAllowMeth(const Route &route, EMethods meth)
 {

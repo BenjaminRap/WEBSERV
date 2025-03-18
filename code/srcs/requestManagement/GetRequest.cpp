@@ -1,8 +1,15 @@
-#include <vector>
-#include <list>
+#include <fcntl.h>                  // for open, O_RDONLY
+#include <stddef.h>                 // for NULL
+#include <list>                     // for list
+#include <string>                   // for string, basic_string
+#include <vector>                   // for vector
 
-#include "GetRequest.hpp"
-#include "requestStatusCode.hpp"
+#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
+#include "EMethods.hpp"             // for EMethods
+#include "GetRequest.hpp"           // for GetRequest
+#include "Route.hpp"                // for Route
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
 
 int							isDirOrFile(const std::string& path);
 void						fixPath(std::string &path);

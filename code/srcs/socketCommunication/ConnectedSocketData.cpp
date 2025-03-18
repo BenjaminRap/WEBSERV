@@ -1,6 +1,15 @@
-#include <sys/epoll.h>
-
-#include "ConnectedSocketData.hpp"
+#include <stdint.h>                 // for uint32_t
+#include <sys/epoll.h>              // for EPOLLIN, EPOLLOUT
+#include <vector>                   // for vector
+//
+#include "AFdData.hpp"              // for AFdData
+#include "ConnectedSocketData.hpp"  // for ConnectedSocketData
+#include "RequestHandler.hpp"       // for RequestHandler, RequestState
+#include "ResponsesHandler.hpp"     // for ResponsesHandler
+//
+class Response;
+class ServerConfiguration;
+class SocketsHandler;
 
 /*************************Constructors / Destructors***************************/
 

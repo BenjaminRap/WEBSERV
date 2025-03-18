@@ -1,6 +1,8 @@
-#include <string>
-#include "ServerConfiguration.hpp"
-#include "ARequestType.hpp"
+# include <string>            // for string
+
+# include "ARequestType.hpp"  // for ARequestType
+
+class ServerConfiguration;
 
 class DeleteRequest : public ARequestType
 {

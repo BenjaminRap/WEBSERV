@@ -1,7 +1,18 @@
-#include "RequestHandler.hpp"
-#include "GetRequest.hpp"
-#include "PutRequest.hpp"
-#include "DeleteRequest.hpp"
+#include <stddef.h>                 // for NULL
+#include <algorithm>                // for find
+#include <iostream>                 // for basic_ostream, cout, operator<<
+#include <stdexcept>                // for logic_error
+#include <string>                   // for basic_string, string, operator==
+#include <vector>                   // for vector
+
+#include "DeleteRequest.hpp"        // for DeleteRequest
+#include "EMethods.hpp"             // for EMethods
+#include "GetRequest.hpp"           // for GetRequest
+#include "PutRequest.hpp"           // for PutRequest
+#include "Request.hpp"              // for Request, operator<<
+#include "RequestHandler.hpp"       // for RequestHandler, RequestState
+#include "Response.hpp"             // for operator<<, Response (ptr only)
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 {
@@ -25,13 +36,11 @@ void	RequestHandler::executeRequest(Response &response)
 		return ;
 
 	const ServerConfiguration	serverConfiguration = getServerConfiguration();
-	_state = REQUEST_DONE;
 	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {
 			const GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
-			response.setResponse(getRequest.getCode(), getRequest.getRedirection());
 			break;
 		}
 		case POST: {
@@ -39,14 +48,10 @@ void	RequestHandler::executeRequest(Response &response)
 		}
 		case PUT: {
 			const PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
-			response.setResponse(putRequest.getCode(), putRequest.getRedirection());
-			_request.setBodyFromHeaders(putRequest.getFd(), false);
-			_state = REQUEST_BODY;
 			break;
 		}
 		case DELETE: {
 			const DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
-			response.setResponse(deleteRequest.getCode(), deleteRequest.getRedirection());
 			break;
 		}
 		default:
@@ -54,5 +59,3 @@ void	RequestHandler::executeRequest(Response &response)
 	}
 	std::cout << response << std::endl;
 }
-
-

@@ -1,6 +1,10 @@
-#include <iostream>
+#include <vector>              // for vector
 
-#include "RequestHandler.hpp"
+#include "Request.hpp"         // for Request
+#include "RequestHandler.hpp"  // for RequestHandler, RequestState, REQUEST_...
+
+class Response;
+class ServerConfiguration;
 
 /************************Constructors/Destructors******************************/
 

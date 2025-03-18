@@ -1,10 +1,13 @@
-#include <iostream>    // for basic_ostream, operator<<, cerr, endl
-#include <list>        // for list
-#include <stdexcept>   // for invalid_argument, logic_error
-#include <string>      // for char_traits, basic_string
-
-#include "AFdData.hpp"  // for FdData
-class SocketsHandler;
+#include <iostream>     // for basic_ostream, operator<<, cerr, endl
+#include <list>         // for list
+#include <stdexcept>    // for invalid_argument, logic_error
+#include <string>       // for char_traits, basic_string
+#include <vector>       // for vector
+//
+#include "AFdData.hpp"  // for AFdData
+//
+class ServerConfiguration;
+class SocketsHandler;  // lines 7-7
 
 /**
  * @throw Throw a std::invalid argument if the fd is inferior to 4.

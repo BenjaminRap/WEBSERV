@@ -1,5 +1,10 @@
-#include "Route.hpp"
-#include <iostream>
+#include <stddef.h>      // for size_t
+#include <iostream>      // for basic_ostream, operator<<, char_traits, endl
+#include <string>        // for basic_string, string, operator<<
+#include <vector>        // for vector
+
+#include "EMethods.hpp"  // for EMethods
+#include "Route.hpp"     // for Route, SRedirection, operator<<
 
 Route::Route(const std::vector<EMethods> &acceptedMethods, \
 			const SRedirection &redirection, \

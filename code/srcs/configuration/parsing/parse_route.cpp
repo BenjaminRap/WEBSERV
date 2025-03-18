@@ -1,4 +1,13 @@
-#include "parsing.hpp"
+#include <stddef.h>       // for size_t
+#include <map>            // for map
+#include <string>         // for basic_string, string, operator<
+#include <utility>        // for make_pair
+#include <vector>         // for vector
+
+#include "EMethods.hpp"   // for EMethods
+#include "Route.hpp"      // for Route, SRedirection
+#include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
+#include "parsing.hpp"    // for skip_wspace, WSPACE, SEP_WSPACE, SEP_WSPACE...
 
 void	parse_route(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
 {

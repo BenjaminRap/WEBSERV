@@ -1,4 +1,17 @@
-#include "parsing.hpp"
+#include <netinet/in.h>             // for in_port_t, in_addr_t
+#include <stddef.h>                 // for size_t
+#include <stdint.h>                 // for uint8_t
+#include <cctype>                   // for isdigit, isspace
+#include <fstream>                  // for basic_ifstream, basic_ios, basic_...
+#include <map>                      // for map, _Rb_tree_iterator, operator!=
+#include <string>                   // for basic_string, string, getline
+#include <utility>                  // for pair, make_pair
+#include <vector>                   // for vector
+
+#include "Route.hpp"                // for Route
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "exception.hpp"            // for CustomLineException, CustomException
+#include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ft_hextoint
 
 void	ft_readfile(const char *path, std::string &buff)
 {

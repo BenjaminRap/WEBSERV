@@ -1,8 +1,9 @@
-#include <cstddef>               // for size_t
+#include <iostream>              // for char_traits, basic_ostream, operator<<
 #include <queue>                 // for queue
 
 #include "FlowBuffer.hpp"        // for FlowState
 #include "RawResponse.hpp"       // for RawResponse
+#include "Response.hpp"          // for Response
 #include "ResponsesHandler.hpp"  // for ResponsesHandler, RESPONSE_BUFFER_SIZE
 
 /*************************Constructors / Destructors **************************/
@@ -47,8 +48,6 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 	else
 		return (flowState);
 }
-
-#include <iostream>
 
 void		ResponsesHandler::addCurrentResponseToQueue()
 {

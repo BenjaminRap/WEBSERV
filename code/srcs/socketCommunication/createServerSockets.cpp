@@ -4,16 +4,19 @@
 #include <sys/un.h>                 // for sa_family_t
 #include <unistd.h>                 // for close
 #include <exception>                // for exception
-#include <iostream>                 // for operator<<, basic_ostream, basic_ios
-#include <map>                      // for operator!=, _Rb_tree_const_iterator
+#include <iostream>                 // for operator<<, basic_ostream, cerr
+#include <map>                      // for _Rb_tree_const_iterator, operator!=
 #include <string>                   // for char_traits, basic_string
 #include <utility>                  // for pair
-
+#include <vector>                   // for vector
+//
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
 #include "ServerSocketData.hpp"     // for ServerSocketData
 #include "SocketsHandler.hpp"       // for SocketsHandler
 #include "socketCommunication.hpp"  // for checkError, setIPV6Only, setReusa...
+//
+class ServerConfiguration;
 
 /**
  * @brief Create a server socket, a socket used only to listen to connection creation request.

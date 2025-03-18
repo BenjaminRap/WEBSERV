@@ -1,4 +1,13 @@
-#include "parsing.hpp"
+#include <netinet/in.h>   // for in_port_t, in_addr_t
+#include <stddef.h>       // for size_t
+#include <cctype>         // for isdigit
+#include <map>            // for map, _Rb_tree_const_iterator, operator!=
+#include <string>         // for basic_string, string, operator==
+#include <utility>        // for make_pair, pair
+#include <vector>         // for vector
+
+#include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
+#include "parsing.hpp"    // for real_atoi, ipv6_s, skip_wspace, ft_hextoint
 
 void	parse_host(std::string &file, size_t &i, size_t &line, ip_t &ip)
 {

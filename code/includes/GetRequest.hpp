@@ -1,10 +1,10 @@
 #ifndef GETREQUEST_HPP
 # define GETREQUEST_HPP
 
-#include <string>
-#include <fcntl.h>
-#include "ServerConfiguration.hpp"
-#include "ARequestType.hpp"
+# include <string>
+# include <fcntl.h>
+# include "ServerConfiguration.hpp"
+# include "ARequestType.hpp"
 
 class GetRequest : public ARequestType
 {

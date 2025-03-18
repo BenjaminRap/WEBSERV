@@ -1,12 +1,15 @@
-#include <sys/stat.h>
-#include <cstring>
-#include <vector>
-#include <dirent.h>
-#include <list>
-#include <cerrno>
+#include <dirent.h>               // for closedir, opendir, readdir, DIR
+#include <sys/stat.h>             // for stat, S_ISDIR, S_ISREG
+#include <cerrno>                 // for errno, EACCES, ENOENT, ENOTDIR
+#include <cstring>                // for memset, size_t
+#include <list>                   // for list, _List_iterator, operator!=
+#include <new>                    // for bad_alloc
+#include <string>                 // for basic_string, string, char_traits
+#include <vector>                 // for allocator, vector
 
-#include "GetRequest.hpp"
-#include "requestStatusCode.hpp"
+#include "ARequestType.hpp"       // for DIRE, LS_FILE, NF
+#include "GetRequest.hpp"         // for GetRequest
+#include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
 
 void	checkType(std::string &path, GetRequest &get)
 {

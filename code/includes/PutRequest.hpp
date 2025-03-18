@@ -1,13 +1,8 @@
-#include <cstring>
+# include <string>            // for string, basic_string
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+# include "ARequestType.hpp"  // for ARequestType
 
-#include <cerrno>
-
-#include "ServerConfiguration.hpp"
-#include "ARequestType.hpp"
+class ServerConfiguration;
 
 class PutRequest : public ARequestType
 {

@@ -1,5 +1,13 @@
-#include "ServerConfiguration.hpp"
-#include "exception.hpp"
+#include <stddef.h>                 // for size_t, NULL
+#include <map>                      // for map, _Rb_tree_const_iterator, ope...
+#include <ostream>                  // for basic_ostream, char_traits, opera...
+#include <string>                   // for string, basic_string, operator<<
+#include <utility>                  // for pair
+#include <vector>                   // for vector
+
+#include "Route.hpp"                // for Route, operator<<
+#include "ServerConfiguration.hpp"  // for ServerConfiguration, operator<<
+#include "exception.hpp"            // for CustomException
 
 ServerConfiguration::ServerConfiguration(	const std::vector<std::string> &serverNames, \
 											const std::map<unsigned short, std::string> &errorPages, \
