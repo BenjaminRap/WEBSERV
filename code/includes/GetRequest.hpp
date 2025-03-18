@@ -1,5 +1,5 @@
-#ifndef GETREQUEST_HPP
-# define GETREQUEST_HPP
+#ifndef GET_REQUEST_HPP
+# define GET_REQUEST_HPP
 
 # include <string>
 # include <fcntl.h>
@@ -26,4 +26,4 @@ class GetRequest : public ARequestType
 		const std::vector<std::string>	&getDefaultIndexVec();
 };
 
-#endif
+#endif //!GET_REQUEST_HPP

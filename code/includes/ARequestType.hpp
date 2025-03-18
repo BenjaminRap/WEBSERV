@@ -1,5 +1,5 @@
-#ifndef AREQUEST_HPP
-# define AREQUEST_HPP
+#ifndef A_REQUEST_HPP
+# define A_REQUEST_HPP
 
 # include "ServerConfiguration.hpp"
 
@@ -52,4 +52,4 @@ class ARequestType
 		const std::string			&getError(unsigned short error);
 };
 
-#endif
+#endif //!A_REQUEST_HPP
