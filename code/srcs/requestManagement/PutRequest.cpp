@@ -26,7 +26,7 @@ void	removeFileName(std::string &url)
 }
 
 
-PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, PUT), _fd(-1)
+PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, PUT)
 {
 	std::string path;
 	int			ret;
@@ -56,14 +56,4 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 
 PutRequest::~PutRequest()
 {
-}
-
-void PutRequest::setFd(int fd)
-{
-	this->_fd = fd;
-}
-
-int PutRequest::getFd(void) const
-{
-	return (this->_fd);
 }

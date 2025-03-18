@@ -12,7 +12,6 @@
 class PutRequest : public ARequestType
 {
 	private :
-		int			_fd;
 		std::string _fileName;
 
 		PutRequest();
@@ -22,8 +21,4 @@ class PutRequest : public ARequestType
 	public :
 		explicit PutRequest(std::string url, const ServerConfiguration &config);
 		~PutRequest();
-
-		int getFd(void) const;
-
-		void setFd(int fd);
 };

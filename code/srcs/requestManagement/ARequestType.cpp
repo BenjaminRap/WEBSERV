@@ -1,5 +1,8 @@
+#include <unistd.h>
+
 #include "ARequestType.hpp"
 #include "requestStatusCode.hpp"
+#include "socketCommunication.hpp"
 
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);
@@ -9,7 +12,15 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &get, const ServerConfiguration &config);
 
-ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoute(false), _code(0), _redirection("")
+ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) :
+	_method(method),
+	_config(&config),
+	_route(NULL),
+	_url(url),
+	_isRoute(false),
+	_code(0),
+	_redirection(""),
+	_fd(-1)
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -104,4 +115,18 @@ EMethods	ARequestType::getMethod() const
 const std::string	&ARequestType::getError(unsigned short error)
 {
 	return (this->_config->getErrorPage(error));
+}
+
+
+int	ARequestType::getFd() const
+{
+	return (_fd);
+}
+
+void	ARequestType::closeFd()
+{
+	if (_fd < 0)
+		return ;
+	checkError(close(_fd), -1, "close() : ");
+	_fd = -1;
 }
