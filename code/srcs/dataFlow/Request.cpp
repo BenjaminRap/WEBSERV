@@ -1,14 +1,14 @@
 #include "Request.hpp"
 #include "SizedBody.hpp"
 
-Request::Request(void)
+Request::Request(void) : _body(NULL)
 {
 	return ;
 }
 
 void	Request::reset()
 {
-	this->_statusLine._requestTarget.clear();
+	this->statusLine.requestTarget.clear();
 	this->_headers.clear();
 	if (_body != NULL)
 	{
@@ -29,13 +29,13 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	if (*meth != ' ')
 		return (400);
 	if (!std::memcmp(line, "GET", 3))
-		this->_statusLine._method = GET;
+		this->statusLine.method = GET;
 	else if (!std::memcmp(line, "POST", 4))
-		this->_statusLine._method = POST;
+		this->statusLine.method = POST;
 	else if (!std::memcmp(line, "DELETE", 6))
-		this->_statusLine._method = DELETE;
+		this->statusLine.method = DELETE;
 	else if (!std::memcmp(line, "PUT", 3))
-		this->_statusLine._method = PUT;
+		this->statusLine.method = PUT;
 	else
 		return (501);
 
@@ -43,7 +43,7 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	const char	*targ = std::find(meth + 1, line + lineLength, ' ');
 	if (*targ != ' ')
 		return (400);
-	this->_statusLine._requestTarget = std::string(meth + 1, targ - (meth + 1));
+	this->statusLine.requestTarget = std::string(meth + 1, targ - (meth + 1));
 
 	//Parsing the protocol
 	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
@@ -79,12 +79,12 @@ Request::~Request(void)
 
 EMethods	Request::getMethod(void) const
 {
-	return (this->_statusLine._method);
+	return (this->statusLine.method);
 }
 
 const std::string	&Request::getRequestTarget(void) const
 {
-	return (this->_statusLine._requestTarget);
+	return (this->statusLine.requestTarget);
 }
 
 const std::string	*Request::getHeader(const std::string &key) const
@@ -106,8 +106,6 @@ bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
 int	Request::setBodyFromHeaders(int destFd, bool isBlocking)
 {
-	if (destFd == -1)
-		return (0);
 	const std::string * const	contentLengthString = getHeader("Content-Length");
 	if (contentLengthString != NULL)
 	{

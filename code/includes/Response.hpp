@@ -26,16 +26,16 @@ private:
 		/**
 		 * @brief The version of http we are using : in our case HTTP/1.1.
 		 */
-		std::string	_protocol;
+		std::string	protocol;
 		/**
 		 * @brief The return code [100, 600[
 		 */
-		uint16_t	_statusCode;
+		uint16_t	statusCode;
 		/**
 		 * @brief The text associated with the status code. Each status code has
 		 * a single status line that corresponds.
 		 */
-		std::string	_statusText;
+		std::string	statusText;
 	}									_statusLine;
 	std::map<std::string, std::string>	_headers;
 	/**

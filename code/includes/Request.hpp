@@ -29,15 +29,15 @@ private:
 		/**
 		 * @brief The method requested by the client.
 		 */
-		EMethods						_method;
+		EMethods						method;
 		/**
 		 * @brief A path on the element the methods is applied to.
 		 */
-		std::string						_requestTarget;
+		std::string						requestTarget;
 		/**
 		 * @brief The version of HTTP, in our case : HTTP/1.1.
 		 */
-	}									_statusLine;
+	}									statusLine;
 	std::map<std::string, std::string>	_headers;
 	/**
 	 * @brief The body of the client socket if there is a remaining body.
