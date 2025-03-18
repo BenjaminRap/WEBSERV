@@ -6,7 +6,6 @@
 # include <stdint.h>
 # include <cerrno>
 # include <string>
-# include <iostream>
 # include <cstring>
 # include <vector>
 # include <sys/socket.h>
@@ -27,7 +26,7 @@ int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
 			std::vector<std::string> &socketsToRemove);
 
 template <typename ReturnType>
-ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix);
+ReturnType	checkError(ReturnType value, ReturnType error, const char *errorPrefix);
 
 # include "errorCheck.ipp"
 
