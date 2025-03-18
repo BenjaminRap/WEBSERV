@@ -104,19 +104,27 @@ const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
-bool	Request::setBodyFromHeaders(int destFd, bool isBlocking)
+int	Request::setBodyFromHeaders(int destFd, bool isBlocking)
 {
 	if (destFd == -1)
-		return (true);
+		return (0);
 	const std::string * const	contentLengthString = getHeader("Content-Length");
 	if (contentLengthString != NULL)
 	{
 		size_t contentLength = 0;
 		if (stringToSizeT(*contentLengthString, contentLength) == false)
-			return (false);
-		_body = new SizedBody(destFd, contentLength, isBlocking);
+			return (400);
+		try
+		{
+			_body = new SizedBody(destFd, contentLength, isBlocking);
+		}
+		catch (const std::exception&)
+		{
+			return (500);
+		}
+		return (0);
 	}
-	return (true);
+	return (411);
 }
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs)

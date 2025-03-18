@@ -53,7 +53,7 @@ public:
 	void										reset();
 	int											parseStatusLine(const char *line, size_t lineLength);
 	int											parseHeader(const char *line, size_t lineLength);
-	bool										setBodyFromHeaders(int destFd, bool isBlocking);
+	int											setBodyFromHeaders(int destFd, bool isBlocking);
 
 	Body										*getBody() const;
 	EMethods									getMethod(void) const;
