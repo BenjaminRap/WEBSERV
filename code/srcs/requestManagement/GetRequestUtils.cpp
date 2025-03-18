@@ -4,7 +4,9 @@
 #include <dirent.h>
 #include <list>
 #include <cerrno>
+
 #include "GetRequest.hpp"
+#include "requestStatusCode.hpp"
 
 void	checkType(std::string &path, GetRequest &get)
 {
@@ -13,7 +15,7 @@ void	checkType(std::string &path, GetRequest &get)
 	if (lastChar != '/')
 	{
 		path += "/";
-		get.setRedirectionResponse(301, path);
+		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, path);
 	}
 	else
 		get.setUrl(path);
@@ -29,11 +31,11 @@ int	isDirOrFile(const std::string& path)
 	if (stat(path.c_str(), &stats) == -1)
 	{
 		if (errno == EACCES)
-			return (FORBIDEN);
+			return (HTTP_FORBIDDEN);
 		else if (errno == ENOENT || errno == ENOTDIR)
 			return (NF);
 		else
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 	}
 	if (S_ISDIR(stats.st_mode))
 		return (DIRE);
@@ -51,9 +53,9 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 	if (!dw)
 	{
 		if (errno == EACCES)
-			return (FORBIDEN);
+			return (HTTP_FORBIDDEN);
 		else
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 	}
 	while ((res = readdir(dw)))
 	{
@@ -63,11 +65,11 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 		catch (std::bad_alloc &e)
 		{
 			closedir(dw);
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
 	closedir(dw);
-	return (0);
+	return (HTTP_OK);
 }
 
 size_t	getBuildPagelength(std::list<std::string> &files, const std::string &path)
@@ -125,9 +127,9 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 		if (ret == LS_FILE || ret == DIRE)
 		{
 			if (ret == DIRE)
-				get.setRedirectionResponse(301, temp + "/");
+				get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, temp + "/");
 			else
-				get.setRedirectionResponse(200, temp);
+				get.setRedirectionResponse(HTTP_OK, temp);
 			return (true);
 		}
 	}
@@ -140,18 +142,13 @@ void	autoIndexCase(GetRequest &get)
 	int						response;
 
 	response = ls(get.getUrl(), files);
-	if (response == FORBIDEN)
-		get.setResponse(403);
-	else if (response == ERROR500)
-		get.setResponse(500);
-	else
-		get.setResponse(200);
+	get.setResponse(response);
 }
 
 void	directoryCase(GetRequest &get)
 {
 	checkType(get.getUrl(), get);
-	if (get.getCode() == 301)
+	if (get.getCode() == HTTP_MOVED_PERMANENTLY)
 		return;
 	if (get.getIsRoute())
 	{
@@ -164,5 +161,5 @@ void	directoryCase(GetRequest &get)
 	if (get.getAutoIndex())
 		autoIndexCase(get);
 	else
-		get.setResponse(403);
+		get.setResponse(HTTP_FORBIDDEN);
 }

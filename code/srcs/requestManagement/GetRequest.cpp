@@ -1,6 +1,8 @@
-#include "GetRequest.hpp"
 #include <vector>
 #include <list>
+
+#include "GetRequest.hpp"
+#include "requestStatusCode.hpp"
 
 int							isDirOrFile(const std::string& path);
 void						fixPath(std::string &path);
@@ -19,9 +21,9 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 	if (temp == DIRE)
 		directoryCase(*this);
 	else if (temp == LS_FILE)
-		setResponse(200);
+		setResponse(HTTP_OK);
 	else
-		setResponse(404);
+		setResponse(HTTP_NOT_FOUND);
 }
 
 GetRequest::~GetRequest()

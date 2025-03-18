@@ -7,9 +7,6 @@
 # define LS_FILE 2
 # define NF 3
 
-# define FORBIDEN -1
-# define ERROR500 -2
-
 class ARequestType
 {
 	private:

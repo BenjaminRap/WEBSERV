@@ -1,4 +1,5 @@
 #include "RequestHandler.hpp"
+#include "requestStatusCode.hpp"
 
 void	RequestHandler::writeBodyFromBuffer(Response &response)
 {
@@ -17,7 +18,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 	
 	if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(500, "");
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR, "");
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_DONE && body->getFinished())
@@ -40,7 +41,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(500, "");
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR, "");
 		_state = REQUEST_DONE;
 	}
 	else if (body->getFinished())
@@ -56,12 +57,12 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &resp
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(500, "");
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR, "");
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_BUFFER_FULL)
 	{
-		response.setResponse(400, "");
+		response.setResponse(HTTP_BAD_REQUEST, "");
 		_state = REQUEST_DONE;
 	}
 	return (_state);

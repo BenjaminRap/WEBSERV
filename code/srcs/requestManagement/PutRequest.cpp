@@ -1,5 +1,6 @@
 #include "PutRequest.hpp"
 #include "socketCommunication.hpp"
+#include "requestStatusCode.hpp"
 
 int							isDirOrFile(const std::string& path);
 bool						canWrite(const std::string &path);
@@ -36,20 +37,20 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 	path = this->_url;
 	removeFileName(this->_url);
 	ret = isDirOrFile(path);
-	if ((ret != NF && ret != FORBIDEN) || (this->_fileName.empty() && ret == NF))
-		this->setResponse(409);
-	else if (!canWrite( this->_url) && ret != FORBIDEN)
-		this->setResponse(403);
+	if ((ret != NF && ret != HTTP_FORBIDDEN) || (this->_fileName.empty() && ret == NF))
+		this->setResponse(HTTP_CONFLICT);
+	else if (!canWrite( this->_url) && ret != HTTP_FORBIDDEN)
+		this->setResponse(HTTP_FORBIDDEN);
 	else
 	{
 		this->_fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
 		if (this->_fd == -1
 			|| checkError(fcntl(this->_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC), -1, "fcntl() : ") == -1)
 		{
-			this->setResponse(500);
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		}
 		else
-			this->setResponse(201);
+			this->setResponse(HTTP_CREATED);
 	}
 }
 

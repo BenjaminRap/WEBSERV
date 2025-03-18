@@ -1,4 +1,5 @@
 #include "ARequestType.hpp"
+#include "requestStatusCode.hpp"
 
 bool	checkAllowMeth(const Route &route, EMethods meth)
 {
@@ -77,7 +78,7 @@ void	fixPath(std::string &path)
 void	fixUrl(ARequestType &req, std::string &url)
 {
 	if (*url.begin() != '/')
-		req.setResponse(400);
+		req.setResponse(HTTP_BAD_REQUEST);
 	else
 	{
 		fixPath(url);
@@ -98,12 +99,12 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 	get.setIsRoute(true);
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
-		get.setResponse(405);
+		get.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setRedirectionResponse(301, redir);
+		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
 	else
 		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
 }

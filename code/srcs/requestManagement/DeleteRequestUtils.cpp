@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "DeleteRequest.hpp"
+#include "requestStatusCode.hpp"
 
 int				isDirOrFile(const std::string &path);
 int				removeDirectory(const std::string &path, DeleteRequest &del);
@@ -15,7 +16,7 @@ void	checkEnd(std::string &path, DeleteRequest &del)
 	if (lastChar != '/')
 	{
 		path += "/";
-		del.setResponse(409);
+		del.setResponse(HTTP_CONFLICT);
 	}
 	else
 		del.setUrl(path);
@@ -38,13 +39,13 @@ bool	canWrite(const std::string &path)
 int	directoryCase(const std::string &path, DeleteRequest &del)
 {
 	checkEnd(del.getUrl(), del);
-	if (del.getCode() == 409)
-		del.setResponse(409);
+	if (del.getCode() == HTTP_CONFLICT)
+		del.setResponse(HTTP_CONFLICT);
 	else if (!canWrite(path) || removeDirectory(path, del) != 0
 			|| !canWrite(getParentPath(path)) || std::remove(path.c_str()) != 0)
-		del.setResponse(500);
+		del.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
-		del.setResponse(204);
+		del.setResponse(HTTP_NO_CONTENT);
 	return (del.getCode());
 }
 
@@ -67,7 +68,7 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 
 	dw = opendir(path.c_str());
 	if (!dw)
-		return (ERROR500);
+		return (HTTP_INTERNAL_SERVER_ERROR);
 	while ((res = readdir(dw)))
 	{
 		try
@@ -82,28 +83,28 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 				else
 				{
 					closedir(dw);
-					return (ERROR500);
+					return (HTTP_INTERNAL_SERVER_ERROR);
 				}
 			}
 		}
 		catch (std::exception & e)
 		{
 			closedir(dw);
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
 	closedir(dw);
-	return (0);
+	return (HTTP_OK);
 }
 
 int	fileCase(const std::string &path, DeleteRequest &del)
 {
 	if (!canWrite(getParentPath(path)))
-		del.setResponse(403);
+		del.setResponse(HTTP_FORBIDDEN);
 	else if (std::remove(path.c_str()) != 0)
-		del.setResponse(500);
+		del.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
-		del.setResponse(204);
+		del.setResponse(HTTP_NO_CONTENT);
 	return (del.getCode());
 }
 

@@ -1,4 +1,5 @@
 #include "ARequestType.hpp"
+#include "requestStatusCode.hpp"
 
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);
@@ -11,10 +12,10 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config);
 ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) : _method(method), _config(&config), _route(NULL), _url(url), _isRoute(false), _code(0), _redirection("")
 {
 	fixUrl(*this, url);
-	if (getCode() == 400)
+	if (getCode() == HTTP_BAD_REQUEST)
 		return ;
 	addRoot(*this, config);
-	if (this->_code == 301 || this->_code == 405)
+	if (this->_code == HTTP_MOVED_PERMANENTLY || this->_code == HTTP_METHOD_NOT_ALLOWED)
 		return;
 	if (this->_url[0] != '.')
 		this->_url.insert(0, ".");
