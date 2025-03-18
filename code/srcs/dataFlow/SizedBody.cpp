@@ -24,7 +24,10 @@ SizedBody::~SizedBody()
 ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 {
 	const size_t	numCharsToWrite = std::min(_size, bufferCapacity);
-	const ssize_t	written = write(getFd(), buffer, numCharsToWrite);
+
+	const ssize_t	written = (getFd() == -1) ?
+		numCharsToWrite
+		: write(getFd(), buffer, numCharsToWrite);
 	
 	if (written == -1)
 		return (-1);
