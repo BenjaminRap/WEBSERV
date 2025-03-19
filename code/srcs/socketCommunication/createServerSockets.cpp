@@ -1,3 +1,4 @@
+#include <fcntl.h>					// for fcntl, F_SETFL, O_NONBLOCK ...
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN
 #include <sys/socket.h>             // for listen, socket, AF_INET6, SOCK_ST...
@@ -6,10 +7,9 @@
 #include <exception>                // for exception
 #include <iostream>                 // for operator<<, basic_ostream, cerr
 #include <map>                      // for _Rb_tree_const_iterator, operator!=
-#include <string>                   // for char_traits, basic_string
 #include <utility>                  // for pair
 #include <vector>                   // for vector
-//
+
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
 #include "ServerSocketData.hpp"     // for ServerSocketData
@@ -38,12 +38,13 @@ static int	createServerSocket
 	const sa_family_t	family = host.getFamily();
 	const int			fd = socket(family, SOCK_STREAM, 0);
 
-	if (checkError(fd, -1, "socket() : ") == -1)
+	if (checkError(fd, -1, "socket() : "))
 		return (-1);
-	if (setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
+	if (addFlagsToFd(fd, O_NONBLOCK | FD_CLOEXEC) == -1 // set the non blocking and closing on fork flags
+		|| setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
 		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1) // set the IPV6 sockets to only listen to IPV6
 		|| socketsHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
-		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ") == -1) // set the socket to listening
+		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ")) // set the socket to listening
 	{
 		checkError(close(fd), -1, "close() : ");
 		return (-1);

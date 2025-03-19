@@ -1,10 +1,12 @@
 #ifndef GET_REQUEST_HPP
 # define GET_REQUEST_HPP
 
-# include <string>
-# include <fcntl.h>
-# include "ServerConfiguration.hpp"
-# include "ARequestType.hpp"
+# include <string>				// for std::string
+# include <vector>				// for std::vector
+
+# include "ARequestType.hpp"	// for ARequestType
+
+class ServerConfiguration;
 
 class GetRequest : public ARequestType
 {

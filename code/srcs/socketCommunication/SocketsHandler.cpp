@@ -103,7 +103,7 @@ int	SocketsHandler::epollWaitForEvent()
 {
 	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
 
-	if (nfds == -1)
+	if (checkError(nfds, -1, "epoll_wait() : "))
 		_eventsCount = 0;
 	else
 		_eventsCount = nfds;
@@ -214,7 +214,7 @@ int	SocketsHandler::addFdToListeners
 	FdData->setIterator(_socketsData.begin());
 	event.data.ptr = FdData;
 	event.events = events;
-	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData->getFd(), &event), -1, "epoll_ctl() :") == -1)
+	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData->getFd(), &event), -1, "epoll_ctl() :"))
 	{
 		_socketsData.pop_front();
 		delete FdData;

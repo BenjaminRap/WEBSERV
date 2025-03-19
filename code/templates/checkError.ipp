@@ -12,9 +12,12 @@
  * @return Return value
  */
 template <typename ReturnType>
-ReturnType	checkError(ReturnType value, ReturnType error, const char *errorPrefix)
+bool	checkError(ReturnType value, ReturnType error, const char *errorPrefix)
 {
 	if (value == error)
+	{
 		std::cerr << errorPrefix << strerror(errno) << std::endl;
-	return (value);
+		return (true);
+	}
+	return (false);
 }

@@ -1,10 +1,8 @@
 #include <stddef.h>                 // for size_t
 #include <sys/types.h>              // for ssize_t
 #include <unistd.h>                 // for close
-#include <string>                   // for basic_string
 
 #include "ABody.hpp"                // for ABody
-#include "socketCommunication.hpp"  // for checkError
 
 ABody::ABody(int fd, bool isBlocking) :
 	_fd(fd),
@@ -14,7 +12,6 @@ ABody::ABody(int fd, bool isBlocking) :
 
 ABody::~ABody()
 {
-	checkError(close(_fd), -1, "close() : ");
 }
 
 int	ABody::getFd() const

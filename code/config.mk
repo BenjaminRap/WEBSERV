@@ -4,7 +4,7 @@ SOCKET_FILES			:=	createServerSockets.cpp	\
 							AFdData.cpp				\
 							signals.cpp				\
 							SocketsHandler.cpp		\
-							setSocketsOption.cpp	\
+							setFdOption.cpp	\
 							unixSocket.cpp			\
 							ConnectedSocketData.cpp	\
 							ServerSocketData.cpp

@@ -18,7 +18,6 @@ SizedBody::SizedBody(int fd, size_t size, bool isBlocking) :
 
 SizedBody::~SizedBody()
 {
-
 }
 
 ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)

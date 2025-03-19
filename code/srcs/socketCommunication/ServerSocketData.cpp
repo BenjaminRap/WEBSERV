@@ -19,7 +19,12 @@ class ServerConfiguration;
 
 //***********************Cosntructors / Destructors****************************/
 
-ServerSocketData::ServerSocketData(int fd , SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
+ServerSocketData::ServerSocketData
+(
+	int fd ,
+	SocketsHandler &socketsHandler,
+	const std::vector<ServerConfiguration> &serverConfiguration
+) :
 	AFdData(fd, socketsHandler, serverConfiguration)
 {
 
@@ -49,9 +54,9 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	const uint32_t	newConnectionEvents = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
 	const int 		newConnectionFd = accept(_fd, (sockaddr *)&addr, &addrLength);
 
-	if (checkError(newConnectionFd, -1, "accept() : ") == -1)
+	if (checkError(newConnectionFd, -1, "accept() : "))
 		return ;
-	if (checkError(fcntl(newConnectionFd, F_SETFL, O_NONBLOCK | FD_CLOEXEC), -1, "fcntl() : ") == -1)
+	if (addFlagsToFd(newConnectionFd, O_NONBLOCK | FD_CLOEXEC) == -1)
 	{
 		checkError(close(newConnectionFd), -1, "close() : ");
 		return ;

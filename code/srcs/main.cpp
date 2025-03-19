@@ -19,9 +19,9 @@ int	main(int argc, char **argv)
 	}
 	try
 	{
-		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : "))
 			return (EXIT_FAILURE);
-		if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : ") == SIG_ERR)
+		if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : "))
 			return (EXIT_FAILURE);
 
 		Configuration	conf;

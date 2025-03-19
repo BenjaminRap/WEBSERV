@@ -1,6 +1,6 @@
 #include <netinet/in.h>             // for IPPROTO_IPV6, IPV6_V6ONLY
 #include <sys/socket.h>             // for setsockopt, SOL_SOCKET, SO_REUSEADDR
-#include <string>                   // for basic_string
+#include <fcntl.h>					// for fcntl, F_GETFL, F_SETFL ...
 
 #include "socketCommunication.hpp"  // for setIPV6Only, setReusableAddr
 
@@ -37,4 +37,14 @@ int	setIPV6Only(int fd, bool isIPV6Only)
 
 	checkError(returnValue, -1, "setsockopt() : ");
 	return (returnValue);
+}
+
+int	addFlagsToFd(int fd, int flags)
+{
+	int currentFlags = fcntl(fd, F_GETFL);
+	if (checkError(currentFlags, -1, "fcntl() : "))
+		return (-1);
+	int ret = fcntl(fd, F_SETFL, currentFlags | flags);
+	checkError(ret, -1, "fcntl() : ");
+	return (ret);
 }

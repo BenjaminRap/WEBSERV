@@ -24,10 +24,11 @@ int		setIPV6Only(int fd, bool isIPV6Only);
 int		removeUnixSocketIfExists(const char sun_path[108]);
 int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
 			std::vector<std::string> &socketsToRemove);
+int		addFlagsToFd(int fd, int flags);
 
 template <typename ReturnType>
-ReturnType	checkError(ReturnType value, ReturnType error, const char *errorPrefix);
+bool	checkError(ReturnType value, ReturnType error, const char *errorPrefix);
 
-# include "errorCheck.ipp"
+# include "checkError.ipp"
 
 #endif // !SOCKET_COMMUNICATION_HPP
