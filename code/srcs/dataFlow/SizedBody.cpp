@@ -1,11 +1,12 @@
-#include <stddef.h>       // for size_t
-#include <sys/types.h>    // for ssize_t
-#include <unistd.h>       // for write
-#include <algorithm>      // for min
-#include <iostream>       // for char_traits, basic_ostream, operator<<, cerr
-//
-#include "ABody.hpp"      // for ABody
-#include "SizedBody.hpp"  // for SizedBody
+#include <stddef.h>       			// for size_t
+#include <sys/types.h>    			// for ssize_t
+#include <unistd.h>       			// for write
+#include <algorithm>      			// for min
+#include <iostream>       			// for char_traits, basic_ostream, operator<<, cerr
+
+#include "ABody.hpp"      			// for ABody
+#include "socketCommunication.hpp"	// for checkError
+#include "SizedBody.hpp"  			// for SizedBody
 
 SizedBody::SizedBody(int fd, size_t size, bool isBlocking) :
 	ABody(fd, isBlocking),
@@ -28,7 +29,7 @@ ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 		numCharsToWrite
 		: write(getFd(), buffer, numCharsToWrite);
 	
-	if (written == -1)
+	if (checkError<ssize_t>(written, -1, "write() : "))
 		return (-1);
 	_numCharsWritten += written;
 	if (_numCharsWritten == _size)

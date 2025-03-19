@@ -50,8 +50,6 @@ class ARequestType
 		bool						getIsRoute() const;
 		int							getInFdResponsability();
 		int							getOutFdResponsability();
-		int							getInFd() const;
-		int							getOutFd() const;
 
 		const std::string			&getError(unsigned short error);
 };

@@ -33,30 +33,24 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 
 void	RequestHandler::processRequestResult(ARequestType *requestResult, Response &response)
 {
-	response.setResponse(requestResult->getCode(), requestResult->getRedirection());
 	if (ARequestType::isStatusCodeError(requestResult->getCode()))
 	{
+		response.setResponse(requestResult->getCode(), requestResult->getRedirection());
 		_state = REQUEST_DONE;
 		return ;
 	}
 
 	{
-		const int inFd = requestResult->getInFd();
-		const int status = _request.setBodyFromHeaders(inFd, false);
-
-		if (_request.getBody() != NULL)
-		{
-			requestResult->getInFdResponsability();
-			_state = REQUEST_BODY;
-		}
-		else
-			_state = REQUEST_DONE;
+		const int status = _request.setBodyFromHeaders(requestResult->getInFdResponsability(), false);
 		if (status != HTTP_OK)
 		{
 			response.setResponse(status, "");
+			_state = REQUEST_DONE;
 			return ;
 		}
 	}
+	response.setResponse(requestResult->getCode(), requestResult->getRedirection());
+	_state = REQUEST_BODY;
 }
 
 void	RequestHandler::executeRequest(Response &response)

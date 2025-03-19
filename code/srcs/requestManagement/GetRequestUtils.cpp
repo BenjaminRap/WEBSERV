@@ -38,7 +38,9 @@ int	isDirOrFile(const std::string& path)
 		else if (errno == ENOENT || errno == ENOTDIR)
 			return (NF);
 		else
+		{
 			return (HTTP_INTERNAL_SERVER_ERROR);
+		}
 	}
 	if (S_ISDIR(stats.st_mode))
 		return (DIRE);

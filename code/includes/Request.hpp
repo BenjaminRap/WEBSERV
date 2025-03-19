@@ -35,12 +35,13 @@ private:
 		/**
 		 * @brief The version of HTTP, in our case : HTTP/1.1.
 		 */
-	}									statusLine;
+	}									_statusLine;
 	std::map<std::string, std::string>	_headers;
 	/**
 	 * @brief The body of the client socket if there is a remaining body.
 	 * If there is no remaining body, this variable is set to NULL.
 	 */
+	int									_bodyDestFd;
 	ABody								*_body;
 
 public:

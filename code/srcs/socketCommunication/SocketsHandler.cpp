@@ -54,12 +54,11 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 	if (SocketsHandler::_instanciated == true)
 		throw std::logic_error("Error : trying to instantiate a SocketsHandler multiple times");
 	_events = new epoll_event[conf.getMaxEvents()]();
-	_epfd = checkError(epoll_create(1), -1, "epoll_create() :");
-	if (_epfd == -1)
+	_epfd = epoll_create(1);
+	if (checkError(_epfd, -1, "epoll_create() :"))
 	{
 		delete [] _events;
 		throw std::exception();
-		return ;
 	}
 	SocketsHandler::_instanciated = true;
 }
@@ -207,7 +206,6 @@ int	SocketsHandler::addFdToListeners
 	}
 	catch(const std::exception& e)
 	{
-		delete FdData;
 		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (-1);
 	}
@@ -217,7 +215,6 @@ int	SocketsHandler::addFdToListeners
 	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData->getFd(), &event), -1, "epoll_ctl() :"))
 	{
 		_socketsData.pop_front();
-		delete FdData;
 		return (-1);
 	}
 	return (0);

@@ -135,8 +135,6 @@ int	ARequestType::getInFdResponsability()
 {
 	const int	inFdSave = _inFd;
 
-	if (_inFd == _outFd)
-		_outFd = -1;
 	_inFd = -1;
 	return (inFdSave);
 }
@@ -145,23 +143,9 @@ int	ARequestType::getOutFdResponsability()
 {
 	const int	outFdSave = _outFd;
 
-	if (_outFd == _inFd)
-		_inFd = -1;
 	_outFd = -1;
 	return (outFdSave);
 }
-
-
-int	ARequestType::getInFd() const
-{
-	return (_inFd);
-}
-
-int	ARequestType::getOutFd() const
-{
-	return (_outFd);
-}
-
 
 bool	ARequestType::isStatusCodeError(int code)
 {

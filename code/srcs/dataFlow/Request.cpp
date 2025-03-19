@@ -11,20 +11,38 @@
 #include "Request.hpp"    			// for Request, operator<<
 #include "SizedBody.hpp"  			// for SizedBody
 #include "requestStatusCode.hpp"	// for HTTP_...
+#include "socketCommunication.hpp"	// for checkError
 
-Request::Request(void) : _body(NULL)
+Request::Request(void) :
+	_statusLine(),
+	_headers(),
+	_bodyDestFd(-1),
+	_body(NULL)
 {
-	return ;
+}
+
+Request::~Request(void)
+{
+	if (_body != NULL)
+		delete _body;
+	if (_bodyDestFd >= 0)
+		checkError(close(_bodyDestFd), -1, "close() : ");
 }
 
 void	Request::reset()
 {
-	this->statusLine.requestTarget.clear();
+	this->_statusLine.method = (EMethods)-1;
+	this->_statusLine.requestTarget.clear();
 	this->_headers.clear();
 	if (_body != NULL)
 	{
 		delete _body;
 		_body = NULL;
+	}
+	if (_bodyDestFd >= 0)
+	{
+		checkError(close(_bodyDestFd), -1, "close() : ");
+		_bodyDestFd = -1;
 	}
 }
 
@@ -40,13 +58,13 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	if (*meth != ' ')
 		return (HTTP_BAD_REQUEST);
 	if (!std::memcmp(line, "GET", 3))
-		this->statusLine.method = GET;
+		this->_statusLine.method = GET;
 	else if (!std::memcmp(line, "POST", 4))
-		this->statusLine.method = POST;
+		this->_statusLine.method = POST;
 	else if (!std::memcmp(line, "DELETE", 6))
-		this->statusLine.method = DELETE;
+		this->_statusLine.method = DELETE;
 	else if (!std::memcmp(line, "PUT", 3))
-		this->statusLine.method = PUT;
+		this->_statusLine.method = PUT;
 	else
 		return (HTTP_NOT_IMPLEMENTED);
 
@@ -54,7 +72,7 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	const char	*targ = std::find(meth + 1, line + lineLength, ' ');
 	if (*targ != ' ')
 		return (HTTP_BAD_REQUEST);
-	this->statusLine.requestTarget = std::string(meth + 1, targ - (meth + 1));
+	this->_statusLine.requestTarget = std::string(meth + 1, targ - (meth + 1));
 
 	//Parsing the protocol
 	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
@@ -82,20 +100,14 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 	return (HTTP_OK);
 }
 
-Request::~Request(void)
-{
-	if (_body != NULL)
-		delete _body;
-}
-
 EMethods	Request::getMethod(void) const
 {
-	return (this->statusLine.method);
+	return (this->_statusLine.method);
 }
 
 const std::string	&Request::getRequestTarget(void) const
 {
-	return (this->statusLine.requestTarget);
+	return (this->_statusLine.requestTarget);
 }
 
 const std::string	*Request::getHeader(const std::string &key) const
@@ -112,11 +124,11 @@ const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
 	return (this->_headers);
 }
 
-
 bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
 int	Request::setBodyFromHeaders(int destFd, bool isBlocking)
 {
+	_bodyDestFd = destFd;
 	const std::string * const	contentLengthString = getHeader("Content-Length");
 	if (contentLengthString != NULL)
 	{
