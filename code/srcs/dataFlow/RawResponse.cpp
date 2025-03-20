@@ -25,11 +25,15 @@ RawResponse::RawResponse
 (
 	char *firstPart,
 	size_t firstPartLength,
-	ABody *body,
-	FlowBuffer &bodyFlowBuffer
+	ABody &body,
+	FlowBuffer &bodyFlowBuffer,
+	bool isBlocking,
+	int srcBodyFd
 ) :
 	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_body(body),
+	_isBlocking(isBlocking),
+	_srcBodyFd(srcBodyFd),
+	_body(&body),
 	_bodyBuffer(&bodyFlowBuffer)
 {
 
@@ -93,9 +97,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (_body == NULL)
 		return (FLOW_DONE);
-	if (_body->getIsBlocking() == false)
-		std::cout << "bouh !";
-		//reading from the body
-	//writing to the socket
-	return (FLOW_DONE);
+	if (_isBlocking == false)
+		return (_bodyBuffer->redirectContent<int, ABody&>(_srcBodyFd, *_body, ABody::callInstanceWriteToFd));
+	return (_bodyBuffer->redirectBufferContentToFd<ABody&>(*_body, ABody::callInstanceWriteToFd));
 }

@@ -42,6 +42,7 @@ private:
 	 * If there is no remaining body, this variable is set to NULL.
 	 */
 	int									_bodyDestFd;
+	bool								_isBlocking;
 	ABody								*_body;
 
 public:
@@ -52,13 +53,14 @@ public:
 	void										reset();
 	int											parseStatusLine(const char *line, size_t lineLength);
 	int											parseHeader(const char *line, size_t lineLength);
-	int											setBodyFromHeaders(int destFd, bool isBlocking);
+	int											setBodyFromHeaders(int destFd);
 
 	ABody										*getBody() const;
 	EMethods									getMethod(void) const;
 	const std::string							&getRequestTarget(void) const;
 	const std::string							*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
+	bool										getIsBlocking(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);

@@ -37,11 +37,11 @@ private:
 
 	void						readStatusLine(Response &response);
 	void						readHeaders(Response &response);
-	void						executeRequest(Response &response);
+	void						executeRequest(Response &response, int socketFd);
 	void						writeBodyFromBuffer(Response &response);
 
 	const ServerConfiguration	&getServerConfiguration(void) const;
-	void						processRequestResult(ARequestType *request, Response &response);
+	void						processRequestResult(ARequestType *request, Response &response, int socketFd);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();
@@ -49,7 +49,7 @@ public:
 	RequestState				redirectBodySocketToFile(int socketFd, Response &response);
 	RequestState				redirectSocketToBuffer(int socketFd, Response &response);
 
-	RequestState				readRequest(Response &response);
+	RequestState				readRequest(Response &response, int socketFd);
 	bool						isRequestBody(void);
 	void						setNewRequest(void);
 };

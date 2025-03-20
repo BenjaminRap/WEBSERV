@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <string>
 #include <climits>
+#include <sstream>
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue)
 {
@@ -12,4 +13,12 @@ bool	stringToSizeT(const  std::string &str, size_t &outValue)
 	if (outValue == ULONG_MAX && errno == ERANGE)
 		return (false);
 	return (true);
+}
+
+std::string	sizeTToString(size_t value)
+{
+	std::ostringstream	strStream;
+
+	strStream << value;
+	return (strStream.str());
 }

@@ -23,11 +23,11 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(Response &response)
+RequestState			RequestHandler::readRequest(Response &response, int socketFd)
 {
 	readStatusLine(response);
 	readHeaders(response);
-	executeRequest(response);
+	executeRequest(response, socketFd);
 	writeBodyFromBuffer(response);
 	return (_state);
 }

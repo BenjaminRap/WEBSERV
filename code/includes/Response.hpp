@@ -1,12 +1,14 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <stdint.h>  // for uint16_t
-# include <iostream>  // for ostream
-# include <map>       // for map
-# include <string>    // for string, basic_string
+# include <stdint.h>  	// for uint16_t
+# include <iostream>  	// for ostream
+# include <map>       	// for map
+# include <string>    	// for string, basic_string
 
-# include "ABody.hpp"
+# include "ABody.hpp"	// for ABody
+
+class	ARequestType;
 
 /**
  * @brief The classe that stores all the data that will be sent to the client.
@@ -25,10 +27,6 @@ private:
 	struct statusLineResponse
 	{
 		/**
-		 * @brief The version of http we are using : in our case HTTP/1.1.
-		 */
-		std::string	protocol;
-		/**
 		 * @brief The return code [100, 600[
 		 */
 		uint16_t	statusCode;
@@ -44,24 +42,27 @@ private:
 	 * is set to -1.
 	 */
 	int									_bodySrcFd;
+	bool								_isBlocking;
 	ABody								*_body;
 
 	Response(const Response& ref);
 
 	Response&	operator=(const Response& response);
+
+	void										addDefaultHeaders(void);
 public:
 	Response(void);
 	~Response(void);
 
-	void										setResponse(int code, const std::string &redirection);
+	void										setResponse(int code);
+	void										setResponse(ARequestType *ARequestType, int socketFd);
 	void										reset();
 
 	uint16_t									getStatusCode(void) const;
 	const std::string							&getStatusText(void) const;
-	const std::string							&getProtocol(void) const;
 	const std::string							*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
-
+	bool										getIsBlocking(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs);

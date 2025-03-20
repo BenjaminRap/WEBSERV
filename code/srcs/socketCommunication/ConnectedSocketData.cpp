@@ -41,13 +41,13 @@ RequestState	ConnectedSocketData::processRequest(Response &response)
 		requestState = _requestHandler.redirectSocketToBuffer(_fd, response);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
-			requestState = _requestHandler.readRequest(response);
+			requestState = _requestHandler.readRequest(response, _fd);
 	}
 	while  (requestState == REQUEST_DONE)
 	{
 		_responsesHandler.addCurrentResponseToQueue();
 		_requestHandler.setNewRequest();
-		requestState = _requestHandler.readRequest(response);
+		requestState = _requestHandler.readRequest(response, _fd);
 	}
 	return (requestState);
 }

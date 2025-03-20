@@ -1,5 +1,4 @@
 #include <stddef.h>            		// for size_t
-#include <string>              		// for basic_string
 
 #include "FlowBuffer.hpp"			// for FlowBuffer
 #include "Request.hpp"				// for Request
@@ -24,7 +23,7 @@ void	RequestHandler::readStatusLine(Response &response)
 	const int	statusCode = _request.parseStatusLine(line, lineLength);
 	if (statusCode != HTTP_OK)
 	{
-		response.setResponse(statusCode, "");
+		response.setResponse(statusCode);
 		_state = REQUEST_DONE;
 	}
 	else
@@ -48,7 +47,7 @@ void	RequestHandler::readHeaders(Response &response)
 		const int	statusCode = _request.parseHeader(line, lineLength);
 		if (statusCode != HTTP_OK)
 		{
-			response.setResponse(statusCode, "");
+			response.setResponse(statusCode);
 			_state = REQUEST_DONE;
 			return ;
 		}

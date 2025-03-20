@@ -31,29 +31,23 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 	return (_serverConfs[0]);
 }
 
-void	RequestHandler::processRequestResult(ARequestType *requestResult, Response &response)
+void	RequestHandler::processRequestResult(ARequestType *requestResult, Response &response, int socketFd)
 {
-	if (ARequestType::isStatusCodeError(requestResult->getCode()))
 	{
-		response.setResponse(requestResult->getCode(), requestResult->getRedirection());
-		_state = REQUEST_DONE;
-		return ;
-	}
-
-	{
-		const int status = _request.setBodyFromHeaders(requestResult->getInFdResponsability(), false);
+		const int status = _request.setBodyFromHeaders(requestResult->getInFdResponsability());
 		if (status != HTTP_OK)
 		{
-			response.setResponse(status, "");
+			response.setResponse(status);
 			_state = REQUEST_DONE;
 			return ;
 		}
 	}
-	response.setResponse(requestResult->getCode(), requestResult->getRedirection());
+
+	response.setResponse(requestResult, socketFd);
 	_state = REQUEST_BODY;
 }
 
-void	RequestHandler::executeRequest(Response &response)
+void	RequestHandler::executeRequest(Response &response, int socketFd)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
@@ -64,17 +58,17 @@ void	RequestHandler::executeRequest(Response &response)
 	{
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
-			processRequestResult(&getRequest, response);
+			processRequestResult(&getRequest, response, socketFd);
 			break;
 		}
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
-			processRequestResult(&putRequest, response);
+			processRequestResult(&putRequest, response, socketFd);
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
-			processRequestResult(&deleteRequest, response);
+			processRequestResult(&deleteRequest, response, socketFd);
 			break;
 		}
 		default:

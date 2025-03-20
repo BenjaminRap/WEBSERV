@@ -1,16 +1,13 @@
 #ifndef A_BODY_HPP
 # define A_BODY_HPP
 
-# include <stddef.h>
-
-# include "FlowBuffer.hpp"
+# include <sys/types.h>	// for ssize_t
 
 class ABody
 {
 private:
 	int			_fd;
 	bool		_finished;
-	const  bool	_isBlocking;
 
 	ABody(const ABody& ref);
 	
@@ -21,12 +18,11 @@ protected:
 
 	virtual ssize_t		writeToFd(const void *buffer, size_t bufferCapacity) = 0;
 public:
-	ABody(int fd, bool isBlocking);
+	ABody(int fd);
 	virtual ~ABody();
 	
 	int			getFd() const;
 	bool		getFinished() const;
-	bool		getIsBlocking() const;
 	
 	static ssize_t	callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity);
 };

@@ -19,7 +19,7 @@ protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
-	int										_fd;
+	const int								_fd;
 	/**
 	 * @brief The iterator of this instance in the SocketsHandler list. It is used
 	 * to remove this instance from the list in O(1).

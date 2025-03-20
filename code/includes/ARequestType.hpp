@@ -1,6 +1,8 @@
 #ifndef A_REQUEST_HPP
 # define A_REQUEST_HPP
 
+# include <sys/types.h>
+
 # include "ServerConfiguration.hpp"
 
 # define DIRE 1
@@ -27,6 +29,7 @@ class ARequestType
 		std::string					_redirection;
 		int							_inFd;
 		int							_outFd;
+		ssize_t						_outSize;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
@@ -50,6 +53,7 @@ class ARequestType
 		bool						getIsRoute() const;
 		int							getInFdResponsability();
 		int							getOutFdResponsability();
+		ssize_t						getOutSize() const;
 
 		const std::string			&getError(unsigned short error);
 };

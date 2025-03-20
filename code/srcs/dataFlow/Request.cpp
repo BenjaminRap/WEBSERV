@@ -5,6 +5,7 @@
 #include <map>            			// for map, operator!=, _Rb_tree_const_iterator
 #include <string>         			// for basic_string, char_traits, string, operator<<
 #include <utility>        			// for pair, make_pair
+#include <unistd.h>					// for close
 
 #include "ABody.hpp"      			// for ABody
 #include "EMethods.hpp"   			// for EMethods
@@ -13,10 +14,13 @@
 #include "requestStatusCode.hpp"	// for HTTP_...
 #include "socketCommunication.hpp"	// for checkError
 
+/*****************************Constructors/Destructors*********************************/
+
 Request::Request(void) :
 	_statusLine(),
 	_headers(),
 	_bodyDestFd(-1),
+	_isBlocking(false),
 	_body(NULL)
 {
 }
@@ -28,6 +32,8 @@ Request::~Request(void)
 	if (_bodyDestFd >= 0)
 		checkError(close(_bodyDestFd), -1, "close() : ");
 }
+
+/**********************************Methods*********************************************/
 
 void	Request::reset()
 {
@@ -46,9 +52,28 @@ void	Request::reset()
 	}
 }
 
-ABody	*Request::getBody() const
+bool	stringToSizeT(const  std::string &str, size_t &outValue);
+
+int	Request::setBodyFromHeaders(int destFd)
 {
-	return (_body);
+	_bodyDestFd = destFd;
+	const std::string * const	contentLengthString = getHeader("Content-Length");
+	if (contentLengthString != NULL)
+	{
+		size_t contentLength = 0;
+		if (stringToSizeT(*contentLengthString, contentLength) == false)
+			return (HTTP_BAD_REQUEST);
+		try
+		{
+			_body = new SizedBody(destFd, contentLength);
+		}
+		catch (const std::exception&)
+		{
+			return (HTTP_INTERNAL_SERVER_ERROR);
+		}
+		return (HTTP_OK);
+	}
+	return (HTTP_OK);
 }
 
 int		Request::parseStatusLine(const char *line, size_t lineLength)
@@ -100,6 +125,14 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 	return (HTTP_OK);
 }
 
+/**********************************Getters*******************************************************/
+
+ABody	*Request::getBody() const
+{
+	return (_body);
+}
+
+
 EMethods	Request::getMethod(void) const
 {
 	return (this->_statusLine.method);
@@ -124,29 +157,13 @@ const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
 	return (this->_headers);
 }
 
-bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
-int	Request::setBodyFromHeaders(int destFd, bool isBlocking)
+bool	Request::getIsBlocking(void) const
 {
-	_bodyDestFd = destFd;
-	const std::string * const	contentLengthString = getHeader("Content-Length");
-	if (contentLengthString != NULL)
-	{
-		size_t contentLength = 0;
-		if (stringToSizeT(*contentLengthString, contentLength) == false)
-			return (HTTP_BAD_REQUEST);
-		try
-		{
-			_body = new SizedBody(destFd, contentLength, isBlocking);
-		}
-		catch (const std::exception&)
-		{
-			return (HTTP_INTERNAL_SERVER_ERROR);
-		}
-		return (HTTP_OK);
-	}
-	return (HTTP_OK);
+	return (_isBlocking);
 }
+
+/******************************Operator Overload*****************************************/
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {

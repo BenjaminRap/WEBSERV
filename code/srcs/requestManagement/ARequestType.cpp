@@ -30,7 +30,8 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_code(0),
 	_redirection(""),
 	_inFd(-1),
-	_outFd(-1)
+	_outFd(-1),
+	_outSize(-1)
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -146,6 +147,12 @@ int	ARequestType::getOutFdResponsability()
 	_outFd = -1;
 	return (outFdSave);
 }
+
+ssize_t	ARequestType::getOutSize() const
+{
+	return (_outSize);
+}
+
 
 bool	ARequestType::isStatusCodeError(int code)
 {

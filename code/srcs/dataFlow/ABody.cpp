@@ -4,9 +4,8 @@
 
 #include "ABody.hpp"                // for ABody
 
-ABody::ABody(int fd, bool isBlocking) :
-	_fd(fd),
-	_isBlocking(isBlocking)
+ABody::ABody(int fd) :
+	_fd(fd)
 {
 }
 
@@ -27,12 +26,6 @@ void	ABody::setFinished()
 bool	ABody::getFinished() const
 {
 	return (_finished);
-}
-
-
-bool	ABody::getIsBlocking() const
-{
-	return (_isBlocking);
 }
 
 ssize_t	ABody::callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity)

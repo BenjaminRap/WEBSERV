@@ -1,5 +1,4 @@
 #include <stddef.h>               // for NULL
-#include <string>                 // for basic_string
 
 #include "ABody.hpp"              // for ABody
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
@@ -19,13 +18,13 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 		_state = REQUEST_DONE;
 		return ;
 	}
-	if (body->getIsBlocking())
+	if (_request.getIsBlocking())
 		return ;
 	const FlowState flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::callInstanceWriteToFd);
 	
 	if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(HTTP_INTERNAL_SERVER_ERROR, "");
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_DONE && body->getFinished())
@@ -40,7 +39,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 	
 	if (body == NULL)
 		return (REQUEST_DONE);
-	const FlowState flowState = body->getIsBlocking() ?
+	const FlowState flowState = _request.getIsBlocking() ?
 		_flowBuffer.redirectFdContentToBuffer<int>(socketFd)
 		: _flowBuffer.redirectContent<int, ABody&>(socketFd, *body, ABody::callInstanceWriteToFd);
 
@@ -48,7 +47,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(HTTP_INTERNAL_SERVER_ERROR, "");
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
 	}
 	else if (body->getFinished())
@@ -64,12 +63,12 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &resp
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
 	{
-		response.setResponse(HTTP_INTERNAL_SERVER_ERROR, "");
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
 	}
 	else if (flowState == FLOW_BUFFER_FULL)
 	{
-		response.setResponse(HTTP_BAD_REQUEST, "");
+		response.setResponse(HTTP_BAD_REQUEST);
 		_state = REQUEST_DONE;
 	}
 	return (_state);

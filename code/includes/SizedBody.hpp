@@ -14,7 +14,7 @@ private:
 	
 	SizedBody&	operator=(const SizedBody& ref);
 public:
-	SizedBody(int fd, size_t size, bool isBlocking);
+	SizedBody(int fd, size_t size);
 	~SizedBody();
 
 	ssize_t	writeToFd(const void *buffer, size_t bufferCapacity);

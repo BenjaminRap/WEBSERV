@@ -22,6 +22,8 @@ private:
 	 * allocated in the heap.
 	 */
 	FlowBuffer	_firstPart;
+	bool		_isBlocking;
+	int			_srcBodyFd;
 	ABody		*_body;
 	/**
 	 * @brief A pointer on the ResponsesHandler FlowBuffer. It allows this class
@@ -35,7 +37,7 @@ private:
 
 	RawResponse&	operator=(const RawResponse& ref);
 public:
-	RawResponse(char *firstPart, size_t firstPartLength, ABody *body, FlowBuffer &bodyFlowBuffer);
+	RawResponse(char *firstPart, size_t firstPartLength, ABody &body, FlowBuffer &bodyFlowBuffer, bool isBlocking, int srcBodyFd);
 	RawResponse(char *firstPart, size_t firstPartLength);
 	~RawResponse();
 

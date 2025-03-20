@@ -8,8 +8,8 @@
 #include "socketCommunication.hpp"	// for checkError
 #include "SizedBody.hpp"  			// for SizedBody
 
-SizedBody::SizedBody(int fd, size_t size, bool isBlocking) :
-	ABody(fd, isBlocking),
+SizedBody::SizedBody(int fd, size_t size) :
+	ABody(fd),
 	_size(size),
 	_numCharsWritten(0)
 {
