@@ -33,4 +33,7 @@ public:
 
 };
 
+template <typename Pointer>
+void	freePointer(Pointer pointer);
+
 #endif // !SHARED_RESOURCE_HPP

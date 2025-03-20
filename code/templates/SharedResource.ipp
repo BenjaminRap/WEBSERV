@@ -2,6 +2,8 @@
 
 #include "SharedResource.hpp"	// for SharedResource
 
+/*****************************Constructors / Destructors*******************************/
+
 /*
 * @brief Create an instance of the SharedResource class with no
 * managed resources. Itt does nothing for now but can be attributed
@@ -49,6 +51,19 @@ SharedResource<T>::SharedResource(const SharedResource<T> &ref)
 }
 
 /*
+* @brief Destruct the objet and decrement the count of instances
+* sharing the resource. It the count fall to 0, the resource is freed.
+* @throw This function can throw if the free function throw.
+*/
+template <typename T>
+SharedResource<T>::~SharedResource<T>(void)
+{
+	decrementCount();
+}
+
+/****************************Operator Overload*******************************************/
+
+/*
 * @brief Create an instance of the SharedResource class
 * that manages the same value as the ref instance, increment
 * the number of instances sharing the value.
@@ -70,16 +85,7 @@ SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 	return (*this);
 }
 
-/*
-* @brief Destruct the objet and decrement the count of instances
-* sharing the resource. It the count fall to 0, the resource is freed.
-* @throw This function can throw if the free function throw.
-*/
-template <typename T>
-SharedResource<T>::~SharedResource<T>(void)
-{
-	decrementCount();
-}
+/**************************************Methods*********************************************/
 
 template <typename T>
 void	SharedResource<T>::decrementCount(void)
@@ -94,4 +100,13 @@ void	SharedResource<T>::decrementCount(void)
 			free(value); // can throw
 		}
 	}
+}
+
+/***********************************External functions**************************************/
+
+
+template <typename Pointer>
+void	freePointer(Pointer pointer)
+{
+	delete pointer;
 }
