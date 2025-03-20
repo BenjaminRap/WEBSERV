@@ -17,11 +17,9 @@ void	readfile(const char *path, std::string &buff)
 {
 	std::ifstream	file;
 
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	file.open(path, file.in);
-	if (file.fail())
-		throw (CustomException("Couldn't open file"));
 	std::getline(file, buff, '\0');
-	file.close();
 }
 
 void	skipLine(std::string &file, size_t &i, size_t &line)
