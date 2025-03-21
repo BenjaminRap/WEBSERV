@@ -43,6 +43,9 @@ void	multipleInstances()
 
 	SharedResource<int*>	wrappedTest(getIntWrappedPtr(15));
 	SharedResource<int*>	wrappedTest2(wrappedTest);
+	{
+		SharedResource<int*>	wrappedTest3(wrappedTest2);
+	}
 }
 
 int	main(void)
@@ -51,4 +54,5 @@ int	main(void)
 	returnedPtrTest();
 	returnedAndCopyConstructor();
 	returnedAndAssignmentOperator();
+	multipleInstances();
 }
