@@ -38,14 +38,41 @@ void	returnedAndAssignmentOperator()
 	std::cout << "returned and assignment operator : " << *(wrappedTest.value) << '\n';
 }
 
+void	functionTakingIntSharedPtr(SharedResource<int *> sharedIntPtr)
+{
+	(void)sharedIntPtr;
+}
+
 void	multipleInstances()
 {
 
-	SharedResource<int*>	wrappedTest(getIntWrappedPtr(15));
+	SharedResource<int*>	wrappedTest(getIntWrappedPtr(25));
 	SharedResource<int*>	wrappedTest2(wrappedTest);
 	{
 		SharedResource<int*>	wrappedTest3(wrappedTest2);
+		functionTakingIntSharedPtr(wrappedTest2);
 	}
+	functionTakingIntSharedPtr(wrappedTest);
+	functionTakingIntSharedPtr(wrappedTest2);
+	std::cout << "multiple instances : " << *(wrappedTest2.value) << std::endl;
+}
+
+void	testDifferentResources()
+{
+	SharedResource<int*>	first(getIntWrappedPtr(30));
+	std::cout << "test different resources : " << *(first.value);
+	{
+		SharedResource<int*>	second(getIntWrappedPtr(30));
+		std::cout << " + " << *(second.value) << std::endl;
+	}
+}
+
+void	testChangingResource()
+{
+	SharedResource<int*>	first(getIntWrappedPtr(30));
+	SharedResource<int*>	second(getIntWrappedPtr(30));
+	first = second;
+	std::cout << "test changing resource : " << *(first.value) << std::endl;
 }
 
 int	main(void)
@@ -55,4 +82,6 @@ int	main(void)
 	returnedAndCopyConstructor();
 	returnedAndAssignmentOperator();
 	multipleInstances();
+	testDifferentResources();
+	testChangingResource();
 }
