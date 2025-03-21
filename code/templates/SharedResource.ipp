@@ -1,5 +1,3 @@
-#include <cstddef>				// for NULL
-
 #include "SharedResource.hpp"	// for SharedResource
 
 /*****************************Constructors / Destructors*******************************/
@@ -97,7 +95,7 @@ void	SharedResource<T>::decrementCount(void)
 		{
 			delete _count;
 			_count = NULL;
-			free(value); // can throw
+			_free(value); // can throw
 		}
 	}
 }
@@ -106,7 +104,7 @@ void	SharedResource<T>::decrementCount(void)
 
 
 template <typename Pointer>
-void	freePointer(Pointer pointer)
+void	freePointer(Pointer *pointer)
 {
 	delete pointer;
 }

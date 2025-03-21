@@ -16,11 +16,6 @@
 template <typename T>
 class SharedResource
 {
-private:
-	size_t	*_count;
-	void	(*_free)(T value);
-
-	void	decrementCount(void);
 public:
 	T	value;
 
@@ -31,9 +26,16 @@ public:
 
 	~SharedResource(void);
 
+private:
+	size_t	*_count;
+	void	(*_free)(T value);
+
+	void	decrementCount(void);
 };
 
 template <typename Pointer>
-void	freePointer(Pointer pointer);
+void	freePointer(Pointer *pointer);
+
+# include "SharedResource.ipp"
 
 #endif // !SHARED_RESOURCE_HPP
