@@ -43,9 +43,12 @@ SharedResource<T>::SharedResource(T value, void (&free)(T value)) :
 * operator= overload of the T class throws.
 */
 template <typename T>
-SharedResource<T>::SharedResource(const SharedResource<T> &ref)
+SharedResource<T>::SharedResource(const SharedResource<T> &ref) :
+	value(ref.value),
+	_count(ref._count),
+	_free(ref._free)
 {
-	*this = ref; // can throw
+	(*_count) += 1;
 }
 
 /*
