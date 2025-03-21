@@ -59,7 +59,7 @@ SharedResource<T>::SharedResource(const SharedResource<T> &ref) :
 template <typename T>
 SharedResource<T>::~SharedResource<T>(void)
 {
-	decrementCount();
+	stopManagingResource();
 }
 
 /****************************Operator Overload*******************************************/
@@ -78,7 +78,7 @@ SharedResource<T>::~SharedResource<T>(void)
 template <typename T>
 SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 {
-	decrementCount(); // can throw
+	stopManagingResource(); // can throw
 	value = ref.value; // can throw
 	_free = ref._free;
 	_count = ref._count;
@@ -88,8 +88,12 @@ SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 
 /**************************************Methods*********************************************/
 
+/*
+* @brief This method reduce the count and free it if it drop to 0.
+* @throw This function can throw if the _free function throws.
+*/
 template <typename T>
-void	SharedResource<T>::decrementCount(void)
+void	SharedResource<T>::stopManagingResource(void)
 {
 	if (_count != NULL)
 	{
@@ -100,12 +104,17 @@ void	SharedResource<T>::decrementCount(void)
 			_count = NULL;
 			_free(value); // can throw
 		}
+		else
+			_count = NULL;
 	}
 }
 
 /***********************************External functions**************************************/
 
-
+/*
+* @brief call delete on the pointer.
+* @throw Can throw if the Pointer class destructor throws.
+*/
 template <typename Pointer>
 void	freePointer(Pointer *pointer)
 {

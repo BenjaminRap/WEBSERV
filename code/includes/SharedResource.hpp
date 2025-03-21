@@ -30,7 +30,7 @@ private:
 	size_t	*_count;
 	void	(*_free)(T value);
 
-	void	decrementCount(void);
+	void	stopManagingResource(void);
 };
 
 template <typename Pointer>
