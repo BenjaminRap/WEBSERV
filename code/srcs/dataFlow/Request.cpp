@@ -24,6 +24,8 @@ Request::Request(void) :
 	_isBlocking(false),
 	_body(NULL)
 {
+	_statusLine.method = GET;
+	_statusLine.requestTarget = "";
 }
 
 Request::~Request(void)

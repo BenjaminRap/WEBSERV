@@ -5,7 +5,8 @@
 #include "ABody.hpp"                // for ABody
 
 ABody::ABody(int fd) :
-	_fd(fd)
+	_fd(fd),
+	_finished(false)
 {
 }
 

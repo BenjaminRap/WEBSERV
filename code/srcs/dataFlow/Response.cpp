@@ -64,14 +64,17 @@ void	Response::setResponse(ARequestType *requestResult, int socketFd)
 	addDefaultHeaders();
 	if (requestResult->getRedirection().empty() == false)
 		this->_headers.insert(std::make_pair("Location", requestResult->getRedirection()));
-	const ssize_t	bodySize = requestResult->getOutSize();
-	if (bodySize != -1)
+	if (_bodySrcFd != -1)
 	{
-		_body = new SizedBody(socketFd, bodySize);
-		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
-	}
-	else
+		const ssize_t	bodySize = requestResult->getOutSize();
+		if (bodySize != -1)
+		{
+			_body = new SizedBody(socketFd, bodySize);
+			this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
+		}
+		else
 		this->_headers.insert(std::make_pair("Transfer-Enconding", "chunked"));
+	}
 }
 
 void	Response::reset()
