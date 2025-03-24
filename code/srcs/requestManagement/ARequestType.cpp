@@ -20,6 +20,7 @@ void	replaceUrl(const std::string &location, const std::string &root, std::strin
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &get, const ServerConfiguration &config);
+int		uncode_url(std::string &url);
 
 ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) :
 	_method(method),
@@ -33,6 +34,11 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_outFd(-1),
 	_outSize(0)
 {
+	if (uncode_url(url))
+	{
+		this->_code = HTTP_BAD_REQUEST;
+		return ;
+	}
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
 		return ;
