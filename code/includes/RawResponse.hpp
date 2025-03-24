@@ -2,6 +2,7 @@
 # define RAW_RESPONSE_HPP
 
 # include <cstddef>
+# include <string>
 
 # include "ABody.hpp"
 # include "FlowBuffer.hpp"
@@ -21,14 +22,8 @@ class Response;
 class RawResponse
 {
 private:
-	/**
-	 * @brief The first part of the response. It is composed by the status line,
-	 * the headers, the empty line and, maybe, a part of the body. It should be
-	 * allocated in the heap.
-	 */
-	size_t		_firstPartLength;
-	// size_t		_firstPartBuffer;
-	FlowBuffer	_firstPart;
+	std::string	_firstPart;
+	FlowBuffer	_firstPartBuffer;
 	bool		_isBlocking;
 	int			_srcBodyFd;
 	ABody		*_body;
@@ -43,11 +38,7 @@ private:
 	RawResponse(const RawResponse& ref);
 
 	RawResponse&	operator=(const RawResponse& ref);
-
-	size_t	getFirstPartLength(const Response &response);
 public:
-	RawResponse(char *firstPart, size_t firstPartLength, ABody &body, FlowBuffer &bodyFlowBuffer, bool isBlocking, int srcBodyFd);
-	RawResponse(char *firstPart, size_t firstPartLength);
 	RawResponse(Response &response);
 	~RawResponse();
 

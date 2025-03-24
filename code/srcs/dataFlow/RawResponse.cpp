@@ -1,3 +1,4 @@
+#include <cstdio>			// for sprintf
 #include <stddef.h>         // for NULL, size_t
 
 #include "ABody.hpp"        // for ABody
@@ -8,66 +9,14 @@
 
 /*************************Constructors / Destructors***************************/
 
-/**
- * @brief Create a RawResponse instance. This class takes responsability
- * for closing the fd and deallocating the first part buffer.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
- * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body. It must be allocated
- * on the heap.
- * @param firstPartLength The length of firstPart.
- * @param bodyFd The fd of the body.
- * @param bodyFlowBuffer The FlowBuffer used to redirect the data from the body to
- * the client socket.
- */
-RawResponse::RawResponse
-(
-	char *firstPart,
-	size_t firstPartLength,
-	ABody &body,
-	FlowBuffer &bodyFlowBuffer,
-	bool isBlocking,
-	int srcBodyFd
-) :
-	_firstPartLength(firstPartLength),
-	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_isBlocking(isBlocking),
-	_srcBodyFd(srcBodyFd),
-	_body(&body),
-	_bodyBuffer(&bodyFlowBuffer)
-{
-
-}
-
-/**
- * @brief Create a RawResponse instance without body fd. This class takes responsability
- * for closing the fd and deallocating the first part buffer.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
- * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body. It must be allocated
- * on the heap.
- * @param firstPartLength The length of firstPart.
- */
-RawResponse::RawResponse
-(
-	char *firstPart,
-	size_t firstPartLength
-) :
-	_firstPartLength(firstPartLength),
-	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_body(NULL),
-	_bodyBuffer(NULL)
-{
-
-}
+std::string	getFirstPart(const Response& response);
 
 RawResponse::RawResponse(Response &response) :
-	_firstPartLength(getFirstPartLength(response)),
-	_firstPart((char*)5, 5, 5)
+	_firstPart(getFirstPart(response)),
+	_firstPartBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity()),
+	_isBlocking(response.getIsBlocking()),
+	_srcBodyFd(response.getSrcBodyFd()),
+	_body(response.getBody())
 {
 	
 }
@@ -82,13 +31,12 @@ RawResponse::~RawResponse()
 	{
 		delete _body;
 	}
-	delete [] _firstPart.getBuffer();
+	delete [] _firstPartBuffer.getBuffer();
 }
 
 /*******************************Member functions*******************************/
 
-
-size_t	RawResponse::getFirstPartLength(const Response &response)
+size_t	getFirstPartLength(const Response &response)
 {
 	size_t										length = 0;
 	const std::map<std::string, std::string>	headers = response.getHeaderMap();
@@ -108,6 +56,34 @@ size_t	RawResponse::getFirstPartLength(const Response &response)
 	return (length);
 }
 
+std::string	getFirstPart(const Response &response)
+{
+	const size_t								length = getFirstPartLength(response);
+	const std::map<std::string, std::string>	headers = response.getHeaderMap();
+
+	std::string									firstPart;
+	char										statusCode[11];
+
+	std::sprintf(statusCode, "%d", response.getStatusCode());
+	firstPart.reserve(length);
+	firstPart.append(PROTOCOL)
+		.append(" ")
+		.append(statusCode)
+		.append(" ")
+		.append(response.getStatusText())
+		.append(LINE_END);
+
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
+	{
+		firstPart.append(it->first)
+			.append(":")
+			.append(it->second)
+			.append(LINE_END);
+	}
+	firstPart.append(LINE_END);
+	return (firstPart);
+}
+
 /**
  * @brief Send this response to the client socket.
  * @param socketFd The socket of the client, in which we will send the response.
@@ -118,9 +94,9 @@ size_t	RawResponse::getFirstPartLength(const Response &response)
  */
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	if (_firstPart.getBufferLength() != 0)
+	if (_firstPartBuffer.getBufferLength() != 0)
 	{
-		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd);
+		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
 
 		if (flowState == FLOW_DONE)
 			return ((_body == NULL) ? FLOW_DONE : FLOW_MORE);
