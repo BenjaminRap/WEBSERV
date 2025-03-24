@@ -11,6 +11,7 @@
 #include "EMethods.hpp"   			// for EMethods
 #include "Request.hpp"    			// for Request, operator<<
 #include "SizedBody.hpp"  			// for SizedBody
+#include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"	// for HTTP_...
 #include "socketCommunication.hpp"	// for checkError
 
@@ -103,7 +104,7 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
 	if (*prot != '\r' || *(prot + 1) != '\n')
 		return (HTTP_BAD_REQUEST);
-	if (std::memcmp(targ + 1, "HTTP/1.1", 8))
+	if (std::memcmp(targ + 1, PROTOCOL, PROTOCOL_LENGTH))
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
 	return (HTTP_OK);
 }
@@ -171,7 +172,7 @@ std::ostream & operator<<(std::ostream & o, Request const & rhs)
 
 	std::cout << "Method :" << getStringRepresentation(rhs.getMethod()) << std::endl;
 	std::cout << "Target :" << rhs.getRequestTarget() << std::endl;
-	std::cout << "Protocol :" << "HTTP/1.1" << std::endl << std::endl;
+	std::cout << "Protocol :" << PROTOCOL << std::endl << std::endl;
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{

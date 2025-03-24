@@ -1,8 +1,8 @@
 #include <stddef.h>         // for NULL, size_t
-#include <iostream>         // for operator<<, basic_ios, basic_ostream, cout
 
 #include "ABody.hpp"        // for ABody
 #include "FlowBuffer.hpp"   // for FlowState, FlowBuffer
+#include "protocol.hpp"		// for PROTOCOL, PROTOCOL_LENGTH
 #include "RawResponse.hpp"  // for RawResponse
 
 /*************************Constructors / Destructors***************************/

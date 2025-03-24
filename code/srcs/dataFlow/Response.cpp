@@ -8,6 +8,7 @@
 #include <utility>           		// for make_pair, pair
 
 #include "ARequestType.hpp"  		// for ARequestType
+#include "protocol.hpp"				// for PROTOCOL
 #include "requestStatusCode.hpp"	// for HTTP_...
 #include "socketCommunication.hpp"	// for checkError
 #include "Response.hpp"      		// for Response, operator<<
@@ -115,7 +116,6 @@ const std::map<std::string, std::string>	&Response::getHeaderMap(void) const
 	return (this->_headers);
 }
 
-
 bool	Response::getIsBlocking(void) const
 {
 	return (_isBlocking);
@@ -127,7 +127,7 @@ std::ostream & operator<<(std::ostream & o, Response const & rhs)
 {
 	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
 
-	std::cout << "HTTP/1.1 " << rhs.getStatusCode() << " " << rhs.getStatusText() << '\n';
+	std::cout << PROTOCOL << " " << rhs.getStatusCode() << " " << rhs.getStatusText() << '\n';
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{
