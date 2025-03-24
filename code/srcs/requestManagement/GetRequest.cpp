@@ -36,9 +36,11 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 	if (this->_code == HTTP_OK)
 	{
 		this->_outFd = open(this->_url.c_str(), O_RDONLY);
-		this->_outSize = getFileSize(this->_url.c_str());
-		if (checkError(this->_outFd, -1, "open() : ") || this->_outSize == -1)
+		const ssize_t fileSize = getFileSize(this->_url.c_str());
+		if (checkError(this->_outFd, -1, "open() : ") || fileSize == -1)
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+		else
+			this->_outSize = fileSize;
 	}
 }
 

@@ -29,7 +29,7 @@ class ARequestType
 		std::string					_redirection;
 		int							_inFd;
 		int							_outFd;
-		ssize_t						_outSize;
+		size_t						_outSize;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration&config, EMethods method);
@@ -53,7 +53,7 @@ class ARequestType
 		bool						getIsRoute() const;
 		int							getInFdResponsability();
 		int							getOutFdResponsability();
-		ssize_t						getOutSize() const;
+		size_t						getOutSize() const;
 
 		const std::string			&getError(unsigned short error);
 };

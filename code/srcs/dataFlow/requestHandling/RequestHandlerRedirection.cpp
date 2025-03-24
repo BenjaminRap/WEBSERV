@@ -73,5 +73,3 @@ RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &resp
 	}
 	return (_state);
 }
-
-

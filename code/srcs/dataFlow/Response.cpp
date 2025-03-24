@@ -67,14 +67,11 @@ void	Response::setResponse(ARequestType *requestResult, int socketFd)
 	if (_bodySrcFd != -1)
 	{
 		const ssize_t	bodySize = requestResult->getOutSize();
-		if (bodySize != -1)
-		{
-			_body = new SizedBody(socketFd, bodySize);
-			this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
-		}
-		else
-		this->_headers.insert(std::make_pair("Transfer-Enconding", "chunked"));
+		_body = new SizedBody(socketFd, bodySize);
+		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 	}
+	else
+		this->_headers.insert(std::make_pair("Content-Length", "0"));
 }
 
 void	Response::reset()
