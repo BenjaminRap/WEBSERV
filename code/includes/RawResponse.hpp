@@ -6,6 +6,11 @@
 # include "ABody.hpp"
 # include "FlowBuffer.hpp"
 
+# define LINE_END "\r\n"
+# define LINE_END_LENGTH 2;
+
+class Response;
+
 /**
  * @brief This class stores all the data that will be sent to the client as a
  * response, compacted in a single string and a fd for the body. This class take
@@ -21,6 +26,8 @@ private:
 	 * the headers, the empty line and, maybe, a part of the body. It should be
 	 * allocated in the heap.
 	 */
+	size_t		_firstPartLength;
+	// size_t		_firstPartBuffer;
 	FlowBuffer	_firstPart;
 	bool		_isBlocking;
 	int			_srcBodyFd;
@@ -36,9 +43,12 @@ private:
 	RawResponse(const RawResponse& ref);
 
 	RawResponse&	operator=(const RawResponse& ref);
+
+	size_t	getFirstPartLength(const Response &response);
 public:
 	RawResponse(char *firstPart, size_t firstPartLength, ABody &body, FlowBuffer &bodyFlowBuffer, bool isBlocking, int srcBodyFd);
 	RawResponse(char *firstPart, size_t firstPartLength);
+	RawResponse(Response &response);
 	~RawResponse();
 
 	FlowState	sendResponseToSocket(int socketFd);

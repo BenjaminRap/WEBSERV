@@ -2,6 +2,7 @@
 
 #include "ABody.hpp"        // for ABody
 #include "FlowBuffer.hpp"   // for FlowState, FlowBuffer
+#include "Response.hpp"		// for Response
 #include "protocol.hpp"		// for PROTOCOL, PROTOCOL_LENGTH
 #include "RawResponse.hpp"  // for RawResponse
 
@@ -30,6 +31,7 @@ RawResponse::RawResponse
 	bool isBlocking,
 	int srcBodyFd
 ) :
+	_firstPartLength(firstPartLength),
 	_firstPart(firstPart, firstPartLength, firstPartLength),
 	_isBlocking(isBlocking),
 	_srcBodyFd(srcBodyFd),
@@ -55,11 +57,19 @@ RawResponse::RawResponse
 	char *firstPart,
 	size_t firstPartLength
 ) :
+	_firstPartLength(firstPartLength),
 	_firstPart(firstPart, firstPartLength, firstPartLength),
 	_body(NULL),
 	_bodyBuffer(NULL)
 {
 
+}
+
+RawResponse::RawResponse(Response &response) :
+	_firstPartLength(getFirstPartLength(response)),
+	_firstPart((char*)5, 5, 5)
+{
+	
 }
 
 /**
@@ -76,6 +86,27 @@ RawResponse::~RawResponse()
 }
 
 /*******************************Member functions*******************************/
+
+
+size_t	RawResponse::getFirstPartLength(const Response &response)
+{
+	size_t										length = 0;
+	const std::map<std::string, std::string>	headers = response.getHeaderMap();
+
+	length += PROTOCOL_LENGTH;
+	length += 1; // + 1 for the space
+	length += 3; // 3 for the code length
+	length += 1; // + 1 for the space
+	length += response.getStatusText().size();
+	length += LINE_END_LENGTH;
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
+		length += it->first.size() + it->second.size();
+		length += LINE_END_LENGTH;
+	}
+	length += LINE_END_LENGTH; // for the empty line
+	length += 1; // for the /0
+	return (length);
+}
 
 /**
  * @brief Send this response to the client socket.
