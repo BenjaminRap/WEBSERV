@@ -13,7 +13,7 @@ std::string	getFirstPart(const Response& response);
 
 RawResponse::RawResponse(Response &response) :
 	_firstPart(getFirstPart(response)),
-	_firstPartBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity()),
+	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
 	_isBlocking(response.getIsBlocking()),
 	_srcBodyFd(response.getSrcBodyFd()),
 	_body(response.getBody())

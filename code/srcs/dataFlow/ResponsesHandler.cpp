@@ -51,8 +51,8 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 
 void		ResponsesHandler::addCurrentResponseToQueue()
 {
-	std::cout << "Add response to queue" << std::endl;
-	// _responses.push(new RawResponse(_currentResponse));
+	std::cout << "Add response to queue : \n" << _currentResponse << std::endl;
+	_responses.push(new RawResponse(_currentResponse));
 	_currentResponse.reset();
 }
 

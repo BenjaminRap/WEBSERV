@@ -1,7 +1,6 @@
 #ifndef RAW_RESPONSE_HPP
 # define RAW_RESPONSE_HPP
 
-# include <cstddef>
 # include <string>
 
 # include "ABody.hpp"
