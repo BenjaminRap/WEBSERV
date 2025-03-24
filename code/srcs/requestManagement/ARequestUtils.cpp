@@ -1,12 +1,14 @@
 #include <stddef.h>                 // for size_t, NULL
 #include <string>                   // for basic_string, string
 #include <vector>                   // for vector
+#include <sys/stat.h>				// for stat
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route, SRedirection
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "socketCommunication.hpp"	// for checkError
 
 bool	checkAllowMeth(const Route &route, EMethods meth)
 {
@@ -114,4 +116,15 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
 	else
 		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
+}
+
+ssize_t	getFileSize(const std::string &filePath)
+{
+	struct stat fileStat;
+
+	const int	ret = stat(filePath.c_str(), &fileStat);
+	
+	if (checkError(ret, -1, "stat() : "))
+		return (-1);
+	return (fileStat.st_size);
 }

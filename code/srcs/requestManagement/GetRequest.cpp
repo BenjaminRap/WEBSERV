@@ -10,11 +10,13 @@
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
+#include "socketCommunication.hpp"	// for checkError
 
 int							isDirOrFile(const std::string& path);
 void						fixPath(std::string &path);
 void						directoryCase(GetRequest& get);
 std::string					buildPage(std::list<std::string>	&files, const std::string& path);
+ssize_t						getFileSize(const std::string &filePath);
 
 GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET), _autoIndex(false), _index(0)
 {
@@ -34,7 +36,8 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 	if (this->_code == HTTP_OK)
 	{
 		this->_outFd = open(this->_url.c_str(), O_RDONLY);
-		if (this->_outFd == -1)
+		this->_outSize = getFileSize(this->_url.c_str());
+		if (checkError(this->_outFd, -1, "open() : ") || this->_outSize == -1)
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	}
 }
