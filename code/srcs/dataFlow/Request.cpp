@@ -168,9 +168,8 @@ bool	Request::getIsBlocking(void) const
 std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {
 	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
-	std::string	method[4] = {"GET", "POST", "DELETE", "PUT"};
 
-	std::cout << "Method :" << method[rhs.getMethod()] << std::endl;
+	std::cout << "Method :" << getStringRepresentation(rhs.getMethod()) << std::endl;
 	std::cout << "Target :" << rhs.getRequestTarget() << std::endl;
 	std::cout << "Protocol :" << "HTTP/1.1" << std::endl << std::endl;
 

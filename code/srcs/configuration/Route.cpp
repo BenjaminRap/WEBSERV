@@ -109,12 +109,7 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	o << "accepted methods :";
 	for (size_t i = 0; i < acceptedMethods.size(); i++)
 	{
-		if (acceptedMethods[i] == GET)
-			o << "GET ";
-		else if (acceptedMethods[i] == POST)
-			o << "POST ";
-		else if (acceptedMethods[i] == DELETE)
-			o << "DELETE ";
+		o << getStringRepresentation(acceptedMethods[i]);
 	}
 	o << std::endl;
 	if (!redirection.url.empty())
