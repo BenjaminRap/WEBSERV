@@ -51,7 +51,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	if (!(events & EPOLLIN))
 		return ;
 	addrLength = sizeof(addr);
-	const uint32_t	newConnectionEvents = EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
+	const uint32_t	newConnectionEvents = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
 	const int 		newConnectionFd = accept(_fd, (sockaddr *)&addr, &addrLength);
 
 	if (checkError(newConnectionFd, -1, "accept() : "))
