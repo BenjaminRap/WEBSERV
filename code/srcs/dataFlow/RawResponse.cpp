@@ -11,12 +11,13 @@
 
 std::string	getFirstPart(const Response& response);
 
-RawResponse::RawResponse(Response &response) :
+RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(getFirstPart(response)),
 	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
 	_isBlocking(response.getIsBlocking()),
 	_srcBodyFd(response.getSrcBodyFd()),
-	_body(response.getBody())
+	_body(response.getBody()),
+	_bodyBuffer(bodyBuffer)
 {
 	
 }
@@ -31,7 +32,6 @@ RawResponse::~RawResponse()
 	{
 		delete _body;
 	}
-	delete [] _firstPartBuffer.getBuffer();
 }
 
 /*******************************Member functions*******************************/
@@ -105,6 +105,9 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	if (_body == NULL)
 		return (FLOW_DONE);
 	if (_isBlocking == false)
-		return (_bodyBuffer->redirectContent<int, ABody&>(_srcBodyFd, *_body, ABody::callInstanceWriteToFd));
-	return (_bodyBuffer->redirectBufferContentToFd<ABody&>(*_body, ABody::callInstanceWriteToFd));
+		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd, *_body, ABody::callInstanceWriteToFd));
+	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body, ABody::callInstanceWriteToFd));
 }
+
+/**************************************Operator Overload******************************************/
+

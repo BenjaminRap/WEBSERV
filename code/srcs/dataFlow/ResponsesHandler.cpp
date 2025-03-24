@@ -41,6 +41,7 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 
 	if (flowState == FLOW_DONE)
 	{
+		std::cout << "Raw Response written !" << std::endl;
 		_responses.pop();
 		delete response;
 		return ((_responses.size() == 0) ? FLOW_DONE : FLOW_MORE);
@@ -51,8 +52,8 @@ FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
 
 void		ResponsesHandler::addCurrentResponseToQueue()
 {
+	_responses.push(new RawResponse(_currentResponse, _responseBuffer));
 	std::cout << "Add response to queue : \n" << _currentResponse << std::endl;
-	_responses.push(new RawResponse(_currentResponse));
 	_currentResponse.reset();
 }
 

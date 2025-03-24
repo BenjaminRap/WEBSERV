@@ -31,14 +31,14 @@ private:
 	 * to redirect the content from _bodyFd to the client socket Fd. If there is
 	 * no body, this variable is set to NULL.
 	 */
-	FlowBuffer	*_bodyBuffer;
+	FlowBuffer&	_bodyBuffer;
 
 	RawResponse();
 	RawResponse(const RawResponse& ref);
 
 	RawResponse&	operator=(const RawResponse& ref);
 public:
-	RawResponse(Response &response);
+	RawResponse(Response &response, FlowBuffer &bodyBuffer);
 	~RawResponse();
 
 	FlowState	sendResponseToSocket(int socketFd);
