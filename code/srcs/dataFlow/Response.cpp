@@ -121,6 +121,17 @@ bool	Response::getIsBlocking(void) const
 	return (_isBlocking);
 }
 
+
+int	Response::getSrcBodyFd(void) const
+{
+	return (_bodySrcFd);
+}
+
+ABody*	Response::getBody(void) const
+{
+	return (_body);
+}
+
 /*********************************Operator Overload**********************************************/
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs)

@@ -63,6 +63,8 @@ public:
 	const std::string							*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
 	bool										getIsBlocking(void) const;
+	int											getSrcBodyFd(void) const;
+	ABody*										getBody(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs);
