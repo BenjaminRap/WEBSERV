@@ -64,8 +64,8 @@ private:
 	FlowBuffer();
 
 	FlowBuffer&	operator=(const FlowBuffer &flowBuffer);
-public:
 	FlowBuffer(const FlowBuffer& ref);
+public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 

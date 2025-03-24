@@ -35,15 +35,6 @@ FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength)
 		throw std::logic_error("The buffer capacity is 0");
 }
 
-FlowBuffer::FlowBuffer(const FlowBuffer& ref) :
-	_buffer(ref._buffer),
-	_bufferCapacity(ref._bufferCapacity),
-	_bufferLength(ref._bufferLength),
-	_numCharsWritten(ref._numCharsWritten)
-{
-
-}
-
 FlowBuffer::~FlowBuffer()
 {
 
