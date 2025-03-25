@@ -28,10 +28,6 @@ Response::Response(void) :
 
 Response::~Response(void)
 {
-	if (_bodySrcFd != -1)
-		checkError(close(_bodySrcFd), -1, "close() : ");
-	if (_body != NULL)
-		delete _body;
 }
 
 /*********************************Privates Methods******************************************/
@@ -79,16 +75,8 @@ void	Response::reset()
 	this->_statusLine.statusCode = HTTP_INTERNAL_SERVER_ERROR;
 	this->_statusLine.statusText = ARequestType::getStatusText(HTTP_INTERNAL_SERVER_ERROR);
 	this->_headers.clear();
-	if (this->_bodySrcFd != -1)
-	{
-		checkError(close(this->_bodySrcFd), -1, "close() : ");
-		this->_bodySrcFd = -1;
-	}
-	if (this->_body != NULL)
-	{
-		delete this->_body;
-		this->_body = NULL;
-	}
+	this->_bodySrcFd = -1;
+	this->_body = NULL;
 }
 
 /**********************************Getters**************************************************/

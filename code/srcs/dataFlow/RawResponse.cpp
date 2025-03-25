@@ -1,10 +1,12 @@
 #include <cstdio>			// for sprintf
 #include <stddef.h>         // for NULL, size_t
+#include <unistd.h>			// for close
 
 #include "ABody.hpp"        // for ABody
 #include "FlowBuffer.hpp"   // for FlowState, FlowBuffer
 #include "Response.hpp"		// for Response
 #include "protocol.hpp"		// for PROTOCOL, PROTOCOL_LENGTH
+#include "socketCommunication.hpp"	// for checkError
 #include "RawResponse.hpp"  // for RawResponse
 
 /*************************Constructors / Destructors***************************/
@@ -31,6 +33,10 @@ RawResponse::~RawResponse()
 	if (_body != NULL)
 	{
 		delete _body;
+	}
+	if (_srcBodyFd != -1)
+	{
+		checkError(close(_srcBodyFd), -1, "close() : ");
 	}
 }
 
