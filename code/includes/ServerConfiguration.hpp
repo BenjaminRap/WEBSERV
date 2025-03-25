@@ -30,7 +30,7 @@ public :
 	const std::map<unsigned short, std::string>	&getErrorPages(void) const;
 	const size_t								&getMaxClientBodySize(void) const;
 	const std::map<std::string, Route>			&getRoutes(void) const;
-	const Route									*getOneRoutes(const std::string &path) const;
+	const Route									*getRouteFromPath(const std::string &path) const;
 	const std::string							getLocation(const std::string &loc) const;
 	const std::vector<std::string>				&getIndex(void) const;
 

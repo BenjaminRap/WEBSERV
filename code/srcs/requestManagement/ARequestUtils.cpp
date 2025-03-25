@@ -97,7 +97,7 @@ void	fixUrl(ARequestType &req, std::string &url)
 
 void	addRoot(ARequestType &get, const ServerConfiguration &config)
 {
-	const Route	*temp = config.getOneRoutes(get.getUrl());
+	const Route	*temp = config.getRouteFromPath(get.getUrl());
 
 	if (temp == NULL)
 	{
