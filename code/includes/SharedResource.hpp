@@ -17,7 +17,6 @@ template <typename T>
 class SharedResource
 {
 public:
-	T	value;
 
 	SharedResource(void);
 	SharedResource(T value, void (&free)(T value));
@@ -26,7 +25,10 @@ public:
 
 	~SharedResource(void);
 
+	T		&getValue(void) const;
+	bool	isManagingValue(void) const;
 private:
+	T		_value;
 	size_t	*_count;
 	void	(*_free)(T value);
 

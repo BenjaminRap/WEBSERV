@@ -1,3 +1,5 @@
+#include <stdexcept>			// for logic_error
+
 #include "SharedResource.hpp"	// for SharedResource
 
 /*****************************Constructors / Destructors*******************************/
@@ -12,7 +14,7 @@
 */
 template <typename T>
 SharedResource<T>::SharedResource(void) : 
-	value(), // can throw
+	_value(), // can throw
 	_count(NULL),
 	_free(NULL)
 {
@@ -28,7 +30,7 @@ SharedResource<T>::SharedResource(void) :
 */
 template <typename T>
 SharedResource<T>::SharedResource(T value, void (&free)(T value)) : 
-	value(value), // can throw
+	_value(value), // can throw
 	_count(new size_t), // can throw
 	_free(&free)
 {
@@ -44,7 +46,7 @@ SharedResource<T>::SharedResource(T value, void (&free)(T value)) :
 */
 template <typename T>
 SharedResource<T>::SharedResource(const SharedResource<T> &ref) :
-	value(ref.value),
+	_value(ref._value),
 	_count(ref._count),
 	_free(ref._free)
 {
@@ -79,7 +81,7 @@ template <typename T>
 SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 {
 	stopManagingResource(); // can throw
-	value = ref.value; // can throw
+	_value = ref._value; // can throw
 	_free = ref._free;
 	_count = ref._count;
 	(*_count) += 1;
@@ -102,11 +104,32 @@ void	SharedResource<T>::stopManagingResource(void)
 		{
 			delete _count;
 			_count = NULL;
-			_free(value); // can throw
+			_free(_value); // can throw
 		}
 		else
 			_count = NULL;
 	}
+}
+
+/**
+ * @brief Return a reference on the managed resource.
+ * @throw If this instance doesn't manage a value, throw a std::logic_error
+ */
+template <typename T>
+T&	SharedResource<T>::getValue(void) const
+{
+	if (_count == NULL)
+		throw std::logic_error("getValue called with a SharedResource managing nothing!");
+	retturn (_value);
+}
+
+/**
+ * @brief Return true if this instance manages a resource, false otherwise
+ */
+template <typename T>
+bool	SharedResource<T>::isManagingValue(void) const
+{
+	return (_count != NULL);
 }
 
 /***********************************External functions**************************************/
