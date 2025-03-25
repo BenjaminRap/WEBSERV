@@ -28,12 +28,12 @@ public:
 	void	setManagedResource(T value, void (&free)(T value));
 	T		&getValue(void) const;
 	bool	isManagingValue(void) const;
+	void	stopManagingResource(void);
 private:
 	T		_value;
 	size_t	*_count;
 	void	(*_free)(T value);
 
-	void	stopManagingResource(void);
 };
 
 template <typename Pointer>
