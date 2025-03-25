@@ -90,6 +90,15 @@ SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 
 /**************************************Methods*********************************************/
 
+template <typename T>
+void	SharedResource<T>::setManagedResource(T value, void (&free)(T value))
+{
+	stopManagingResource();
+	_value = value;
+	_count = new size_t;
+	_free = free;
+}
+
 /*
 * @brief This method reduce the count and free it if it drop to 0.
 * @throw This function can throw if the _free function throws.

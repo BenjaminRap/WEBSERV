@@ -25,6 +25,7 @@ public:
 
 	~SharedResource(void);
 
+	void	setManagedResource(T value, void (&free)(T value));
 	T		&getValue(void) const;
 	bool	isManagingValue(void) const;
 private:
