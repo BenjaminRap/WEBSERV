@@ -7,6 +7,7 @@
 # include <string>    	// for string, basic_string
 
 # include "ABody.hpp"	// for ABody
+# include "SharedResource.hpp"	// for SharedResource
 
 class	ARequestType;
 
@@ -41,9 +42,9 @@ private:
 	 * @brief The file descriptor of the body.If there is no body, this variable
 	 * is set to -1.
 	 */
-	int									_bodySrcFd;
+	SharedResource<int>					_bodySrcFd;
 	bool								_isBlocking;
-	ABody								*_body;
+	SharedResource<ABody*>				_body;
 
 	Response(const Response& ref);
 
@@ -63,8 +64,8 @@ public:
 	const std::string							*getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>	&getHeaderMap(void) const;
 	bool										getIsBlocking(void) const;
-	int											getSrcBodyFd(void) const;
-	ABody*										getBody(void) const;
+	SharedResource<int>							getSrcBodyFd(void) const;
+	SharedResource<ABody*>						getBody(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs);

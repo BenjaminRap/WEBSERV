@@ -51,14 +51,19 @@ PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARe
 		this->setResponse(HTTP_FORBIDDEN);
 	else
 	{
-		this->_inFd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
-		if (checkError(this->_inFd, -1, "open() :")
-			|| addFlagsToFd(this->_inFd, FD_CLOEXEC) == -1)
+		const int fd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
+		if (checkError(fd, -1, "open() : "))
 		{
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			return ;
 		}
-		else
-			this->setResponse(HTTP_CREATED);
+		this->_inFd.setManagedResource(fd, closeFdAndPrintError);
+		if (addFlagsToFd(this->_inFd.getValue(), FD_CLOEXEC) == -1)
+		{
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			return ;
+		}
+		this->setResponse(HTTP_CREATED);
 	}
 }
 

@@ -63,6 +63,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 	}
 	if (events & EPOLLOUT)
 	{
-		_responsesHandler.sendResponsesToSocket(_fd);
+		if (_responsesHandler.sendResponsesToSocket(_fd) == FLOW_ERROR)
+			return ;
 	}
 }

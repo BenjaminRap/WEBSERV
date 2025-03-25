@@ -10,7 +10,6 @@
 #include "ARequestType.hpp"  		// for ARequestType
 #include "protocol.hpp"				// for PROTOCOL
 #include "requestStatusCode.hpp"	// for HTTP_...
-#include "socketCommunication.hpp"	// for checkError
 #include "Response.hpp"      		// for Response, operator<<
 #include "SizedBody.hpp"			// for SizedBody
 
@@ -19,9 +18,9 @@
 Response::Response(void) :
 	_statusLine(),
 	_headers(),
-	_bodySrcFd(-1),
+	_bodySrcFd(),
 	_isBlocking(false),
-	_body(NULL)
+	_body()
 {
 	reset();
 }
@@ -54,16 +53,16 @@ std::string	sizeTToString(size_t value);
 
 void	Response::setResponse(ARequestType *requestResult, int socketFd)
 {
-	_bodySrcFd = requestResult->getOutFdResponsability();
+	_bodySrcFd = requestResult->getOutFd();
 	this->_statusLine.statusCode = requestResult->getCode();
 	this->_statusLine.statusText = ARequestType::getStatusText(this->_statusLine.statusCode);
 	addDefaultHeaders();
 	if (requestResult->getRedirection().empty() == false)
 		this->_headers.insert(std::make_pair("Location", requestResult->getRedirection()));
-	if (_bodySrcFd != -1)
+	if (_bodySrcFd.isManagingValue() && _bodySrcFd.getValue() > 0)
 	{
 		const ssize_t	bodySize = requestResult->getOutSize();
-		_body = new SizedBody(socketFd, bodySize);
+		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
 		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 	}
 	else
@@ -75,8 +74,8 @@ void	Response::reset()
 	this->_statusLine.statusCode = HTTP_INTERNAL_SERVER_ERROR;
 	this->_statusLine.statusText = ARequestType::getStatusText(HTTP_INTERNAL_SERVER_ERROR);
 	this->_headers.clear();
-	this->_bodySrcFd = -1;
-	this->_body = NULL;
+	this->_bodySrcFd.stopManagingResource();
+	this->_body.stopManagingResource();
 }
 
 /**********************************Getters**************************************************/
@@ -111,12 +110,12 @@ bool	Response::getIsBlocking(void) const
 }
 
 
-int	Response::getSrcBodyFd(void) const
+SharedResource<int>	Response::getSrcBodyFd(void) const
 {
 	return (_bodySrcFd);
 }
 
-ABody*	Response::getBody(void) const
+SharedResource<ABody*>	Response::getBody(void) const
 {
 	return (_body);
 }

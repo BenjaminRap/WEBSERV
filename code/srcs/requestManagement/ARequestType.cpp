@@ -9,7 +9,6 @@
 #include "EMethods.hpp"             // for EMethods
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
-#include "socketCommunication.hpp"  // for checkError
 
 class Route;
 
@@ -29,8 +28,8 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_isRoute(false),
 	_code(0),
 	_redirection(""),
-	_inFd(-1),
-	_outFd(-1),
+	_inFd(),
+	_outFd(),
 	_outSize(0)
 {
 	fixUrl(*this, url);
@@ -45,10 +44,6 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 
 ARequestType::~ARequestType()
 {
-	if (_inFd >= 0)
-		checkError(close(_inFd), -1, "close() : ");
-	if (_outFd >= 0 && _outFd != _inFd)
-		checkError(close(_outFd), -1, "close() : ");
 }
 
 /**
@@ -132,20 +127,14 @@ const std::string	&ARequestType::getError(unsigned short error)
 }
 
 
-int	ARequestType::getInFdResponsability()
+SharedResource<int>	ARequestType::getInFd()
 {
-	const int	inFdSave = _inFd;
-
-	_inFd = -1;
-	return (inFdSave);
+	return (_inFd);
 }
 
-int	ARequestType::getOutFdResponsability()
+SharedResource<int>	ARequestType::getOutFd()
 {
-	const int	outFdSave = _outFd;
-
-	_outFd = -1;
-	return (outFdSave);
+	return (_outFd);
 }
 
 size_t	ARequestType::getOutSize() const

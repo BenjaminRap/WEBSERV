@@ -13,16 +13,15 @@
 #include "SizedBody.hpp"  			// for SizedBody
 #include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"	// for HTTP_...
-#include "socketCommunication.hpp"	// for checkError
 
 /*****************************Constructors/Destructors*********************************/
 
 Request::Request(void) :
 	_statusLine(),
 	_headers(),
-	_bodyDestFd(-1),
+	_bodyDestFd(),
 	_isBlocking(false),
-	_body(NULL)
+	_body()
 {
 	_statusLine.method = GET;
 	_statusLine.requestTarget = "";
@@ -30,10 +29,6 @@ Request::Request(void) :
 
 Request::~Request(void)
 {
-	if (_body != NULL)
-		delete _body;
-	if (_bodyDestFd >= 0)
-		checkError(close(_bodyDestFd), -1, "close() : ");
 }
 
 /**********************************Methods*********************************************/
@@ -43,21 +38,13 @@ void	Request::reset()
 	this->_statusLine.method = (EMethods)-1;
 	this->_statusLine.requestTarget.clear();
 	this->_headers.clear();
-	if (_body != NULL)
-	{
-		delete _body;
-		_body = NULL;
-	}
-	if (_bodyDestFd >= 0)
-	{
-		checkError(close(_bodyDestFd), -1, "close() : ");
-		_bodyDestFd = -1;
-	}
+	_bodyDestFd.stopManagingResource();
+	_body.stopManagingResource();
 }
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
-int	Request::setBodyFromHeaders(int destFd)
+int	Request::setBodyFromHeaders(SharedResource<int> destFd)
 {
 	_bodyDestFd = destFd;
 	const std::string * const	contentLengthString = getHeader("Content-Length");
@@ -68,7 +55,8 @@ int	Request::setBodyFromHeaders(int destFd)
 			return (HTTP_BAD_REQUEST);
 		try
 		{
-			_body = new SizedBody(destFd, contentLength);
+			const int fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
+			_body.setManagedResource(new SizedBody(fd, contentLength), freePointer);
 		}
 		catch (const std::exception&)
 		{
@@ -132,7 +120,9 @@ int		Request::parseHeader(const char *line, size_t lineLength)
 
 ABody	*Request::getBody() const
 {
-	return (_body);
+	if (_body.isManagingValue() == false)
+		return (NULL);
+	return (_body.getValue());
 }
 
 

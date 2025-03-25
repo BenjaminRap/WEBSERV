@@ -1,10 +1,11 @@
 #ifndef RAW_RESPONSE_HPP
 # define RAW_RESPONSE_HPP
 
-# include <string>
+# include <string>				// for std::string
 
-# include "ABody.hpp"
-# include "FlowBuffer.hpp"
+# include "ABody.hpp"			// for ABdoy
+# include "FlowBuffer.hpp"		// for FlowBuffer
+# include "SharedResource.hpp"	// for SharedResource
 
 # define LINE_END "\r\n"
 # define LINE_END_LENGTH 2;
@@ -21,11 +22,11 @@ class Response;
 class RawResponse
 {
 private:
-	std::string	_firstPart;
-	FlowBuffer	_firstPartBuffer;
-	bool		_isBlocking;
-	int			_srcBodyFd;
-	ABody		*_body;
+	std::string					_firstPart;
+	FlowBuffer					_firstPartBuffer;
+	bool						_isBlocking;
+	SharedResource<int>			_srcBodyFd;
+	SharedResource<ABody *>		_body;
 	/**
 	 * @brief A pointer on the ResponsesHandler FlowBuffer. It allows this class
 	 * to redirect the content from _bodyFd to the client socket Fd. If there is

@@ -6,7 +6,6 @@
 #include "FlowBuffer.hpp"   // for FlowState, FlowBuffer
 #include "Response.hpp"		// for Response
 #include "protocol.hpp"		// for PROTOCOL, PROTOCOL_LENGTH
-#include "socketCommunication.hpp"	// for checkError
 #include "RawResponse.hpp"  // for RawResponse
 
 /*************************Constructors / Destructors***************************/
@@ -30,14 +29,6 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
  */
 RawResponse::~RawResponse()
 {
-	if (_body != NULL)
-	{
-		delete _body;
-	}
-	if (_srcBodyFd != -1)
-	{
-		checkError(close(_srcBodyFd), -1, "close() : ");
-	}
 }
 
 /*******************************Member functions*******************************/
@@ -100,20 +91,18 @@ std::string	getFirstPart(const Response &response)
  */
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
+	const bool	hasBody = _body.isManagingValue() && _body.getValue() != NULL && _srcBodyFd.isManagingValue() && _srcBodyFd.getValue() != -1;
 	if (_firstPartBuffer.getBufferLength() != 0)
 	{
 		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
 
 		if (flowState == FLOW_DONE)
-			return ((_body == NULL) ? FLOW_DONE : FLOW_MORE);
+			return (hasBody ? FLOW_MORE : FLOW_DONE);
 		return (flowState);
 	}
-	if (_body == NULL)
+	if (hasBody == false)
 		return (FLOW_DONE);
 	if (_isBlocking == false)
-		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd, *_body, ABody::callInstanceWriteToFd));
-	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body, ABody::callInstanceWriteToFd));
+		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd.getValue(), *_body.getValue(), ABody::callInstanceWriteToFd));
+	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body.getValue(), ABody::callInstanceWriteToFd));
 }
-
-/**************************************Operator Overload******************************************/
-

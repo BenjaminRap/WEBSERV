@@ -4,6 +4,7 @@
 # include <sys/types.h>
 
 # include "ServerConfiguration.hpp"
+# include "SharedResource.hpp"
 
 # define DIRE 1
 # define LS_FILE 2
@@ -27,8 +28,8 @@ class ARequestType
 
 		int							_code;
 		std::string					_redirection;
-		int							_inFd;
-		int							_outFd;
+		SharedResource<int>			_inFd;
+		SharedResource<int>			_outFd;
 		size_t						_outSize;
 
 	public :
@@ -51,8 +52,8 @@ class ARequestType
 		int							getCode() const;
 		EMethods					getMethod() const;
 		bool						getIsRoute() const;
-		int							getInFdResponsability();
-		int							getOutFdResponsability();
+		SharedResource<int>			getInFd();
+		SharedResource<int>			getOutFd();
 		size_t						getOutSize() const;
 
 		const std::string			&getError(unsigned short error);

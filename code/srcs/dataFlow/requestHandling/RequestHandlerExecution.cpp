@@ -34,7 +34,7 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 void	RequestHandler::processRequestResult(ARequestType *requestResult, Response &response, int socketFd)
 {
 	{
-		const int status = _request.setBodyFromHeaders(requestResult->getInFdResponsability());
+		const int status = _request.setBodyFromHeaders(requestResult->getInFd());
 		if (status != HTTP_OK)
 		{
 			response.setResponse(status);

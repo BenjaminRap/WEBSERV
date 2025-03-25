@@ -50,7 +50,8 @@ SharedResource<T>::SharedResource(const SharedResource<T> &ref) :
 	_count(ref._count),
 	_free(ref._free)
 {
-	(*_count) += 1;
+	if (_count != NULL)
+		(*_count) += 1;
 }
 
 /*
@@ -84,7 +85,8 @@ SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 	_value = ref._value; // can throw
 	_free = ref._free;
 	_count = ref._count;
-	(*_count) += 1;
+	if (_count != NULL)
+		(*_count) += 1;
 	return (*this);
 }
 
@@ -97,6 +99,7 @@ void	SharedResource<T>::setManagedResource(T value, void (&free)(T value))
 	_value = value;
 	_count = new size_t;
 	_free = free;
+	(*_count) = 1;
 }
 
 /*
@@ -125,11 +128,23 @@ void	SharedResource<T>::stopManagingResource(void)
  * @throw If this instance doesn't manage a value, throw a std::logic_error
  */
 template <typename T>
-T&	SharedResource<T>::getValue(void) const
+T&	SharedResource<T>::getValue(void)
 {
 	if (_count == NULL)
 		throw std::logic_error("getValue called with a SharedResource managing nothing!");
-	retturn (_value);
+	return (_value);
+}
+
+/**
+ * @brief Return a reference on the managed resource.
+ * @throw If this instance doesn't manage a value, throw a std::logic_error
+ */
+template <typename T>
+const T&	SharedResource<T>::getValue(void) const
+{
+	if (_count == NULL)
+		throw std::logic_error("getValue called with a SharedResource managing nothing!");
+	return (_value);
 }
 
 /**

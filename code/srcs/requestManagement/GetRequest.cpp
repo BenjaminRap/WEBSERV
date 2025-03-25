@@ -35,12 +35,20 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 		setResponse(HTTP_NOT_FOUND);
 	if (this->_code == HTTP_OK)
 	{
-		this->_outFd = open(this->_url.c_str(), O_RDONLY);
-		const ssize_t fileSize = getFileSize(this->_url.c_str());
-		if (checkError(this->_outFd, -1, "open() : ") || fileSize == -1)
+		const int fd = open(this->_url.c_str(), O_RDONLY);
+		if (checkError(fd, -1, "open() : "))
+		{
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		else
-			this->_outSize = fileSize;
+			return ;
+		}
+		this->_outFd.setManagedResource(fd, closeFdAndPrintError);
+		const ssize_t fileSize = getFileSize(this->_url.c_str());
+		if (fileSize == -1)
+		{
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			return ;
+		}
+		this->_outSize = fileSize;
 	}
 }
 
