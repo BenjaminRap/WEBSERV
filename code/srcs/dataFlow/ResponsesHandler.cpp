@@ -18,7 +18,12 @@ ResponsesHandler::ResponsesHandler() :
 
 ResponsesHandler::~ResponsesHandler()
 {
-
+	while (_responses.size() != 0)
+	{
+		const RawResponse*	rawResponse = _responses.front();
+		delete rawResponse;
+		_responses.pop();
+	}
 }
 
 /***************************Member functions***********************************/
