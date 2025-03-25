@@ -25,6 +25,7 @@ int		removeUnixSocketIfExists(const char sun_path[108]);
 int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
 			std::vector<std::string> &socketsToRemove);
 int		addFlagsToFd(int fd, int flags);
+void	closeFdAndPrintError(int fd);
 
 template <typename ReturnType>
 bool	checkError(ReturnType value, ReturnType error, const char *errorPrefix);
