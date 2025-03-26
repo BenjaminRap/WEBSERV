@@ -47,6 +47,10 @@ size_t		FlowBuffer::getBufferLength(void) const
 	return (_bufferLength);
 }
 
+size_t		FlowBuffer::getBufferCapacity(void) const
+{
+	return (_bufferCapacity);
+}
 
 size_t		FlowBuffer::getNumCharsWritten(void) const
 {
