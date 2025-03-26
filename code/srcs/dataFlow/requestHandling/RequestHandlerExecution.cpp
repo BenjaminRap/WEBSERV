@@ -31,10 +31,10 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 	return (_serverConfs[0]);
 }
 
-void	RequestHandler::processRequestResult(ARequestType *requestResult, Response &response, int socketFd)
+void	RequestHandler::processRequestResult(ARequestType &requestResult, Response &response, int socketFd)
 {
 	{
-		const int status = _request.setBodyFromHeaders(requestResult->getInFd());
+		const int status = _request.setBodyFromHeaders(requestResult.getInFd());
 		if (status != HTTP_OK)
 		{
 			response.setResponse(status);
@@ -58,17 +58,17 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 	{
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
-			processRequestResult(&getRequest, response, socketFd);
+			processRequestResult(getRequest, response, socketFd);
 			break;
 		}
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
-			processRequestResult(&putRequest, response, socketFd);
+			processRequestResult(putRequest, response, socketFd);
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
-			processRequestResult(&deleteRequest, response, socketFd);
+			processRequestResult(deleteRequest, response, socketFd);
 			break;
 		}
 		default:

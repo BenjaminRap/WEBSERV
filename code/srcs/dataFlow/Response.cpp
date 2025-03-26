@@ -40,6 +40,20 @@ void	Response::addDefaultHeaders(void)
 	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
+std::string	sizeTToString(size_t value);
+
+void	Response::setBody(ARequestType& requestResult, int socketFd)
+{
+	if (_bodySrcFd.isManagingValue() && _bodySrcFd.getValue() > 0)
+	{
+		const ssize_t	bodySize = requestResult.getOutSize();
+		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
+		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
+	}
+	else
+	this->_headers.insert(std::make_pair("Content-Length", "0"));
+}
+
 /*********************************Public Methods********************************************/
 
 void	Response::setResponse(int code)
@@ -47,26 +61,19 @@ void	Response::setResponse(int code)
 	this->_statusLine.statusCode = code;
 	this->_statusLine.statusText = ARequestType::getStatusText(code);
 	addDefaultHeaders();
+	if (code >= 400)
+	{
+		_bodySrcFd.stopManagingResource();
+	}
 }
 
-std::string	sizeTToString(size_t value);
-
-void	Response::setResponse(ARequestType *requestResult, int socketFd)
+void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
-	_bodySrcFd = requestResult->getOutFd();
-	this->_statusLine.statusCode = requestResult->getCode();
-	this->_statusLine.statusText = ARequestType::getStatusText(this->_statusLine.statusCode);
-	addDefaultHeaders();
-	if (requestResult->getRedirection().empty() == false)
-		this->_headers.insert(std::make_pair("Location", requestResult->getRedirection()));
-	if (_bodySrcFd.isManagingValue() && _bodySrcFd.getValue() > 0)
-	{
-		const ssize_t	bodySize = requestResult->getOutSize();
-		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
-		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
-	}
-	else
-		this->_headers.insert(std::make_pair("Content-Length", "0"));
+	_bodySrcFd = requestResult.getOutFd();
+	setResponse(requestResult.getCode());
+	if (requestResult.getRedirection().empty() == false)
+		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
+	setBody(requestResult, socketFd);
 }
 
 void	Response::reset()

@@ -41,7 +41,7 @@ private:
 	void						writeBodyFromBuffer(Response &response);
 
 	const ServerConfiguration	&getServerConfiguration(void) const;
-	void						processRequestResult(ARequestType *request, Response &response, int socketFd);
+	void						processRequestResult(ARequestType& request, Response &response, int socketFd);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();

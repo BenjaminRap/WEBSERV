@@ -51,12 +51,13 @@ private:
 	Response&	operator=(const Response& response);
 
 	void										addDefaultHeaders(void);
+	void										setBody(ARequestType& requestResult, int socketFd);
 public:
 	Response(void);
 	~Response(void);
 
 	void										setResponse(int code);
-	void										setResponse(ARequestType *ARequestType, int socketFd);
+	void										setResponse(ARequestType& ARequestType, int socketFd);
 	void										reset();
 
 	uint16_t									getStatusCode(void) const;
