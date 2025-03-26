@@ -1,10 +1,11 @@
 #ifndef A_REQUEST_HPP
 # define A_REQUEST_HPP
 
-# include <sys/types.h>
+# include <sys/types.h>				// for size_t
+# include <stdint.h>				// for uint16_t
 
-# include "ServerConfiguration.hpp"
-# include "SharedResource.hpp"
+# include "ServerConfiguration.hpp"	// for ServerConfiguration
+# include "SharedResource.hpp"		// for SharedResource
 
 # define DIRE 1
 # define LS_FILE 2
@@ -35,25 +36,25 @@ class ARequestType
 		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method);
 		virtual ~ARequestType() = 0;
 
-		static const std::string&		getStatusText(int code);
+		static const std::string&				getStatusText(int code);
 
-		void							setRedirectionResponse(int code, const std::string &redirection);
-		void							setResponse(int code);
-		void							setUrl(const std::string &src);
-		void							setRoute(const Route *root);
-		void							setMethod(EMethods method);
+		void									setRedirectionResponse(int code, const std::string &redirection);
+		void									setResponse(int code);
+		void									setUrl(const std::string &src);
+		void									setRoute(const Route *root);
+		void									setMethod(EMethods method);
 
-		bool							getAutoIndex(void) const;
-		const std::vector<std::string>&	getIndexs(void) const;
+		bool									getAutoIndex(void) const;
+		const std::vector<std::string>&			getIndexs(void) const;
 
-		std::string&					getUrl();
-		const std::string&				getRedirection() const;
-		const Route*					getRoute() const;
-		int								getCode() const;
-		EMethods						getMethod() const;
-		SharedResource<int>				getInFd();
-		SharedResource<int>				getOutFd();
-		size_t							getOutSize() const;
+		std::string&							getUrl();
+		const std::string&						getRedirection() const;
+		const Route*							getRoute() const;
+		int										getCode() const;
+		EMethods								getMethod() const;
+		SharedResource<int>						getInFd();
+		SharedResource<int>						getOutFd();
+		size_t									getOutSize() const;
 
 		const std::string			&getError(unsigned short error);
 };

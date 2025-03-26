@@ -6,6 +6,7 @@
 # include <map>        // for map
 # include <string>     // for string, basic_string
 # include <vector>     // for vector
+# include <stdint.h>   // for uint16_t
 
 # include "Route.hpp"  // for Route
 
@@ -38,7 +39,7 @@ private :
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.
-	std::map<unsigned short, std::string>	errorPages;
+	std::map<uint16_t, std::string>	errorPages;
 	size_t									maxClientBodySize;
 	/// @brief string : std::string location, class Route,
 	/// Associate a location, with the corresponding Route.

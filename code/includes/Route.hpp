@@ -32,20 +32,20 @@ public:
 	Route    &operator=(Route const &src);
 	~Route(void);
 
-	const std::vector<EMethods>		&getAcceptedMethods(void) const;
-	const SRedirection				&getRedirection(void) const;
-	const std::vector<std::string>	&getIndex(void) const;
-	const bool						&getAutoIndex(void) const;
-	const std::string				&getRoot(void) const;
-	const std::string				&getCgiFileExtension(void) const;
-	const bool						&getAcceptUploads(void) const;
+	const std::vector<EMethods>&	getAcceptedMethods(void) const;
+	const SRedirection&				getRedirection(void) const;
+	const std::vector<std::string>&	getIndex(void) const;
+	bool							getAutoIndex(void) const;
+	const std::string&				getRoot(void) const;
+	const std::string&				getCgiFileExtension(void) const;
+	bool							getAcceptUploads(void) const;
 	void							setIndex(const std::vector<std::string> &v);
 
 private:
 	std::vector<EMethods>		acceptedMethods;
 	SRedirection				redirection;
 	std::vector<std::string>	index;
-	bool						auto_index;
+	bool						autoIndex;
 	/// @brief Define a directory or a file from where the file should be searched,
 	/// (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
 	/// /tmp/www/pouic/toto/pouet).

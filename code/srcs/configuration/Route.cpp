@@ -16,7 +16,7 @@ Route::Route(const std::vector<EMethods> &acceptedMethods, \
 			acceptedMethods(acceptedMethods), \
 			redirection(redirection), \
 			index(index), \
-			auto_index(auto_index), \
+			autoIndex(auto_index), \
 			root(root), \
 			cgiFileExtension(cgiFileExtension), \
 			acceptUploads(acceptUploads)
@@ -37,7 +37,7 @@ Route    &Route::operator=(Route const &src)
 		this->acceptedMethods = src.acceptedMethods;
 		this->redirection = src.redirection;
 		this->index = src.index;
-		this->auto_index = src.auto_index;
+		this->autoIndex = src.autoIndex;
 		this->root = src.root;
 		this->cgiFileExtension = src.cgiFileExtension;
 		this->acceptUploads = src.acceptUploads;
@@ -65,9 +65,9 @@ const std::vector<std::string>	&Route::getIndex(void) const
 	return (index);
 }
 
-const bool						&Route::getAutoIndex(void) const
+bool	Route::getAutoIndex(void) const
 {
-	return (auto_index);
+	return (autoIndex);
 }
 
 const std::string				&Route::getRoot(void) const
@@ -80,7 +80,7 @@ const std::string				&Route::getCgiFileExtension(void) const
 	return (cgiFileExtension);
 }
 
-const bool					&Route::getAcceptUploads(void) const
+bool	Route::getAcceptUploads(void) const
 {
 	return (acceptUploads);
 }
