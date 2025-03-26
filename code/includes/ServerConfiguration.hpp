@@ -22,24 +22,23 @@ public :
 						const std::string &root, \
 						const std::vector<std::string> &index);
 	ServerConfiguration(ServerConfiguration const &src);
-    ServerConfiguration    &operator=(ServerConfiguration const &src);
 	~ServerConfiguration(void);
 
-	const std::string							&getRoot(void) const;
-	const std::vector<std::string>				&getServerNames(void) const;
-	const std::string							&getErrorPage(uint16_t error) const;
-	const std::map<uint16_t, std::string>		&getErrorPages(void) const;
-	const size_t								&getMaxClientBodySize(void) const;
-	const std::map<std::string, Route>			&getRoutes(void) const;
-	const Route									*getRouteFromPath(const std::string &path) const;
+	const std::string&							getRoot(void) const;
+	const std::vector<std::string>&				getServerNames(void) const;
+	const std::string&							getErrorPage(uint16_t error) const;
+	const std::map<uint16_t, std::string>&		getErrorPages(void) const;
+	const size_t&								getMaxClientBodySize(void) const;
+	const std::map<std::string, Route>&			getRoutes(void) const;
+	const Route*								getRouteFromPath(const std::string &path) const;
 	const std::string							getLocation(const std::string &loc) const;
-	const std::vector<std::string>				&getIndex(void) const;
+	const std::vector<std::string>&				getIndex(void) const;
 
 private :
 	std::vector<std::string>				serverNames;
 	/// @brief ushort : error code, std::string, page path
 	/// Associate an error with a page, returned to the client.
-	std::map<uint16_t, std::string>	errorPages;
+	std::map<uint16_t, std::string>			errorPages;
 	size_t									maxClientBodySize;
 	/// @brief string : std::string location, class Route,
 	/// Associate a location, with the corresponding Route.
@@ -48,6 +47,7 @@ private :
 	std::vector<std::string>				index;
 
 	ServerConfiguration(void);
+	ServerConfiguration    &operator=(ServerConfiguration const &src);
 };
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs);

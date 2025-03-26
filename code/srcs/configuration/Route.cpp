@@ -26,23 +26,13 @@ Route::Route(const std::vector<EMethods> &acceptedMethods, \
 
 Route::Route(Route const &src)
 {
-    *this = src;
-    return;
-}
-
-Route    &Route::operator=(Route const &src)
-{
-    if (this != &src)
-    {
-		this->acceptedMethods = src.acceptedMethods;
-		this->redirection = src.redirection;
-		this->index = src.index;
-		this->autoIndex = src.autoIndex;
-		this->root = src.root;
-		this->cgiFileExtension = src.cgiFileExtension;
-		this->acceptUploads = src.acceptUploads;
-    }
-    return (*this);
+	this->acceptedMethods = src.acceptedMethods;
+	this->redirection = src.redirection;
+	this->index = src.index;
+	this->autoIndex = src.autoIndex;
+	this->root = src.root;
+	this->cgiFileExtension = src.cgiFileExtension;
+	this->acceptUploads = src.acceptUploads;
 }
 
 Route::~Route(void)

@@ -27,21 +27,12 @@ ServerConfiguration::ServerConfiguration(	const std::vector<std::string> &server
 
 ServerConfiguration::ServerConfiguration(ServerConfiguration const &src)
 {
-	*this = src;
-}
-
-ServerConfiguration    &ServerConfiguration::operator=(ServerConfiguration const &src)
-{
-	if (this != &src)
-	{
-		this->serverNames = src.serverNames;
-		this->errorPages = src.errorPages;
-		this->maxClientBodySize = src.maxClientBodySize;
-		this->routes = src.routes;
-		this->root = src.root;
-		this->index = src.index;
-	}
-	return (*this);
+	this->serverNames = src.serverNames;
+	this->errorPages = src.errorPages;
+	this->maxClientBodySize = src.maxClientBodySize;
+	this->routes = src.routes;
+	this->root = src.root;
+	this->index = src.index;
 }
 
 ServerConfiguration::~ServerConfiguration(void)

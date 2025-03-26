@@ -29,7 +29,6 @@ public:
 			const std::string &cgiFileExtension, \
 			const bool	&acceptUploads);
 	Route(Route const &src);
-	Route    &operator=(Route const &src);
 	~Route(void);
 
 	const std::vector<EMethods>&	getAcceptedMethods(void) const;
@@ -62,7 +61,7 @@ private:
 	bool						acceptUploads;
 
 	Route(void);
-
+	Route    &operator=(Route const &src);
 };
 
 std::ostream & operator<<(std::ostream & o, Route const & rhs);
