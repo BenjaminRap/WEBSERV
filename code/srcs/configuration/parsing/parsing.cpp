@@ -9,7 +9,6 @@
 #include "Host.hpp"                 // for Host
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "errorPages.hpp"          // for ERROR_403_INT, ERROR_404_INT, ERR...
 #include "exception.hpp"            // for CustomLineException, CustomKeyWor...
 #include "parsing.hpp"              // for skip_wspace, ip_s, SEP_WSPACE, ip_t
 
@@ -115,16 +114,6 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (CustomException("Missing host"));
-	if (errorPages.find(ERROR_403_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_403_INT, ERROR_403_STR));
-	if (errorPages.find(ERROR_404_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_404_INT, ERROR_404_STR));
-	if (errorPages.find(ERROR_405_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_405_INT, ERROR_405_STR));
-	if (errorPages.find(ERROR_500_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_500_INT, ERROR_500_STR));
-	if (errorPages.find(ERROR_505_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_505_INT, ERROR_505_STR));
 	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
 }
 
