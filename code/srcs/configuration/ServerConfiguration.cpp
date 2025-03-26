@@ -49,7 +49,7 @@ ServerConfiguration::~ServerConfiguration(void)
 	return ;
 }
 
-const std::string				&ServerConfiguration::getRoot(void) const
+const std::string	&ServerConfiguration::getRoot(void) const
 {
 	return (this->root);
 }
@@ -59,16 +59,16 @@ const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 	return (this->serverNames);
 }
 
-const std::string				&ServerConfiguration::getErrorPage(unsigned short error) const
+const std::string	&ServerConfiguration::getErrorPage(uint16_t errorCode) const
 {
-	std::map<unsigned short, std::string>::const_iterator it = this->errorPages.find(error);
+	std::map<uint16_t, std::string>::const_iterator it = this->errorPages.find(errorCode);
 
 	if (it == this->errorPages.end())
 		throw (CustomException("Non existing error_page"));
     return (it->second);
 }
 
-const std::map<unsigned short, std::string>	&ServerConfiguration::getErrorPages(void) const
+const std::map<uint16_t, std::string>	&ServerConfiguration::getErrorPages(void) const
 {
 	return (this->errorPages);
 }
@@ -103,7 +103,7 @@ const std::string	ServerConfiguration::getLocation(const std::string &path) cons
 	return ("");
 }
 
-const std::vector<std::string>				&ServerConfiguration::getIndex(void) const
+const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 {
 	return (this->index);
 }

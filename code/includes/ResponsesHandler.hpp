@@ -37,11 +37,12 @@ private:
 	 */
 	FlowBuffer				_responseBuffer;
 
+	ResponsesHandler();
 	ResponsesHandler(const ResponsesHandler& ref);
 
 	ResponsesHandler&	operator=(const ResponsesHandler& ref);
 public:
-	ResponsesHandler();
+	ResponsesHandler(const ServerConfiguration &defaultConfig);
 	~ResponsesHandler();
 
 	FlowState	sendResponsesToSocket(int socketFd);

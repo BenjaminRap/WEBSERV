@@ -110,12 +110,6 @@ EMethods	ARequestType::getMethod() const
 	return (this->_method);
 }
 
-const std::string	&ARequestType::getError(unsigned short error)
-{
-	return (this->_config.getErrorPage(error));
-}
-
-
 SharedResource<int>	ARequestType::getInFd()
 {
 	return (_inFd);
@@ -149,4 +143,9 @@ const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
 {
 	// for an upgrade : do the same as getIndexs.
 	return (_config.getErrorPages());
+}
+
+const ServerConfiguration&	ARequestType::getConfig() const
+{
+	return (_config);
 }

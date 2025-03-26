@@ -19,13 +19,13 @@
 
 /*********************************Constructors/Destructors*************************************/
 
-Response::Response(const ServerConfiguration& serverConfiguration) :
+Response::Response(const ServerConfiguration& defaultConfig) :
 	_statusLine(),
 	_headers(),
 	_bodySrcFd(),
 	_isBlocking(false),
 	_body(),
-	_config(serverConfiguration)
+	_defaultConfig(defaultConfig)
 {
 	reset();
 }
@@ -67,14 +67,14 @@ void	Response::setBody(ARequestType& requestResult, int socketFd)
 * if there is an error finding the error page.
 * @note it should be called before the functions adding headers as it can change the code.
 */
-void	Response::setErrorPage(void)
+void	Response::setErrorPage(const ServerConfiguration& serverConfiguration)
 {
 	if (_statusLine.statusCode < 400)
 		return ;
 	_bodySrcFd.stopManagingResource();
 	try
 	{
-		const std::string& errorPage = _config.getErrorPage(_statusLine.statusCode);
+		const std::string& errorPage = serverConfiguration.getErrorPage(_statusLine.statusCode);
 		const int fd = open(errorPage.c_str(), O_RDONLY);
 		if (fd != -1)
 		{
@@ -82,31 +82,37 @@ void	Response::setErrorPage(void)
 			return ;
 		}
 		if (errno == ENOENT)
-			setResponse(HTTP_NOT_FOUND);
+			_statusLine.statusCode = HTTP_NOT_FOUND;
 		else if (errno == EACCES)
-			setResponse(HTTP_FORBIDDEN);
+			_statusLine.statusCode = HTTP_FORBIDDEN;
 		else
-			setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			_statusLine.statusCode = HTTP_INTERNAL_SERVER_ERROR;
 	}
 	catch (const CustomException& exception)
 	{
 	}
 }
 
+void	Response::initValues(int code, const ServerConfiguration& serverConfiguration)
+{
+
+	this->_statusLine.statusCode = code;
+	setErrorPage(serverConfiguration); // the order is important because it changes the code
+	this->_statusLine.statusText = ARequestType::getStatusText(code);
+	addDefaultHeaders();
+}
+
 /*********************************Public Methods********************************************/
 
 void	Response::setResponse(int code)
 {
-	this->_statusLine.statusCode = code;
-	this->_statusLine.statusText = ARequestType::getStatusText(code);
-	setErrorPage(); // the order between setErrorPage and addDefaultHeaders is important
-	addDefaultHeaders();
+	initValues(code, _defaultConfig);
 }
 
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
 	_bodySrcFd = requestResult.getOutFd();
-	setResponse(requestResult.getCode());
+	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
 		&& _statusLine.statusCode >= 300 && _statusLine.statusCode < 400)
 	{

@@ -49,7 +49,8 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							PutRequest.cpp			\
 							ARequestType.cpp		\
 							ARequestUtils.cpp		\
-							statuses.cpp
+							statuses.cpp			\
+							Status.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
 
 UTILS_DIR				:=	utils/

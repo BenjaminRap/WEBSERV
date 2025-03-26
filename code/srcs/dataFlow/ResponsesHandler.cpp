@@ -8,7 +8,8 @@
 
 /*************************Constructors / Destructors **************************/
 
-ResponsesHandler::ResponsesHandler() :
+ResponsesHandler::ResponsesHandler(const ServerConfiguration &defaultConfig) :
+	_currentResponse(defaultConfig),
 	_responses(),
 	_buffer(),
 	_responseBuffer(_buffer, RESPONSE_BUFFER_SIZE, 0)

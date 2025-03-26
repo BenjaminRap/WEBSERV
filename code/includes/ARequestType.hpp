@@ -56,8 +56,7 @@ class ARequestType
 		SharedResource<int>						getInFd();
 		SharedResource<int>						getOutFd();
 		size_t									getOutSize() const;
-
-		const std::string			&getError(unsigned short error);
+		const ServerConfiguration&				getConfig() const;
 };
 
 #endif //!A_REQUEST_HPP

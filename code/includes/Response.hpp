@@ -46,7 +46,7 @@ private:
 	SharedResource<int>					_bodySrcFd;
 	bool								_isBlocking;
 	SharedResource<ABody*>				_body;
-	const ServerConfiguration&			_config;
+	const ServerConfiguration&			_defaultConfig;
 
 	Response(void);
 	Response(const Response& ref);
@@ -55,9 +55,11 @@ private:
 
 	void										addDefaultHeaders(void);
 	void										setBody(ARequestType& requestResult, int socketFd);
-	void										setErrorPage(void);
+	void										setErrorPage(const ServerConfiguration& serverConfiguration);
+	void										initValues(int code, const ServerConfiguration& serverConfiguration);
+
 public:
-	Response(const ServerConfiguration& serverConfiguration);
+	Response(const ServerConfiguration &defaultConfig);
 	~Response(void);
 
 	void										setResponse(int code);

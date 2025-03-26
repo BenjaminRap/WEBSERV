@@ -15,7 +15,7 @@ class SocketsHandler;
 
 ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
 	AFdData(fd, socketsHandler, serverConfiguration),
-	_responsesHandler(),
+	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration)
 {
 
