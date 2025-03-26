@@ -105,7 +105,6 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 		return ;
 	}
 	get.setRoute(temp);
-	get.setIsRoute(true);
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
 		get.setResponse(HTTP_METHOD_NOT_ALLOWED);

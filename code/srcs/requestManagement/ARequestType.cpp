@@ -22,10 +22,9 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config);
 
 ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) :
 	_method(method),
-	_config(&config),
+	_config(config),
 	_route(NULL),
 	_url(url),
-	_isRoute(false),
 	_code(0),
 	_redirection(""),
 	_inFd(),
@@ -86,16 +85,6 @@ void	ARequestType::setMethod(EMethods method)
 	this->_method = method;
 }
 
-void ARequestType::setIsRoute(bool src)
-{
-	this->_isRoute = src;
-}
-
-bool ARequestType::getIsRoute() const
-{
-	return (this->_isRoute);
-}
-
 std::string	&ARequestType::getUrl()
 {
 	return (this->_url);
@@ -123,7 +112,7 @@ EMethods	ARequestType::getMethod() const
 
 const std::string	&ARequestType::getError(unsigned short error)
 {
-	return (this->_config->getErrorPage(error));
+	return (this->_config.getErrorPage(error));
 }
 
 
@@ -142,8 +131,16 @@ size_t	ARequestType::getOutSize() const
 	return (_outSize);
 }
 
-
-bool	ARequestType::isStatusCodeError(int code)
+bool	ARequestType::getAutoIndex(void) const
 {
-	return (code >= 400 && code < 600);
+	if (_route == NULL)
+		return (false);
+	return (_route->getAutoIndex());
+}
+
+const std::vector<std::string>&	ARequestType::getIndexs(void) const
+{
+	if (_route == NULL)
+		return (_config.getIndex());
+	return (_route->getIndex());
 }

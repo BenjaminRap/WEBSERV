@@ -7,7 +7,6 @@
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
-#include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
 #include "socketCommunication.hpp"	// for checkError
@@ -18,12 +17,10 @@ void						directoryCase(GetRequest& get);
 std::string					buildPage(std::list<std::string>	&files, const std::string& path);
 ssize_t						getFileSize(const std::string &filePath);
 
-GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET), _autoIndex(false), _index(0)
+GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET)
 {
 	int			targetType;
 
-	if (this->_route != NULL)
-		this->setAutoIndex(this->_route->getAutoIndex());
 	if (this->_code != 0)
 		return ;
 	targetType = isDirOrFile(this->_url);
@@ -54,24 +51,4 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 
 GetRequest::~GetRequest()
 {
-}
-
-bool	GetRequest::getAutoIndex() const
-{
-	return (this->_autoIndex);
-}
-
-const std::vector<std::string>	&GetRequest::getIndexVec()
-{
-	return (this->_route->getIndex());
-}
-
-const std::vector<std::string>	&GetRequest::getDefaultIndexVec()
-{
-	return (this->_config->getIndex());
-}
-
-void	GetRequest::setAutoIndex(bool src)
-{
-	this->_autoIndex = src;
 }

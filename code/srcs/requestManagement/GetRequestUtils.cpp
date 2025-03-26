@@ -155,13 +155,7 @@ void	directoryCase(GetRequest &get)
 	checkType(get.getUrl(), get);
 	if (get.getCode() == HTTP_MOVED_PERMANENTLY)
 		return;
-	if (get.getIsRoute())
-	{
-		const std::vector<std::string>	&indexs = get.getIndexVec();
-		if (findIndex(get, indexs))
-			return ;
-	}
-	if (findIndex(get, get.getDefaultIndexVec()))
+	if (findIndex(get, get.getIndexs()))
 		return ;
 	if (get.getAutoIndex())
 		autoIndexCase(get);
