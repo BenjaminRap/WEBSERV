@@ -1,3 +1,4 @@
+#include <fcntl.h>					// for O_RDONLY
 #include <stdint.h>         		// for uint16_t
 #include <ctime>             		// for asctime, localtime, time, NULL, time_t
 #include <iostream>          		// for basic_ostream, operator<<, basic_ios, cout
@@ -8,19 +9,23 @@
 #include <utility>           		// for make_pair, pair
 
 #include "ARequestType.hpp"  		// for ARequestType
+#include "ServerConfiguration.hpp"
+#include "exception.hpp"			// for CustomException
 #include "protocol.hpp"				// for PROTOCOL
 #include "requestStatusCode.hpp"	// for HTTP_...
 #include "Response.hpp"      		// for Response, operator<<
 #include "SizedBody.hpp"			// for SizedBody
+#include "socketCommunication.hpp"	// for closeFdAndPrintError
 
 /*********************************Constructors/Destructors*************************************/
 
-Response::Response(void) :
+Response::Response(const ServerConfiguration& serverConfiguration) :
 	_statusLine(),
 	_headers(),
 	_bodySrcFd(),
 	_isBlocking(false),
-	_body()
+	_body(),
+	_config(serverConfiguration)
 {
 	reset();
 }
@@ -37,7 +42,10 @@ void	Response::addDefaultHeaders(void)
 	this->_headers.insert(std::make_pair("Date", std::asctime(std::localtime(&now))));
 	this->_headers.rbegin()->second.erase(this->_headers.rbegin()->second.size() - 1, 1);
 	this->_headers.insert(std::make_pair("Server", "WebServ de bg"));
-	this->_headers.insert(std::make_pair("Connection", "keep-alive"));
+	if (_statusLine.statusCode >= 400)
+		this->_headers.insert(std::make_pair("Connection", "close"));
+	else
+		this->_headers.insert(std::make_pair("Connection", "keep-alive"));
 }
 
 std::string	sizeTToString(size_t value);
@@ -51,7 +59,38 @@ void	Response::setBody(ARequestType& requestResult, int socketFd)
 		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 	}
 	else
-	this->_headers.insert(std::make_pair("Content-Length", "0"));
+		this->_headers.insert(std::make_pair("Content-Length", "0"));
+}
+
+/*
+* @brief Set the error page if there is an error. It can change the status code and status text
+* if there is an error finding the error page.
+* @note it should be called before the functions adding headers as it can change the code.
+*/
+void	Response::setErrorPage(void)
+{
+	if (_statusLine.statusCode < 400)
+		return ;
+	_bodySrcFd.stopManagingResource();
+	try
+	{
+		const std::string& errorPage = _config.getErrorPage(_statusLine.statusCode);
+		const int fd = open(errorPage.c_str(), O_RDONLY);
+		if (fd != -1)
+		{
+			_bodySrcFd.setManagedResource(fd, closeFdAndPrintError);
+			return ;
+		}
+		if (errno == ENOENT)
+			setResponse(HTTP_NOT_FOUND);
+		else if (errno == EACCES)
+			setResponse(HTTP_FORBIDDEN);
+		else
+			setResponse(HTTP_INTERNAL_SERVER_ERROR);
+	}
+	catch (const CustomException& exception)
+	{
+	}
 }
 
 /*********************************Public Methods********************************************/
@@ -60,19 +99,19 @@ void	Response::setResponse(int code)
 {
 	this->_statusLine.statusCode = code;
 	this->_statusLine.statusText = ARequestType::getStatusText(code);
+	setErrorPage(); // the order between setErrorPage and addDefaultHeaders is important
 	addDefaultHeaders();
-	if (code >= 400)
-	{
-		_bodySrcFd.stopManagingResource();
-	}
 }
 
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
 	_bodySrcFd = requestResult.getOutFd();
 	setResponse(requestResult.getCode());
-	if (requestResult.getRedirection().empty() == false)
+	if (requestResult.getRedirection().empty() == false
+		&& _statusLine.statusCode >= 300 && _statusLine.statusCode < 400)
+	{
 		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
+	}
 	setBody(requestResult, socketFd);
 }
 

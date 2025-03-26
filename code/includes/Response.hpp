@@ -1,13 +1,14 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include <stdint.h>  	// for uint16_t
-# include <iostream>  	// for ostream
-# include <map>       	// for map
-# include <string>    	// for string, basic_string
+# include <stdint.h>  				// for uint16_t
+# include <iostream>  				// for ostream
+# include <map>       				// for map
+# include <string>    				// for string, basic_string
 
-# include "ABody.hpp"	// for ABody
-# include "SharedResource.hpp"	// for SharedResource
+# include "ABody.hpp"				// for ABody
+# include "ServerConfiguration.hpp"	// for ServerConfiguration
+# include "SharedResource.hpp"		// for SharedResource
 
 class	ARequestType;
 
@@ -45,15 +46,18 @@ private:
 	SharedResource<int>					_bodySrcFd;
 	bool								_isBlocking;
 	SharedResource<ABody*>				_body;
+	const ServerConfiguration&			_config;
 
+	Response(void);
 	Response(const Response& ref);
 
 	Response&	operator=(const Response& response);
 
 	void										addDefaultHeaders(void);
 	void										setBody(ARequestType& requestResult, int socketFd);
+	void										setErrorPage(void);
 public:
-	Response(void);
+	Response(const ServerConfiguration& serverConfiguration);
 	~Response(void);
 
 	void										setResponse(int code);
