@@ -46,6 +46,7 @@ class ARequestType
 
 		bool									getAutoIndex(void) const;
 		const std::vector<std::string>&			getIndexs(void) const;
+		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
 
 		std::string&							getUrl();
 		const std::string&						getRedirection() const;

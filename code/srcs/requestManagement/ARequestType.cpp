@@ -144,3 +144,9 @@ const std::vector<std::string>&	ARequestType::getIndexs(void) const
 		return (_config.getIndex());
 	return (_route->getIndex());
 }
+
+const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
+{
+	// for an upgrade : do the same as getIndexs.
+	return (_config.getErrorPages());
+}
