@@ -6,7 +6,7 @@
 
 /*
 * @brief Create an instance of the SharedResource class with no
-* managed resources. Itt does nothing for now but can be attributed
+* managed resources. It does nothing for now but can be attributed
 * a resource with the operator= overload.
 * @throw This constructor can throw if the T class default constructor
 * throws. If it doesn't , this constructor doesn't.
@@ -26,23 +26,33 @@ SharedResource<T>::SharedResource(void) :
 * when no instance of the SharedResource class exists.
 * @throw This constructor can throw if the T class copy constructor
 * throws or throw a std::bad_alloc.
+* If a std::bad_alloc occurs, the value is freed.
 * If it throws, there is no side effects on this class.
 */
 template <typename T>
 SharedResource<T>::SharedResource(T value, void (&free)(T value)) : 
 	_value(value), // can throw
-	_count(new size_t), // can throw
+	_count(NULL), // can throw
 	_free(&free)
 {
-	(*_count) = 1;
+	try
+	{
+		_count = new size_t;
+		(*_count) = 1;
+	}
+	catch (const std::exception& exception)
+	{
+		free(value);
+		throw exception;
+	}
 }
 
 /*
 * @brief Create an instance of the SharedResource class
 * that manages the same value as the ref instance, increment
 * the number of instances sharing the value.
-* @throw This function can throw if the free function throws or if the
-* operator= overload of the T class throws.
+* @throw This function can throw if the operator= overload
+* of the T class throws.
 */
 template <typename T>
 SharedResource<T>::SharedResource(const SharedResource<T> &ref) :
@@ -92,14 +102,29 @@ SharedResource<T>&	SharedResource<T>::operator=(const SharedResource<T> &ref)
 
 /**************************************Methods*********************************************/
 
+/*
+* @brief Set the managed resource of this instance to the value.
+* @note This value shouldn't be managed by another SharedResource.
+* @throw It can throw a std::bad_alloc or if the previous free function
+* fail or if the T copy constructor fail.
+* If it throws a std::bad_alloc, the value is freed
+*/
 template <typename T>
 void	SharedResource<T>::setManagedResource(T value, void (&free)(T value))
 {
-	stopManagingResource();
-	_value = value;
-	_count = new size_t;
-	_free = free;
-	(*_count) = 1;
+	try
+	{
+		stopManagingResource(); // can throw
+		_value = value; // can throw
+		_count = new size_t; // can throw
+		_free = free;
+		(*_count) = 1;
+	}
+	catch (const std::exception& exception)
+	{
+		free(value);
+		throw exception;
+	}
 }
 
 /*
