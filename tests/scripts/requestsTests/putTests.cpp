@@ -1,36 +1,41 @@
 #include "utils.cpp"
 
-void	putTest(void)
+void	putTest(const std::string &url, const std::string &tabs)
+{
+	testServers("", url, tabs, "PUT");
+}
+
+void	putTests(void)
 {
 	printHeader("Allowed Case");
-	testServers("", "/put/allowed/main.html", "\t\t\t\t\t");
+	putTest("/put/allowed/main.html", "\t\t\t\t\t");
 
 	printHeader("Method Not Allowed Case");
-	testServers("", "/put/notAllowed/main.html", "\t\t\t\t\t");
+	putTest("/put/notAllowed/main.html", "\t\t\t\t\t");
 
 	printHeader("No Right on folder Case");
-	testServers("", "/put/forbidden/main.html", "\t\t\t\t\t");
+	putTest("/put/forbidden/main.html", "\t\t\t\t\t");
 
 	printHeader("File Already existing With right Case");
-	testServers("", "/put/mainRight.html", "\t\t\t\t\t");
+	putTest("/put/mainRight.html", "\t\t\t\t\t");
 
 	printHeader("File Already existing With no right Case");
-	testServers("", "/put/mainNoRight.html", "\t\t\t\t\t");
+	putTest("/put/mainNoRight.html", "\t\t\t\t\t");
 
 	printHeader("Creating directory Case");
-	testServers("", "/put/directory/", "\t\t\t\t\t");
+	putTest("/put/directory/", "\t\t\t\t\t");
 
 	printHeader("Creating directory that already exists, with right and empty Case");
-	testServers("", "/put/alreadyExistingDirEmpty/", "\t\t\t\t\t");
+	putTest("/put/alreadyExistingDirEmpty/", "\t\t\t\t\t");
 
 	printHeader("Creating directory that already exists, with right and not empty Case");
-	testServers("", "/put/alreadyExistingDir/", "\t\t\t\t\t");
+	putTest("/put/alreadyExistingDir/", "\t\t\t\t\t");
 
 	printHeader("Creating directory that already exists, with no right and empty Case");
-	testServers("", "/put/alreadyExistingDirEmptyNoRight/",  "\t\t\t\t\t");
+	putTest("/put/alreadyExistingDirEmptyNoRight/",  "\t\t\t\t\t");
 
 	printHeader("Creating directory that already exists, with no right and not empty Case");
-	testServers("", "/put/alreadyExistingDirNoRight/", "\t\t\t\t\t");
+	putTest("/put/alreadyExistingDirNoRight/", "\t\t\t\t\t");
 }
 
 int	main(void)
@@ -53,7 +58,7 @@ int	main(void)
 		return (EXIT_FAILURE);
 	}
 
-	putTest();
+	putTests();
 
 
 	if (std::system("cd ../../../code/unitTest && ../../tests/scripts/requestsTests/cleanPutTest.sh") != 0 // For our server

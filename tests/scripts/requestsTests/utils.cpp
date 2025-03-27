@@ -37,6 +37,8 @@ std::pair<int, std::string>	askServer(const std::string &host, const std::string
 	statusText.erase(0, 1);
 	close(tube[0]);
 	close(tube[1]);
+	if (statusText == "Not Allowed")
+		statusText = "Method Not Allowed";
 	return (std::pair<int, std::string>(status, statusText));
 }
 
@@ -56,14 +58,14 @@ void	verifyResult(const std::string &url, const ServerReturn &nginx, const Serve
 	}
 }
 
-void	testServers(const std::string& test, const std::string &url, const std::string &tab)
+void	testServers(const std::string& test, const std::string &url, const std::string &tab, const std::string& request)
 {
 	ServerReturn nginxResult;
 	ServerReturn webservResult;
 
 	std::cout << test << std::endl;
-	nginxResult = askServer("http://localhost:8181", url, "GET");
-	webservResult = askServer("http://localhost:8080", url, "GET");
+	nginxResult = askServer("http://localhost:8181", url, request);
+	webservResult = askServer("http://localhost:8080", url, request);
 	verifyResult(url, nginxResult, webservResult, tab);
 }
 
