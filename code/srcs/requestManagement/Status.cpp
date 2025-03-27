@@ -53,13 +53,13 @@ size_t	Status::getErrorPageSize(void) const
 		return (_errorPageSize);
 	size_t	size = 0;
 
-	size += 154;
+	size += 149;
 	size += _codeStrRepresentation.size();
 	size += 96;
 	size += _codeStrRepresentation.size();
-	size += 14;
+	size += 12;
 	size += _text.size();
-	size += 21;
+	size += 22;
 	return (size);
 }
 
@@ -72,24 +72,24 @@ void	Status::buildErrorPage(void)
 
 	_errorPage.reserve(size);
 	_errorPage +=
-"<!DOCTYPE html> \
-<html lang=\"fr\"> \
-	<head> \
-    	<meta charset=\"UTF-8\"> \
-    	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
-    	<title>"
+"<!DOCTYPE html>\n\
+<html lang=\"fr\">\n\
+	<head>\n\
+		<meta charset=\"UTF-8\">\n\
+		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
+		<title>"
 ;
 	_errorPage += _codeStrRepresentation;
-	_errorPage += "</title> \
-	</head> \
-	<body style=\"font-family:sans-serif;text-align:center;padding:50px;\"> \
-    	<h1>"
+	_errorPage += "</title>\n\
+	</head>\n\
+	<body style=\"font-family:sans-serif;text-align:center;padding:50px;\">\n\
+		<h1>"
 ;
 	_errorPage += _codeStrRepresentation;
-	_errorPage += "</h1> \
-    	<p>";
+	_errorPage += "</h1>\n\
+		<p>";
 	_errorPage += _text;
-	_errorPage += "</p> \
+	_errorPage += "</p>\n\
 	</body> \
 </html>";
 	_errorPageSize = _errorPage.size();

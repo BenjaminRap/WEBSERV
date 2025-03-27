@@ -48,6 +48,7 @@ size_t	getFirstPartLength(const std::map<std::string, std::string>& headers, con
 		length += LINE_END_LENGTH;
 	}
 	length += LINE_END_LENGTH; // for the empty line
+	length += status.getErrorPage().size();
 	length += 1; // for the /0
 	return (length);
 }
@@ -79,6 +80,7 @@ std::string	getFirstPart(const Response &response)
 			.append(LINE_END);
 	}
 	firstPart.append(LINE_END);
+	firstPart.append(status->getErrorPage());
 	return (firstPart);
 }
 

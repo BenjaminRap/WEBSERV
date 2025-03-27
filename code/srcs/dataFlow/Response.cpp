@@ -51,16 +51,20 @@ void	Response::addDefaultHeaders(void)
 
 std::string	sizeTToString(size_t value);
 
-void	Response::setBody(ARequestType& requestResult, int socketFd)
+void	Response::setBody(ARequestType* requestResult, int socketFd)
 {
-	if (_bodySrcFd.isManagingValue() && _bodySrcFd.getValue() > 0)
+	size_t	bodySize = 0;
+
+	if (requestResult != NULL && _bodySrcFd.isManagingValue() && _bodySrcFd.getValue() > 0)
 	{
-		const ssize_t	bodySize = requestResult.getOutSize();
+		bodySize = requestResult->getOutSize();
 		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
-		this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 	}
+	else if (_status->getErrorPage().size() != 0)
+		bodySize = _status->getErrorPage().size();
 	else
-		this->_headers.insert(std::make_pair("Content-Length", "0"));
+		bodySize = 0;
+	this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 }
 
 /*
@@ -95,31 +99,31 @@ uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& server
 	}
 }
 
-void	Response::initValues(int code, const ServerConfiguration& serverConfiguration)
+void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd)
 {
 
 	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
 	_status = &Status::getStatus(code);
 	addDefaultHeaders();
+	setBody(requestResult, socketFd);
 }
 
 /*********************************Public Methods********************************************/
 
 void	Response::setResponse(int code)
 {
-	initValues(code, _defaultConfig);
+	initValues(code, _defaultConfig, NULL, -1);
 }
 
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
 	_bodySrcFd = requestResult.getOutFd();
-	initValues(requestResult.getCode(), requestResult.getConfig());
+	initValues(requestResult.getCode(), requestResult.getConfig(), &requestResult, socketFd);
 	if (requestResult.getRedirection().empty() == false
 		&& _status->isOfType(STATUS_REDIRECTION))
 	{
 		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
 	}
-	setBody(requestResult, socketFd);
 }
 
 void	Response::reset()

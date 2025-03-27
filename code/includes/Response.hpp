@@ -42,9 +42,9 @@ private:
 	Response&	operator=(const Response& response);
 
 	void										addDefaultHeaders(void);
-	void										setBody(ARequestType& requestResult, int socketFd);
+	void										setBody(ARequestType* requestResult, int socketFd);
 	uint16_t									setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration);
-	void										initValues(int code, const ServerConfiguration& serverConfiguration);
+	void										initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd);
 
 public:
 	Response(const ServerConfiguration &defaultConfig);
