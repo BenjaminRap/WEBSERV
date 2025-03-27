@@ -2,7 +2,6 @@
 #include <stddef.h>                 // for NULL
 #include <list>                     // for list
 #include <string>                   // for string, basic_string
-#include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
@@ -30,7 +29,7 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 		setResponse(HTTP_OK);
 	else
 		setResponse(HTTP_NOT_FOUND);
-	if (this->_code == HTTP_OK)
+	if (this->_code == HTTP_OK && _autoIndexPage.size() == 0)
 	{
 		const int fd = open(this->_url.c_str(), O_RDONLY);
 		if (checkError(fd, -1, "open() : "))
@@ -51,4 +50,11 @@ GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARe
 
 GetRequest::~GetRequest()
 {
+}
+
+
+void	GetRequest::setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage)
+{
+	this->_code = code;
+	this->_autoIndexPage = autoIndexPage;
 }

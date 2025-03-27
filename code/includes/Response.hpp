@@ -35,6 +35,7 @@ private:
 	bool								_isBlocking;
 	SharedResource<ABody*>				_body;
 	const ServerConfiguration&			_defaultConfig;
+	std::string							_autoIndexPage;
 
 	Response(void);
 	Response(const Response& ref);
@@ -60,6 +61,7 @@ public:
 	bool										getIsBlocking(void) const;
 	SharedResource<int>							getSrcBodyFd(void) const;
 	SharedResource<ABody*>						getBody(void) const;
+	const std::string&							getAutoIndexPage(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs);

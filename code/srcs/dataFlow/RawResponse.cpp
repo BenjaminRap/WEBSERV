@@ -33,7 +33,12 @@ RawResponse::~RawResponse()
 
 /*******************************Member functions*******************************/
 
-size_t	getFirstPartLength(const std::map<std::string, std::string>& headers, const Status& status)
+size_t	getFirstPartLength
+(
+	const std::map<std::string, std::string>& headers,
+	const Status& status,
+	size_t autoIndexPageSize
+)
 {
 	size_t										length = 0;
 
@@ -49,6 +54,8 @@ size_t	getFirstPartLength(const std::map<std::string, std::string>& headers, con
 	}
 	length += LINE_END_LENGTH; // for the empty line
 	length += status.getErrorPage().size();
+	if (status.isOfType(STATUS_SUCESSFULL))
+		length += autoIndexPageSize;
 	length += 1; // for the /0
 	return (length);
 }
@@ -60,7 +67,8 @@ std::string	getFirstPart(const Response &response)
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
 	const std::map<std::string, std::string>	headers = response.getHeaderMap();
-	const size_t								length = getFirstPartLength(headers, *status);
+	const std::string&							autoIndexPage = response.getAutoIndexPage();
+	const size_t								length = getFirstPartLength(headers, *status, autoIndexPage.size());
 
 	std::string									firstPart;
 
@@ -81,6 +89,8 @@ std::string	getFirstPart(const Response &response)
 	}
 	firstPart.append(LINE_END);
 	firstPart.append(status->getErrorPage());
+	if (status->isOfType(STATUS_SUCESSFULL))
+		firstPart.append(autoIndexPage);
 	return (firstPart);
 }
 

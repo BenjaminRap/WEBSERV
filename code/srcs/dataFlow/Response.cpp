@@ -26,7 +26,8 @@ Response::Response(const ServerConfiguration& defaultConfig) :
 	_bodySrcFd(),
 	_isBlocking(false),
 	_body(),
-	_defaultConfig(defaultConfig)
+	_defaultConfig(defaultConfig),
+	_autoIndexPage()
 {
 	reset();
 }
@@ -63,7 +64,7 @@ void	Response::setBody(ARequestType* requestResult, int socketFd)
 	else if (_status->getErrorPage().size() != 0)
 		bodySize = _status->getErrorPage().size();
 	else
-		bodySize = 0;
+		bodySize = _autoIndexPage.size();
 	this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 }
 
@@ -118,6 +119,7 @@ void	Response::setResponse(int code)
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
 	_bodySrcFd = requestResult.getOutFd();
+	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig(), &requestResult, socketFd);
 	if (requestResult.getRedirection().empty() == false
 		&& _status->isOfType(STATUS_REDIRECTION))
@@ -132,6 +134,7 @@ void	Response::reset()
 	this->_headers.clear();
 	this->_bodySrcFd.stopManagingResource();
 	this->_body.stopManagingResource();
+	this->_autoIndexPage = "";
 }
 
 /**********************************Getters**************************************************/
@@ -171,6 +174,11 @@ const Status*	Response::getStatus(void) const
 	return (_status);
 }
 
+const std::string&	Response::getAutoIndexPage(void) const
+{
+	return (_autoIndexPage);
+}
+
 /*********************************Operator Overload**********************************************/
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs)
@@ -188,5 +196,11 @@ std::ostream & operator<<(std::ostream & o, Response const & rhs)
 	{
 		std::cout << it->first << ": " << it->second << std::endl;
 	}
+	if (status == NULL)
+		return (o);
+	if (status->isOfType(STATUS_ERROR))
+		std::cout << status->getErrorPage();
+	else if (status->isOfType(STATUS_SUCESSFULL))
+		std::cout << rhs.getAutoIndexPage();
 	return (o);
 }

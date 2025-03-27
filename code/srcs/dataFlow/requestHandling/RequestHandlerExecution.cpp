@@ -74,5 +74,4 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 		default:
 			throw std::logic_error("executeRequest called with a request method invalid !");
 	}
-	std::cout << response << std::endl;
 }

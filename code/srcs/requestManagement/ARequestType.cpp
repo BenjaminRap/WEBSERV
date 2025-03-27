@@ -1,9 +1,7 @@
 #include <stddef.h>                 // for NULL
 #include <unistd.h>                 // for close
 #include <map>                      // for map, operator==
-#include <stdexcept>                // for logic_error
 #include <string>                   // for string, basic_string
-#include <utility>                  // for pair
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
@@ -26,7 +24,8 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_route(NULL),
 	_url(url),
 	_code(0),
-	_redirection(""),
+	_redirection(),
+	_autoIndexPage(),
 	_inFd(),
 	_outFd(),
 	_outSize(0)
@@ -45,14 +44,14 @@ ARequestType::~ARequestType()
 {
 }
 
-void	ARequestType::setRedirectionResponse(int code, const std::string &redirection)
+void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection)
 {
 	this->_code = code;
 	this->_redirection = redirection;
 }
 
 
-void	ARequestType::setResponse(int code)
+void	ARequestType::setResponse(uint16_t code)
 {
 	this->_code = code;
 }
@@ -97,12 +96,12 @@ EMethods	ARequestType::getMethod() const
 	return (this->_method);
 }
 
-SharedResource<int>	ARequestType::getInFd()
+SharedResource<int>	ARequestType::getInFd() const
 {
 	return (_inFd);
 }
 
-SharedResource<int>	ARequestType::getOutFd()
+SharedResource<int>	ARequestType::getOutFd() const
 {
 	return (_outFd);
 }
@@ -135,4 +134,10 @@ const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
 const ServerConfiguration&	ARequestType::getConfig() const
 {
 	return (_config);
+}
+
+
+const std::string&	ARequestType::getAutoIndexPage(void) const
+{
+	return (_autoIndexPage);
 }

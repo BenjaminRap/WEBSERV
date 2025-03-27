@@ -10,6 +10,7 @@
 #include "ARequestType.hpp"       // for DIRE, LS_FILE, NF
 #include "GetRequest.hpp"         // for GetRequest
 #include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
+#include "Status.hpp"				// for Status::isCodeOfType
 
 void	checkType(std::string &path, GetRequest &get)
 {
@@ -147,7 +148,10 @@ void	autoIndexCase(GetRequest &get)
 	int						response;
 
 	response = ls(get.getUrl(), files);
-	get.setResponse(response);
+	if (Status::isCodeOfType(response, STATUS_ERROR))
+		get.setResponse(response);
+	else
+		get.setResponseWithAutoIndex(response, buildPage(files, get.getUrl()));
 }
 
 void	directoryCase(GetRequest &get)

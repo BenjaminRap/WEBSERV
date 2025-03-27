@@ -17,6 +17,8 @@ class GetRequest : public ARequestType
 	public :
 		explicit GetRequest(std::string url, const ServerConfiguration &config);
 		~GetRequest();
+
+		void	setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage);
 };
 
 #endif //!GET_REQUEST_HPP

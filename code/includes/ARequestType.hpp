@@ -27,6 +27,7 @@ class ARequestType
 
 		int							_code;
 		std::string					_redirection;
+		std::string					_autoIndexPage;
 		SharedResource<int>			_inFd;
 		SharedResource<int>			_outFd;
 		size_t						_outSize;
@@ -35,25 +36,25 @@ class ARequestType
 		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method);
 		virtual ~ARequestType() = 0;
 
-		void									setRedirectionResponse(int code, const std::string &redirection);
-		void									setResponse(int code);
+		void									setRedirectionResponse(uint16_t code, const std::string &redirection);
+		void									setResponse(uint16_t code);
 		void									setUrl(const std::string &src);
 		void									setRoute(const Route *root);
 		void									setMethod(EMethods method);
 
+		const std::string&						getAutoIndexPage(void) const;
 		bool									getAutoIndex(void) const;
 		const std::vector<std::string>&			getIndexs(void) const;
 		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
-
-		std::string&							getUrl();
-		const std::string&						getRedirection() const;
-		const Route*							getRoute() const;
-		int										getCode() const;
-		EMethods								getMethod() const;
-		SharedResource<int>						getInFd();
-		SharedResource<int>						getOutFd();
-		size_t									getOutSize() const;
-		const ServerConfiguration&				getConfig() const;
+		std::string&							getUrl(void);
+		const std::string&						getRedirection(void) const;
+		const Route*							getRoute(void) const;
+		int										getCode(void) const;
+		EMethods								getMethod(void) const;
+		SharedResource<int>						getInFd(void) const;
+		SharedResource<int>						getOutFd(void) const;
+		size_t									getOutSize(void) const;
+		const ServerConfiguration&				getConfig(void) const;
 };
 
 #endif //!A_REQUEST_HPP

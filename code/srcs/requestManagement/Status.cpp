@@ -90,7 +90,7 @@ void	Status::buildErrorPage(void)
 		<p>";
 	_errorPage += _text;
 	_errorPage += "</p>\n\
-	</body> \
+	</body>\n\
 </html>";
 	_errorPageSize = _errorPage.size();
 }
