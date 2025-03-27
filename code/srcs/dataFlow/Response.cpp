@@ -40,14 +40,13 @@ Response::~Response(void)
 
 void	Response::addDefaultHeaders(void)
 {
+	char				timeBuffer[100];
 	const std::time_t	now = std::time(NULL);
-	this->_headers.insert(std::make_pair("Date", std::asctime(std::localtime(&now))));
-	this->_headers.rbegin()->second.erase(this->_headers.rbegin()->second.size() - 1, 1);
-	this->_headers.insert(std::make_pair("Server", "WebServ de bg"));
-	if (_status->isOfType(STATUS_ERROR))
-		this->_headers.insert(std::make_pair("Connection", "close"));
-	else
-		this->_headers.insert(std::make_pair("Connection", "keep-alive"));
+
+	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
+	_headers["Date"] = timeBuffer;
+	_headers["Server"] = "WebServ de bg";
+	_headers["Connection"] = (_status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
 }
 
 std::string	sizeTToString(size_t value);
@@ -102,7 +101,6 @@ uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& server
 
 void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd)
 {
-
 	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
 	_status = &Status::getStatus(code);
 	addDefaultHeaders();
@@ -113,11 +111,13 @@ void	Response::initValues(int code, const ServerConfiguration& serverConfigurati
 
 void	Response::setResponse(int code)
 {
+	reset();
 	initValues(code, _defaultConfig, NULL, -1);
 }
 
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
+	reset();
 	_bodySrcFd = requestResult.getOutFd();
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig(), &requestResult, socketFd);

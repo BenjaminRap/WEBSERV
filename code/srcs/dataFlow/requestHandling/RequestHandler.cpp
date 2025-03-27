@@ -1,7 +1,9 @@
-#include <vector>              // for vector
+#include <exception>				// for std::exception
+#include <vector>              		// for vector
 
-#include "Request.hpp"         // for Request
-#include "RequestHandler.hpp"  // for RequestHandler, RequestState, REQUEST_...
+#include "Request.hpp"         		// for Request
+#include "requestStatusCode.hpp"	// for HTTP_INTERNAL_SERVER_ERROR
+#include "RequestHandler.hpp"  		// for RequestHandler, RequestState, REQUEST_...
 
 class Response;
 class ServerConfiguration;
@@ -25,10 +27,17 @@ RequestHandler::~RequestHandler()
 
 RequestState			RequestHandler::readRequest(Response &response, int socketFd)
 {
-	readStatusLine(response);
-	readHeaders(response);
-	executeRequest(response, socketFd);
-	writeBodyFromBuffer(response);
+	try
+	{
+		readStatusLine(response);
+		readHeaders(response);
+		executeRequest(response, socketFd);
+		writeBodyFromBuffer(response);
+	}
+	catch (const std::exception& exception)
+	{
+		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
+	}
 	return (_state);
 }
 
