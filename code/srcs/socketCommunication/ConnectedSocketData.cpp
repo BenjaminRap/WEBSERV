@@ -1,12 +1,13 @@
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLIN, EPOLLOUT
 #include <vector>                   // for vector
-//
+
 #include "AFdData.hpp"              // for AFdData
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
-//
+#include "SocketsHandler.hpp"		// for SocketsHandler
+
 class Response;
 class ServerConfiguration;
 class SocketsHandler;
@@ -23,7 +24,7 @@ ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler,
 
 ConnectedSocketData::~ConnectedSocketData(void)
 {
-
+	std::cout << "ConnectedSocketData removed" << std::endl;
 }
 
 /***************************Member functions***********************************/
@@ -55,15 +56,26 @@ RequestState	ConnectedSocketData::processRequest(Response &response)
 void	ConnectedSocketData::callback(uint32_t events)
 {
 	Response	&response = _responsesHandler.getCurrentResponse();
+	bool		closing = false;
 
-	if (events & EPOLLIN)
+	try
 	{
-		if (processRequest(response) == CONNECTION_CLOSED)
-			return ;
+		if (events & EPOLLIN)
+		{
+			if (processRequest(response) == CONNECTION_CLOSED)
+				closing = true;
+		}
+		if (closing == false && events & EPOLLOUT)
+		{
+			if (_responsesHandler.sendResponsesToSocket(_fd) == FLOW_ERROR)
+				closing = true;
+		}
 	}
-	if (events & EPOLLOUT)
+	catch (const std::exception& exception)
 	{
-		if (_responsesHandler.sendResponsesToSocket(_fd) == FLOW_ERROR)
-			return ;
+		std::cerr << exception.what() << std::endl;
+		closing = true;
 	}
+	if (closing)
+		_socketsHandler.removeSocketFromList(_iterator);
 }

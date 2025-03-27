@@ -27,7 +27,7 @@ private:
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<AFdData*>		_socketsData;
+	std::list<AFdData*>			_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -58,16 +58,17 @@ private:
 
 	SocketsHandler&	operator=(const SocketsHandler &ref);
 
-	void			closeSocket(int fd);
 public:
 	SocketsHandler(const Configuration &conf);
 	~SocketsHandler();
 
 	int		epollWaitForEvent();
-	int		addFdToListeners(AFdData *FdData, uint32_t events);
+	int		addFdToListeners(AFdData &FdData, uint32_t events);
 	void	callSocketCallback(size_t eventIndex) const;
 	bool	closeIfConnectionStopped(size_t eventIndex);
 	int		bindFdToHost(int fd, const Host &host);
+	void	closeSocket(int fd);
+	void	removeSocketFromList(std::list<AFdData*>::iterator pos);
 };
 
 #endif // !SOCKETS_HANDLER_HPP

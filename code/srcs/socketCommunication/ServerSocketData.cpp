@@ -6,7 +6,6 @@
 #include <unistd.h>                 // for close
 #include <exception>                // for exception
 #include <iostream>                 // for basic_ostream, operator<<, basic_...
-#include <string>                   // for char_traits, basic_string
 #include <vector>                   // for vector
 
 #include "AFdData.hpp"              // for AFdData
@@ -32,7 +31,7 @@ ServerSocketData::ServerSocketData
 
 ServerSocketData::~ServerSocketData(void)
 {
-
+	std::cout << "ServerSocketData removed !" << std::endl;
 }
 
 
@@ -63,10 +62,10 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	}
 	try
 	{
-		ConnectedSocketData * const connectedSocketData = new ConnectedSocketData(newConnectionFd, _socketsHandler, _serverConfigurations);
+		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newConnectionFd, _socketsHandler, _serverConfigurations));
 		if (_socketsHandler.addFdToListeners(connectedSocketData, newConnectionEvents) == -1)
 		{
-			delete connectedSocketData;
+			delete &connectedSocketData;
 			std::cerr << "Can't accept new connection" << std::endl;
 			checkError(close(newConnectionFd), -1, "close() : ");
 		}

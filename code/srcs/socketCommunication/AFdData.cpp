@@ -1,11 +1,13 @@
-#include <iostream>     // for basic_ostream, operator<<, cerr, endl
-#include <list>         // for list
-#include <stdexcept>    // for invalid_argument, logic_error
-#include <string>       // for char_traits, basic_string
-#include <vector>       // for vector
-//
-#include "AFdData.hpp"  // for AFdData
-//
+#include <iostream>     			// for basic_ostream, operator<<, cerr, endl
+#include <list>         			// for list
+#include <stdexcept>    			// for invalid_argument, logic_error
+#include <string>       			// for char_traits, basic_string
+#include <vector>       			// for vector
+
+#include "AFdData.hpp"  			// for AFdData
+#include "socketCommunication.hpp"	// for closeFdAndPrintError
+#include "SocketsHandler.hpp"		// for SocketsHandler
+
 class ServerConfiguration;
 class SocketsHandler;  // lines 7-7
 
@@ -25,6 +27,7 @@ AFdData::AFdData(int fd, SocketsHandler& socketsHandler, const std::vector<Serve
 
 AFdData::~AFdData(void)
 {
+	_socketsHandler.closeSocket(_fd);
 }
 
 /**

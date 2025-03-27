@@ -78,10 +78,10 @@ const Configuration &conf,
 			continue ;
 		try
 		{
-			ServerSocketData * const serverSocketData = new ServerSocketData(fd, socketsHandler, serverConfigurations);
+			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, socketsHandler, serverConfigurations));
 			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
 			{
-				delete serverSocketData;
+				delete &serverSocketData;
 				checkError(close(fd), -1, "close() :");
 			}
 		}

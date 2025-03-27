@@ -47,7 +47,7 @@ public:
 	virtual void							callback(uint32_t events) = 0;
 
 	int										getFd() const;
-	const std::list<AFdData *>::iterator		&getIterator() const;
+	const std::list<AFdData *>::iterator&	getIterator() const;
 	void									setIterator(const std::list<AFdData *>::iterator &iterator);
 };
 

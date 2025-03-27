@@ -37,6 +37,7 @@ RequestState			RequestHandler::readRequest(Response &response, int socketFd)
 	catch (const std::exception& exception)
 	{
 		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
+		std::cerr << exception.what() << std::endl;
 	}
 	return (_state);
 }
