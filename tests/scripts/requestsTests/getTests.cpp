@@ -2,58 +2,47 @@
 
 void	getTest(void)
 {
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Classic Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/main.html", "\t\t\t\t\t");
-	testServers("/get/fake/main.cpp", "\t\t\t\t\t");
-	testServers("/get/fake/../main.html", "\t\t\t\t");
-	testServers("/get/fake/../../../../../../../../main.html", "\t\t");
-	testServers("/get/../main.html", "\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Index Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/srcs/", "\t\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Redirection Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/srcs", "\t\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t 403 Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/fake/", "\t\t\t\t\t\t");
-	testServers("/get/nonono/", "\t\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t 405 Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/405/", "\t\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t 404 Case" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/unitTest/uplo/", "\t\t\t\t\t");
-	testServers("/gknrk", "\t\t\t\t\t\t");
-	testServers("/bin/", "\t\t\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Auto Index" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/auto/", "\t\t\t\t\t\t");
-	testServers("/get/auto2/", "\t\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Folder With File Name" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/truc.txt/", "\t\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Index Specials" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get/indexIsFolder/", "\t\t\t\t\t");
-	testServers("/get/indexIsSymlink/", "\t\t\t\t\t");
-	testServers("/get/indexIsFolderAndFile/", "\t\t\t\t");
-	testServers("/get/indexIsSymlinkAndFile/", "\t\t\t\t");
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	std::cout << BBLU << "\t Fix Url Errors" << CRESET << std::endl;
-	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
-	testServers("/get//main.html", "\t\t\t\t\t");
-	testServers("/get/endWith./index.html", "\t\t\t\t");
+	printHeader("\t Classic Case");
+	testServers("", "/get/main.html", "\t\t\t\t\t");
+	testServers("", "/get/fake/main.cpp", "\t\t\t\t\t");
+	testServers("", "/get/fake/../main.html", "\t\t\t\t");
+	testServers("", "/get/fake/../../../../../../../../main.html", "\t\t");
+	testServers("", "/get/../main.html", "\t\t\t\t\t");
+
+	printHeader("\t Index Case");
+	testServers("", "/get/srcs/", "\t\t\t\t\t\t");
+
+	printHeader("\t Redirection Case");
+	testServers("", "/get/srcs", "\t\t\t\t\t\t");
+
+	printHeader("\t 403 Case");
+	testServers("", "/get/fake/", "\t\t\t\t\t\t");
+	testServers("", "/get/nonono/", "\t\t\t\t\t\t");
+
+	printHeader("\t 405 Case");
+	testServers("", "/get/405/", "\t\t\t\t\t\t");
+
+	printHeader("\t 404 Case");
+	testServers("", "/unitTest/uplo/", "\t\t\t\t\t");
+	testServers("", "/gknrk", "\t\t\t\t\t\t");
+	testServers("", "/bin/", "\t\t\t\t\t\t\t");
+
+	printHeader("\t Auto Index");
+	testServers("", "/get/auto/", "\t\t\t\t\t\t");
+	testServers("", "/get/auto2/", "\t\t\t\t\t\t");
+
+	printHeader("\t Folder With File Name");
+	testServers("", "/get/truc.txt/", "\t\t\t\t\t");
+
+	printHeader("\t Index Specials");
+	testServers("", "/get/indexIsFolder/", "\t\t\t\t\t");
+	testServers("", "/get/indexIsSymlink/", "\t\t\t\t\t");
+	testServers("", "/get/indexIsFolderAndFile/", "\t\t\t\t");
+	testServers("", "/get/indexIsSymlinkAndFile/", "\t\t\t\t");
+
+	printHeader("\t Fix Url Errors");
+	testServers("", "/get//main.html", "\t\t\t\t\t");
+	testServers("", "/get/endWith./index.html", "\t\t\t\t");
 }
 
 int	main(void)
@@ -87,4 +76,3 @@ int	main(void)
 	}
 	return (EXIT_SUCCESS);
 }
-

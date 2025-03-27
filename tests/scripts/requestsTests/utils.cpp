@@ -44,7 +44,7 @@ std::pair<int, std::string>	askServer(const std::string &host, const std::string
 
 typedef std::pair<int, std::string>	ServerReturn;
 
-void	makeGet(const std::string &url, const ServerReturn &nginx, const ServerReturn &webserv, const std::string& tab)
+void	verifyResult(const std::string &url, const ServerReturn &nginx, const ServerReturn &webserv, const std::string& tab)
 {
 	std::cout << BMAG << "Request : "<< BCYN << url << tab;
 	if (nginx.first == webserv.first && nginx.second == webserv.second)
@@ -52,16 +52,24 @@ void	makeGet(const std::string &url, const ServerReturn &nginx, const ServerRetu
 	else
 	{
 		std::cout << BRED << "KO : " << webserv.first << " | " << webserv.second << CRESET << "\t";
-		std::cout << BGRN << "nginx : " << webserv.first << " | " << nginx.second << CRESET << std::endl;
+		std::cout << BGRN << "nginx : " << nginx.first << " | " << nginx.second << CRESET << std::endl;
 	}
 }
 
-void	testServers(const std::string &url, const std::string &tab)
+void	testServers(const std::string& test, const std::string &url, const std::string &tab)
 {
 	ServerReturn nginxResult;
 	ServerReturn webservResult;
 
+	std::cout << test << std::endl;
 	nginxResult = askServer("http://localhost:8181", url, "GET");
 	webservResult = askServer("http://localhost:8080", url, "GET");
-	makeGet(url, nginxResult, webservResult, tab);
+	verifyResult(url, nginxResult, webservResult, tab);
+}
+
+void	printHeader(const std::string &header)
+{
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
+	std::cout << BBLU << "\t " << header << CRESET << std::endl;
+	std::cout << BMAG << "|-----------------------------------|" << CRESET << std::endl;
 }
