@@ -14,7 +14,6 @@
 class ARequestType
 {
 	private:
-		static const std::map<int, std::string>	_statuses;
 
 		ARequestType();
 		ARequestType(const ARequestType& src);
@@ -35,8 +34,6 @@ class ARequestType
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method);
 		virtual ~ARequestType() = 0;
-
-		static const std::string&				getStatusText(int code);
 
 		void									setRedirectionResponse(int code, const std::string &redirection);
 		void									setResponse(int code);

@@ -7,6 +7,7 @@
 #include "Response.hpp"		// for Response
 #include "protocol.hpp"		// for PROTOCOL, PROTOCOL_LENGTH
 #include "RawResponse.hpp"  // for RawResponse
+#include "Status.hpp"		// for Status
 
 /*************************Constructors / Destructors***************************/
 
@@ -16,8 +17,7 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(getFirstPart(response)),
 	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
 	_isBlocking(response.getIsBlocking()),
-	_srcBodyFd(response.getSrcBodyFd()),
-	_body(response.getBody()),
+	_srcBodyFd(response.getSrcBodyFd()), _body(response.getBody()),
 	_bodyBuffer(bodyBuffer)
 {
 	
@@ -33,16 +33,15 @@ RawResponse::~RawResponse()
 
 /*******************************Member functions*******************************/
 
-size_t	getFirstPartLength(const Response &response)
+size_t	getFirstPartLength(const std::map<std::string, std::string>& headers, const Status& status)
 {
 	size_t										length = 0;
-	const std::map<std::string, std::string>	headers = response.getHeaderMap();
 
 	length += PROTOCOL_LENGTH;
 	length += 1; // + 1 for the space
 	length += 3; // 3 for the code length
 	length += 1; // + 1 for the space
-	length += response.getStatusText().size();
+	length += status.getText().size();
 	length += LINE_END_LENGTH;
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		length += it->first.size() + it->second.size();
@@ -55,19 +54,21 @@ size_t	getFirstPartLength(const Response &response)
 
 std::string	getFirstPart(const Response &response)
 {
-	const size_t								length = getFirstPartLength(response);
+	const Status * const						status = response.getStatus();
+
+	if (status == NULL)
+		throw std::logic_error("RawResponse constructor called with an unset response !");
 	const std::map<std::string, std::string>	headers = response.getHeaderMap();
+	const size_t								length = getFirstPartLength(headers, *status);
 
 	std::string									firstPart;
-	char										statusCode[11];
 
-	std::sprintf(statusCode, "%d", response.getStatusCode());
 	firstPart.reserve(length);
 	firstPart.append(PROTOCOL)
 		.append(" ")
-		.append(statusCode)
+		.append(status->getCodeStringRepresentation())
 		.append(" ")
-		.append(response.getStatusText())
+		.append(status->getText())
 		.append(LINE_END);
 
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)

@@ -10,6 +10,7 @@
 
 #include "ARequestType.hpp"  		// for ARequestType
 #include "ServerConfiguration.hpp"
+#include "Status.hpp"				// for Status::isError, Status::getStatus
 #include "exception.hpp"			// for CustomException
 #include "protocol.hpp"				// for PROTOCOL
 #include "requestStatusCode.hpp"	// for HTTP_...
@@ -20,7 +21,7 @@
 /*********************************Constructors/Destructors*************************************/
 
 Response::Response(const ServerConfiguration& defaultConfig) :
-	_statusLine(),
+	_status(NULL),
 	_headers(),
 	_bodySrcFd(),
 	_isBlocking(false),
@@ -42,7 +43,7 @@ void	Response::addDefaultHeaders(void)
 	this->_headers.insert(std::make_pair("Date", std::asctime(std::localtime(&now))));
 	this->_headers.rbegin()->second.erase(this->_headers.rbegin()->second.size() - 1, 1);
 	this->_headers.insert(std::make_pair("Server", "WebServ de bg"));
-	if (_statusLine.statusCode >= 400)
+	if (_status->isOfType(STATUS_ERROR))
 		this->_headers.insert(std::make_pair("Connection", "close"));
 	else
 		this->_headers.insert(std::make_pair("Connection", "keep-alive"));
@@ -67,38 +68,38 @@ void	Response::setBody(ARequestType& requestResult, int socketFd)
 * if there is an error finding the error page.
 * @note it should be called before the functions adding headers as it can change the code.
 */
-void	Response::setErrorPage(const ServerConfiguration& serverConfiguration)
+uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration)
 {
-	if (_statusLine.statusCode < 400)
-		return ;
+	if (Status::isCodeOfType(code, STATUS_ERROR) == false)
+		return (code);
 	_bodySrcFd.stopManagingResource();
 	try
 	{
-		const std::string& errorPage = serverConfiguration.getErrorPage(_statusLine.statusCode);
+		const std::string& errorPage = serverConfiguration.getErrorPage(code);
 		const int fd = open(errorPage.c_str(), O_RDONLY);
 		if (fd != -1)
 		{
 			_bodySrcFd.setManagedResource(fd, closeFdAndPrintError);
-			return ;
+			return (code);
 		}
 		if (errno == ENOENT)
-			_statusLine.statusCode = HTTP_NOT_FOUND;
+			return (HTTP_NOT_FOUND);
 		else if (errno == EACCES)
-			_statusLine.statusCode = HTTP_FORBIDDEN;
+			return (HTTP_FORBIDDEN);
 		else
-			_statusLine.statusCode = HTTP_INTERNAL_SERVER_ERROR;
+			return (HTTP_INTERNAL_SERVER_ERROR);
 	}
 	catch (const CustomException& exception)
 	{
+		return (code);
 	}
 }
 
 void	Response::initValues(int code, const ServerConfiguration& serverConfiguration)
 {
 
-	this->_statusLine.statusCode = code;
-	setErrorPage(serverConfiguration); // the order is important because it changes the code
-	this->_statusLine.statusText = ARequestType::getStatusText(code);
+	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
+	_status = &Status::getStatus(code);
 	addDefaultHeaders();
 }
 
@@ -114,7 +115,7 @@ void	Response::setResponse(ARequestType& requestResult, int socketFd)
 	_bodySrcFd = requestResult.getOutFd();
 	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
-		&& _statusLine.statusCode >= 300 && _statusLine.statusCode < 400)
+		&& _status->isOfType(STATUS_REDIRECTION))
 	{
 		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
 	}
@@ -123,24 +124,13 @@ void	Response::setResponse(ARequestType& requestResult, int socketFd)
 
 void	Response::reset()
 {
-	this->_statusLine.statusCode = HTTP_INTERNAL_SERVER_ERROR;
-	this->_statusLine.statusText = ARequestType::getStatusText(HTTP_INTERNAL_SERVER_ERROR);
+	this->_status = NULL;
 	this->_headers.clear();
 	this->_bodySrcFd.stopManagingResource();
 	this->_body.stopManagingResource();
 }
 
 /**********************************Getters**************************************************/
-
-uint16_t	Response::getStatusCode(void) const
-{
-	return (this->_statusLine.statusCode);
-}
-
-const std::string	&Response::getStatusText(void) const
-{
-	return (this->_statusLine.statusText);
-}
 
 const std::string	*Response::getHeader(const std::string &key) const
 {
@@ -172,13 +162,23 @@ SharedResource<ABody*>	Response::getBody(void) const
 	return (_body);
 }
 
+const Status*	Response::getStatus(void) const
+{
+	return (_status);
+}
+
 /*********************************Operator Overload**********************************************/
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs)
 {
-	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
+	const std::map<std::string, std::string>&	header = rhs.getHeaderMap();
+	const Status * const						status = rhs.getStatus();
 
-	std::cout << PROTOCOL << " " << rhs.getStatusCode() << " " << rhs.getStatusText() << '\n';
+	std::cout << PROTOCOL << " ";
+	if (status == NULL)
+		std::cout << "unset unset\n";
+	else
+		std::cout << status->getCode() << " " << status->getText() << '\n';
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{

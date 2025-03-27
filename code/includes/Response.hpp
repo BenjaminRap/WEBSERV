@@ -10,6 +10,8 @@
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 # include "SharedResource.hpp"		// for SharedResource
 
+class Status;
+
 class	ARequestType;
 
 /**
@@ -23,21 +25,7 @@ class	ARequestType;
 class Response
 {
 private:
-	/**
-	 * @brief The first line of the response.
-	 */
-	struct statusLineResponse
-	{
-		/**
-		 * @brief The return code [100, 600[
-		 */
-		uint16_t	statusCode;
-		/**
-		 * @brief The text associated with the status code. Each status code has
-		 * a single status line that corresponds.
-		 */
-		std::string	statusText;
-	}									_statusLine;
+	const Status*						_status;
 	std::map<std::string, std::string>	_headers;
 	/**
 	 * @brief The file descriptor of the body.If there is no body, this variable
@@ -55,7 +43,7 @@ private:
 
 	void										addDefaultHeaders(void);
 	void										setBody(ARequestType& requestResult, int socketFd);
-	void										setErrorPage(const ServerConfiguration& serverConfiguration);
+	uint16_t									setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration);
 	void										initValues(int code, const ServerConfiguration& serverConfiguration);
 
 public:
@@ -66,10 +54,9 @@ public:
 	void										setResponse(ARequestType& ARequestType, int socketFd);
 	void										reset();
 
-	uint16_t									getStatusCode(void) const;
-	const std::string							&getStatusText(void) const;
-	const std::string							*getHeader(const std::string &key) const;
-	const std::map<std::string, std::string>	&getHeaderMap(void) const;
+	const Status*								getStatus(void) const;
+	const std::string*							getHeader(const std::string &key) const;
+	const std::map<std::string, std::string>&	getHeaderMap(void) const;
 	bool										getIsBlocking(void) const;
 	SharedResource<int>							getSrcBodyFd(void) const;
 	SharedResource<ABody*>						getBody(void) const;
