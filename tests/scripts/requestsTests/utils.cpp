@@ -1,8 +1,7 @@
 #include <cstdlib>
-#include <stdexcept>
-#include <string>
 #include <sstream>
 #include <unistd.h>
+#include <iostream>
 
 #define BRED "\e[1;3;31m"
 #define BGRN "\e[1;3;32m"
@@ -13,7 +12,7 @@
 #define BWHT "\e[1;3;37m"
 #define CRESET "\e[0m"
 
-std::pair<int, std::string>	askNginx(const std::string &url,const std::string &method)
+std::pair<int, std::string>	askServer(const std::string &host, const std::string &url,const std::string &method)
 {
 	int					tube[2];
 	char				buffer[1024];
@@ -22,7 +21,7 @@ std::pair<int, std::string>	askNginx(const std::string &url,const std::string &m
 	std::string			statusText;
 
 	pipe(tube);
-	ss << "node ../tests/scripts/makeRequest.js " << url << " " << method << " 1>&" << tube[1];
+	ss << "node ../makeRequest.js " << host << url << " " << method << " 1>&" << tube[1];
 	const std::string	command(ss.str());
 	ss.str("");
 
@@ -39,4 +38,30 @@ std::pair<int, std::string>	askNginx(const std::string &url,const std::string &m
 	close(tube[0]);
 	close(tube[1]);
 	return (std::pair<int, std::string>(status, statusText));
+}
+
+
+
+typedef std::pair<int, std::string>	ServerReturn;
+
+void	makeGet(const std::string &url, const ServerReturn &nginx, const ServerReturn &webserv, const std::string& tab)
+{
+	std::cout << BMAG << "Request : "<< BCYN << url << tab;
+	if (nginx.first == webserv.first && nginx.second == webserv.second)
+		std::cout << BGRN << "OK | " << webserv.first << " [" << webserv.second << "]" << CRESET << std::endl;
+	else
+	{
+		std::cout << BRED << "KO : " << webserv.first << " | " << webserv.second << CRESET << "\t";
+		std::cout << BGRN << "nginx : " << webserv.first << " | " << nginx.second << CRESET << std::endl;
+	}
+}
+
+void	testServers(const std::string &url, const std::string &tab)
+{
+	ServerReturn nginxResult;
+	ServerReturn webservResult;
+
+	nginxResult = askServer("http://localhost:8181", url, "GET");
+	webservResult = askServer("http://localhost:8080", url, "GET");
+	makeGet(url, nginxResult, webservResult, tab);
 }
