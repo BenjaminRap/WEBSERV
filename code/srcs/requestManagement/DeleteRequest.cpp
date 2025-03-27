@@ -3,13 +3,13 @@
 
 class ServerConfiguration;
 
-int							isDirOrFile(const std::string& path);
-int							directoryCase(const std::string &path, DeleteRequest &del);
-int							fileCase(const std::string &path, DeleteRequest &del);
+uint16_t	isDirOrFile(const std::string& path);
+uint16_t	directoryCase(const std::string &path, DeleteRequest &del);
+uint16_t	fileCase(const std::string &path, DeleteRequest &del);
 
 DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, DELETE)
 {
-	int			fileType;
+	uint16_t	fileType;
 
 	if (this->_code != 0)
 		return ;

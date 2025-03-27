@@ -10,8 +10,8 @@
 
 class ServerConfiguration;  // lines 9-9
 
-int							isDirOrFile(const std::string& path);
-bool						canWrite(const std::string &path);
+uint16_t	isDirOrFile(const std::string& path);
+bool		canWrite(const std::string &path);
 
 std::string getName(std::string &path)
 {
@@ -37,7 +37,7 @@ void	removeFileName(std::string &url)
 PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, PUT)
 {
 	std::string path;
-	int			fileType;
+	uint16_t	fileType;
 
 	if (this->_code != 0)
 		return ;

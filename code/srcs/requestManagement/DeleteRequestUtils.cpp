@@ -9,8 +9,8 @@
 #include "DeleteRequest.hpp"      // for DeleteRequest
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_CO...
 
-int				isDirOrFile(const std::string &path);
-int				removeDirectory(const std::string &path, DeleteRequest &del);
+uint16_t		isDirOrFile(const std::string &path);
+uint16_t		removeDirectory(const std::string &path, DeleteRequest &del);
 std::string		getParentPath(const std::string &path);
 
 void	checkEnd(std::string &path, DeleteRequest &del)
@@ -39,7 +39,7 @@ bool	canWrite(const std::string &path)
 	return (true);
 }
 
-int	directoryCase(const std::string &path, DeleteRequest &del)
+uint16_t	directoryCase(const std::string &path, DeleteRequest &del)
 {
 	checkEnd(del.getUrl(), del);
 	if (del.getCode() == HTTP_CONFLICT)
@@ -63,7 +63,7 @@ std::string	getParentPath(const std::string &path)
 	return (temp);
 }
 
-int	removeDirectory(const std::string &path, DeleteRequest &del)
+uint16_t	removeDirectory(const std::string &path, DeleteRequest &del)
 {
 	DIR				*dw;
 	struct dirent	*res;
@@ -100,7 +100,7 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 	return (HTTP_OK);
 }
 
-int	fileCase(const std::string &path, DeleteRequest &del)
+uint16_t	fileCase(const std::string &path, DeleteRequest &del)
 {
 	if (!canWrite(getParentPath(path)))
 		del.setResponse(HTTP_FORBIDDEN);

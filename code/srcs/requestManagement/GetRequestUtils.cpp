@@ -25,7 +25,7 @@ void	checkType(std::string &path, GetRequest &get)
 		get.setUrl(path);
 }
 
-int	isDirOrFile(const std::string& path)
+uint16_t	isDirOrFile(const std::string& path)
 {
 	struct stat	stats;
 
@@ -50,7 +50,7 @@ int	isDirOrFile(const std::string& path)
 	return (HTTP_NOT_FOUND);
 }
 
-int	ls(const std::string& path, std::list<std::string> &lst)
+uint16_t	ls(const std::string& path, std::list<std::string> &lst)
 {
 	DIR				*dw;
 	struct dirent	*res;
@@ -123,7 +123,7 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 {
 	size_t		size;
 	std::string	temp;
-	int			ret;
+	uint16_t	ret;
 
 	size = indexs.size();
 	for (unsigned long i = 0; i < size; i++)
@@ -145,7 +145,7 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 void	autoIndexCase(GetRequest &get)
 {
 	std::list<std::string>	files;
-	int						response;
+	uint16_t				response;
 
 	response = ls(get.getUrl(), files);
 	if (Status::isCodeOfType(response, STATUS_ERROR))

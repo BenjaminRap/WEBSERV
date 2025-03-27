@@ -1,6 +1,5 @@
 #include <fcntl.h>                  // for open, O_RDONLY
 #include <stddef.h>                 // for NULL
-#include <list>                     // for list
 #include <string>                   // for string, basic_string
 
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
@@ -10,15 +9,13 @@
 #include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
 #include "socketCommunication.hpp"	// for checkError
 
-int							isDirOrFile(const std::string& path);
-void						fixPath(std::string &path);
-void						directoryCase(GetRequest& get);
-std::string					buildPage(std::list<std::string>	&files, const std::string& path);
-ssize_t						getFileSize(const std::string &filePath);
+uint16_t	isDirOrFile(const std::string& path);
+void		directoryCase(GetRequest& get);
+ssize_t		getFileSize(const std::string &filePath);
 
 GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET)
 {
-	int			targetType;
+	uint16_t	targetType;
 
 	if (this->_code != 0)
 		return ;
