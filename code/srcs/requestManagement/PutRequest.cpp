@@ -37,17 +37,20 @@ void	removeFileName(std::string &url)
 PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, PUT)
 {
 	std::string path;
-	int			ret;
+	int			fileType;
 
 	if (this->_code != 0)
 		return ;
 	this->_fileName = getName(this->_url);
 	path = this->_url;
 	removeFileName(this->_url);
-	ret = isDirOrFile(path);
-	if ((ret != NF && ret != HTTP_FORBIDDEN) || (this->_fileName.empty() && ret == NF))
+	fileType = isDirOrFile(path);
+	if ((fileType == DIRE || fileType == LS_FILE)
+		|| (this->_fileName.empty() && fileType == HTTP_NOT_FOUND))
+	{
 		this->setResponse(HTTP_CONFLICT);
-	else if (!canWrite( this->_url) && ret != HTTP_FORBIDDEN)
+	}
+	else if (!canWrite(this->_url) && fileType != HTTP_FORBIDDEN)
 		this->setResponse(HTTP_FORBIDDEN);
 	else
 	{

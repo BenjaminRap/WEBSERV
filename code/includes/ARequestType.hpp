@@ -9,7 +9,6 @@
 
 # define DIRE 1
 # define LS_FILE 2
-# define NF 3
 
 class ARequestType
 {

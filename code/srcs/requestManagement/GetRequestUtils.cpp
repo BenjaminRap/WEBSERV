@@ -37,7 +37,7 @@ int	isDirOrFile(const std::string& path)
 		if (errno == EACCES)
 			return (HTTP_FORBIDDEN);
 		else if (errno == ENOENT || errno == ENOTDIR)
-			return (NF);
+			return (HTTP_NOT_FOUND);
 		else
 		{
 			return (HTTP_INTERNAL_SERVER_ERROR);
@@ -47,7 +47,7 @@ int	isDirOrFile(const std::string& path)
 		return (DIRE);
 	else if (S_ISREG(stats.st_mode))
 		return (LS_FILE);
-	return (NF);
+	return (HTTP_NOT_FOUND);
 }
 
 int	ls(const std::string& path, std::list<std::string> &lst)

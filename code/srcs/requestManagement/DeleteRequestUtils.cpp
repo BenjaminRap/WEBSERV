@@ -43,8 +43,8 @@ int	directoryCase(const std::string &path, DeleteRequest &del)
 {
 	checkEnd(del.getUrl(), del);
 	if (del.getCode() == HTTP_CONFLICT)
-		del.setResponse(HTTP_CONFLICT);
-	else if (!canWrite(path) || removeDirectory(path, del) != 0
+		return (HTTP_CONFLICT);
+	if (!canWrite(path) || removeDirectory(path, del) != HTTP_OK
 			|| !canWrite(getParentPath(path)) || std::remove(path.c_str()) != 0)
 		del.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else

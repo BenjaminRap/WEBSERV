@@ -1,6 +1,5 @@
 #include "DeleteRequest.hpp"
 #include "EMethods.hpp"           // for EMethods
-#include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_NOT_FOUND
 
 class ServerConfiguration;
 
@@ -10,19 +9,17 @@ int							fileCase(const std::string &path, DeleteRequest &del);
 
 DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, DELETE)
 {
-	int			temp;
+	int			fileType;
 
 	if (this->_code != 0)
 		return ;
-	temp = isDirOrFile(this->_url);
-	if (temp == DIRE)
+	fileType = isDirOrFile(this->_url);
+	if (fileType == DIRE)
 		directoryCase(this->_url, *this);
-	else if (temp == LS_FILE)
+	else if (fileType == LS_FILE)
 		fileCase(this->_url, *this);
-	else if (temp == -1)
-		this->setResponse(HTTP_FORBIDDEN);
 	else
-		setResponse(HTTP_NOT_FOUND);
+		setResponse(fileType);
 }
 
 DeleteRequest::~DeleteRequest()
