@@ -1,4 +1,8 @@
-#include "Status.hpp"
+#include <map>         // for map
+#include <string>      // for basic_string
+#include <utility>     // for make_pair
+
+#include "Status.hpp"  // for Status
 
 const std::map<int, Status>	getStatuses(void);
 

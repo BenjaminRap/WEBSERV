@@ -1,14 +1,16 @@
-#include <fcntl.h>                  // for fcntl, open, FD_CLOEXEC, F_SETFL
+#include <fcntl.h>                  // for open, FD_CLOEXEC, O_CREAT, O_EXCL
+#include <stdint.h>                 // for uint16_t
 #include <cstring>                  // for size_t
 #include <string>                   // for basic_string, string
 
-#include "ARequestType.hpp"         // for NF, ARequestType
+#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "PutRequest.hpp"           // for PutRequest
-#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_CONFLICT
-#include "socketCommunication.hpp"  // for checkError
+#include "SharedResource.hpp"       // for SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
+#include "socketCommunication.hpp"  // for addFlagsToFd, checkError, closeFd...
 
-class ServerConfiguration;  // lines 9-9
+class ServerConfiguration;  // lines 11-11
 
 uint16_t	isDirOrFile(const std::string& path);
 bool		canWrite(const std::string &path);

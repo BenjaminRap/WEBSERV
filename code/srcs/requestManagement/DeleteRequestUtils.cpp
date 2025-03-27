@@ -1,4 +1,5 @@
 #include <dirent.h>               // for closedir, dirent, opendir, readdir
+#include <stdint.h>               // for uint16_t
 #include <sys/stat.h>             // for stat, S_IWGRP, S_IWOTH
 #include <cstdio>                 // for remove, size_t
 #include <cstring>                // for strcmp, memset

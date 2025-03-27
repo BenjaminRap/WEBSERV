@@ -1,19 +1,21 @@
-#include <stddef.h>                 // for NULL
 #include <algorithm>                // for find
-#include <iostream>                 // for basic_ostream, cout, operator<<
+#include <cstdio>                   // for NULL
+#include <iostream>                 // for basic_ostream, operator<<, basic_ios
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, string, operator==
 #include <vector>                   // for vector
 
+#include "ARequestType.hpp"         // for ARequestType
 #include "DeleteRequest.hpp"        // for DeleteRequest
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
 #include "PutRequest.hpp"           // for PutRequest
 #include "Request.hpp"              // for Request, operator<<
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
-#include "Response.hpp"             // for operator<<, Response (ptr only)
+#include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"	// for HTTP_...
+#include "SharedResource.hpp"       // for SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_OK
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 {

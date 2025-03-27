@@ -1,6 +1,12 @@
-#include <sstream>		// for ostringstream
+#include <stddef.h>    // for size_t
+#include <stdint.h>    // for uint16_t, uint8_t
+#include <map>         // for map, operator==
+#include <sstream>     // for basic_ostringstream, basic_ostream, char_traits
+#include <stdexcept>   // for logic_error
+#include <string>      // for basic_string, allocator, string
+#include <utility>     // for pair
 
-#include "Status.hpp"	// for Status
+#include "Status.hpp"  // for Status, StatusType, operator==
 
 /*******************************Constructors/Destructors*********************************/
 

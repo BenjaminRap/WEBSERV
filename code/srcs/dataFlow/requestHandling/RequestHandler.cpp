@@ -1,12 +1,13 @@
-#include <exception>				// for std::exception
-#include <vector>              		// for vector
+#include <exception>              // for exception
+#include <iostream>               // for char_traits, basic_ostream, basic_ios
+#include <vector>                 // for vector
 
-#include "Request.hpp"         		// for Request
-#include "requestStatusCode.hpp"	// for HTTP_INTERNAL_SERVER_ERROR
-#include "RequestHandler.hpp"  		// for RequestHandler, RequestState, REQUEST_...
+#include "Request.hpp"            // for Request
+#include "RequestHandler.hpp"     // for RequestHandler, RequestState, REQUE...
+#include "Response.hpp"           // for Response
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
 
-class Response;
-class ServerConfiguration;
+class ServerConfiguration;  // lines 9-9
 
 /************************Constructors/Destructors******************************/
 

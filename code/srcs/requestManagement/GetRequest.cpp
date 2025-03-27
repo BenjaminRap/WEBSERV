@@ -1,13 +1,16 @@
 #include <fcntl.h>                  // for open, O_RDONLY
-#include <stddef.h>                 // for NULL
-#include <string>                   // for string, basic_string
+#include <stdint.h>                 // for uint16_t
+#include <sys/types.h>              // for ssize_t
+#include <string>                   // for basic_string, string
 
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
-#include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
-#include "socketCommunication.hpp"	// for checkError
+#include "SharedResource.hpp"       // for SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
+#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
+
+class ServerConfiguration;
 
 uint16_t	isDirOrFile(const std::string& path);
 void		directoryCase(GetRequest& get);

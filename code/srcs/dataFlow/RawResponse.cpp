@@ -1,13 +1,16 @@
-#include <cstdio>			// for sprintf
-#include <stddef.h>         // for NULL, size_t
-#include <unistd.h>			// for close
+#include <stddef.h>            // for size_t, NULL
+#include <map>                 // for map, _Rb_tree_const_iterator, operator!=
+#include <stdexcept>           // for logic_error
+#include <string>              // for basic_string, string
+#include <utility>             // for pair
 
-#include "ABody.hpp"        // for ABody
-#include "FlowBuffer.hpp"   // for FlowState, FlowBuffer
-#include "Response.hpp"		// for Response
-#include "protocol.hpp"		// for PROTOCOL, PROTOCOL_LENGTH
-#include "RawResponse.hpp"  // for RawResponse
-#include "Status.hpp"		// for Status
+#include "ABody.hpp"           // for ABody
+#include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
+#include "RawResponse.hpp"     // for RawResponse, LINE_END, LINE_END_LENGTH
+#include "Response.hpp"        // for Response
+#include "SharedResource.hpp"  // for SharedResource
+#include "Status.hpp"          // for Status, StatusType
+#include "protocol.hpp"        // for PROTOCOL, PROTOCOL_LENGTH
 
 /*************************Constructors / Destructors***************************/
 

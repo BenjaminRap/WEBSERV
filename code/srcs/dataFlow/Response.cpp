@@ -1,22 +1,24 @@
-#include <fcntl.h>					// for O_RDONLY
-#include <stdint.h>         		// for uint16_t
-#include <ctime>             		// for asctime, localtime, time, NULL, time_t
-#include <iostream>          		// for basic_ostream, operator<<, basic_ios, cout
-#include <iterator>          		// for reverse_iterator
-#include <map>               		// for map, operator!=, _Rb_tree_const_iterator
-#include <string>            		// for basic_string, char_traits, string, opera...
-#include <unistd.h>					// for close
-#include <utility>           		// for make_pair, pair
+#include <errno.h>                  // for errno, EACCES, ENOENT
+#include <fcntl.h>                  // for open, O_RDONLY
+#include <stdint.h>                 // for uint16_t
+#include <ctime>                    // for NULL, gmtime, strftime, time, size_t
+#include <iostream>                 // for basic_ostream, operator<<, cout
+#include <map>                      // for map, operator!=, _Rb_tree_const_i...
+#include <string>                   // for basic_string, char_traits, string
+#include <utility>                  // for make_pair, pair
 
-#include "ARequestType.hpp"  		// for ARequestType
-#include "ServerConfiguration.hpp"
-#include "Status.hpp"				// for Status::isError, Status::getStatus
-#include "exception.hpp"			// for CustomException
-#include "protocol.hpp"				// for PROTOCOL
-#include "requestStatusCode.hpp"	// for HTTP_...
-#include "Response.hpp"      		// for Response, operator<<
-#include "SizedBody.hpp"			// for SizedBody
-#include "socketCommunication.hpp"	// for closeFdAndPrintError
+#include "ARequestType.hpp"         // for ARequestType
+#include "Response.hpp"             // for Response, operator<<
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "SharedResource.hpp"       // for SharedResource
+#include "SizedBody.hpp"            // for SizedBody
+#include "Status.hpp"               // for Status, StatusType
+#include "exception.hpp"            // for CustomException
+#include "protocol.hpp"             // for PROTOCOL
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
+#include "socketCommunication.hpp"  // for closeFdAndPrintError
+
+class ABody;
 
 /*********************************Constructors/Destructors*************************************/
 

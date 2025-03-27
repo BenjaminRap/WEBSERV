@@ -2,22 +2,21 @@
 #include <sys/epoll.h>              // for epoll_event, epoll_ctl, epoll_create
 #include <sys/socket.h>             // for AF_UNIX, bind, sockaddr, socklen_t
 #include <sys/un.h>                 // for sa_family_t
-#include <unistd.h>                 // for close
 #include <cstdio>                   // for size_t, NULL
 #include <exception>                // for exception
-#include <iostream>                 // for basic_ostream, operator<<, endl
-#include <list>                     // for list, _List_const_iterator, opera...
+#include <iostream>                 // for basic_ostream, operator<<, cerr
+#include <list>                     // for list, operator!=, _List_const_ite...
 #include <map>                      // for operator!=, _Rb_tree_const_iterator
 #include <stdexcept>                // for logic_error
 #include <string>                   // for char_traits, basic_string, string
 #include <utility>                  // for pair
 #include <vector>                   // for vector
-//
+
 #include "AFdData.hpp"              // for AFdData
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
 #include "SocketsHandler.hpp"       // for SocketsHandler
-#include "socketCommunication.hpp"  // for checkError, bindUnixSocket, remov...
+#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
 
 bool	SocketsHandler::_instanciated = false;
 

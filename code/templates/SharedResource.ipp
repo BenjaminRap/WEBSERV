@@ -1,3 +1,5 @@
+// IWYU pragma: private, include "SharedResource.hpp"
+
 #include <stdexcept>			// for logic_error
 
 #include "SharedResource.hpp"	// for SharedResource

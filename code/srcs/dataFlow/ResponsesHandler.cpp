@@ -1,10 +1,12 @@
-#include <iostream>              // for char_traits, basic_ostream, operator<<
+#include <iostream>              // for basic_ostream, char_traits, operator<<
 #include <queue>                 // for queue
 
 #include "FlowBuffer.hpp"        // for FlowState
 #include "RawResponse.hpp"       // for RawResponse
-#include "Response.hpp"          // for Response
+#include "Response.hpp"          // for operator<<, Response
 #include "ResponsesHandler.hpp"  // for ResponsesHandler, RESPONSE_BUFFER_SIZE
+
+class ServerConfiguration;
 
 /*************************Constructors / Destructors **************************/
 

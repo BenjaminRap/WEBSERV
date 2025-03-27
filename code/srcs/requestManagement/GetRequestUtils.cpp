@@ -1,16 +1,17 @@
 #include <dirent.h>               // for closedir, opendir, readdir, DIR
+#include <stdint.h>               // for uint16_t
 #include <sys/stat.h>             // for stat, S_ISDIR, S_ISREG
 #include <cerrno>                 // for errno, EACCES, ENOENT, ENOTDIR
 #include <cstring>                // for memset, size_t
 #include <list>                   // for list, _List_iterator, operator!=
 #include <new>                    // for bad_alloc
-#include <string>                 // for basic_string, string, char_traits
-#include <vector>                 // for allocator, vector
+#include <string>                 // for basic_string, allocator, string
+#include <vector>                 // for vector
 
-#include "ARequestType.hpp"       // for DIRE, LS_FILE, NF
+#include "ARequestType.hpp"       // for DIRE, LS_FILE
 #include "GetRequest.hpp"         // for GetRequest
+#include "Status.hpp"             // for Status, StatusType
 #include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
-#include "Status.hpp"				// for Status::isCodeOfType
 
 void	checkType(std::string &path, GetRequest &get)
 {

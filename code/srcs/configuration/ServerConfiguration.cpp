@@ -1,7 +1,8 @@
 #include <stddef.h>                 // for size_t, NULL
+#include <stdint.h>                 // for uint16_t
 #include <map>                      // for map, _Rb_tree_const_iterator, ope...
-#include <ostream>                  // for basic_ostream, char_traits, opera...
-#include <string>                   // for string, basic_string, operator<<
+#include <ostream>                  // for basic_ostream, operator<<, endl
+#include <string>                   // for char_traits, string, basic_string
 #include <utility>                  // for pair
 #include <vector>                   // for vector
 

@@ -1,7 +1,11 @@
-#include "DeleteRequest.hpp"
-#include "EMethods.hpp"           // for EMethods
+#include <stdint.h>           // for uint16_t
+#include <string>             // for string, basic_string
 
-class ServerConfiguration;
+#include "ARequestType.hpp"   // for ARequestType, DIRE, LS_FILE
+#include "DeleteRequest.hpp"  // for DeleteRequest
+#include "EMethods.hpp"       // for EMethods
+
+class ServerConfiguration;  // lines 6-6
 
 uint16_t	isDirOrFile(const std::string& path);
 uint16_t	directoryCase(const std::string &path, DeleteRequest &del);

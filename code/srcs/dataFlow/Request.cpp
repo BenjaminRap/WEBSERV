@@ -1,18 +1,19 @@
-#include <algorithm>      			// for find
-#include <cstring>        			// for memcmp, NULL, size_t
-#include <exception>      			// for exception
-#include <iostream>       			// for basic_ostream, operator<<, endl, cout, basi...
-#include <map>            			// for map, operator!=, _Rb_tree_const_iterator
-#include <string>         			// for basic_string, char_traits, string, operator<<
-#include <utility>        			// for pair, make_pair
-#include <unistd.h>					// for close
+#include <algorithm>              // for find
+#include <cstring>                // for memcmp, size_t, NULL
+#include <exception>              // for exception
+#include <iostream>               // for basic_ostream, operator<<, endl, cout
+#include <map>                    // for map, operator!=, _Rb_tree_const_ite...
+#include <string>                 // for basic_string, char_traits, string
+#include <utility>                // for pair, make_pair
 
-#include "ABody.hpp"      			// for ABody
-#include "EMethods.hpp"   			// for EMethods
-#include "Request.hpp"    			// for Request, operator<<
-#include "SizedBody.hpp"  			// for SizedBody
-#include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
-#include "requestStatusCode.hpp"	// for HTTP_...
+#include "EMethods.hpp"           // for EMethods, getStringRepresentation
+#include "Request.hpp"            // for Request, operator<<
+#include "SharedResource.hpp"     // for SharedResource
+#include "SizedBody.hpp"          // for SizedBody
+#include "protocol.hpp"           // for PROTOCOL, PROTOCOL_LENGTH
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
+
+class ABody;
 
 /*****************************Constructors/Destructors*********************************/
 

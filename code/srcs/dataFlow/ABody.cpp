@@ -1,8 +1,7 @@
-#include <stddef.h>                 // for size_t
-#include <sys/types.h>              // for ssize_t
-#include <unistd.h>                 // for close
+#include <stddef.h>     // for size_t
+#include <sys/types.h>  // for ssize_t
 
-#include "ABody.hpp"                // for ABody
+#include "ABody.hpp"    // for ABody
 
 ABody::ABody(int fd) :
 	_fd(fd),

@@ -1,14 +1,15 @@
 #include <stddef.h>                 // for size_t, NULL
+#include <sys/stat.h>               // for stat
+#include <sys/types.h>              // for ssize_t
 #include <string>                   // for basic_string, string
 #include <vector>                   // for vector
-#include <sys/stat.h>				// for stat
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route, SRedirection
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
-#include "socketCommunication.hpp"	// for checkError
+#include "socketCommunication.hpp"  // for checkError
 
 bool	checkAllowMeth(const Route &route, EMethods meth)
 {

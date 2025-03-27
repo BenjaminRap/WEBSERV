@@ -1,14 +1,15 @@
-#include <stddef.h>                 // for NULL
-#include <unistd.h>                 // for close
-#include <map>                      // for map, operator==
+#include <stddef.h>                 // for NULL, size_t
+#include <stdint.h>                 // for uint16_t
+#include <map>                      // for map
 #include <string>                   // for string, basic_string
+#include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
+#include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
-
-class Route;
 
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);
