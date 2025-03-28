@@ -6,22 +6,24 @@
 #include "EMethods.hpp"  // for EMethods
 #include "Route.hpp"     // for Route, SRedirection, operator<<
 
-Route::Route(const std::vector<EMethods> &acceptedMethods, \
-			const SRedirection &redirection, \
-			const std::vector<std::string> &index, \
-			const bool &auto_index, \
-			const std::string &root, \
-			const std::string &cgiFileExtension, \
-			const bool	&acceptUploads) : \
-			acceptedMethods(acceptedMethods), \
-			redirection(redirection), \
-			index(index), \
-			autoIndex(auto_index), \
-			root(root), \
-			cgiFileExtension(cgiFileExtension), \
-			acceptUploads(acceptUploads)
+Route::Route
+(
+	const std::vector<EMethods> &acceptedMethods,
+	const SRedirection &redirection,
+	const std::vector<std::string> &index,
+	const bool &auto_index,
+	const std::string &root,
+	const std::string &cgiFileExtension,
+	const bool	&acceptUploads
+) :
+	acceptedMethods(acceptedMethods),
+	redirection(redirection),
+	index(index),
+	autoIndex(auto_index),
+	root(root),
+	cgiFileExtension(cgiFileExtension),
+	acceptUploads(acceptUploads)
 {
-	return;
 }
 
 Route::Route(Route const &src)

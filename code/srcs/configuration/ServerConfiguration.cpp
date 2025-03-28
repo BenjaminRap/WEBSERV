@@ -10,20 +10,22 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration, operator<<
 #include "exception.hpp"            // for CustomException
 
-ServerConfiguration::ServerConfiguration(	const std::vector<std::string> &serverNames, \
-											const std::map<unsigned short, std::string> &errorPages, \
-											const size_t &maxClientBodySize, \
-											const std::map<std::string, Route> &routes, \
-											const std::string &root, \
-											const std::vector<std::string> &index) : \
-											serverNames(serverNames), \
-											errorPages(errorPages), \
-											maxClientBodySize(maxClientBodySize), \
-											routes(routes), \
-											root(root), \
-											index(index)
+ServerConfiguration::ServerConfiguration
+(
+	const std::vector<std::string> &serverNames,
+	const std::map<unsigned short, std::string> &errorPages,
+	const size_t &maxClientBodySize,
+	const std::map<std::string, Route> &routes,
+	const std::string &root,
+	const std::vector<std::string> &index
+) :
+	serverNames(serverNames),
+	errorPages(errorPages),
+	maxClientBodySize(maxClientBodySize),
+	routes(routes),
+	root(root),
+	index(index)
 {
-	return ;
 }
 
 ServerConfiguration::ServerConfiguration(ServerConfiguration const &src)

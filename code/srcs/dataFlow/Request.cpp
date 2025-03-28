@@ -24,7 +24,7 @@ Request::Request(void) :
 	_isBlocking(false),
 	_body()
 {
-	_statusLine.method = GET;
+	_statusLine.method = (EMethods)-1;
 	_statusLine.requestTarget = "";
 }
 
@@ -32,7 +32,7 @@ Request::~Request(void)
 {
 }
 
-/**********************************Methods*********************************************/
+/*******************************Public Methods*********************************************/
 
 void	Request::reset()
 {
@@ -40,6 +40,7 @@ void	Request::reset()
 	this->_statusLine.requestTarget.clear();
 	this->_headers.clear();
 	_bodyDestFd.stopManagingResource();
+	_isBlocking = false;
 	_body.stopManagingResource();
 }
 

@@ -10,17 +10,24 @@
 
 # include "Route.hpp"  // for Route
 
-/// @brief The configuration specific for each server
+/**
+ * @class ServerConfiguration
+ * @brief The configuration specific for each server
+ *
+ */
 class ServerConfiguration
 {
 public :
 
-	ServerConfiguration(const std::vector<std::string> &serverNames, \
-						const std::map<unsigned short, std::string> &errorPages, \
-						const size_t &maxClientBodySize, \
-						const std::map<std::string, Route> &routes, \
-						const std::string &root, \
-						const std::vector<std::string> &index);
+	ServerConfiguration
+	(
+		const std::vector<std::string> &serverNames,
+		const std::map<unsigned short, std::string> &errorPages,
+		const size_t &maxClientBodySize,
+		const std::map<std::string, Route> &routes,
+		const std::string &root,
+		const std::vector<std::string> &index
+	);
 	ServerConfiguration(ServerConfiguration const &src);
 	~ServerConfiguration(void);
 
@@ -35,15 +42,37 @@ public :
 	const std::vector<std::string>&				getIndex(void) const;
 
 private :
+	/**
+	 * @brief A vector of the differents server names this server
+	 * can be referred to. It will be sued to determine if the request
+	 * ask for this ServerConfiguration or not.
+	 */
 	std::vector<std::string>				serverNames;
-	/// @brief ushort : error code, std::string, page path
-	/// Associate an error with a page, returned to the client.
+	/**
+	 * @brief A map between an error and an error page path.
+	 * When having an error in this ServerConfiguration,
+	 * the errorPage will be sent instead of the default one.
+	 */
 	std::map<uint16_t, std::string>			errorPages;
+	/**
+	 * @brief The maximum size of a request body. If a request
+	 * body is greater than that, a HTTP_PAYLOAD_TOO_LARGE.
+	 */
 	size_t									maxClientBodySize;
-	/// @brief string : std::string location, class Route,
-	/// Associate a location, with the corresponding Route.
+	/**
+	 * @brief A map with : route url:route class.
+	 */
 	std::map<std::string, Route>			routes;
+	/**
+	 * @brief Define a directory or a file from where the file should be searched,
+	 * (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
+	 * /tmp/www/pouic/toto/pouet).
+	 */
 	std::string								root;
+	/**
+	 * @brief A vector of all the index names. That means the default
+	 * page that will be shown if the user ask for a folder.
+	 */
 	std::vector<std::string>				index;
 
 	ServerConfiguration(void);

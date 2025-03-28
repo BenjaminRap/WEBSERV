@@ -37,11 +37,6 @@ ServerSocketData::~ServerSocketData(void)
 
 //**************************Member functions***********************************/
 
-/**
- * @brief Accept a connection request, create a new fd, add it to the epoll interest
- * list and add a ConnectedSocketData node to the socketsHandler list.
- * @param events The events registered by epoll.
- */
 void	ServerSocketData::acceptConnection(uint32_t events)
 {
 	sockaddr_in		addr;

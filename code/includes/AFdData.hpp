@@ -26,11 +26,11 @@ protected:
 	 */
 	std::list<AFdData *>::iterator			_iterator;
 	/**
-	 * @brief True if the setIterator has been called with a good argument.
+	 * @brief True if the setIterator has been called with a valid argument.
 	 */
 	bool									_isIteratorSet;
 	/**
-	 * @brief The class managing all the sockets.
+	 * @brief The class managing all the sockets, including this one.
 	 */
 	SocketsHandler							&_socketsHandler;
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
@@ -44,10 +44,31 @@ private:
 public:
 	virtual ~AFdData(void);
 
+	/**
+	 * @brief This function is called when the _fd receives and events, the
+	 * implementation depends on the child : a ServerSocketData will create
+	 * a new connection, the ConnectedSocketData will manage a request ...
+	 *
+	 * @param events 
+	 */
 	virtual void							callback(uint32_t events) = 0;
 
 	int										getFd() const;
+	/**
+	 * @brief Return the iterator pointing to this object in the SocketHandler _socketsData
+	 * list.
+	 * @throw If the iterator hasn't been set with the setIterator function, throw
+	 * a std::logic_error.
+	 * @return A const reference on the iterator pointing to this object.
+	 */
 	const std::list<AFdData *>::iterator&	getIterator() const;
+	/**
+	 * @brief Set the _iterator of this FdData to a copy of the iterator passed
+	 * as argument.
+	 * If the iterator has already been set, print an error.
+	 * If the FdData pointed by the iterator isn't this class, print an error.
+	 * @param iterator The iterator that points to this FdData.
+	 */
 	void									setIterator(const std::list<AFdData *>::iterator &iterator);
 };
 

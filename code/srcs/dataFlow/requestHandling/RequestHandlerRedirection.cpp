@@ -35,6 +35,8 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 
 RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &response)
 {
+	if (_state != REQUEST_BODY)
+		return (_state);
 	ABody * const	body = _request.getBody();
 	
 	if (body == NULL)

@@ -15,6 +15,7 @@ SizedBody::SizedBody(int fd, size_t size) :
 {
 	if (_size == 0)
 		setFinished();
+	std::cout << "TODO: fixed the sizedbody" << std::endl;
 }
 
 SizedBody::~SizedBody()

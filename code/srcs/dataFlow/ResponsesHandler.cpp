@@ -31,15 +31,7 @@ ResponsesHandler::~ResponsesHandler()
 
 /***************************Member functions***********************************/
 
-/**
- * @brief Send all the responses to the client socket.
- * @param socketFd the file descriptor to the client socket.
- * @return FLOW_ERROR on error, FLOW_DONE if all responses has been entirely
- * written, FLOW_MORE if there is more to send. In the latter case,
- * we should wait for an EPOLLOUT and call this function again, until we
- * receive a FLOR_ERROR or FLOW_DONE.
- */
-FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
+FlowState	ResponsesHandler::sendResponseToSocket(int socketFd)
 {
 	if (_responses.size() == 0)
 		return (FLOW_DONE);

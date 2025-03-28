@@ -26,10 +26,6 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	
 }
 
-/**
- * @brief The destructor of the RawResponse. This class takes responsability
- * for closing the fd and deallocating the firstPart buffer.
- */
 RawResponse::~RawResponse()
 {
 }
@@ -97,14 +93,6 @@ std::string	getFirstPart(const Response &response)
 	return (firstPart);
 }
 
-/**
- * @brief Send this response to the client socket.
- * @param socketFd The socket of the client, in which we will send the response.
- * @return FLOW_ERROR on error, FLOW_DONE if the response has been entirely written
- * and FLOW_MORE if there is more to send . In the latter case, we need
- * to wait for another EPOLLOUT before calling this fuction again, until we
- * receive FLOW_ERROR or FLOW_DONE.
- */
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	const bool	hasBody = _body.isManagingValue() && _body.getValue() != NULL && _srcBodyFd.isManagingValue() && _srcBodyFd.getValue() != -1;

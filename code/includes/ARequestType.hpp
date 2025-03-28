@@ -10,6 +10,12 @@
 # define DIRE 1
 # define LS_FILE 2
 
+
+/**
+ * @class ARequestType
+ * @brief The parent class of all request : GET, POST, PUT, DELETE ...
+ *
+ */
 class ARequestType
 {
 	private:

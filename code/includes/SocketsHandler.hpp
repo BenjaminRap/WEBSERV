@@ -59,16 +59,72 @@ private:
 	SocketsHandler&	operator=(const SocketsHandler &ref);
 
 public:
+	/**
+	 * @brief Create a SocketHandler, allocate the event array and create the epoll fd.
+	 * It also create a vector of sockets path to destroy, its size is the number of
+	 * unix socket hosts in the Configuration class.
+	 * This class can only has one instance.
+	 * @param conf The SocketsHandler use the configuration to initialize its variables.
+	 * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
+	 * failed (std::exception) or this class already has an instance (std::logic_error).
+	 */
 	SocketsHandler(const Configuration &conf);
+	/**
+	 * @brief Free the events array, close the sockets and close the epoll fd.
+	 */
 	~SocketsHandler();
 
+	/**
+	 * @brief Call epoll_wait with the SocketHandler variables and return its result;
+	 * @return The number of events, or -1 on error;
+	 */
 	int		epollWaitForEvent();
+	/**
+	 * @brief Add the FdData the the _socketsdata list, and add its fd into
+	 * the epoll interest list.
+	 * If the function fails, the FdData won't be destroyed.
+	 *
+	 * @param events The events for which the epoll will notify with this fd
+	 * @return -1 on error, otherwise 0.
+	 */
 	int		addFdToListeners(AFdData &FdData, uint32_t events);
+	/**
+	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
+	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
+	 * is the result of epoll_wait or epollWaitForEvent function.
+	 */
 	void	callSocketCallback(size_t eventIndex) const;
+	/**
+	 * @brief If the socket at eventIndex has an EPOLLHUP or EPOLLRDHUP event, close it
+	 * and remove it from the _socketsData list.
+	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
+	 * is the result of epoll_wait or epollWaitForEvent function.
+	 * @return true if the connection is closed, false otherwise.
+	 */
 	bool	closeIfConnectionStopped(size_t eventIndex);
+	/**
+	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
+	 * delete the socket at the host.sun_path, recreate a socket and add the socket
+	 * path to the SocketsHandler _unixSocketsToRemove vector.
+	 * @param The fd to bind, should be a socket fd.
+	 * @param host The host whose address will be used to bind the socket.
+	 * @return 0 on success, -1 on error with an error message printed in the terminal.
+	 */
 	int		bindFdToHost(int fd, const Host &host);
-	void	closeSocket(int fd);
-	void	removeSocketFromList(std::list<AFdData*>::iterator pos);
+	/**
+	 * @brief Close a socket and remove if from the epoll interest list. It does not
+	 * remove it from The _socketsData list.
+	 * @param fd The fd of the socket to close.
+	 */
+	void	closeFdAndRemoveFromEpoll(int fd);
+	/**
+	 * @brief Removes an AFdData from the _socketsData list and delete it.
+	 * @note The function doesn't have to removed it from the interest list
+	 * as the AFdData destructor already call closeFdAndRemovedFromEpoll.
+	 *
+	 * @param pos 
+	 */
+	void	removeFdDataFromList(std::list<AFdData*>::iterator pos);
 };
 
 #endif // !SOCKETS_HANDLER_HPP

@@ -69,11 +69,6 @@ void	Response::setBody(ARequestType* requestResult, int socketFd)
 	this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
 }
 
-/*
-* @brief Set the error page if there is an error. It can change the status code and status text
-* if there is an error finding the error page.
-* @note it should be called before the functions adding headers as it can change the code.
-*/
 uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration)
 {
 	if (Status::isCodeOfType(code, STATUS_ERROR) == false)
@@ -135,6 +130,7 @@ void	Response::reset()
 	this->_status = NULL;
 	this->_headers.clear();
 	this->_bodySrcFd.stopManagingResource();
+	this->_isBlocking = false;
 	this->_body.stopManagingResource();
 	this->_autoIndexPage = "";
 }

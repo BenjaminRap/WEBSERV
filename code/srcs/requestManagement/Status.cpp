@@ -5,7 +5,6 @@
 #include <stdexcept>   // for logic_error
 #include <string>      // for basic_string, allocator, string
 #include <utility>     // for pair
-
 #include "Status.hpp"  // for Status, StatusType, operator==
 
 /*******************************Constructors/Destructors*********************************/
@@ -53,7 +52,7 @@ bool	operator==(const Status& status, int code)
 
 size_t	Status::getErrorPageSize(void) const
 {
-	if (_code < 400)
+	if (isOfType(STATUS_ERROR) == false)
 		return (0);
 	if (_errorPageSize != -1)
 		return (_errorPageSize);
@@ -71,7 +70,7 @@ size_t	Status::getErrorPageSize(void) const
 
 void	Status::buildErrorPage(void)
 {
-	if (_code < 400)
+	if (isOfType(STATUS_ERROR) == false)
 		return ;
 
 	const size_t	size = getErrorPageSize();

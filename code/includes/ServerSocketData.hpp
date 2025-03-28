@@ -16,11 +16,22 @@ private:
 
 	ServerSocketData&	operator=(const AFdData& ref);
 	
+	/**
+	 * @brief Accept a connection request, create a new fd, add it to the epoll interest
+	 * list and add a ConnectedSocketData node to the socketsHandler list.
+	 * @param events The events registered by epoll.
+	 */
 	void	acceptConnection(uint32_t events);
 public:
 	ServerSocketData(int fd , SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
 	~ServerSocketData(void);
 
+	/**
+	 * @brief The function called when epoll registers an event.
+	 * This method only calls acceptConnection
+	 *
+	 * @param events 
+	 */
 	void	callback(uint32_t events);
 };
 

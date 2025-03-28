@@ -36,15 +36,6 @@ static size_t getUnixSocketCount(const Configuration &conf)
 	return (unixAddrCount);
 }
 
-/**
- * @brief Create a SocketHandler, allocate the event array and create the epoll fd.
- * It also create a vector of sockets path to destroy, its size is the number of
- * unix socket hosts in the Configuration class.
- * This class can only has one instance.
- * @param conf The SocketsHandler use the configuration to initialize its variables.
- * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
- * failed (std::exception) or this class already has an instance (std::logic_error).
- */
 SocketsHandler::SocketsHandler(const Configuration &conf) :
 	_maxEvents(conf.getMaxEvents()),
 	_eventsCount(0),
@@ -62,9 +53,6 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 	SocketsHandler::_instanciated = true;
 }
 
-/**
- * @brief Free the events array, close the sockets and close the epoll fd.
- */
 SocketsHandler::~SocketsHandler()
 {
 	SocketsHandler::_instanciated = false;
@@ -80,21 +68,12 @@ SocketsHandler::~SocketsHandler()
 	}
 }
 
-/**
- * @brief Close a socket and remove if from the epoll interest list. It does not
- * remove it from The _socketsData list.
- * @param fd The fd of the socket to close.
- */
-void	SocketsHandler::closeSocket(int fd)
+void	SocketsHandler::closeFdAndRemoveFromEpoll(int fd)
 {
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	closeFdAndPrintError(fd);
 }
 
-/**
- * @brief Call epoll_wait with the SocketHandler variables and return its result;
- * @return The number of events, or -1 on error;
- */
 int	SocketsHandler::epollWaitForEvent()
 {
 	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
@@ -106,11 +85,6 @@ int	SocketsHandler::epollWaitForEvent()
 	return (nfds);
 }
 
-/**
- * @brief Call the callback of the socket, in the epoll events at eventIndex.
- * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
- * is the result of epoll_wait or epollWaitForEvent function.
- */
 void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 {
 	if (eventIndex >= _eventsCount)
@@ -125,13 +99,6 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	fdData->callback(_events[eventIndex].events);
 }
 
-/**
- * @brief If the socket at eventIndex has an EPOLLHUP or EPOLLRDHUP event, close it
- * and remove it from the _socketsData list.
- * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
- * is the result of epoll_wait or epollWaitForEvent function.
- * @return true if the connection is closed, false otherwise.
- */
 bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 {
 	if (eventIndex >= _eventsCount)
@@ -145,15 +112,6 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 	return (true);
 }
 
-
-/**
- * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
- * delete the socket at the host.sun_path, recreate a socket and add the socket
- * path to the SocketsHandler _unixSocketsToRemove vector.
- * @param The fd to bind, should be a socket fd.
- * @param host The host whose address will be used to bind the socket.
- * @return 0 on success, -1 on error with an error message printed in the terminal.
- */
 int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 {
 	const sockaddr	*addr;
@@ -203,8 +161,7 @@ int	SocketsHandler::addFdToListeners
 	return (0);
 }
 
-
-void	SocketsHandler::removeSocketFromList(std::list<AFdData*>::iterator pos)
+void	SocketsHandler::removeFdDataFromList(std::list<AFdData*>::iterator pos)
 {
 	const AFdData*	socket = *pos;
 

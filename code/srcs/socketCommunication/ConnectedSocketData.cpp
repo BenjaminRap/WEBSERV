@@ -35,7 +35,7 @@ RequestState	ConnectedSocketData::processRequest(Response &response)
 {
 	RequestState	requestState;
 
-	if (_requestHandler.isRequestBody())
+	if (_requestHandler.isStateRequestBody())
 	{
 		requestState = _requestHandler.redirectBodySocketToFile(_fd, response);
 	}
@@ -69,7 +69,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 		}
 		if (closing == false && events & EPOLLOUT)
 		{
-			if (_responsesHandler.sendResponsesToSocket(_fd) == FLOW_ERROR)
+			if (_responsesHandler.sendResponseToSocket(_fd) == FLOW_ERROR)
 				closing = true;
 		}
 	}
@@ -79,5 +79,5 @@ void	ConnectedSocketData::callback(uint32_t events)
 		closing = true;
 	}
 	if (closing)
-		_socketsHandler.removeSocketFromList(_iterator);
+		_socketsHandler.removeFdDataFromList(_iterator);
 }

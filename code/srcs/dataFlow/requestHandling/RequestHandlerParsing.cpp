@@ -14,6 +14,7 @@ void	RequestHandler::readStatusLine(Response &response)
 	if (_state != REQUEST_STATUS_LINE)
 		return ;
 	// skip empty lines
+	std::cout << "figure out if I need to skip empty lines, andd line that doesn't have \r" << std::endl;
 	do
 	{
 		if (!_flowBuffer.getLine(&line, &lineLength))
