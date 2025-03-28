@@ -38,11 +38,10 @@ runNginxInBackground()
 # runTestChangingMain aFdDataTests.cpp
 # runTestChangingMain socketsHandlerTests.cpp
 runWebServInBackground
-PID=$!
-trap "kill -2 $PID 2>/dev/null" EXIT
+pidWebServ=$!
 runNginxInBackground
-PID=$!
-trap "kill -2 $PID 2>/dev/null" EXIT
+pidNginx=$!
+trap "kill -2 $pidNginx 2>/dev/null && kill -2 $pidWebServ 2>/dev/null" EXIT
 runIndependentTestFromFolder getTests.cpp scripts/requestsTests
 runIndependentTestFromFolder putTests.cpp scripts/requestsTests
 runIndependentTestFromFolder deleteTests.cpp scripts/requestsTests
