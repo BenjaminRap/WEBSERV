@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <iostream>
 #include <cerrno>
 #include <cstdio>
@@ -6,7 +7,7 @@
 #include <fcntl.h>
 #include <cstring>
 
-#include "FdData.hpp"
+#include "AFdData.hpp"
 #include "FlowBuffer.hpp"
 
 void	verify(bool test)
@@ -22,7 +23,7 @@ void	printInfo(std::string infos)
 	std::cout << "\033[0;35m" << infos << "\033[0m\n" << std::endl;
 }
 
-void	callback(FdData &FdData, int *data, uint32_t events)
+void	callback(AFdData &FdData, int *data, uint32_t events)
 {
 	(void)FdData;
 	(void)data;
@@ -73,16 +74,13 @@ bool	redirectSTDERR(int (&tube)[2])
 	return (true);
 }
 
-bool	checkContent(int srcFd, FdType srcType, const char *expectedBuffer, size_t bufferCapacity)
+bool	checkContent(int srcFd, const char *expectedBuffer, size_t bufferCapacity)
 {
 	char	buffer[bufferCapacity];
 	char	ignoreBuffer[1024];
 	ssize_t	rd;
 
-	if (srcType == SOCKETFD)
-		rd = recv(srcFd, buffer, bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
-	else
-		rd = read(srcFd, buffer, bufferCapacity);
+	rd = read(srcFd, buffer, bufferCapacity);
 	if (rd == -1)
 	{
 		// std::cout << "error : " << strerror(errno) << std::endl;
@@ -96,12 +94,7 @@ bool	checkContent(int srcFd, FdType srcType, const char *expectedBuffer, size_t 
 	else
 	{
 		while (rd >= 0)
-		{
-			if (srcType == SOCKETFD)
-				rd = recv(srcFd, ignoreBuffer, 1024, MSG_DONTWAIT | MSG_NOSIGNAL);
-			else
-				rd = read(srcFd, ignoreBuffer, 1024);
-		}
+			rd = read(srcFd, ignoreBuffer, 1024);
 		// write(STDIN_FILENO, buffer, bufferCapacity);
 		// write(STDIN_FILENO, "\n", 1);
 		// write(STDIN_FILENO, expectedBuffer, bufferCapacity);
