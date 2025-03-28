@@ -79,7 +79,7 @@ bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 	if (breakline == afterEnd)
 		return (false);
 	*lineStart = start;
-	*length = std::distance(start, breakline - 1); // -1 because we remove the /n
+	*length = std::distance(start, breakline);
 	_numCharsWritten += std::distance(start, breakline + 1); // +1 because we go past the /n
 	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
 	{

@@ -9,6 +9,7 @@
 
 #include "AFdData.hpp"
 #include "FlowBuffer.hpp"
+#include "socketCommunication.hpp"
 
 void	verify(bool test)
 {
@@ -52,21 +53,16 @@ bool	checkError(int errorFd)
 
 bool	redirectSTDERR(int (&tube)[2])
 {
-	if (pipe(tube) == -1)
-	{
-		std::cerr << "Failed to pipe in tests\n";
+	if (checkError(pipe(tube), -1, "pipe() :"))
 		return (false);
-	}
-	if (dup2(tube[1], STDERR_FILENO) == -1)
+	if (checkError(dup2(tube[1], STDERR_FILENO), -1, "dup2() : "))
 	{
-		std::cerr << "Failed to dup2 in tests\n";
 		close(tube[0]);
 		close(tube[1]);
 		return (false);
 	}
-	if (fcntl(tube[0], F_SETFL, fcntl(tube[0], F_GETFL) | O_NONBLOCK) == -1)
+	if (addFlagsToFd(tube[0], O_NONBLOCK) == -1)
 	{
-		std::cerr << "Failed to fcntl in tests\n";
 		close(tube[0]);
 		close(tube[1]);
 		return (false);
@@ -101,6 +97,35 @@ bool	checkContent(int srcFd, const char *expectedBuffer, size_t bufferCapacity)
 		// write(STDIN_FILENO, "\n", 1);
 		return (!std::memcmp(buffer, expectedBuffer, bufferCapacity));
 	}
+}
+
+void	printSTDERR(int stderrReadFd)
+{
+	char	buffer[1024];
+	ssize_t	rd = 1;
+
+	do
+	{
+		rd = read(stderrReadFd, buffer, sizeof(buffer) - 1);
+		if (rd != -1)
+		{
+			buffer[rd] = '\0';
+			std::cout << buffer << std::endl;
+		}
+	}
+	while (rd > 0);
+}
+
+void	ignoreSTDERR(int stderrReadFd)
+{
+	char	buffer[1024];
+	ssize_t	rd = 1;
+
+	do
+	{
+		rd = read(stderrReadFd, buffer, sizeof(buffer) - 1);
+	}
+	while (rd > 0);
 }
 
 std::string	&getFlowStateAsString(FlowState flowState)

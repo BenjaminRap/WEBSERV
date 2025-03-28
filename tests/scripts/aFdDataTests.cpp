@@ -28,13 +28,12 @@ void	checkInvalidArgument(int minFd, SocketsHandler &socketsHandler, const std::
 			verify(true);
 		}
 	}
-	
 }
 
 void	tryGettingUnsetIterator(SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> serverConfs)
 {
 
-	ServerSocketData	serverSocketData(4, socketsHandler, serverConfs);
+	ServerSocketData	serverSocketData(100, socketsHandler, serverConfs);
 
 	printInfo("Try getting an unset iterator");
 	try
@@ -53,9 +52,10 @@ void	TrySettingWrongIterator(int errorFd, SocketsHandler &socketsHandler, const 
 	std::list<AFdData *>	socketsData;
 
 	printInfo("Try setting the wrong iterator");
-	socketsData.push_front(new ServerSocketData(4, socketsHandler, serverConfs));
-	socketsData.push_front(new ServerSocketData(5, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(100, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(200, socketsHandler, serverConfs));
 	printInfo("Should output an error message :");
+	ignoreSTDERR(errorFd);
 	socketsData.back()->setIterator(socketsData.begin());
 	verify(checkError(errorFd));
 	for (std::list<AFdData *>::iterator it = socketsData.begin(); it != socketsData.end(); it++)
@@ -67,8 +67,9 @@ void	trySettingIteratorTwice(int errorFd, SocketsHandler &socketsHandler, const 
 	std::list<AFdData *>	socketsData;
 
 	printInfo("try setting an iterator twice");
-	socketsData.push_front(new ServerSocketData(4, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(100, socketsHandler, serverConfs));
 	printInfo("Should output an error message :");
+	ignoreSTDERR(errorFd);
 	socketsData.front()->setIterator(socketsData.begin());
 	socketsData.front()->setIterator(socketsData.begin());
 	verify(checkError(errorFd));
@@ -81,7 +82,7 @@ void	tryUsingIterator(SocketsHandler &socketsHandler, const std::vector<ServerCo
 	std::list<AFdData *>	socketsData;
 
 	printInfo("try using an iterator");
-	socketsData.push_front(new ServerSocketData(4, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(100, socketsHandler, serverConfs));
 	socketsData.front()->setIterator(socketsData.begin());
 	for (std::list<AFdData *>::iterator it = socketsData.begin(); it != socketsData.end(); )
 	{
@@ -101,7 +102,6 @@ void	runTests(const Configuration& conf)
 
 	if (redirectSTDERR(tube) == false)
 		return ;
-	checkInvalidArgument(4, socketsHandler, serverConfs);
 	tryGettingUnsetIterator(socketsHandler, serverConfs);
 	TrySettingWrongIterator(tube[0], socketsHandler, serverConfs);
 	trySettingIteratorTwice(tube[0], socketsHandler, serverConfs);

@@ -197,8 +197,8 @@ int	main()
 		delete hugeString;
 		return (EXIT_FAILURE);
 	}
-	if (addFlagsToFd(sockets[0], O_NONBLOCK | FD_CLOEXEC)
-		|| addFlagsToFd(sockets[1], O_NONBLOCK | FD_CLOEXEC))
+	if (addFlagsToFd(sockets[0], O_NONBLOCK | FD_CLOEXEC) == -1
+		|| addFlagsToFd(sockets[1], O_NONBLOCK | FD_CLOEXEC) == -1)
 	{
 		close(sockets[0]);
 		close(sockets[1]);
