@@ -69,6 +69,8 @@ int	Request::setBodyFromHeaders(SharedResource<int> destFd, const ServerConfigur
 		}
 		return (HTTP_OK);
 	}
+	else if (_statusLine.method == PUT || _statusLine.method == POST)
+		return (HTTP_LENGTH_REQUIRED);
 	return (HTTP_OK);
 }
 
