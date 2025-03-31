@@ -1,9 +1,10 @@
+#include <cstring>			// for std::memmove
 #include <stddef.h>        // for size_t, NULL
 #include <algorithm>       // for find
 #include <iterator>        // for distance
 #include <stdexcept>       // for logic_error
 #include <string>          // for basic_string
-//
+
 #include "FlowBuffer.hpp"  // for FlowBuffer
 
 /************************Constructors / Destructors****************************/
@@ -42,26 +43,6 @@ FlowBuffer::~FlowBuffer()
 
 /*****************************Member Functions*********************************/
 
-size_t		FlowBuffer::getBufferLength(void) const
-{
-	return (_bufferLength);
-}
-
-size_t		FlowBuffer::getBufferCapacity(void) const
-{
-	return (_bufferCapacity);
-}
-
-size_t		FlowBuffer::getNumCharsWritten(void) const
-{
-	return (_numCharsWritten);
-}
-
-const char	*FlowBuffer::getBuffer() const
-{
-	return (_buffer);
-}
-
 /**
  * @brief Get a line from this bufferFlow internal buffer.
  * @param lineStart If the buffer contains a line, set this variable to the start
@@ -87,4 +68,34 @@ bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 		_bufferLength = 0;
 	}
 	return (true);
+}
+
+void	FlowBuffer::moveBufferContentToStart(void)
+{
+	if (_numCharsWritten == 0)
+		return ;
+	std::memmove(_buffer, _buffer + _numCharsWritten, _bufferLength);
+	_numCharsWritten = 0;
+}
+
+/**********************************Getters******************************************/
+
+size_t		FlowBuffer::getBufferLength(void) const
+{
+	return (_bufferLength);
+}
+
+size_t		FlowBuffer::getBufferCapacity(void) const
+{
+	return (_bufferCapacity);
+}
+
+size_t		FlowBuffer::getNumCharsWritten(void) const
+{
+	return (_numCharsWritten);
+}
+
+const char	*FlowBuffer::getBuffer() const
+{
+	return (_buffer);
 }

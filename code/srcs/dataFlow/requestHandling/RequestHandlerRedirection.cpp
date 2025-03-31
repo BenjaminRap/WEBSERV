@@ -70,7 +70,10 @@ RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 	}
 	else if (flowState == FLOW_BUFFER_FULL)
 	{
-		response.setResponse(HTTP_BAD_REQUEST);
+		if (_state == REQUEST_HEADERS)
+			response.setResponse(HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE);
+		else
+			response.setResponse(HTTP_BAD_REQUEST);
 		_state = REQUEST_DONE;
 	}
 	return (_state);

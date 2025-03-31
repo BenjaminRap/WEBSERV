@@ -6,6 +6,8 @@
 # include <unistd.h>
 # include <cerrno>
 
+# define MAX_CHARS_WRITTEN 0.2
+
 /**
  * @brief The meanings of the FlowBuffer functions member's returns.
  */
@@ -95,6 +97,7 @@ public:
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
 	bool		getLine(char **lineStart, size_t *length);
+	void		moveBufferContentToStart(void);
 };
 
 
