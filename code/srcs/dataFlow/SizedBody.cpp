@@ -15,7 +15,6 @@ SizedBody::SizedBody(int fd, size_t size) :
 {
 	if (_size == 0)
 		setFinished();
-	std::cout << "TODO: fixed the sizedbody" << std::endl;
 }
 
 SizedBody::~SizedBody()
@@ -24,7 +23,7 @@ SizedBody::~SizedBody()
 
 ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 {
-	const size_t	numCharsToWrite = std::min(_size, bufferCapacity);
+	const size_t	numCharsToWrite = std::min(_size - _numCharsWritten, bufferCapacity);
 
 	const ssize_t	written = (getFd() == -1) ?
 		numCharsToWrite
