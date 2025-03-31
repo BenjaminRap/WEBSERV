@@ -1,3 +1,4 @@
+
 #ifndef FLOW_BUFFER_HPP
 # define FLOW_BUFFER_HPP
 
@@ -6,6 +7,10 @@
 # include <unistd.h>
 # include <cerrno>
 
+/**
+ * @brief The proportion of the buffer that can be already written
+ * before the redirectFdContentToBuffer move everything to the start.
+ */
 # define MAX_CHARS_WRITTEN 0.2
 
 /**
@@ -71,6 +76,26 @@ public:
 	FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength);
 	~FlowBuffer();
 
+	/**
+	 * @brief redirect the content from the source readData, to the destination
+	 * writeData. To write the content of the source into the destination , it calls the
+	 * customRead that read the readValue into the flowBuffer's internal buffer, and then
+	 * call the customWrite to write the internal's buffer content into the writeData.
+	 * if the customRead function fails, it doesn't call the customWrite function.
+	 * @ref redirectFdContentToBuffer
+	 * @ref redirectBufferContentToFd
+	 *
+	 * @param readData The source of the data.
+	 * @param writeData The destination of the data
+	 * @param customWrite The function used to write the data, the default value is write
+	 * from unistd.h
+	 * @param customRead The function used to read the data, the default value is read
+	 * from unistd.h
+	 * @return FLOW_ERROR if the customRead or customWrite returns -1
+	 * FLOW_DONE if the customRead returns 0 the buffer has been entirely written.
+	 * FLOW_MORE if the customRead returns 0, or there is more to write, or if the buffer
+	 * was full and the customWrite freed some spaces.
+	 */
 	template <typename ReadData, typename WriteData>
 	FlowState	redirectContent
 	(
@@ -79,12 +104,43 @@ public:
 		ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity) = write,
 		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
 	);
+	/**
+	 * @brief redirect the content from the flowBuffer's internal buffer, to the destination
+	 * writeData. To write the content of the buffer, it calls the customWrite function with
+	 * writeData, the internal buffer and the number of characters to write.
+	 * This functions reads from the buffer and write into the writeData, returning the number of
+	 * characters written, or -1.
+	 * If this function doesn't behave this way, the behaviour is undefined.
+	 *
+	 * @param writeData The destination of the data
+	 * @param customWrite The function used to write the data, the default value is write
+	 * from unistd.h
+	 * @return FLOW_ERROR if customWrite returns -1
+	 * FLOW_DONE if the buffer has been entirely written
+	 * FLOW_MORE if the buffer has remaining characters to write.
+	 */
 	template <typename WriteData>
 	FlowState	redirectBufferContentToFd
 	(
 		WriteData writeData,
 		ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity) = write
 	);
+	/**
+	 * @brief redirect the content from a source readData, to the flowBuffer's internal
+	 * buffer. To read the content of the source, it calls the customRead function with
+	 * readData, the internal buffer and the internal buffer remaining capacity.
+	 * This functions reads from readData and write into the buffer, returning the number of
+	 * characters read, or -1.
+	 * If this function doesn't behave this way, the behaviour is undefined.
+	 *
+	 * @param readData The source of the data
+	 * @param customRead The function used to read the data, the default value is read
+	 * from unistd.h
+	 * @return FLOW_BUFFER_FULL if the buffer is full so nothing can be read.
+	 * FLOW_ERROR if the customRead function returns -1.
+	 * FLOW_DONE if the customRead function returns 0.
+	 * FLOW_MORE otherwise.
+	 */
 	template <typename ReadData>
 	FlowState	redirectFdContentToBuffer
 	(
@@ -96,7 +152,26 @@ public:
 	size_t		getBufferCapacity(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
+
+	/**
+	 * @brief Get a line from this bufferFlow internal buffer.
+	 * @note The \n isn't taken into account in the length and there may not have a \0
+	 * after the \n. The internal buffer isn't changed.
+	 *
+	 * @param lineStart If the buffer contains a line, set this variable to the start
+	 * of the line, otherwise, this variable isn't changed.
+	 * @param length If the buffer contains a line, set this variable to the length
+	 * of the line, otherwise, this variable isn't changed.
+	 * @return True if there is a line, false otherwise.,
+	 */
 	bool		getLine(char **lineStart, size_t *length);
+	/**
+	 * @brief Move the content of the FlowBuffer to the start of the buffer,
+	 * setting the number of characters written to 0. It can be useful if we don't
+	 * want the _numCharsWritten to slowly reach the end of the buffer.
+	 * This functions is called in redirectFdContentToBuffer, if the number of characters
+	 * written exceeds MAX_CHARS_WRITTEN * _bufferCapacity.
+	 */
 	void		moveBufferContentToStart(void);
 };
 

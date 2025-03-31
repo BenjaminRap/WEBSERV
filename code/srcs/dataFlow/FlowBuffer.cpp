@@ -43,14 +43,6 @@ FlowBuffer::~FlowBuffer()
 
 /*****************************Member Functions*********************************/
 
-/**
- * @brief Get a line from this bufferFlow internal buffer.
- * @param lineStart If the buffer contains a line, set this variable to the start
- * of the line, otherwise, this variable isn't changed.
- * @param length If the buffer contains a line, set this variable to the length
- * of the line, otherwise, this variable isn't changed.
- * @return True if there is a line, false otherwise.,
- */
 bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 {
 	char * const	start = _buffer + _numCharsWritten;
