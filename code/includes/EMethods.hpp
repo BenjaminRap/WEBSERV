@@ -3,6 +3,8 @@
 
 # include <string>
 
+# define METHOD_COUNT 4
+
 /**
  * @brief The availables methods that this http server can manage.
  */

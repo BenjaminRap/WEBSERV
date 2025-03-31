@@ -2,7 +2,7 @@
 
 const std::string&	getStringRepresentation(EMethods method)
 {
-	const static std::string	methods[4] = { "GET", "POST", "DELETE", "PUT" };
+	const static std::string	methods[METHOD_COUNT] = { "GET", "POST", "DELETE", "PUT" };
 
 	return (methods[method]);
 }
