@@ -132,14 +132,14 @@ public:
 	 *
 	 * @return The new state of the request
 	 */
-	RequestState				redirectBodySocketToFile(int socketFd, Response &response);
+	RequestState				redirectBody(int socketFd, Response &response);
 	/**
 	 * @brief Redirect the body of the request from the _buffer to the response
 	 * body fd, using the body writeToFd method.
 	 *
 	 * @return The new state of the request
 	 */
-	RequestState				redirectSocketToBuffer(int socketFd, Response &response);
+	RequestState				redirectFirstPart(int socketFd, Response &response);
 
 	/**
 	 * @brief Read and handle the execution of the request

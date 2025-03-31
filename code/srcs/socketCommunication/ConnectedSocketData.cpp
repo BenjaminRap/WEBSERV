@@ -37,11 +37,11 @@ RequestState	ConnectedSocketData::processRequest(Response &response)
 
 	if (_requestHandler.isStateRequestBody())
 	{
-		requestState = _requestHandler.redirectBodySocketToFile(_fd, response);
+		requestState = _requestHandler.redirectBody(_fd, response);
 	}
 	else
 	{
-		requestState = _requestHandler.redirectSocketToBuffer(_fd, response);
+		requestState = _requestHandler.redirectFirstPart(_fd, response);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
 			requestState = _requestHandler.readRequest(response, _fd);

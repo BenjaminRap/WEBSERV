@@ -33,7 +33,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 
 /*************************public Member function*******************************/
 
-RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &response)
+RequestState			RequestHandler::redirectBody(int socketFd, Response &response)
 {
 	if (_state != REQUEST_BODY)
 		return (_state);
@@ -57,7 +57,7 @@ RequestState			RequestHandler::redirectBodySocketToFile(int socketFd, Response &
 	return (_state);
 }
 
-RequestState	RequestHandler::redirectSocketToBuffer(int socketFd, Response &response)
+RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
 	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
 
