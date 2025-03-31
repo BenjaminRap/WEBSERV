@@ -69,11 +69,11 @@ int	Request::setBodyFromHeaders(SharedResource<int> destFd)
 	return (HTTP_OK);
 }
 
-int		Request::parseStatusLine(const char *line, size_t lineLength)
+int		Request::parseStatusLine(const char *line, const char *end)
 {
 	//Parsing the method
-	const char	*meth = std::find(line, line + lineLength, ' ');
-	if (*meth != ' ')
+	const char	*methodEnd = std::find(line, end, ' ');
+	if (methodEnd == end)
 		return (HTTP_BAD_REQUEST);
 	if (!std::memcmp(line, "GET", 3))
 		this->_statusLine.method = GET;
@@ -87,34 +87,36 @@ int		Request::parseStatusLine(const char *line, size_t lineLength)
 		return (HTTP_NOT_IMPLEMENTED);
 
 	//Parsing the target
-	const char	*targ = std::find(meth + 1, line + lineLength, ' ');
-	if (*targ != ' ')
+	const char	*targetEnd = std::find(methodEnd + 1, end, ' ');
+	if (targetEnd == end)
 		return (HTTP_BAD_REQUEST);
-	this->_statusLine.requestTarget = std::string(meth + 1, targ - (meth + 1));
+	this->_statusLine.requestTarget = std::string(methodEnd + 1, std::distance(methodEnd, targetEnd - 1));
 
 	//Parsing the protocol
-	const char	*prot = std::find(targ + 1, line + lineLength, '\r');
-	if (*prot != '\r' || *(prot + 1) != '\n')
+	const char	*protocolEnd = std::find(targetEnd + 1, end, '\r');
+	if (protocolEnd == end)
 		return (HTTP_BAD_REQUEST);
-	if (std::memcmp(targ + 1, PROTOCOL, PROTOCOL_LENGTH))
+	if (std::memcmp(targetEnd + 1, PROTOCOL, PROTOCOL_LENGTH))
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
 	return (HTTP_OK);
 }
 
-int		Request::parseHeader(const char *line, size_t lineLength)
+int		Request::parseHeader(const char *line, const char *end)
 {
-	const char *	pos;
-	const char *	temp;
+	if (std::distance(line, end) < 5)
+		return (HTTP_BAD_REQUEST);
+	const char * const keyEnd = std::find(line, end, ':');
 
-	pos = std::find(line, line + lineLength, ':');
-	if (*pos == '\0' || *(pos + 1) != ' ')
+	if (keyEnd == end || *(keyEnd + 1) != ' ')
 		return (HTTP_BAD_REQUEST);
-	temp = std::find(line, line + lineLength, '\r');
-	if (*temp == '\0' || *(temp + 1) != '\n')
+
+	const char * const valueEnd = end - 1;
+	if (*valueEnd != '\r')
 		return (HTTP_BAD_REQUEST);
-	std::string key(line, pos - line);
-	std::string value(pos + 2, temp - (pos + 2));
-	this->_headers.insert(std::make_pair(key, value));
+	const std::string key(line, keyEnd);
+	const char * valuePosition = keyEnd + 2;
+	const std::string value(valuePosition, valueEnd);
+	this->_headers[key] = value;
 	return (HTTP_OK);
 }
 

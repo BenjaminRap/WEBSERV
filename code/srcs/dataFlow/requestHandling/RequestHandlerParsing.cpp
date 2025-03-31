@@ -13,15 +13,9 @@ void	RequestHandler::readStatusLine(Response &response)
 
 	if (_state != REQUEST_STATUS_LINE)
 		return ;
-	// skip empty lines
-	std::cout << "figure out if I need to skip empty lines, andd line that doesn't have \r" << std::endl;
-	do
-	{
-		if (!_flowBuffer.getLine(&line, &lineLength))
-			return ;
-	}
-	while (lineLength == 0 || *line == '\r');
-	const int	statusCode = _request.parseStatusLine(line, lineLength);
+	if (!_flowBuffer.getLine(&line, &lineLength))
+		return ;
+	const int	statusCode = _request.parseStatusLine(line, line + lineLength);
 	if (statusCode != HTTP_OK)
 	{
 		response.setResponse(statusCode);
@@ -40,12 +34,12 @@ void	RequestHandler::readHeaders(Response &response)
 		return ;
 	while (_flowBuffer.getLine(&line, &lineLength))
 	{
-		if (lineLength == 0 || *line == '\r')
+		if (lineLength == 1 && *line == '\r')
 		{
 			_state = REQUEST_EMPTY_LINE;
 			return ;
 		}
-		const int	statusCode = _request.parseHeader(line, lineLength);
+		const int	statusCode = _request.parseHeader(line, line + lineLength);
 		if (statusCode != HTTP_OK)
 		{
 			response.setResponse(statusCode);

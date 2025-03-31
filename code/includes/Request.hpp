@@ -66,20 +66,20 @@ public:
 	 * @brief Parse the line and set the method and requestTare=get attributes.
 	 *
 	 * @param line the status line. It doesn't have to be null terminated.
-	 * @param lineLength the length of the status line.
+	 * @param end the position just after the last character.
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int											parseStatusLine(const char *line, size_t lineLength);
+	int											parseStatusLine(const char *line, const char *end);
 	/**
 	 * @brief Parse the line and add a header to the _headers map.
 	 *
 	 * @param line a line containing key:value. It doesn't have to be null terminated.
-	 * @param lineLength the length of the line.
+	 * @param end the position just after the last character.
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int											parseHeader(const char *line, size_t lineLength);
+	int											parseHeader(const char *line, const char *end);
 	/**
 	 * @brief Set this instance _bodyDestFd, _isBlocking and _body, depending on
 	 * the headers. For example, a Content-Length header means a SizedBody.
