@@ -56,7 +56,7 @@ private :
 	std::map<uint16_t, std::string>			errorPages;
 	/**
 	 * @brief The maximum size of a request body. If a request
-	 * body is greater than that, a HTTP_PAYLOAD_TOO_LARGE.
+	 * body is greater than that, a HTTP_CONTENT_TOO_LARGE.
 	 */
 	size_t									maxClientBodySize;
 	/**

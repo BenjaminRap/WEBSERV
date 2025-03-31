@@ -14,7 +14,6 @@
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_OK
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
@@ -36,7 +35,7 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 void	RequestHandler::processRequestResult(ARequestType &requestResult, Response &response, int socketFd)
 {
 	{
-		const int status = _request.setBodyFromHeaders(requestResult.getInFd());
+		const int status = _request.setBodyFromHeaders(requestResult.getInFd(), requestResult.getConfig());
 		if (status != HTTP_OK)
 		{
 			response.setResponse(status);

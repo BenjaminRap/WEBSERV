@@ -10,6 +10,7 @@
 # include "SharedResource.hpp"	// for SharedResource
 
 class ABody;
+class ServerConfiguration;
 
 # define FWS "\t\n\v\f\r "
 
@@ -85,10 +86,12 @@ public:
 	 * the headers. For example, a Content-Length header means a SizedBody.
 	 *
 	 * @param destFd The fd in which the body will write, (ex: a file, a pipe ...)
+	 * @param the configuration of the server, used to check if the Content-Length is
+	 * small enough.
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int											setBodyFromHeaders(SharedResource<int> destFd);
+	int											setBodyFromHeaders(SharedResource<int> destFd, const ServerConfiguration& serverConfiguration);
 
 	ABody*										getBody() const;
 	EMethods									getMethod(void) const;

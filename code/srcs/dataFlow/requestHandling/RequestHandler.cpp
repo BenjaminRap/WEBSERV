@@ -18,7 +18,7 @@ RequestHandler::RequestHandler(const std::vector<ServerConfiguration>	&serverCon
 	_request(),
 	_serverConfs(serverConfs)
 {
-	std::cout << "TODO  : renvoyer un PAYLOAD_TOO_LARGE quand le body est trop grand" << std::endl;
+	std::cout << "TODO  : renvoyer un HTTP_CONTENT_TOO_LARGE quand le body est trop grand" << std::endl;
 	std::cout << "TODO  : renvoyer un REQUEST_HEADERS_FIELD_TOO_LARGE quand les headers sont trop grand" << std::endl;
 	std::cout << "TODO  : renvoyer un URI_TOO_LONG quand la status line est trop grande" << std::endl;
 	std::cout << "TODO  : voir si il faut renvoyer un LENGTH_REQUIRED avec un post" << std::endl;

@@ -8,6 +8,7 @@
 
 #include "EMethods.hpp"           // for EMethods, getStringRepresentation
 #include "Request.hpp"            // for Request, operator<<
+#include "ServerConfiguration.hpp"
 #include "SharedResource.hpp"     // for SharedResource
 #include "SizedBody.hpp"          // for SizedBody
 #include "protocol.hpp"           // for PROTOCOL, PROTOCOL_LENGTH
@@ -46,7 +47,7 @@ void	Request::reset()
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
-int	Request::setBodyFromHeaders(SharedResource<int> destFd)
+int	Request::setBodyFromHeaders(SharedResource<int> destFd, const ServerConfiguration& serverConfiguration)
 {
 	_bodyDestFd = destFd;
 	const std::string * const	contentLengthString = getHeader("Content-Length");
@@ -55,6 +56,8 @@ int	Request::setBodyFromHeaders(SharedResource<int> destFd)
 		size_t contentLength = 0;
 		if (stringToSizeT(*contentLengthString, contentLength) == false)
 			return (HTTP_BAD_REQUEST);
+		if (contentLength > serverConfiguration.getMaxClientBodySize())
+			return (HTTP_CONTENT_TOO_LARGE);
 		try
 		{
 			const int fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
@@ -90,7 +93,7 @@ int		Request::parseStatusLine(const char *line, const char *end)
 	const char	*targetEnd = std::find(methodEnd + 1, end, ' ');
 	if (targetEnd == end)
 		return (HTTP_BAD_REQUEST);
-	this->_statusLine.requestTarget = std::string(methodEnd + 1, std::distance(methodEnd, targetEnd - 1));
+	this->_statusLine.requestTarget = std::string(methodEnd + 1, targetEnd - 1);
 
 	//Parsing the protocol
 	const char	*protocolEnd = std::find(targetEnd + 1, end, '\r');
