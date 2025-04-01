@@ -1,8 +1,8 @@
-import { compareRequests, verifyServersAreRunning, exec } from "./testServers.mjs"
+import { compareRequests, verifyServersAreRunning, exec, printHeader } from "./testServers.mjs"
 
-async function	runDeleteTest(test, target)
+async function	runDeleteTest(header, target)
 {
-	console.log(test);
+	printHeader(test);
 	await compareRequests(target, "GET", null, {});
 }
 
