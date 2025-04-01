@@ -45,7 +45,7 @@ const std::map<int, Status>	getStatuses(void)
     _statuses.insert(std::make_pair(402, Status(402, "Payment Required")));
     _statuses.insert(std::make_pair(403, Status(403, "Forbidden")));
     _statuses.insert(std::make_pair(404, Status(404, "Not Found")));
-    _statuses.insert(std::make_pair(405, Status(405, "Method Not Allowed")));
+    _statuses.insert(std::make_pair(405, Status(405, "Not Allowed")));
     _statuses.insert(std::make_pair(406, Status(406, "Not Acceptable")));
     _statuses.insert(std::make_pair(407, Status(407, "Proxy Authentication Required")));
     _statuses.insert(std::make_pair(408, Status(408, "Request Timeout")));
