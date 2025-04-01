@@ -46,20 +46,12 @@ static int	createServerSocket
 		|| socketsHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
 		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ")) // set the socket to listening
 	{
-		checkError(close(fd), -1, "close() : ");
+			closeFdAndPrintError(fd);
 		return (-1);
 	}
 	return (fd);
 }
 
-/**
- * @brief Create a server socket for each host of the conf variable.
- * It does not crash on error, instead print an error message with the function name,
- * a error message depending on errno.
- * @param conf The configuration, it will not be changed.
- * @param socketsHandler The class that will be used to add sockets to the epoll
- * interest list.
- */
 void	createAllServerSockets
 (
 const Configuration &conf,
