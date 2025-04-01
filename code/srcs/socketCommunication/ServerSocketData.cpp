@@ -52,7 +52,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		return ;
 	if (addFlagsToFd(newConnectionFd, O_NONBLOCK | FD_CLOEXEC) == -1)
 	{
-		checkError(close(newConnectionFd), -1, "close() : ");
+		closeFdAndPrintError(newConnectionFd);
 		return ;
 	}
 	try
@@ -60,9 +60,9 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newConnectionFd, _socketsHandler, _serverConfigurations));
 		if (_socketsHandler.addFdToListeners(connectedSocketData, newConnectionEvents) == -1)
 		{
-			delete &connectedSocketData;
 			std::cerr << "Can't accept new connection" << std::endl;
-			checkError(close(newConnectionFd), -1, "close() : ");
+			delete &connectedSocketData;
+			closeFdAndPrintError(newConnectionFd);
 		}
 		else
 			std::cout << "Accepted a new connection, fd : " << newConnectionFd << std::endl;
@@ -70,6 +70,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
+		closeFdAndPrintError(newConnectionFd);
 	}
 }
 

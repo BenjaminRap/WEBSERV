@@ -82,12 +82,13 @@ const Configuration &conf,
 			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
 			{
 				delete &serverSocketData;
-				checkError(close(fd), -1, "close() :");
+	  			closeFdAndPrintError(fd);
 			}
 		}
 		catch(const std::exception& e)
 		{
 			std::cerr << e.what() << '\n';
+	  		closeFdAndPrintError(fd);
 		}
 	}
 }
