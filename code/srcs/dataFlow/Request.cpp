@@ -95,7 +95,7 @@ int		Request::parseStatusLine(const char *line, const char *end)
 	const char	*targetEnd = std::find(methodEnd + 1, end, ' ');
 	if (targetEnd == end)
 		return (HTTP_BAD_REQUEST);
-	this->_statusLine.requestTarget = std::string(methodEnd + 1, targetEnd - 1);
+	this->_statusLine.requestTarget = std::string(methodEnd + 1, targetEnd);
 
 	//Parsing the protocol
 	const char	*protocolEnd = std::find(targetEnd + 1, end, '\r');
