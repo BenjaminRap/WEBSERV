@@ -3,7 +3,7 @@ import { compareRequests, verifyServersAreRunning, exec, printHeader } from "./t
 async function	runPutTest(header, target)
 {
 	printHeader(header);
-	await compareRequests(target, "GET", null, {});
+	await compareRequests(target, "PUT", null, {});
 }
 
 async function runTests()
