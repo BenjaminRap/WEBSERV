@@ -10,10 +10,10 @@ runTestChangingMain()
 	cd ../tests
 }
 
-runIndependentTestFromFolder()
+runRequestTest()
 {
 	echo test: $1
-	(cd $2 && c++ $1 -o test && ./test && rm test)
+	(cd scripts/requestsTests/ && node $1)
 }
 
 runWebServInBackground()
@@ -33,16 +33,16 @@ runNginxInBackground()
 	sleep 3
 }
 
-# runTestChangingMain flowBufferTests.cpp
-# runTestChangingMain getLineTests.cpp
-# runTestChangingMain aFdDataTests.cpp
-# runTestChangingMain socketsHandlerTests.cpp
+runTestChangingMain flowBufferTests.cpp
+runTestChangingMain getLineTests.cpp
+runTestChangingMain aFdDataTests.cpp
+runTestChangingMain socketsHandlerTests.cpp
 runWebServInBackground
 pidWebServ=$!
 runNginxInBackground
 pidNginx=$!
 trap "kill -2 $pidNginx 2>/dev/null && kill -2 $pidWebServ 2>/dev/null" EXIT
-runIndependentTestFromFolder getTests.cpp scripts/requestsTests
-runIndependentTestFromFolder putTests.cpp scripts/requestsTests
-runIndependentTestFromFolder deleteTests.cpp scripts/requestsTests
+runRequestTest getTests.mjs
+runRequestTest putTests.mjs
+runRequestTest deleteTests.mjs
 docker container ls | awk '{print $1}' | tail -n +2 | xargs docker container stop

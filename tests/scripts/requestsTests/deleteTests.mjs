@@ -2,7 +2,7 @@ import { compareRequests, verifyServersAreRunning, exec, printHeader } from "./t
 
 async function	runDeleteTest(header, target)
 {
-	printHeader(test);
+	printHeader(header);
 	await compareRequests(target, "DELETE", null, {});
 }
 
