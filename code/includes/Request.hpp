@@ -83,10 +83,10 @@ public:
 	int											parseHeader(const char *line, const char *end);
 	/**
 	 * @brief Set this instance _bodyDestFd, _isBlocking and _body, depending on
-	 * the headers. For example, a Content-Length header means a SizedBody.
+	 * the headers. For example, a content-length header means a SizedBody.
 	 *
 	 * @param destFd The fd in which the body will write, (ex: a file, a pipe ...)
-	 * @param the configuration of the server, used to check if the Content-Length is
+	 * @param the configuration of the server, used to check if the content-length is
 	 * small enough.
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
@@ -96,6 +96,13 @@ public:
 	ABody*										getBody() const;
 	EMethods									getMethod(void) const;
 	const std::string&							getRequestTarget(void) const;
+	/**
+	 * @brief Get the value corresponding to the key from the _headers attribute.
+	 * If they key value doesn't exists, returns NULL.
+	 * @note The key has to be in lower case as every header keys are in lower case.
+	 *
+	 * @param key 
+	 */
 	const std::string*							getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>&	getHeaderMap(void) const;
 	bool										getIsBlocking(void) const;

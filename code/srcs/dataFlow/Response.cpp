@@ -46,9 +46,9 @@ void	Response::addDefaultHeaders(void)
 	const std::time_t	now = std::time(NULL);
 
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
-	_headers["Date"] = timeBuffer;
-	_headers["Server"] = "WebServ de bg";
-	_headers["Connection"] = (_status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+	_headers["date"] = timeBuffer;
+	_headers["server"] = "WebServ de bg";
+	_headers["connection"] = (_status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
 }
 
 std::string	sizeTToString(size_t value);
@@ -66,7 +66,7 @@ void	Response::setBody(ARequestType* requestResult, int socketFd)
 		bodySize = _status->getErrorPage().size();
 	else
 		bodySize = _autoIndexPage.size();
-	this->_headers.insert(std::make_pair("Content-Length", sizeTToString(bodySize)));
+	this->_headers.insert(std::make_pair("content-length", sizeTToString(bodySize)));
 }
 
 uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration)
@@ -136,15 +136,6 @@ void	Response::reset()
 }
 
 /**********************************Getters**************************************************/
-
-const std::string	*Response::getHeader(const std::string &key) const
-{
-	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-
-	if (it != this->_headers.end())
-		return (&it->second);
-	return (NULL);
-}
 
 const std::map<std::string, std::string>	&Response::getHeaderMap(void) const
 {

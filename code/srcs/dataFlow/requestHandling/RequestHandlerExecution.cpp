@@ -20,7 +20,7 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(void) const
 {
 	if (_serverConfs.size() == 0)
 		throw std::logic_error("The ServerConfiguration vector is empty !");
-	const std::string * const host = _request.getHeader("Host");
+	const std::string * const host = _request.getHeader("host");
 	if (host == NULL)
 		return (_serverConfs[0]);
 	for (std::vector<ServerConfiguration>::const_iterator serverIt = _serverConfs.begin(); serverIt != _serverConfs.end(); serverIt++)

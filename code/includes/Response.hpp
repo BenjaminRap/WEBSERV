@@ -72,7 +72,7 @@ private:
 	 */
 	void										addDefaultHeaders(void);
 	/**
-	 * @brief Set the body and the Content-Length header depending on
+	 * @brief Set the body and the content-length header depending on
 	 * the requestResult.
 	 *
 	 * @param requestResult The result of the request. If an error occured
@@ -108,7 +108,6 @@ public:
 	void										reset();
 
 	const Status*								getStatus(void) const;
-	const std::string*							getHeader(const std::string &key) const;
 	const std::map<std::string, std::string>&	getHeaderMap(void) const;
 	bool										getIsBlocking(void) const;
 	SharedResource<int>							getSrcBodyFd(void) const;

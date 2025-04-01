@@ -50,7 +50,7 @@ bool	stringToSizeT(const  std::string &str, size_t &outValue);
 int	Request::setBodyFromHeaders(SharedResource<int> destFd, const ServerConfiguration& serverConfiguration)
 {
 	_bodyDestFd = destFd;
-	const std::string * const	contentLengthString = getHeader("Content-Length");
+	const std::string * const	contentLengthString = getHeader("content-length");
 	if (contentLengthString != NULL)
 	{
 		size_t contentLength = 0;
@@ -106,6 +106,11 @@ int		Request::parseStatusLine(const char *line, const char *end)
 	return (HTTP_OK);
 }
 
+static char toLowerCase(char& c)
+{
+    return (std::tolower(c));
+}
+
 int		Request::parseHeader(const char *line, const char *end)
 {
 	if (std::distance(line, end) < 5)
@@ -120,7 +125,8 @@ int		Request::parseHeader(const char *line, const char *end)
 		return (HTTP_BAD_REQUEST);
 	const std::string key(line, keyEnd);
 	const char * valuePosition = keyEnd + 2;
-	const std::string value(valuePosition, valueEnd);
+	std::string value(valuePosition, valueEnd);
+	std::transform(value.begin(), value.end(), value.begin(), toLowerCase);
 	this->_headers[key] = value;
 	return (HTTP_OK);
 }
