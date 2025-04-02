@@ -24,15 +24,15 @@ async function	makeRequest(url, method, body, headers)
 function	verify(prefix, nginxValue, webservValue)
 {
 	if (nginxValue !== webservValue)
-		console.log(prefix + COLOR_RED + "[KO] : nginx : " + nginxValue + " /= webserv : " + webservValue);
+		console.log(prefix + COLOR_RED + "[KO] nginx|websev " + nginxValue + " | " + webservValue);
 	else
-		console.log(prefix + COLOR_GREEN + "[OK] : " + nginxValue);
+		console.log(prefix + COLOR_GREEN + "[OK] " + nginxValue);
 	console.log(COLOR_RESET);
 }
 
 function	getStatus(response)
 {
-	return (response.status + "/" + response.statusText);
+	return (response.status + "|" + response.statusText);
 }
 
 function	isError(response)
@@ -68,10 +68,15 @@ export async function	compareRequests(target, method, body, headers)
 			verify("body : ", nginxBody, webservBody);
 		}
 		
-		if (nginxResponse.status == 201 && webservResponse.status == 201) // if we create a file
+		if ((nginxResponse.status == 201 && webservResponse.status == 201)
+			|| (nginxResponse.status == 204 && webservResponse.status == 204))
 		{
-			console.log(COLOR_CYAN + "checking if the file has been created with the right body : " + COLOR_RESET)
-			await compareRequests(target, "GET", null, headers); // we check that the file has been created the same way on both servers.
+			if (nginxResponse.status == 201)
+				console.log(COLOR_CYAN + "checking if the file has been created with the right body : " + COLOR_RESET)
+				else
+				console.log(COLOR_CYAN + "checking if the file has been deleted: " + COLOR_RESET)
+			await compareRequests(target, "GET", null, headers);
+
 		}
 	}
 	catch (error)
