@@ -36,15 +36,37 @@ function	getStatus(Response)
 
 export async function	compareRequests(target, method, body, headers)
 {
-	console.log("target : " + COLOR_BLUE + target + COLOR_RESET);
-	const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
-	const webservResponse = await makeRequest(werbservUrl + target, method, body, headers);
-	verify("status : ", getStatus(nginxResponse) , getStatus(webservResponse) );
-	const nginxRedirection = nginxResponse.headers.get("Location");
-	const webservRedirection = webservResponse.headers.get("Location");
-	if (nginxRedirection != null && webservRedirection != null)
-		verify("redirection : ", nginxRedirection, webservRedirection);
-	console.log("");
+	try
+	{
+		console.log("target : " + COLOR_BLUE + target + COLOR_RESET);
+		const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
+		const webservResponse = await makeRequest(werbservUrl + target, method, body, headers);
+
+		//status code + text
+		verify("status : ", getStatus(nginxResponse) , getStatus(webservResponse) );
+
+		//redirection
+		const nginxRedirection = nginxResponse.headers.get("Location");
+		const webservRedirection = webservResponse.headers.get("Location");
+		if (nginxRedirection != null && webservRedirection != null)
+			verify("redirection : ", nginxRedirection, webservRedirection);
+
+		//body
+		const nginxBody = await nginxResponse.text();
+		const webservBody = await webservResponse.text();
+		if (nginxResponse.ok && webservResponse.ok // We don't have the same error pages
+			&& nginxBody != null && webservBody != null
+			&& !webservBody.includes("<a href=\"../\">") // We don't have the same autoIndex
+			&& !nginxBody.includes("<a href=\"../\">")) // We don't have the same autoIndex
+		{
+			verify("body : ", nginxBody, webservBody);
+		}
+		
+	}
+	catch (error)
+	{
+		console.log(error);	
+	}
 }
 
 export function	exec(command)
@@ -77,6 +99,7 @@ export function	verifyServersAreRunning()
 
 export function	printHeader(header)
 {
+	console.log("");
 	const band = "|" + "-".repeat(header.length + 6) + "|";
 	console.log(COLOR_MAGENTA + band + COLOR_RESET);
 	console.log(COLOR_BLUE + "|   " + header + "   |" + COLOR_RESET);
