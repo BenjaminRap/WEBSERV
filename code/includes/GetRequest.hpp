@@ -19,6 +19,7 @@ class GetRequest : public ARequestType
 		~GetRequest();
 
 		void	setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage);
+		void	openFileAndSetSize(void);
 };
 
 #endif //!GET_REQUEST_HPP
