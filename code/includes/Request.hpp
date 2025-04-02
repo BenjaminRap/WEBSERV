@@ -20,6 +20,7 @@ class ServerConfiguration;
 class Request
 {
 private:
+	typedef std::map<std::string, std::string>	Headers;
 	/**
 	 * @brief The first line of the clients request.
 	 * @note It doesn't has a protocol variable because
@@ -30,28 +31,28 @@ private:
 		/**
 		 * @brief The method requested by the client.
 		 */
-		EMethods						method;
+		EMethods			method;
 		/**
 		 * @brief A path on the element the methods is applied to.
 		 */
-		std::string						requestTarget;
-	}									_statusLine;
-	std::map<std::string, std::string>	_headers;
+		std::string			requestTarget;
+	}						_statusLine;
+	Headers					_headers;
 	/**
 	 * @brief A SharedResource on the fd in which the request body will
 	 * be written. It is the same value as the fd in the _body.
 	 */
-	SharedResource<int>					_bodyDestFd;
+	SharedResource<int>		_bodyDestFd;
 	/**
 	 * @brief True if the _bodyDestFd is a blocking fd (socket, pipe).
 	 * It should be set to true even if the fd has been flagged by O_NONBLOCK
 	 */
-	bool								_isBlocking;
+	bool					_isBlocking;
 	/**
 	 * @brief A SharedResource on the body of the request, could be a sized body
 	 * a chunked body ...
 	 */
-	SharedResource<ABody*>				_body;
+	SharedResource<ABody*>	_body;
 
 public:
 
@@ -62,7 +63,7 @@ public:
 	 * @brief Reset all the attributes of this instance, as they were after the
 	 * default constructor call.
 	 */
-	void										reset();
+	void				reset();
 	/**
 	 * @brief Parse the line and set the method and requestTare=get attributes.
 	 *
@@ -71,7 +72,7 @@ public:
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int											parseStatusLine(const char *line, const char *end);
+	int					parseStatusLine(const char *line, const char *end);
 	/**
 	 * @brief Parse the line and add a header to the _headers map.
 	 *
@@ -80,7 +81,7 @@ public:
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int											parseHeader(const char *line, const char *end);
+	int					parseHeader(const char *line, const char *end);
 	/**
 	 * @brief Set this instance _bodyDestFd, _isBlocking and _body, depending on
 	 * the headers. For example, a content-length header means a SizedBody.
@@ -91,11 +92,15 @@ public:
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int											setBodyFromHeaders(SharedResource<int> destFd, const ServerConfiguration& serverConfiguration);
+	int					setBodyFromHeaders
+	(
+		SharedResource<int> destFd,
+		const ServerConfiguration& serverConfiguration
+	);
 
-	ABody*										getBody() const;
-	EMethods									getMethod(void) const;
-	const std::string&							getRequestTarget(void) const;
+	ABody*				getBody() const;
+	EMethods			getMethod(void) const;
+	const std::string&	getRequestTarget(void) const;
 	/**
 	 * @brief Get the value corresponding to the key from the _headers attribute.
 	 * If they key value doesn't exists, returns NULL.
@@ -103,9 +108,9 @@ public:
 	 *
 	 * @param key 
 	 */
-	const std::string*							getHeader(const std::string &key) const;
-	const std::map<std::string, std::string>&	getHeaderMap(void) const;
-	bool										getIsBlocking(void) const;
+	const std::string*	getHeader(const std::string &key) const;
+	const Headers&		getHeaderMap(void) const;
+	bool				getIsBlocking(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);
