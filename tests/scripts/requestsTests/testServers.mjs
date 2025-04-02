@@ -8,6 +8,7 @@ const COLOR_RED = "\x1b[31m"
 const COLOR_GREEN = "\x1b[32m"
 const COLOR_BLUE = "\x1b[34m"
 const COLOR_MAGENTA = "\x1b[35m"
+const COLOR_CYAN = "\x1b[36m"
 
 async function	makeRequest(url, method, body, headers)
 {
@@ -29,9 +30,14 @@ function	verify(prefix, nginxValue, webservValue)
 	console.log(COLOR_RESET);
 }
 
-function	getStatus(Response)
+function	getStatus(response)
 {
-	return (Response.status + "/" + Response.statusText);
+	return (response.status + "/" + response.statusText);
+}
+
+function	isError(response)
+{
+	return (response.status >= 400);
 }
 
 export async function	compareRequests(target, method, body, headers)
@@ -48,20 +54,25 @@ export async function	compareRequests(target, method, body, headers)
 		//redirection
 		const nginxRedirection = nginxResponse.headers.get("Location");
 		const webservRedirection = webservResponse.headers.get("Location");
-		if (nginxRedirection != null && webservRedirection != null)
+		if (nginxRedirection !== null && webservRedirection !== null)
 			verify("redirection : ", nginxRedirection, webservRedirection);
 
 		//body
 		const nginxBody = await nginxResponse.text();
 		const webservBody = await webservResponse.text();
-		if (nginxResponse.ok && webservResponse.ok // We don't have the same error pages
-			&& nginxBody != null && webservBody != null
+		if (!isError(nginxResponse) && !isError(webservResponse) // We don't have the same error pages
+			&& nginxBody !== "" && webservBody !== ""
 			&& !webservBody.includes("<a href=\"../\">") // We don't have the same autoIndex
 			&& !nginxBody.includes("<a href=\"../\">")) // We don't have the same autoIndex
 		{
 			verify("body : ", nginxBody, webservBody);
 		}
 		
+		if (nginxResponse.status == 201 && webservResponse.status == 201) // if we create a file
+		{
+			console.log(COLOR_CYAN + "checking if the file has been created with the right body : " + COLOR_RESET)
+			await compareRequests(target, "GET", null, headers); // we check that the file has been created the same way on both servers.
+		}
 	}
 	catch (error)
 	{

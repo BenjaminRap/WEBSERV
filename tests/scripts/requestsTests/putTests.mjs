@@ -1,9 +1,30 @@
 import { compareRequests, verifyServersAreRunning, exec, printHeader } from "./testServers.mjs"
 
+const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const charactersLength = characters.length;
+
+function	randomInt(min, max)
+{
+	return (Math.floor(Math.random() * (max - min) + min));
+}
+
+function	generateString(min, max)
+{
+    let result = ' ';
+	const length = randomInt(min, max);
+
+    for (let i = 0; i < length; i++)
+	{
+		const randomIndex = randomInt(0, charactersLength);
+        result += characters[randomIndex];
+    }
+    return result;
+}
+
 async function	runPutTest(header, target)
 {
 	printHeader(header);
-	await compareRequests(target, "PUT", null, {});
+	await compareRequests(target, "PUT", generateString(10, 100), {});
 }
 
 async function runTests()
