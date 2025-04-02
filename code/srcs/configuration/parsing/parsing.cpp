@@ -57,7 +57,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 {
 	std::vector<std::string>				serverNames;
 	std::map<unsigned short, std::string>	errorPages;
-	size_t									maxClientBodySize = 0;
+	size_t									maxClientBodySize = -1;
 	std::map<std::string, Route>			routes;
 	std::string								root;
 	ip_t									ip;
