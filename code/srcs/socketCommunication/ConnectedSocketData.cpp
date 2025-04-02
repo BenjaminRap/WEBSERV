@@ -11,6 +11,7 @@
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SocketsHandler.hpp"       // for SocketsHandler
+#include "Status.hpp"				// for Status, STATUS_ERROR
 
 class Response;  // lines 11-11
 
@@ -19,7 +20,8 @@ class Response;  // lines 11-11
 ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
 	AFdData(fd, socketsHandler, serverConfiguration),
 	_responsesHandler(serverConfiguration.front()),
-	_requestHandler(serverConfiguration)
+	_requestHandler(serverConfiguration),
+	_closing(false)
 {
 
 }
@@ -31,53 +33,60 @@ ConnectedSocketData::~ConnectedSocketData(void)
 
 /***************************Member functions***********************************/
 
-RequestState	ConnectedSocketData::processRequest(Response &response)
+RequestState	ConnectedSocketData::processRequest(void)
 {
 	RequestState	requestState;
+	Response		&currentResponse = _responsesHandler.getCurrentResponse();
 
 	if (_requestHandler.isStateRequestBody())
 	{
-		requestState = _requestHandler.redirectBody(_fd, response);
+		requestState = _requestHandler.redirectBody(_fd, currentResponse);
 	}
 	else
 	{
-		requestState = _requestHandler.redirectFirstPart(_fd, response);
+		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
-			requestState = _requestHandler.readRequest(response, _fd);
+			requestState = _requestHandler.readRequest(currentResponse, _fd);
 	}
 	while  (requestState == REQUEST_DONE)
 	{
+		const Status*	status = currentResponse.getStatus();
 		_responsesHandler.addCurrentResponseToQueue();
+		if (status == NULL || status->isOfType(STATUS_ERROR))
+		{
+			_closing = true;
+			return (requestState);
+		}
 		_requestHandler.setNewRequest();
-		requestState = _requestHandler.readRequest(response, _fd);
+		requestState = _requestHandler.readRequest(currentResponse, _fd);
 	}
 	return (requestState);
 }
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	Response	&response = _responsesHandler.getCurrentResponse();
-	bool		closing = false;
+	bool		removeFromListeners = false;
 
 	try
 	{
-		if (events & EPOLLIN)
+		if (_closing == false && events & EPOLLIN)
 		{
-			if (processRequest(response) == CONNECTION_CLOSED)
-				closing = true;
+			if (processRequest() == CONNECTION_CLOSED)
+				removeFromListeners = true;
 		}
-		if (closing == false && events & EPOLLOUT)
+		if (removeFromListeners == false && events & EPOLLOUT)
 		{
-			if (_responsesHandler.sendResponseToSocket(_fd) == FLOW_ERROR)
-				closing = true;
+			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
+			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
+				removeFromListeners = true;
 		}
 	}
 	catch (const std::exception& exception)
 	{
 		std::cerr << exception.what() << std::endl;
-		closing = true;
+		removeFromListeners = true;
 	}
-	if (closing)
+	if (removeFromListeners)
 		_socketsHandler.removeFdDataFromList(_iterator);
 }

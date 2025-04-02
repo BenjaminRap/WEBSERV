@@ -30,7 +30,8 @@ runNginxInBackground()
 {
 	echo running nginx
 	make all &> /dev/null &
-	sleep 3
+	sleep 5
+	echo sleeping 5 seconds to wait for nginx to start
 }
 
 runTestChangingMain flowBufferTests.cpp
