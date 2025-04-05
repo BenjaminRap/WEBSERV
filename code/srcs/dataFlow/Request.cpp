@@ -80,22 +80,18 @@ int		Request::parseStatusLine(const char *line, const char *end)
 	const char	*methodEnd = std::find(line, end, ' ');
 	if (methodEnd == end)
 		return (HTTP_BAD_REQUEST);
-	if (!std::memcmp(line, "GET", 3))
-		this->_statusLine.method = GET;
-	else if (!std::memcmp(line, "POST", 4))
-		this->_statusLine.method = POST;
-	else if (!std::memcmp(line, "DELETE", 6))
-		this->_statusLine.method = DELETE;
-	else if (!std::memcmp(line, "PUT", 3))
-		this->_statusLine.method = PUT;
-	else
+	try {
+		_statusLine.method = getMethodFromBuffer(line, std::distance(line, methodEnd));
+	}
+	catch (std::exception& exception) {
 		return (HTTP_NOT_IMPLEMENTED);
+	}
 
 	//Parsing the target
 	const char	*targetEnd = std::find(methodEnd + 1, end, ' ');
 	if (targetEnd == end)
 		return (HTTP_BAD_REQUEST);
-	this->_statusLine.requestTarget = std::string(methodEnd + 1, targetEnd);
+	_statusLine.requestTarget = std::string(methodEnd + 1, targetEnd);
 
 	//Parsing the protocol
 	const char	*protocolEnd = std::find(targetEnd + 1, end, '\r');

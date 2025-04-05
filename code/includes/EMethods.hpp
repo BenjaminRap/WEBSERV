@@ -17,5 +17,6 @@ enum EMethods
 };
 
 const std::string&	getStringRepresentation(EMethods method);
+EMethods			getMethodFromBuffer(const char *str, size_t length);
 
 #endif // !E_METHODS_HPP
