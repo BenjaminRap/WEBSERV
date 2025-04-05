@@ -1,53 +1,54 @@
-import { compareRequests, verifyServersAreRunning, exec, printHeader } from "./testServers.mjs"
+import { compareGoodRequests } from "./compareRequests.mjs"
+import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
 
-async function	runGetTest(target)
+async function	runGoodGetTest(target)
 {
-	await compareRequests(target, "GET", null, {});
+	await compareGoodRequests(target, "GET", null, {});
 }
 
 async function runTests()
 {
 	printHeader("Classic Case");
-	await runGetTest("/get/main.html");
-	await runGetTest("/get/fake/main.cpp");
-	await runGetTest("/get/fake/../main.html");
-	await runGetTest("/get/fake/../../../../../../../../main.html");
-	await runGetTest("/get/../main.html");
+	await runGoodGetTest("/get/main.html");
+	await runGoodGetTest("/get/fake/main.cpp");
+	await runGoodGetTest("/get/fake/../main.html");
+	await runGoodGetTest("/get/fake/../../../../../../../../main.html");
+	await runGoodGetTest("/get/../main.html");
 
 	printHeader("Index Case");
-	await runGetTest("/get/srcs/");
+	await runGoodGetTest("/get/srcs/");
 
 	printHeader("Redirection Case");
-	await runGetTest("/get/srcs");
+	await runGoodGetTest("/get/srcs");
 
 	printHeader("403 Case");
-	await runGetTest("/get/fake/");
-	await runGetTest("/get/nonono/");
+	await runGoodGetTest("/get/fake/");
+	await runGoodGetTest("/get/nonono/");
 
 	printHeader("405 Case");
-	await runGetTest("/get/405/");
+	await runGoodGetTest("/get/405/");
 
 	printHeader("404 Case");
-	await runGetTest("/unitTest/uplo/");
-	await runGetTest("/gknrk");
-	await runGetTest("/bin/");
+	await runGoodGetTest("/unitTest/uplo/");
+	await runGoodGetTest("/gknrk");
+	await runGoodGetTest("/bin/");
 
 	printHeader("Auto Index");
-	await runGetTest("/get/auto/");
-	await runGetTest("/get/auto2/");
+	await runGoodGetTest("/get/auto/");
+	await runGoodGetTest("/get/auto2/");
 
 	printHeader("Folder With File Name");
-	await runGetTest("/get/truc.txt/");
+	await runGoodGetTest("/get/truc.txt/");
 
 	printHeader("Index Specials");
-	await runGetTest("/get/indexIsFolder/");
-	await runGetTest("/get/indexIsSymlink/");
-	await runGetTest("/get/indexIsFolderAndFile/");
-	await runGetTest("/get/indexIsSymlinkAndFile/");
+	await runGoodGetTest("/get/indexIsFolder/");
+	await runGoodGetTest("/get/indexIsSymlink/");
+	await runGoodGetTest("/get/indexIsFolderAndFile/");
+	await runGoodGetTest("/get/indexIsSymlinkAndFile/");
 
 	printHeader("Fix Url Errors");
-	await runGetTest("/get//main.html");
-	await runGetTest("/get/endWith./index.html");
+	await runGoodGetTest("/get//main.html");
+	await runGoodGetTest("/get/endWith./index.html");
 }
 
 async function	run()

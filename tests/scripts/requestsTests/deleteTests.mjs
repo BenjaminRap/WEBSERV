@@ -1,28 +1,29 @@
-import { compareRequests, verifyServersAreRunning, exec, printHeader } from "./testServers.mjs"
+import { compareGoodRequests } from "./compareRequests.mjs"
+import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
 
-async function	runDeleteTest(header, target)
+async function	runGoodDeleteTest(header, target)
 {
 	printHeader(header);
-	await compareRequests(target, "DELETE", null, {});
+	await compareGoodRequests(target, "DELETE", null, {});
 }
 
 async function runTests()
 {
-	await runDeleteTest("Normal Case", "/delete/full/classic");
-	await runDeleteTest("Normal Case (\"../\" in URL)","/delete/full/../../delete/full/noback");
-	await runDeleteTest("No Perm file","/delete/full/noperms");
-	await runDeleteTest("No Perm directory of file","/delete/cant/tryme");
-	await runDeleteTest("Only Read Perm directory of file","/delete/readme/deleteme");
-	await runDeleteTest("Not Found","/delete/emptwswdy");
-	await runDeleteTest("Url not end by \"/\"","/delete/folder/empty");
-	await runDeleteTest("Empty Directory","/delete/folder/empty/");
-	await runDeleteTest("Normal Case","/delete/folder/classic/");
-	await runDeleteTest("No Perms for parent dir","/delete/folder/nopermspa/");
-	await runDeleteTest("No Perms for the dir do del","/delete/folder/noperms/");
-	await runDeleteTest("Dir in Dir (But have no perms)","/delete/folder/dire/");
-	await runDeleteTest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/");
-	await runDeleteTest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/");
-	await runDeleteTest("Normal Case ++++++","/delete/folder/dire4/");
+	await runGoodDeleteTest("Normal Case", "/delete/full/classic");
+	await runGoodDeleteTest("Normal Case (\"../\" in URL)","/delete/full/../../delete/full/noback");
+	await runGoodDeleteTest("No Perm file","/delete/full/noperms");
+	await runGoodDeleteTest("No Perm directory of file","/delete/cant/tryme");
+	await runGoodDeleteTest("Only Read Perm directory of file","/delete/readme/deleteme");
+	await runGoodDeleteTest("Not Found","/delete/emptwswdy");
+	await runGoodDeleteTest("Url not end by \"/\"","/delete/folder/empty");
+	await runGoodDeleteTest("Empty Directory","/delete/folder/empty/");
+	await runGoodDeleteTest("Normal Case","/delete/folder/classic/");
+	await runGoodDeleteTest("No Perms for parent dir","/delete/folder/nopermspa/");
+	await runGoodDeleteTest("No Perms for the dir do del","/delete/folder/noperms/");
+	await runGoodDeleteTest("Dir in Dir (But have no perms)","/delete/folder/dire/");
+	await runGoodDeleteTest("Dir in Dir (Have no perms but empty)","/delete/folder/dire2/");
+	await runGoodDeleteTest("Dir in Dir (Read Only but empty)","/delete/folder/dire3/");
+	await runGoodDeleteTest("Normal Case ++++++","/delete/folder/dire4/");
 }
 
 async function	run()
