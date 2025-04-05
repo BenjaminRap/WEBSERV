@@ -1,7 +1,13 @@
 import * as childProcess from "child_process"
+import { HTTPParser } from "http-parser-js";
 
-const nginxUrl = "http://localhost:8181"
-const werbservUrl = "http://localhost:8080"
+const protocol = "http"
+const host = "localhost"
+const nginxPort = 8181
+const webservPort = 8080;
+
+const nginxUrl = protocol + "://" + host + ":" + nginxPort;
+const werbservUrl = protocol + "://" + host + ":" + webservPort;
 
 const COLOR_RESET = "\x1b[0m"
 const COLOR_RED = "\x1b[31m"
@@ -9,6 +15,58 @@ const COLOR_GREEN = "\x1b[32m"
 const COLOR_BLUE = "\x1b[34m"
 const COLOR_MAGENTA = "\x1b[35m"
 const COLOR_CYAN = "\x1b[36m"
+
+async function sendRawRequest(host, port, requestData)
+{
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket();
+        let response = '';
+
+        client.connect(port, host, () => {
+            client.write(requestData);
+        });
+
+        client.on('data', (data) => {
+            response += data.toString();
+        });
+
+        client.on('end', () => resolve(response));
+
+        client.on('error', (err) => reject(err));
+    });
+}
+
+function parseHttpResponse(rawText)
+{
+    const parser = new HTTPParser(HTTPParser.RESPONSE);
+    let headers = {};
+    let body = '';
+
+    // Callback pour récupérer les headers et les convertir d'un array a une map
+    parser[HTTPParser.kOnHeadersComplete] = (info) => {
+        headers = info.headers.reduce((map, key, index, array) => {
+            if (index % 2 === 0)
+				map[key] = array[index + 1];
+            return (map);
+        }, {});
+    };
+
+    // Callback pour récupérer le corps
+    parser[HTTPParser.kOnBody] = (chunk, start, len) => {
+        body += chunk.toString('utf-8', start, start + len);
+    };
+
+    // Parser la réponse brute
+    const buffer = Buffer.from(rawText, 'utf-8');
+    parser.execute(buffer, 0, buffer.length);
+
+    // Créer l'objet Response de Fetch API
+    return new Response(body, {
+        status: parser.info.statusCode,
+        statusText: parser.info.statusMessage,
+        headers: new Headers(headers),
+    });
+}
 
 async function	makeRequest(url, method, body, headers)
 {
