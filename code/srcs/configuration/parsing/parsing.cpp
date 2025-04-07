@@ -119,7 +119,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
 {
-	if (maxClientBodySize)
+	if (maxClientBodySize != (size_t)-1)
 		throw (CustomKeyWordAndLineException("Multiple definition of", line, "maxClientBodySize"));
 	skipWSpace(file, i , line);
 	maxClientBodySize = std::atol(file.substr(i, file.find_first_not_of(DIGITS, i) - i).c_str());
