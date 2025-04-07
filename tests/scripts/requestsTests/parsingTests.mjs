@@ -1,6 +1,12 @@
 import { compareBadRequests, compareBadRequestWithValues  } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader} from "./utils.mjs"
 
+function	runTest(header, message, target)
+{
+	printHeader(header);
+	return (compareBadRequests(message, target));
+}
+
 function	runTestWithStatusLine(header, statusLine, target)
 {
 	printHeader(header);

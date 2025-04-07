@@ -4,7 +4,7 @@ services:
     networks:
       - docker-network
     volumes:
-      - website:/app/
+      - website-nginx:/app/
   nginx:
     depends_on:
       - php-fpm
@@ -15,13 +15,27 @@ services:
     networks:
       - docker-network
     volumes:
-      - website:/app/
+      - website-nginx:/app/
+  webserv:
+    build: ./webserv/
+    ports:
+      - "8080:8080"
+    networks:
+      - docker-network
+    volumes:
+      - website-webserv:/unitTest
 volumes:
-  website:
+  website-nginx:
     driver: local
     driver_opts:
       type: none
       device: ../website
+      o: bind
+  website-webserv:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../../code/unitTest/
       o: bind
 networks:
   docker-network:
