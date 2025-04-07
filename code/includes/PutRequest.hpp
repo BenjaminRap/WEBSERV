@@ -17,7 +17,7 @@ class PutRequest : public ARequestType
 		PutRequest& operator=(const PutRequest& src);
 
 	public :
-		explicit PutRequest(std::string url, const ServerConfiguration &config);
+		explicit PutRequest(std::string &url, std::string &domain, const ServerConfiguration &config);
 		~PutRequest();
 };
 

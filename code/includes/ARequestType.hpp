@@ -29,6 +29,7 @@ class ARequestType
 		const ServerConfiguration	&_config;
 		const Route					*_route;
 		std::string					_url;
+		std::string					_domain;
 
 		int							_code;
 		std::string					_redirection;
@@ -38,7 +39,7 @@ class ARequestType
 		size_t						_outSize;
 
 	public :
-		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method);
+		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain);
 		virtual ~ARequestType() = 0;
 
 		void									setRedirectionResponse(uint16_t code, const std::string &redirection);

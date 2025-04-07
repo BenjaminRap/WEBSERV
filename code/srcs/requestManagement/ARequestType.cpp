@@ -19,11 +19,12 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &get, const ServerConfiguration &config);
 
-ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) :
+ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain) :
 	_method(method),
 	_config(config),
 	_route(NULL),
 	_url(url),
+	_domain(domain),
 	_code(0),
 	_redirection(),
 	_autoIndexPage(),
@@ -48,7 +49,13 @@ ARequestType::~ARequestType()
 void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection)
 {
 	this->_code = code;
-	this->_redirection = redirection;
+	int len = this->_route->getRoot().length();
+
+	// remove this->_route->getRoot() from redirection
+
+
+	this->_redirection = this->_domain + redirection;
+
 }
 
 

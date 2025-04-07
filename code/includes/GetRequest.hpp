@@ -15,7 +15,7 @@ class GetRequest : public ARequestType
 		GetRequest& operator=(const GetRequest& src);
 
 	public :
-		explicit GetRequest(std::string url, const ServerConfiguration &config);
+		explicit GetRequest(std::string url, const std::string &domain, const ServerConfiguration &config);
 		~GetRequest();
 
 		void	setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage);

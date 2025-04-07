@@ -106,6 +106,7 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 		return ;
 	}
 	get.setRoute(temp);
+	std::cout << "dWDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD > " << temp->getRoot() << std::endl;
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
 		get.setResponse(HTTP_METHOD_NOT_ALLOWED);
