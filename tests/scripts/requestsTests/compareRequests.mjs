@@ -102,3 +102,23 @@ export async function	compareBadRequests(message, target)
 	const webservResponse = await makeRawRequest(host, webservPort, message);
 	return (compareRequests(target, nginxResponse, webservResponse));
 }
+
+export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText)
+{
+	const webservResponse = await makeRequest(werbservUrl + target, method, body, headers);
+	const expectedResponse = {
+		status: statusCode,
+		statusText: statusText,
+	};
+	return (compareStatus(expectedResponse, webservResponse));
+}
+
+export async function	compareBadRequestWithValues(message, statusCode, statusText)
+{
+	const webservResponse = await makeRawRequest(host, webservPort, message);
+	const expectedResponse = {
+		status: statusCode,
+		statusText: statusText,
+	};
+	return (compareStatus(expectedResponse, webservResponse));
+}
