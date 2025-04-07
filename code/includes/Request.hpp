@@ -54,8 +54,9 @@ private:
 	 */
 	SharedResource<ABody*>	_body;
 
-	int	parseMethod(const char *begin, const char *end);
-	int	parseProtocol(const char *begin, const char *end);
+	int		parseMethod(const char *begin, const char *end);
+	long	parseProtocolNumber(const char *begin, const char *end);
+	int		parseProtocol(const char *begin, const char *end);
 
 public:
 

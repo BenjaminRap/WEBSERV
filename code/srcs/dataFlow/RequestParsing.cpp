@@ -1,5 +1,6 @@
 #include <cctype>					// for std::tolower
 #include <algorithm>				// for std::find
+#include <cerrno>					// for errno
 #include <string>					// for std::string
 
 #include "Request.hpp"				// for Request
@@ -24,11 +25,43 @@ int	Request::parseMethod(const char *begin, const char *end)
 	return (HTTP_OK);
 }
 
+long	Request::parseProtocolNumber(const char* begin, const char* end)
+{
+	const int	errnoSave = errno;
+
+	errno = 0;
+
+	if (!std::isdigit(*begin))
+		return (-1);
+	char	*numberEnd;
+	const long number = std::strtol(begin, &numberEnd, 10);
+	if (begin == numberEnd || errno == ERANGE || numberEnd != end)
+		return (-1);
+
+	errno = errnoSave;
+	return (number);
+}
+
 int	Request::parseProtocol(const char *begin, const char *end)
 {
-	if (std::distance(begin, end) != PROTOCOL_LENGTH)
+	const char*		index;
+
+	if (std::memcmp(begin, "HTTP/", 5) == 0)
+		index = begin + 5;
+	else if (std::memcmp(begin, "HTTPS/", 6) == 0)
+		index = begin + 6;
+	else
 		return (HTTP_BAD_REQUEST);
-	if (std::memcmp(begin, PROTOCOL, PROTOCOL_LENGTH))
+	const char*	delimiter = std::find(index, end, '.');
+	if (delimiter == end)
+		return (HTTP_BAD_REQUEST);
+	const long	major = parseProtocolNumber(index, delimiter);
+	if (major == -1)
+		return (HTTP_BAD_REQUEST);
+	const long	minor = parseProtocolNumber(delimiter + 1, end);
+	if (minor == -1)
+		return (HTTP_BAD_REQUEST);
+	if (major != PROTOCOL_MAJOR || minor != PROTOCOL_MINOR)
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
 	return (HTTP_OK);
 }
