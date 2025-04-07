@@ -12,8 +12,6 @@
 class ABody;
 class ServerConfiguration;
 
-# define FWS "\t\n\v\f\r "
-
 /**
  * @brief the class that stores all the data send by the client.
  */
