@@ -54,6 +54,9 @@ private:
 	 */
 	SharedResource<ABody*>	_body;
 
+	int	parseMethod(const char *begin, const char *end);
+	int	parseProtocol(const char *begin, const char *end);
+
 public:
 
 	Request(void);

@@ -6,17 +6,43 @@
 #include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"	// fpr HTTP_...
 
+int	Request::parseMethod(const char *begin, const char *end)
+{
+	if (begin == end)
+		return (HTTP_BAD_REQUEST);
+	for (const char *index = begin; index != end; index++)
+	{
+		if (*index < 'A' || *index > 'Z')
+			return (HTTP_BAD_REQUEST);
+	}
+	try {
+		_statusLine.method = getMethodFromBuffer(begin, std::distance(begin, end));
+	}
+	catch (std::exception& exception) {
+		return (HTTP_METHOD_NOT_ALLOWED);
+	}
+	return (HTTP_OK);
+}
+
+int	Request::parseProtocol(const char *begin, const char *end)
+{
+	if (std::distance(begin, end) != PROTOCOL_LENGTH)
+		return (HTTP_BAD_REQUEST);
+	if (std::memcmp(begin, PROTOCOL, PROTOCOL_LENGTH))
+		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
+	return (HTTP_OK);
+}
+
 int		Request::parseStatusLine(const char *line, const char *end)
 {
 	//Parsing the method
 	const char	*methodEnd = std::find(line, end, ' ');
-	if (methodEnd == end)
-		return (HTTP_BAD_REQUEST);
-	try {
-		_statusLine.method = getMethodFromBuffer(line, std::distance(line, methodEnd));
-	}
-	catch (std::exception& exception) {
-		return (HTTP_NOT_IMPLEMENTED);
+	{
+		if (methodEnd == end)
+			return (HTTP_BAD_REQUEST);
+		const int code = parseMethod(line, methodEnd);
+		if (code != HTTP_OK)
+			return (code);
 	}
 
 	//Parsing the target
@@ -27,10 +53,13 @@ int		Request::parseStatusLine(const char *line, const char *end)
 
 	//Parsing the protocol
 	const char	*protocolEnd = std::find(targetEnd + 1, end, '\r');
-	if (protocolEnd == end)
-		return (HTTP_BAD_REQUEST);
-	if (std::memcmp(targetEnd + 1, PROTOCOL, PROTOCOL_LENGTH))
-		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
+	{
+		if (protocolEnd == end)
+			return (HTTP_BAD_REQUEST);
+		const int code = parseProtocol(targetEnd + 1, protocolEnd);
+		if (code != HTTP_OK)
+			return (code);
+	}
 	return (HTTP_OK);
 }
 
