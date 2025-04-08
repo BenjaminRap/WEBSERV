@@ -49,12 +49,18 @@ ARequestType::~ARequestType()
 void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection)
 {
 	this->_code = code;
-	int len = this->_route->getRoot().length();
-
+	//	int len = this->_route->getRoot().length();
 	// remove this->_route->getRoot() from redirection
 
-
-	this->_redirection = this->_domain + redirection;
+//	int find = redirection.find(this->_route->getRoot());
+//
+//	if (find != std::string::npos)
+//	{
+//
+//
+//	}
+//	else
+		this->_redirection = this->_domain + redirection;
 
 }
 
