@@ -1,10 +1,10 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
 
-async function	runGoodDeleteTest(header, target)
+function	runGoodDeleteTest(header, target)
 {
 	printHeader(header);
-	await compareGoodRequests(target, "DELETE", null, {});
+	return (compareGoodRequests(target, "DELETE", null, {}));
 }
 
 async function runTests()
@@ -30,13 +30,13 @@ async function	run()
 {
 	verifyServersAreRunning();
 
-	exec("mkdir -p ../../../code/unitTest && cd ../../../code/unitTest && ../../tests/scripts/requestsTests/initDeleteTest.sh"); // setup webserv
-	exec("cd ../../website && ../scripts/requestsTests/initDeleteTest.sh"); // setup nginx
+	exec("cd ../../werbserv && ../scripts/requestsTests/initDeleteTest.sh"); // setup webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/initDeleteTest.sh"); // setup nginx
 
 	await runTests();
 
-	exec("cd ../../../code/unitTest && ../../tests/scripts/requestsTests/cleanDeleteTest.sh"); // clean webserv
-	exec("cd ../../website && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean nginx
 }
 
 run();

@@ -1,9 +1,9 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
 
-async function	runGoodGetTest(target)
+function	runGoodGetTest(target)
 {
-	await compareGoodRequests(target, "GET", null, {});
+	return (compareGoodRequests(target, "GET", null, {}));
 }
 
 async function runTests()
@@ -55,13 +55,13 @@ async function	run()
 {
 	verifyServersAreRunning();
 
-	exec("mkdir -p ../../../code/unitTest && cd ../../../code/unitTest && ../../tests/scripts/requestsTests/initGetTest.sh"); // setup webserv
-	exec("cd ../../website && ../scripts/requestsTests/initGetTest.sh"); // setup nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/initGetTest.sh"); // setup webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/initGetTest.sh"); // setup nginx
 
 	await runTests();
 
-	exec("cd ../../../code/unitTest && ../../tests/scripts/requestsTests/cleanGetTest.sh"); // clean webserv
-	exec("cd ../../website && ../scripts/requestsTests/cleanGetTest.sh"); // clean nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/cleanGetTest.sh"); // clean webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/cleanGetTest.sh"); // clean nginx
 }
 
 run();

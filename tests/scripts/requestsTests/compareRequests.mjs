@@ -1,14 +1,7 @@
 import { exec, COLOR_RESET, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN } from "./utils.mjs"
 import { makeRequest } from "./makeRequest.mjs"
 import { makeRawRequest } from "./makeRawRequest.mjs"
-
-const protocol = "http"
-const host = "0.0.0.0"
-const nginxPort = 8181
-const webservPort = 8080;
-
-const nginxUrl = protocol + "://" + host + ":" + nginxPort;
-const werbservUrl = protocol + "://" + host + ":" + webservPort;
+import { nginxHost, webservHost, nginxPort, webservPort, nginxUrl, webservUrl } from "./hosts.mjs"
 
 function	verify(prefix, nginxValue, webservValue)
 {
@@ -91,21 +84,21 @@ export async function	compareGoodRequests(target, method, body, headers)
 {
 	console.log("target : " + COLOR_BLUE + target + COLOR_RESET);
 	const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
-	const webservResponse = await makeRequest(werbservUrl + target, method, body, headers);
+	const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
 	return (compareRequests(target, nginxResponse, webservResponse));
 }
 
 export async function	compareBadRequests(message, target)
 {
 	console.log("message : " + message);
-	const nginxResponse = await makeRawRequest(host, nginxPort, message);
-	const webservResponse = await makeRawRequest(host, webservPort, message);
+	const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
+	const webservResponse = await makeRawRequest(webservHost, webservPort, message);
 	return (compareRequests(target, nginxResponse, webservResponse));
 }
 
 export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText)
 {
-	const webservResponse = await makeRequest(werbservUrl + target, method, body, headers);
+	const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
 	const expectedResponse = {
 		status: statusCode,
 		statusText: statusText,
@@ -115,7 +108,7 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 
 export async function	compareBadRequestWithValues(message, statusCode, statusText)
 {
-	const webservResponse = await makeRawRequest(host, webservPort, message);
+	const webservResponse = await makeRawRequest(webservHost, webservPort, message);
 	const expectedResponse = {
 		status: statusCode,
 		statusText: statusText,
