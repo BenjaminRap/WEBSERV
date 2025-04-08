@@ -37,6 +37,7 @@ class ARequestType
 		SharedResource<int>			_inFd;
 		SharedResource<int>			_outFd;
 		size_t						_outSize;
+		std::string					_backupUrl;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain);
@@ -47,6 +48,7 @@ class ARequestType
 		void									setUrl(const std::string &src);
 		void									setRoute(const Route *root);
 		void									setMethod(EMethods method);
+		void									setBackupUrl(const std::string &url);
 
 		const std::string&						getAutoIndexPage(void) const;
 		bool									getAutoIndex(void) const;
@@ -61,6 +63,7 @@ class ARequestType
 		SharedResource<int>						getOutFd(void) const;
 		size_t									getOutSize(void) const;
 		const ServerConfiguration&				getConfig(void) const;
+		std::string&							getBackupUrl(void);
 };
 
 #endif //!A_REQUEST_HPP

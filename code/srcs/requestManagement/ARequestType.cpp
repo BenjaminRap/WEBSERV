@@ -3,6 +3,7 @@
 #include <map>                      // for map
 #include <string>                   // for string, basic_string
 #include <vector>                   // for vector
+#include <cstring>
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
@@ -49,19 +50,25 @@ ARequestType::~ARequestType()
 void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection)
 {
 	this->_code = code;
-	//	int len = this->_route->getRoot().length();
-	// remove this->_route->getRoot() from redirection
+	this->_redirection = redirection;
 
-//	int find = redirection.find(this->_route->getRoot());
-//
-//	if (find != std::string::npos)
-//	{
-//
-//
-//	}
-//	else
-		this->_redirection = this->_domain + redirection;
 
+	if (this->_route != NULL)
+	{
+		if (redirection.find(this->_route->getRoot()))
+		{
+			this->_redirection = this->getBackupUrl();
+			this->_redirection.erase(0, 1);
+		}
+	}
+	else if (std::strcmp(redirection.c_str(), getBackupUrl().c_str()))
+	{
+		this->_redirection = this->getBackupUrl() + "/";
+		this->_redirection.erase(0, 1);
+		std::cout << "----------------------- redirection : " << this->_redirection << std::endl;
+		std::cout << "----------------------- BakcupUrl : " << this->getBackupUrl() << std::endl;
+	}
+	this->_redirection = this->_domain + this->_redirection;
 }
 
 
@@ -154,4 +161,14 @@ const ServerConfiguration&	ARequestType::getConfig() const
 const std::string&	ARequestType::getAutoIndexPage(void) const
 {
 	return (_autoIndexPage);
+}
+
+void	ARequestType::setBackupUrl(const std::string &url)
+{
+	this->_backupUrl = url;
+}
+
+std::string&	ARequestType::getBackupUrl(void)
+{
+	return (_backupUrl);
 }

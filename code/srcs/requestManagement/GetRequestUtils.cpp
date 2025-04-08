@@ -134,9 +134,15 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 		if (ret == LS_FILE || ret == DIRE)
 		{
 			if (ret == DIRE)
+			{
+				get.setBackupUrl(get.getBackupUrl() + indexs[i] + "/");
 				get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, temp + "/");
+			}
 			else
+			{
+				get.setBackupUrl(get.getBackupUrl() + indexs[i]);
 				get.setRedirectionResponse(HTTP_OK, temp);
+			}
 			return (true);
 		}
 	}

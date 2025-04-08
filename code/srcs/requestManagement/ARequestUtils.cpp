@@ -100,13 +100,13 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 {
 	const Route	*temp = config.getRouteFromPath(get.getUrl());
 
+	get.setBackupUrl(get.getUrl());
 	if (temp == NULL)
 	{
 		buildNewURl(config.getRoot(), get.getUrl());
 		return ;
 	}
 	get.setRoute(temp);
-	std::cout << "dWDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD > " << temp->getRoot() << std::endl;
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
 		get.setResponse(HTTP_METHOD_NOT_ALLOWED);
