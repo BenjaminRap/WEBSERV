@@ -100,6 +100,7 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 {
 	const Route	*temp = config.getRouteFromPath(get.getUrl());
 
+	get.setBackupUrl(get.getUrl());
 	if (temp == NULL)
 	{
 		buildNewURl(config.getRoot(), get.getUrl());
