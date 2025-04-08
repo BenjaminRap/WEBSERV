@@ -22,10 +22,10 @@ function	generateString(min, max)
     return result;
 }
 
-async function	runGoodPutTest(header, target)
+function	runGoodPutTest(header, target)
 {
 	printHeader(header);
-	await compareGoodRequests(target, "PUT", generateString(10, 100), {});
+	return (compareGoodRequests(target, "PUT", generateString(10, 100), {}));
 }
 
 async function runTests()
@@ -46,13 +46,13 @@ async function	run()
 {
 	verifyServersAreRunning();
 
-	exec("mkdir -p ../../../code/unitTest && cd ../../../code/unitTest && ../../tests/scripts/requestsTests/initPutTest.sh"); // setup webserv
-	exec("cd ../../website && ../scripts/requestsTests/initPutTest.sh"); // setup nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/initPutTest.sh"); // setup webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/initPutTest.sh"); // setup nginx
 
 	await runTests();
 
-	exec("cd ../../../code/unitTest && ../../tests/scripts/requestsTests/cleanPutTest.sh"); // clean webserv
-	exec("cd ../../website && ../scripts/requestsTests/cleanPutTest.sh"); // clean nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/cleanPutTest.sh"); // clean webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/cleanPutTest.sh"); // clean nginx
 }
 
 run();

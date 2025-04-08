@@ -46,4 +46,5 @@ trap "kill -2 $pidNginx 2>/dev/null && kill -2 $pidWebServ 2>/dev/null" EXIT
 runRequestTest getTests.mjs
 runRequestTest putTests.mjs
 runRequestTest deleteTests.mjs
+runRequestTest parsingTests.mjs
 docker container ls | awk '{print $1}' | tail -n +2 | xargs docker container stop

@@ -1,4 +1,5 @@
 import * as childProcess from "child_process"
+import { webservUrl, nginxUrl } from "./hosts.mjs"
 
 export const COLOR_RESET = "\x1b[0m"
 export const COLOR_RED = "\x1b[31m"
@@ -24,7 +25,7 @@ export function	exec(command)
 export function	verifyServersAreRunning()
 {
 	{
-		const result = exec("curl -I localhost:8181 > /dev/null 2>&1")
+		const result = exec("curl -I " + nginxUrl + " > /dev/null 2>&1")
 
 		if (result.status != 0)
 		{
@@ -34,11 +35,11 @@ export function	verifyServersAreRunning()
 	}
 
 	{
-		const result = exec("curl -I localhost:8080 > /dev/null 2>&1");
+		const result = exec("curl -I " + webservUrl + " > /dev/null 2>&1");
 
 		if (result.status != 0)
 		{
-			console.log("Nginx server not running, exiting")
+			console.log("WebServ server not running, exiting")
 			process.exit(0);
 		}
 	}
