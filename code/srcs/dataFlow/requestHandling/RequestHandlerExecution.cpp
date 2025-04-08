@@ -50,8 +50,6 @@ void	RequestHandler::processRequestResult(ARequestType &requestResult, Response 
 
 void	RequestHandler::executeRequest(Response &response, int socketFd)
 {
-	(void)response;
-	(void)socketFd;
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
 
@@ -65,13 +63,13 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 			break;
 		}
 		case PUT: {
-//			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
-//			processRequestResult(putRequest, response, socketFd);
+			PutRequest	putRequest(_request.getRequestTarget(), "http://0.0.0.0:8080/", serverConfiguration);
+			processRequestResult(putRequest, response, socketFd);
 			break;
 		}
 		case DELETE: {
-//			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
-//			processRequestResult(deleteRequest, response, socketFd);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), "http://0.0.0.0:8080/", serverConfiguration);
+			processRequestResult(deleteRequest, response, socketFd);
 			break;
 		}
 		default:

@@ -65,8 +65,6 @@ void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redi
 	{
 		this->_redirection = this->getBackupUrl() + "/";
 		this->_redirection.erase(0, 1);
-		std::cout << "----------------------- redirection : " << this->_redirection << std::endl;
-		std::cout << "----------------------- BakcupUrl : " << this->getBackupUrl() << std::endl;
 	}
 	this->_redirection = this->_domain + this->_redirection;
 }
