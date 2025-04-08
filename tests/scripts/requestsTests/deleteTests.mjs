@@ -30,7 +30,7 @@ async function	run()
 {
 	verifyServersAreRunning();
 
-	exec("cd ../../werbserv && ../scripts/requestsTests/initDeleteTest.sh"); // setup webserv
+	exec("cd ../../webserv && ../scripts/requestsTests/initDeleteTest.sh"); // setup webserv
 	exec("cd ../../nginx && ../scripts/requestsTests/initDeleteTest.sh"); // setup nginx
 
 	await runTests();
