@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,11 +8,16 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 128
-#define SOCKET_NAME "/tmp/test.sock"
+#define SERVER_PORT 8181
 
 int
 main(int argc, char *argv[])
 {
+	if (argc == 1)
+	{
+		std::cerr << "Not enough arguments, needs at least 1" << std::endl;
+		return (EXIT_FAILURE);
+	}
 	int                 ret;
 	int                 data_socket;
 	ssize_t             r, w;
@@ -38,7 +44,7 @@ main(int argc, char *argv[])
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(0);
-	addr.sin_port = htons(8181);
+	addr.sin_port = htons(SERVER_PORT);
 
 	ret = connect(data_socket, (const struct sockaddr *) &addr,
 					sizeof(addr));

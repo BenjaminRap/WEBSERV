@@ -7,7 +7,7 @@ endif
 MAKEFILE		:=	Makefile
 CONFIG			:=	config.mk
 ifndef NOFLAGS
-	FLAGS		:=	-Wall -Werror -Wextra -g -std=c++98
+	FLAGS		:=	-Wall -Werror -Wextra -Wuninitialized -g3 -std=c++98
 endif
 
 include $(CONFIG)
@@ -19,8 +19,9 @@ TEMPLATES_DIR	:=	templates/
 INCLUDES		:=	-I$(HEADERS_DIR) -I$(TEMPLATES_DIR)
 
 SRCS_DIR		:=	srcs/
-SRCS_FILES		:=	$(CONFIGURATION) $(SOCKET) $(DATA_FLOW)
+SRCS_FILES		:=	$(SOCKET) $(CONFIGURATION) $(PARSING_CONF) $(DATA_FLOW) $(REQUEST) $(REQUEST_HANDLING) $(UTILS)
 SRCS			:=	$(addprefix $(SRCS_DIR), $(SRCS_FILES))
+
 ifndef MAIN
 SRCS_FILES		+=	main.cpp
 SRCS			+= $(SRCS_DIR)main.cpp

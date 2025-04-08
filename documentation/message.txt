@@ -5,7 +5,7 @@ Request :
 POST /users HTTP/1.1                     ___________  -> Start Line
 Host: example.com                                   \
 Content-Type: application/x-www-form-urlencoded       -> Header
-Content-Length: 50                       ___________/
+content-length: 50                       ___________/
                                                       -> Empty Line
 name=FirstName%20LastName&email=bsmth%40example.com   -> Body
 
@@ -14,7 +14,7 @@ Response :
 HTTP/1.1 403 Forbidden                   ___________  -> Start Line
 Server: Apache                                      \
 Content-Type: text/application                        -> Header
-Content-Length: 600                      ___________/
+content-length: 600                      ___________/
                                          ___________  -> Empty Line
 <!DOCTYPE html>                                     \
 <html>                                                -> Body
@@ -35,7 +35,7 @@ ex :                          ____
 	User-Agent: curl/8.6.0         -> Request Headers
 	Accept: */*     ______________/ 
 	Content-Type: application/json --> Representation Headers
-	Content-Length: 345 ___________/
+	content-length: 345 ___________/
 
 Headers are case-insensitive
 

@@ -23,7 +23,7 @@ private:
 	 * @brief A queue of all the responses. They will be written to the client in
 	 * the same order that the client send the requests.
 	 */
-	std::queue<RawResponse>	_responses;
+	std::queue<RawResponse *>	_responses;
 	/**
 	 * @brief The buffer that will be passed in the responseBuffer constructor.
 	 * It will be used to store parts of the response body before sending it to
@@ -37,14 +37,27 @@ private:
 	 */
 	FlowBuffer				_responseBuffer;
 
+	ResponsesHandler();
 	ResponsesHandler(const ResponsesHandler& ref);
 
 	ResponsesHandler&	operator=(const ResponsesHandler& ref);
 public:
-	ResponsesHandler();
+	ResponsesHandler(const ServerConfiguration &defaultConfig);
 	~ResponsesHandler();
 
-	FlowState	sendResponsesToSocket(int socketFd);
+	/**
+	 * @brief Send a response, or a part of it to the client socket.
+	 * @param socketFd the file descriptor to the client socket.
+	 * @return FLOW_ERROR on error, FLOW_DONE if all responses has been entirely
+	 * written, FLOW_MORE if there is more to send. In the latter case,
+	 * we should wait for an EPOLLOUT and call this function again, until we
+	 * receive a FLOR_ERROR or FLOW_DONE.
+	 */
+	FlowState	sendResponseToSocket(int socketFd);
+	/**
+	 * @brief Convert the _currentResponse to a RawResponse, adds it to
+	 * the queue and reset it.
+	 */
 	void		addCurrentResponseToQueue();
 	Response&	getCurrentResponse();
 };

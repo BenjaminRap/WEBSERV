@@ -1,0 +1,88 @@
+server {													# Server1
+															# The first server, it will be stored 3 times in the map
+															# because there is 3 host below, once for each host.
+
+    listen 192.168.1.1:80;             						# Host1
+    listen [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80; 	# Host2
+    listen unix:/var/run/nginx.sock;    					# Host3
+
+    root	/unitTest/;										# root of the server
+
+    server_name www.example.com example.com;				# names of the server, it may have multiples names
+
+    client_max_body_size 5000000;							# max client body size for the server
+
+    error_page 404 /custom_404.html ;						# error pages, if they aren't specified our server define them
+    error_page 500 502 503 504 /custom_50x.html;
+
+    location /custom_404.html {								# Route1
+        root /var/www/error_pages;
+    }
+
+    location /custom_50x.html {								# Route2
+        root /var/www/error_pages;
+    }
+
+    location /api {											# Route3
+        request_method GET POST;							# specifying autorised methods
+
+        root /var/www/api;									# root for the Route
+        index index.html index2.html;						# indexs for the Route
+    }
+
+    location /redirect-me {									# Route4
+        return 301 https://redir.example.com;				# redirection, with the status code and the url
+    }
+
+    location /kapouet {										# Route5
+        root /tmp/www;
+        autoindex on;										# activate autoindex (autoindex is set to off by default)
+        index index.html;
+    }
+
+    location /no-listing {									# Route6
+        root /var/www/no-listing;
+        autoindex off;										# desactivate autoindex (autoindex was already off)
+        index index.html;
+    }
+
+	index test.html ;
+}
+
+server {													# Server2
+
+	error_page 404 /custom_404.html ;
+
+	listen [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:80;	# Host1
+															# Since this host has the same url as the one defined
+															# above, the server will be added to the corresponding host.
+
+    root /www/data;
+
+    location / {
+    }
+
+    location /images/ {
+    }
+}
+
+#explanation of all configuration :
+#    host : the ip on which the server is listening : 127.0.0.1 if local, 0.0.0.0 by default and to listen to all.
+#	port : default 80.Wrote on the same line as the host on the nignx configuration. We may not do that
+#	server_names : to differentiate all the servers listening on the ip
+#make	default error page : pages returned on an error
+#	limit clien height body : self explanatory
+#	routes : 
+#		list of accepted http methods : other methods will be returned a forbidden error
+#		http redirection : redirection to another page with a code of 3XX
+#		root : the path /test will be search at root/test
+#		directory listing : list the content of a directory
+#		default file for directory : If directory listing is enabled, shows the content, otherwise, an error page
+#		execute cgi based on file extension with POST and GET : when one of those methods ask for a file with the
+#			extension, execute the script in a fork and execve.
+#		make the route accept uploaded files : Create a route, accepting POST, that create a new file with the body content
+#		configure where they should be saved : same thing as root in a route
+#		do you wonder what cgi is : see cgi.txt
+		
+
+

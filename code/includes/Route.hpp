@@ -3,12 +3,17 @@
 
 # include <vector>
 # include <string>
+# include <iostream>
 
-# include "Methods.hpp"
+# include "EMethods.hpp"
 
-/// @brief This structure describe a redirection.
-/// A redirection has a status code, in the range [300,400[ : ex : 301
-/// It also has the url in which it redirects the request. ex : https://other-url
+/**
+ * @class SRedirection
+ * @brief This structure describe a redirection.
+ * A redirection has a status code, in the range [300,400[ : ex : 301
+ * It also has the url in which it redirects the request. ex : https://other-url
+ *
+ */
 struct SRedirection
 {
 public:
@@ -16,37 +21,81 @@ public:
 	std::string		url;
 };
 
-/// @brief This structure describe the uploads behaviour
-/// If this route accept the uploads, the post request will create a file at $path
-/// with the content of the body.
-struct SUploads
-{
-public:
-	bool		acceptUploads;
-	std::string	path;
-};
-
-/// @brief This class describe a route, a server can have multiples routes or none.
+/**
+ * @class Route
+ * @brief This class describe a route, a server can have multiples routes or none.
+ *
+ */
 class Route
 {
 public:
-	std::vector<EMethods>	acceptedMethods;
-	SRedirection			redirection;
-	/// @brief Define a directory or a file from where the file should be searched,
-	/// (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
-	/// /tmp/www/pouic/toto/pouet).
+	Route
+	(
+		const std::vector<EMethods> &acceptedMethods,
+		const SRedirection &redirection,
+		const std::vector<std::string> &index,
+		const bool &auto_index,
+		const std::string &root,
+		const std::string &cgiFileExtension,
+		const bool	&acceptUploads
+	);
+	Route(Route const &src);
+	~Route(void);
 
-	std::string				root;
-	/// @brief If a get method ask for a directory, return a list of all elements
-	/// in this directory.
-	bool					directoryListing;
-	/// @brief The file returned if the get method ask for a directory.
-	std::string				directoryFile;
-	/// @brief if a file, at this route has this file extension, it will call the
-	/// cgi.
-	std::string				cgiFileExtension;
-	SUploads				uploads;
+	const std::vector<EMethods>&	getAcceptedMethods(void) const;
+	const SRedirection&				getRedirection(void) const;
+	const std::vector<std::string>&	getIndex(void) const;
+	bool							getAutoIndex(void) const;
+	const std::string&				getRoot(void) const;
+	const std::string&				getCgiFileExtension(void) const;
+	bool							getAcceptUploads(void) const;
+	void							setIndex(const std::vector<std::string> &v);
+
+private:
+	/**
+	 * @brief A list of all methods this route accept. For example,
+	 * if this route acceptedMethods are GET and POST, and the request
+	 * is a delete request, we will send a 405.
+	 */
+	std::vector<EMethods>		acceptedMethods;
+	/**
+	 * @brief A structure containing an url and a status code.
+	 * If a request, ask for this route, we redirect it to the url
+	 * and returns the response status code.
+	 */
+	SRedirection				redirection;
+	/**
+	 * @brief A vector of all the index names. That means the default
+	 * page that will be shown if the user ask for a folder.
+	 */
+	std::vector<std::string>	index;
+	/**
+	 * @brief If a get method ask for a directory nad this variable is set
+	 * to true, return a page created from the list of all elements in this directory.
+	 */
+	bool						autoIndex;
+	/**
+	 * @brief Define a directory or a file from where the file should be searched,
+	 * (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
+	 * /tmp/www/pouic/toto/pouet).
+	 */
+	std::string					root;
+	/**
+	 * @brief if a file, at this route has this file extension, it will execute it
+	 * and returns the results of the cgi, instead of returning the file.
+	 */
+	std::string					cgiFileExtension;
+	/**
+	 * @brief if a file, at this route accept uploads through the POST or PUT
+	 * requests.
+	 */
+	bool						acceptUploads;
+
+	Route(void);
+	Route    &operator=(Route const &src);
 };
+
+std::ostream & operator<<(std::ostream & o, Route const & rhs);
 
 #endif // !ROUTE_HPP
 

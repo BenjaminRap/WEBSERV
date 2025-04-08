@@ -21,20 +21,18 @@
 template <typename ReadData, typename WriteData>
 FlowState	FlowBuffer::redirectContent
 (
-	int srcFd,
-	ReadData &readData,
-	int destFd,
-	WriteData &writeData,
-	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData),
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
+	ReadData readData,
+	WriteData writeData,
+	ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity),
+	ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity)
 )
 {
-	const FlowState	readState = redirectFdContentToBuffer(srcFd, readData, customRead);
+	const FlowState	readState = redirectFdContentToBuffer<ReadData>(readData, customRead);
 
 
 	if (readState == FLOW_ERROR)
 		return (FLOW_ERROR);
-	const FlowState writeState = redirectBufferContentToFd(destFd, writeData, customWrite);
+	const FlowState writeState = redirectBufferContentToFd<WriteData>(writeData, customWrite);
 
 	if (writeState == FLOW_DONE)
 		return ((readState == FLOW_BUFFER_FULL) ? FLOW_MORE : readState);
@@ -55,15 +53,14 @@ FlowState	FlowBuffer::redirectContent
 template <typename WriteData>
 FlowState	FlowBuffer::redirectBufferContentToFd
 (
-	int destFd,
-	WriteData &writeData,
-	ssize_t (&customWrite)(int fd, char *buffer, size_t bufferCapacity, WriteData &writeData)
+	WriteData writeData,
+	ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity)
 )
 {
 	if (_numCharsWritten < _contentLength)
 	{
-		const size_t	numCharsToWrite = _contentLength - _numCharsWritten;
-		const ssize_t	written = customWrite(destFd, _buffer + _numCharsWritten, numCharsToWrite, writeData);
+		const size_t	numCharsToWrite = _bufferLength - _numCharsWritten;
+		const ssize_t	written = customWrite(writeData, _buffer + _numCharsWritten, numCharsToWrite);
 		if (written == -1)
 			return (FLOW_ERROR);
 		_numCharsWritten += written;
@@ -93,21 +90,18 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 template <typename ReadData>
 FlowState	FlowBuffer::redirectFdContentToBuffer
 (
-	int srcFd,
-	ReadData &readData,
-	ssize_t (&customRead)(int fd, char *buffer, size_t bufferCapacity, ReadData &readData)
+	ReadData readData,
+	ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity)
 )
 {
 	size_t	remainingCapacity;
 
-	if (_contentLength >= _bufferCapacity)
-	{
-		if (_numCharsWritten == 0)
-			return (FLOW_BUFFER_FULL);
-		moveContentToStartOfBuffer();
-	}
-	remainingCapacity = _bufferCapacity - _contentLength;
-	const ssize_t rd = customRead(srcFd, _buffer + _contentLength, remainingCapacity, readData);
+	if (_numCharsWritten > MAX_CHARS_WRITTEN * _bufferCapacity)
+		moveBufferContentToStart();
+	else if (_bufferLength >= _bufferCapacity)
+		return (FLOW_BUFFER_FULL);
+	remainingCapacity = _bufferCapacity - _bufferLength;
+	const ssize_t rd = customRead(readData, _buffer + _bufferLength, remainingCapacity);
 	if (rd == -1)
 		return (FLOW_ERROR);
 	if (rd == 0)

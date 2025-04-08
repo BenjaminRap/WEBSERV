@@ -9,7 +9,6 @@
 
 bool	redirectFileToFlowBuffer(FlowBuffer& flowBuffer, char *path)
 {
-	FdType		fileFd = FILEFD;
 	FlowState	flowState;
 
 	const int	fd = open(path, O_RDONLY);
@@ -21,7 +20,7 @@ bool	redirectFileToFlowBuffer(FlowBuffer& flowBuffer, char *path)
 	}
 	do
 	{
-		flowState = flowBuffer.redirectFdContentToBuffer(fd, fileFd);
+		flowState = flowBuffer.redirectFdContentToBuffer(fd);
 	} while (flowState == FLOW_MORE);
 	close(fd);
 	return (flowState != FLOW_ERROR);
@@ -59,8 +58,10 @@ int	main(void)
 {
 	printInfo("file to buffer to getLine");
 	printFileLines((char*)"../tests/scripts/cors-test.html", 1024);
+
 	printInfo("buffer to getLine");
 	printStrLines((char*)"je suis un test\n test truc\n test\n\ne\n", 37);
+
 	printInfo("empty buffer to getLine");
 	printStrLines((char*)"", 0);
 }

@@ -1,6 +1,8 @@
 // IWYU pragma: private, include "socketCommunication.hpp"
 
-#include "socketCommunication.hpp"
+#include <iostream>	// for std::cerr, std::endl
+#include <cerrno>	// for errno
+#include <cstring>	// for strerror
 
 /**
  * @brief Check if the value is the same as the error value. If true, print the
@@ -10,9 +12,12 @@
  * @return Return value
  */
 template <typename ReturnType>
-ReturnType	checkError(ReturnType value, ReturnType error, const std::string &errorPrefix)
+bool	checkError(ReturnType value, ReturnType error, const char *errorPrefix)
 {
 	if (value == error)
+	{
 		std::cerr << errorPrefix << strerror(errno) << std::endl;
-	return (value);
+		return (true);
+	}
+	return (false);
 }

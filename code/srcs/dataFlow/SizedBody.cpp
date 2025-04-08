@@ -1,12 +1,15 @@
-#include <algorithm>
-#include <unistd.h>
-#include <iostream>
+#include <stddef.h>       			// for size_t
+#include <sys/types.h>    			// for ssize_t
+#include <unistd.h>       			// for write
+#include <algorithm>      			// for min
+#include <iostream>       			// for char_traits, basic_ostream, operator<<, cerr
 
-#include "SizedBody.hpp"
-#include "FlowBuffer.hpp"
+#include "ABody.hpp"      			// for ABody
+#include "socketCommunication.hpp"	// for checkError
+#include "SizedBody.hpp"  			// for SizedBody
 
 SizedBody::SizedBody(int fd, size_t size) :
-	Body(fd),
+	ABody(fd),
 	_size(size),
 	_numCharsWritten(0)
 {
@@ -16,46 +19,22 @@ SizedBody::SizedBody(int fd, size_t size) :
 
 SizedBody::~SizedBody()
 {
-
 }
 
-size_t	SizedBody::getSize() const
+ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 {
-	return (_size);
-}
+	const size_t	numCharsToWrite = std::min(_size - _numCharsWritten, bufferCapacity);
 
-void	SizedBody::addCharsWritten(size_t add)
-{
-	_numCharsWritten += add;
+	const ssize_t	written = (getFd() == -1) ?
+		numCharsToWrite
+		: write(getFd(), buffer, numCharsToWrite);
+	
+	if (checkError<ssize_t>(written, -1, "write() : "))
+		return (-1);
+	_numCharsWritten += written;
 	if (_numCharsWritten == _size)
 		setFinished();
 	else if (_numCharsWritten > _size)
 		std::cerr << "Logic Error: addCharsWritten() : _numCharsWritten superior to _size" << std::endl;	
-}
-
-ssize_t	SizedBody::writeToFile(int fd, char *buffer, size_t bufferCapacity, SizedBody &sizedBody)
-{
-	const size_t	numCharsToWrite = std::min(sizedBody.getSize(), bufferCapacity);
-	const ssize_t	written = write(fd, buffer, numCharsToWrite);
-	
-	if (written == -1)
-		return (-1);
-	sizedBody.addCharsWritten(written);
-	if (written == -1)
-		return (-1);
 	return (((size_t)written != numCharsToWrite) ? -1 : written);
-}
-
-FlowState	SizedBody::writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
-{
-	return (flowBuffer.redirectBufferContentToFd(getFd(), *this, SizedBody::writeToFile));
-}
-
-FlowState	SizedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
-{
-	FdType	socketType = SOCKETFD;
-
-	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this, \
-		readFromFdWithType,
-		SizedBody::writeToFile));
 }

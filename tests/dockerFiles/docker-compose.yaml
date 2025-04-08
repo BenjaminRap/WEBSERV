@@ -4,26 +4,66 @@ services:
     networks:
       - docker-network
     volumes:
-      - website:/app/
+      - website-nginx:/app/
   nginx:
     depends_on:
       - php-fpm
     build: ./nginx/
     ports:
-      - "80:80"
+      # - "80:80"
       - "8181:8181"
     networks:
       - docker-network
     volumes:
-      - website:/app/
+      - website-nginx:/app/
+  webserv:
+    build: ./webserv/
+    ports:
+      - "8080:8080"
+    networks:
+      - docker-network
+    volumes:
+      - website-webserv:/unitTest
+      - ../../code/WebServ:/WebServ
+      - ../../code/configurations/fakenginx.conf:/configuration.conf
+  tests:
+    depends_on:
+      - nginx
+      - webserv
+    build: ./tests/
+    networks:
+      - docker-network
+    volumes:
+      - website-webserv:/webserv/
+      - website-nginx:/nginx/
+      - test-scripts:/scripts/
+    stdin_open:
+      true
+    tty:
+      true
+
 volumes:
-  website:
+  website-nginx:
     driver: local
     driver_opts:
       type: none
-      device: ../website
+      device: ../website/
+      o: bind
+  website-webserv:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../../code/unitTest/
+      o: bind
+  test-scripts:
+    driver: local
+    driver_opts:
+      type: none
+      device: ../scripts
       o: bind
 networks:
   docker-network:
-    name: docker-network
-    driver: bridge
+    name:
+      docker-network
+    driver:
+      bridge

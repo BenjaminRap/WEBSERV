@@ -1,109 +1,112 @@
-#include <stddef.h>                 // for size_t, NULL
-#include <unistd.h>                 // for close
-#include <string>                   // for basic_string
+#include <stddef.h>            // for size_t, NULL
+#include <map>                 // for map, _Rb_tree_const_iterator, operator!=
+#include <stdexcept>           // for logic_error
+#include <string>              // for basic_string, string
+#include <utility>             // for pair
 
-#include "FlowBuffer.hpp"           // for FlowState, FdType, FlowBuffer
-#include "RawResponse.hpp"          // for RawResponse
-#include "socketCommunication.hpp"  // for checkError
+#include "ABody.hpp"           // for ABody
+#include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
+#include "RawResponse.hpp"     // for RawResponse, LINE_END, LINE_END_LENGTH
+#include "Response.hpp"        // for Response
+#include "SharedResource.hpp"  // for SharedResource
+#include "Status.hpp"          // for Status, StatusType
+#include "protocol.hpp"        // for PROTOCOL, PROTOCOL_LENGTH
 
 /*************************Constructors / Destructors***************************/
 
-/**
- * @brief Create a RawResponse instance. This class takes responsability
- * for closing the fd and deallocating the first part buffer.
- * @throw This function throw (std::logic_error) if contentLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
- * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body. It must be allocated
- * on the heap.
- * @param firstPartLength The length of firstPart.
- * @param bodyFd The fd of the body.
- * @param bodyFlowBuffer The FlowBuffer used to redirect the data from the body to
- * the client socket.
- */
-RawResponse::RawResponse
-(
-	char *firstPart,
-	size_t firstPartLength,
-	int bodyFd,
-	FlowBuffer &bodyFlowBuffer
-) :
-	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_bodyFd(bodyFd),
-	_bodyBuffer(&bodyFlowBuffer)
-{
+std::string	getFirstPart(const Response& response);
 
+RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
+	_firstPart(getFirstPart(response)),
+	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
+	_isBlocking(response.getIsBlocking()),
+	_srcBodyFd(response.getSrcBodyFd()), _body(response.getBody()),
+	_bodyBuffer(bodyBuffer)
+{
+	
 }
 
-/**
- * @brief Create a RawResponse instance without body fd. This class takes responsability
- * for closing the fd and deallocating the first part buffer.
- * @throw This function throw (std::logic_error) if contentLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * In the case of a throw, the fd isn't closed and the firstPart isn't deallocated.
- * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body. It must be allocated
- * on the heap.
- * @param firstPartLength The length of firstPart.
- */
-RawResponse::RawResponse
-(
-	char *firstPart,
-	size_t firstPartLength
-) :
-	_firstPart(firstPart, firstPartLength, firstPartLength),
-	_bodyFd(-1),
-	_bodyBuffer(NULL)
-{
-
-}
-
-RawResponse::RawResponse(const RawResponse& ref) :
-	_firstPart(ref._firstPart),
-	_bodyFd(ref._bodyFd),
-	_bodyBuffer(ref._bodyBuffer)
-{
-
-}
-
-/**
- * @brief The destructor of the RawResponse. This class takes responsability
- * for closing the fd and deallocating the firstPart buffer.
- */
 RawResponse::~RawResponse()
 {
-	if (_bodyFd != -1)
-	{
-		checkError(close(_bodyFd), -1, "close() : ");
-	}
-	delete [] _firstPart.getBuffer();
 }
 
 /*******************************Member functions*******************************/
 
-/**
- * @brief Send this response to the client socket.
- * @param socketFd The socket of the client, in which we will send the response.
- * @return FLOW_ERROR on error, FLOW_DONE if the response has been entirely written
- * and FLOW_MORE if there is more to send . In the latter case, we need
- * to wait for another EPOLLOUT before calling this fuction again, until we
- * receive FLOW_ERROR or FLOW_DONE.
- */
+size_t	getFirstPartLength
+(
+	const std::map<std::string, std::string>& headers,
+	const Status& status,
+	size_t autoIndexPageSize
+)
+{
+	size_t										length = 0;
+
+	length += PROTOCOL_LENGTH;
+	length += 1; // + 1 for the space
+	length += 3; // 3 for the code length
+	length += 1; // + 1 for the space
+	length += status.getText().size();
+	length += LINE_END_LENGTH;
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
+		length += it->first.size() + it->second.size();
+		length += LINE_END_LENGTH;
+	}
+	length += LINE_END_LENGTH; // for the empty line
+	length += status.getErrorPage().size();
+	if (status.isOfType(STATUS_SUCESSFULL))
+		length += autoIndexPageSize;
+	length += 1; // for the /0
+	return (length);
+}
+
+std::string	getFirstPart(const Response &response)
+{
+	const Status * const						status = response.getStatus();
+
+	if (status == NULL)
+		throw std::logic_error("RawResponse constructor called with an unset response !");
+	const std::map<std::string, std::string>	headers = response.getHeaderMap();
+	const std::string&							autoIndexPage = response.getAutoIndexPage();
+	const size_t								length = getFirstPartLength(headers, *status, autoIndexPage.size());
+
+	std::string									firstPart;
+
+	firstPart.reserve(length);
+	firstPart.append(PROTOCOL)
+		.append(" ")
+		.append(status->getCodeStringRepresentation())
+		.append(" ")
+		.append(status->getText())
+		.append(LINE_END);
+
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
+	{
+		firstPart.append(it->first)
+			.append(":")
+			.append(it->second)
+			.append(LINE_END);
+	}
+	firstPart.append(LINE_END);
+	firstPart.append(status->getErrorPage());
+	if (status->isOfType(STATUS_SUCESSFULL))
+		firstPart.append(autoIndexPage);
+	return (firstPart);
+}
+
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	FdType			destType = SOCKETFD;
-	FdType			srcType = FILEFD;
-
-	if (_firstPart.getContentLength() != 0)
+	const bool	hasBody = _body.isManagingValue() && _body.getValue() != NULL && _srcBodyFd.isManagingValue() && _srcBodyFd.getValue() != -1;
+	if (_firstPartBuffer.getBufferLength() != 0)
 	{
-		const FlowState flowState = _firstPart.redirectBufferContentToFd(socketFd, destType);
+		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
 
 		if (flowState == FLOW_DONE)
-			return ((_bodyFd == -1) ? FLOW_DONE : FLOW_MORE);
+			return (hasBody ? FLOW_MORE : FLOW_DONE);
 		return (flowState);
 	}
-	if (_bodyFd == -1)
+	if (hasBody == false)
 		return (FLOW_DONE);
-	return (_bodyBuffer->redirectContent(_bodyFd, srcType, socketFd, destType));
+	if (_isBlocking == false)
+		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd.getValue(), *_body.getValue(), ABody::callInstanceWriteToFd));
+	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body.getValue(), ABody::callInstanceWriteToFd));
 }

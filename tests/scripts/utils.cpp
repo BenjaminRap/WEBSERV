@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <iostream>
 #include <cerrno>
 #include <cstdio>
@@ -6,8 +7,9 @@
 #include <fcntl.h>
 #include <cstring>
 
-#include "FdData.hpp"
+#include "AFdData.hpp"
 #include "FlowBuffer.hpp"
+#include "socketCommunication.hpp"
 
 void	verify(bool test)
 {
@@ -22,7 +24,7 @@ void	printInfo(std::string infos)
 	std::cout << "\033[0;35m" << infos << "\033[0m\n" << std::endl;
 }
 
-void	callback(FdData &FdData, int *data, uint32_t events)
+void	callback(AFdData &FdData, int *data, uint32_t events)
 {
 	(void)FdData;
 	(void)data;
@@ -51,21 +53,16 @@ bool	checkError(int errorFd)
 
 bool	redirectSTDERR(int (&tube)[2])
 {
-	if (pipe(tube) == -1)
-	{
-		std::cerr << "Failed to pipe in tests\n";
+	if (checkError(pipe(tube), -1, "pipe() :"))
 		return (false);
-	}
-	if (dup2(tube[1], STDERR_FILENO) == -1)
+	if (checkError(dup2(tube[1], STDERR_FILENO), -1, "dup2() : "))
 	{
-		std::cerr << "Failed to dup2 in tests\n";
 		close(tube[0]);
 		close(tube[1]);
 		return (false);
 	}
-	if (fcntl(tube[0], F_SETFL, fcntl(tube[0], F_GETFL) | O_NONBLOCK) == -1)
+	if (addFlagsToFd(tube[0], O_NONBLOCK) == -1)
 	{
-		std::cerr << "Failed to fcntl in tests\n";
 		close(tube[0]);
 		close(tube[1]);
 		return (false);
@@ -73,16 +70,13 @@ bool	redirectSTDERR(int (&tube)[2])
 	return (true);
 }
 
-bool	checkContent(int srcFd, FdType srcType, const char *expectedBuffer, size_t bufferCapacity)
+bool	checkContent(int srcFd, const char *expectedBuffer, size_t bufferCapacity)
 {
 	char	buffer[bufferCapacity];
 	char	ignoreBuffer[1024];
 	ssize_t	rd;
 
-	if (srcType == SOCKETFD)
-		rd = recv(srcFd, buffer, bufferCapacity, MSG_DONTWAIT | MSG_NOSIGNAL);
-	else
-		rd = read(srcFd, buffer, bufferCapacity);
+	rd = read(srcFd, buffer, bufferCapacity);
 	if (rd == -1)
 	{
 		// std::cout << "error : " << strerror(errno) << std::endl;
@@ -96,18 +90,42 @@ bool	checkContent(int srcFd, FdType srcType, const char *expectedBuffer, size_t 
 	else
 	{
 		while (rd >= 0)
-		{
-			if (srcType == SOCKETFD)
-				rd = recv(srcFd, ignoreBuffer, 1024, MSG_DONTWAIT | MSG_NOSIGNAL);
-			else
-				rd = read(srcFd, ignoreBuffer, 1024);
-		}
+			rd = read(srcFd, ignoreBuffer, 1024);
 		// write(STDIN_FILENO, buffer, bufferCapacity);
 		// write(STDIN_FILENO, "\n", 1);
 		// write(STDIN_FILENO, expectedBuffer, bufferCapacity);
 		// write(STDIN_FILENO, "\n", 1);
 		return (!std::memcmp(buffer, expectedBuffer, bufferCapacity));
 	}
+}
+
+void	printSTDERR(int stderrReadFd)
+{
+	char	buffer[1024];
+	ssize_t	rd = 1;
+
+	do
+	{
+		rd = read(stderrReadFd, buffer, sizeof(buffer) - 1);
+		if (rd != -1)
+		{
+			buffer[rd] = '\0';
+			std::cout << buffer << std::endl;
+		}
+	}
+	while (rd > 0);
+}
+
+void	ignoreSTDERR(int stderrReadFd)
+{
+	char	buffer[1024];
+	ssize_t	rd = 1;
+
+	do
+	{
+		rd = read(stderrReadFd, buffer, sizeof(buffer) - 1);
+	}
+	while (rd > 0);
 }
 
 std::string	&getFlowStateAsString(FlowState flowState)

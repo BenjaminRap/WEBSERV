@@ -14,9 +14,8 @@ main(int argc, char *argv[])
 {
 	int                 ret;
 	int                 data_socket;
-	ssize_t             r, w;
+	ssize_t             w;
 	struct sockaddr_un  addr;
-	char                buffer[BUFFER_SIZE];
 
 	/* Create local socket. */
 
@@ -61,7 +60,7 @@ main(int argc, char *argv[])
 	// 	}
 	// }
 
-	for (size_t i = 1; i < argc; i++)
+	for (size_t i = 1; i < (size_t)argc; i++)
 	{
 		w = write(data_socket, argv[i], strlen(argv[i]) + 1);
 		if (w == -1) {
