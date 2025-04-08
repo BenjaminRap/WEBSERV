@@ -1,17 +1,23 @@
-.IGNORE:clean
-.SILENT:clean
+.IGNORE:clean, build-webserv, restart-webserv-container
+.SILENT:clean, build-webserv, restart-webserv-container
 
 DOCKER_DIR	=	./dockerFiles/
 DOCKER_FILE	=	docker-compose.yaml
 DOCKER_EXEC	=	docker compose -f $(DOCKER_DIR)$(DOCKER_FILE)
 
-build:
+restart-webserv-container: build-webserv
+	$(DOCKER_EXEC) restart --no-deps webserv
+
+build-webserv:
+	cd ../code && make all -j16
+
+build-containers:
 	$(DOCKER_EXEC) build
 
 up:
-	$(DOCKER_EXEC) up
+	$(DOCKER_EXEC) up -d
 
-all: build up
+all: build-webserv build-containers up
 
 stop:
 	$(DOCKER_EXEC) stop

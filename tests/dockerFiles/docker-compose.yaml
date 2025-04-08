@@ -24,6 +24,8 @@ services:
       - docker-network
     volumes:
       - website-webserv:/unitTest
+      - ../../code/WebServ:/WebServ
+      - ../../code/configurations/fakenginx.conf:/configuration.conf
   tests:
     depends_on:
       - nginx
