@@ -36,7 +36,7 @@ void	removeFileName(std::string &url)
 }
 
 
-PutRequest::PutRequest(std::string &url, std::string &domain, const ServerConfiguration &config) : ARequestType(url, config, PUT, domain)
+PutRequest::PutRequest(std::string url, std::string &domain, const ServerConfiguration &config) : ARequestType(url, config, PUT, domain)
 {
 	std::string path;
 	uint16_t	fileType;
