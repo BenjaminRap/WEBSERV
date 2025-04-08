@@ -1,5 +1,5 @@
-.IGNORE:clean, build-webserv, restart-webserv-container
-.SILENT:clean, build-webserv, restart-webserv-container
+.IGNORE:clean, build-webserv, restart-webserv-container, test
+.SILENT:clean, build-webserv, restart-webserv-container, test
 
 DOCKER_DIR	=	./dockerFiles/
 DOCKER_FILE	=	docker-compose.yaml
@@ -16,6 +16,9 @@ build-containers:
 
 up:
 	$(DOCKER_EXEC) up -d
+
+test: build-webserv build-containers up
+	$(DOCKER_EXEC) attach tests
 
 all: build-webserv build-containers up
 
