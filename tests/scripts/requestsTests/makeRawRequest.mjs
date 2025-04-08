@@ -1,4 +1,4 @@
-import { HTTPParser } from "http-parser-js";
+import { HTTPParser } from "/usr/local/lib/node_modules/http-parser-js/http-parser.js";
 import * as net from "net";
 
 export function	makeRawRequest(host, port, requestData)
