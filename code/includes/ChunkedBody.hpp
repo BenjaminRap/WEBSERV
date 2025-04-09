@@ -18,6 +18,9 @@ class ChunkedBody : public ABody
 private:
 	static const std::string	_lineEnd;
 
+	const	size_t				_maxSize;
+
+	size_t						_totalSize;
 	ssize_t						_chunkSize;
 	ChunkedBodyState			_state;
 	Request&					_request;
@@ -34,7 +37,7 @@ private:
 
 	void	setFinished(uint16_t status);
 public:
-	ChunkedBody(int fd, Request &request);
+	ChunkedBody(int fd, Request &request, size_t maxSize);
 	~ChunkedBody();
 	
 	ssize_t		writeToFd(const void* buffer, size_t bufferCapacity);

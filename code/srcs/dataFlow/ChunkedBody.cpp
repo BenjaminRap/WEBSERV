@@ -14,8 +14,10 @@ const std::string	ChunkedBody::_lineEnd("\r\n");
 
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd,  Request &request) :
+ChunkedBody::ChunkedBody(int fd,  Request &request, size_t maxSize) :
 	ABody(fd),
+	_maxSize(maxSize),
+	_totalSize(0),
 	_chunkSize(-1),
 	_request(request)
 {
@@ -40,8 +42,14 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	
 	if (lineBreak == end)
 		return (0);
-	const int chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
-	if (chunkSize == getLongMax())
+	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
+	if (_chunkSize == getLongMax())
+	{
+		setFinished(HTTP_BAD_REQUEST);
+		return (-1);
+	}
+	_totalSize += _chunkSize;
+	if (_totalSize > _maxSize)
 	{
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
