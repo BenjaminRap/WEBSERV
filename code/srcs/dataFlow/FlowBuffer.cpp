@@ -9,19 +9,6 @@
 
 /************************Constructors / Destructors****************************/
 
-/**
- * @brief Create an instance of the FlowBuffer class.
- * @throw This function throw (std::logic_error) if contentLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * @param buffer The buffer used to redirect the data.
- * @param bufferCapacity The maximum number of chars the buffer can store without
- * segfault.
- * @param contentLength The number of chars that has already been written in the
- * buffer. If the index of a char is superior to contentLength, its value is 
- * unkonwn and shouldn't be used.
- * If this constructor is called with a contentLength superior to 0, the data
- * written in it will be handled.
- */
 FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t contentLength) :
 	_buffer(buffer),
 	_bufferCapacity(bufferCapacity),

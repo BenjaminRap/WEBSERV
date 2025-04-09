@@ -2,22 +2,6 @@
 
 #include "FlowBuffer.hpp"
 
-/**
- * @brief Redirect the data from srcFd to destFd.
- * @param srcFd The file descriptor in which the function will read or receive
- * the data.
- * @param readData Data that will be sent to the read custom function.
- * @param destFd The file descriptor in which the function will write or send
- * the data read from srcFd.
- * @param writeData Data that will be sent to the write function.
- * @param customRead The function that will read the data in the srcFd. If no parameter
- * is entered, the default customRead is readFromFdWithType and readData is a FdType.
- * @param customWrite The function that will write the data in the destFd. If no parameter
- * is entered, the default customWrite is writeToFdWithType and writeData is a FdType.
- * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read/write
- * and FLOW_MORE if there is more to read/write. In the latter case, we should
- * wait for an EPOLLIN/EPOLLOUT event before calling this function again.
- */
 template <typename ReadData, typename WriteData>
 FlowState	FlowBuffer::redirectContent
 (
