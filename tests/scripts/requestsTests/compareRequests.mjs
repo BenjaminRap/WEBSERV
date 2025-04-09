@@ -76,7 +76,7 @@ async function	compareRequests(target, nginxResponse, webservResponse)
 	succeed = compareStatus(nginxResponse, webservResponse) && succeed;
 	succeed = compareRedirection(nginxResponse, webservResponse) && succeed;
 	succeed = await compareBody(nginxResponse, webservResponse) && succeed;
-	succeed = compareRequestEffect(target, nginxResponse, webservResponse) && succeed;
+	succeed = await compareRequestEffect(target, nginxResponse, webservResponse) && succeed;
 	return (succeed);
 }
 
