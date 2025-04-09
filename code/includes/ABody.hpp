@@ -1,6 +1,7 @@
 #ifndef A_BODY_HPP
 # define A_BODY_HPP
 
+# include <stdint.h>	// for uint16_t
 # include <sys/types.h>	// for ssize_t
 
 /**
@@ -27,6 +28,12 @@ private:
 	 * @brief True if this body has been entirely written.
 	 */
 	bool		_finished;
+	/**
+	 * @brief The error status if an error happened, or HTTP_OK
+	 * if there was no error. When the writeToFd function returns
+	 * a -1, this value should not be set to HTTP_OK.
+	 */
+	uint16_t	_status;
 
 	ABody(const ABody& ref);
 	
@@ -37,7 +44,7 @@ protected:
 	 * @brief Tag this instance has finished.
 	 * @note It isn't reversible !
 	 */
-	void	setFinished();
+	void	setFinished(uint16_t status);
 
 	/**
 	 * @brief Write the buffer content to the _fd.
@@ -56,6 +63,7 @@ public:
 	
 	int			getFd() const;
 	bool		getFinished() const;
+	uint16_t	getStatus() const;
 	
 	/**
 	 * @brief Call the ABody child class writeToFd
