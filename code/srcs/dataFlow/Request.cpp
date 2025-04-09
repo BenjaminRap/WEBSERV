@@ -15,6 +15,9 @@
 
 class ABody;
 
+long	getLongMax();
+long	stringToLongBase(const std::string& str, int (&isInBase)(int character), int base);
+
 /*****************************Constructors/Destructors*********************************/
 
 Request::Request(void) :
@@ -52,10 +55,10 @@ int	Request::setBodyFromHeaders(SharedResource<int> destFd, const ServerConfigur
 	const std::string * const	contentLengthString = getHeader("content-length");
 	if (contentLengthString != NULL)
 	{
-		size_t contentLength = 0;
-		if (stringToSizeT(*contentLengthString, contentLength) == false)
+		long	contentLength = stringToLongBase(*contentLengthString, std::isdigit, 10);
+		if (contentLength == getLongMax())
 			return (HTTP_BAD_REQUEST);
-		if (contentLength > serverConfiguration.getMaxClientBodySize())
+		if ((size_t)contentLength > serverConfiguration.getMaxClientBodySize())
 			return (HTTP_CONTENT_TOO_LARGE);
 		try
 		{
