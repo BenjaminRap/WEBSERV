@@ -175,21 +175,22 @@ std::ostream & operator<<(std::ostream & o, Response const & rhs)
 	const std::map<std::string, std::string>&	header = rhs.getHeaderMap();
 	const Status * const						status = rhs.getStatus();
 
-	std::cout << PROTOCOL << " ";
+	o << PROTOCOL << " ";
 	if (status == NULL)
-		std::cout << "unset unset\n";
+		o << "unset unset\n";
 	else
-		std::cout << status->getCode() << " " << status->getText() << '\n';
+		o << status->getCode() << " " << status->getText() << '\n';
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{
-		std::cout << it->first << ": " << it->second << std::endl;
+		o << it->first << ": " << it->second << '\n';
 	}
-	if (status == NULL)
-		return (o);
-	if (status->isOfType(STATUS_ERROR))
-		std::cout << status->getErrorPage();
-	else if (status->isOfType(STATUS_SUCESSFULL))
-		std::cout << rhs.getAutoIndexPage();
+	if (status != NULL)
+	{
+		if (status->isOfType(STATUS_ERROR))
+			o << status->getErrorPage();
+		else if (status->isOfType(STATUS_SUCESSFULL))
+			o << rhs.getAutoIndexPage();
+	}
 	return (o);
 }

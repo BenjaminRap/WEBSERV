@@ -14,7 +14,7 @@ int	main(int argc, char **argv)
 		std::cout << "No argument supplied, using the default path for the configuration." << std::endl;
 	else if (argc > 2)
 	{
-		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
+		std::cerr << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
 		return (EXIT_FAILURE);
 	}
 	try

@@ -122,13 +122,17 @@ std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {
 	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
 
-	std::cout << "Method :" << getStringRepresentation(rhs.getMethod()) << std::endl;
-	std::cout << "Target :" << rhs.getRequestTarget() << std::endl;
-	std::cout << "Protocol :" << PROTOCOL << std::endl << std::endl;
+	o << "Method:";
+	if (rhs.getMethod() == (EMethods)-1)
+		o << "unkown\n";
+	else
+		o << getStringRepresentation(rhs.getMethod()) << '\n';
+	o << "Target :" << rhs.getRequestTarget() << '\n';
+	o << "Protocol :" << PROTOCOL << "\n\n";
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{
-		std::cout << it->first << ": " << it->second << std::endl;
+		o << it->first << ": " << it->second << '\n';
 	}
 	return (o);
 }
