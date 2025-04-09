@@ -27,6 +27,11 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
 	}
+	else if (flowState == FLOW_DONE && _flowBuffer.isBufferFull())
+	{
+		_state = REQUEST_DONE;
+		response.setResponse(HTTP_BAD_REQUEST);
+	}
 	else if (body->getFinished())
 	{
 		_state = REQUEST_DONE;
@@ -49,18 +54,23 @@ RequestState			RequestHandler::redirectBody(int socketFd, Response &response)
 		_flowBuffer.redirectFdContentToBuffer<int>(socketFd)
 		: _flowBuffer.redirectContent<int, ABody&>(socketFd, *body, ABody::callInstanceWriteToFd);
 
+	uint16_t code = HTTP_OK;
+
 	if (flowState == FLOW_DONE)
 		_state = CONNECTION_CLOSED;
 	else if (flowState == FLOW_ERROR)
-	{
-		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		_state = REQUEST_DONE;
-	}
+		code = HTTP_INTERNAL_SERVER_ERROR;
+	else if (flowState == FLOW_BUFFER_FULL && _request.getIsBlocking() == false) // This means that redirectContent can't read nor write.
+		code = HTTP_BAD_REQUEST;
 	else if (body->getFinished())
 	{
 		_state = REQUEST_DONE;
-		if (body->getStatus() != HTTP_OK)
-			response.setResponse(body->getStatus());
+		code = body->getStatus();
+	}
+	if (code != HTTP_OK)
+	{
+		_state = REQUEST_DONE;
+		response.setResponse(code);
 	}
 	return (_state);
 }

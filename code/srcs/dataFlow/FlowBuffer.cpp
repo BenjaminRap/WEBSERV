@@ -46,7 +46,7 @@ FlowBuffer::~FlowBuffer()
 bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 {
 	char * const	start = _buffer + _numCharsWritten;
-	char * const	afterEnd = _buffer + _bufferLength;
+	char * const	afterEnd = _buffer + _contentLength;
 	char * const	breakline = std::find(start, afterEnd, '\n');
 
 	if (breakline == afterEnd)
@@ -57,7 +57,7 @@ bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
 	{
 		_numCharsWritten = 0;
-		_bufferLength = 0;
+		_contentLength = 0;
 	}
 	return (true);
 }
@@ -66,7 +66,8 @@ void	FlowBuffer::moveBufferContentToStart(void)
 {
 	if (_numCharsWritten == 0)
 		return ;
-	std::memmove(_buffer, _buffer + _numCharsWritten, _bufferLength);
+	std::memmove(_buffer, _buffer + _numCharsWritten, _contentLength - _numCharsWritten);
+	_contentLength -= _numCharsWritten;
 	_numCharsWritten = 0;
 }
 
@@ -90,4 +91,9 @@ size_t		FlowBuffer::getNumCharsWritten(void) const
 const char	*FlowBuffer::getBuffer() const
 {
 	return (_buffer);
+}
+
+bool	FlowBuffer::isBufferFull() const
+{
+	return (_contentLength >= _bufferCapacity);
 }
