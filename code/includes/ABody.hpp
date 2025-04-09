@@ -61,9 +61,18 @@ public:
 	ABody(int fd);
 	virtual ~ABody();
 	
-	int			getFd() const;
 	bool		getFinished() const;
 	uint16_t	getStatus() const;
+	/**
+	 * @brief Write bufferSize bytes from the buffer to the _fd.
+	 * If the _fd is set to -1, it justs ignores them.
+	 *
+	 * @param buffer The buffer whose characters will be written.
+	 * @param bufferCapacity The number of characters to write.
+	 * @return The number of characters written, or, if _fd is set to
+	 * -1 : bufferCapacity.
+	 */
+	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
 	
 	/**
 	 * @brief Call the ABody child class writeToFd

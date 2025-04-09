@@ -1,5 +1,6 @@
 #include <stddef.h>     			// for size_t
 #include <sys/types.h>  			// for ssize_t
+#include <unistd.h>					// for write
 
 #include "ABody.hpp"    			// for ABody
 #include "requestStatusCode.hpp"	// for HTTP_OK
@@ -13,11 +14,6 @@ ABody::ABody(int fd) :
 
 ABody::~ABody()
 {
-}
-
-int	ABody::getFd() const
-{
-	return (_fd);
 }
 
 void	ABody::setFinished(uint16_t status)
@@ -34,6 +30,13 @@ bool	ABody::getFinished() const
 uint16_t	ABody::getStatus() const
 {
 	return (_status);
+}
+
+ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
+{
+	if (_fd == -1)
+		return (bufferCapacity);
+	return (write(_fd, buffer, bufferCapacity));
 }
 
 ssize_t	ABody::callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity)

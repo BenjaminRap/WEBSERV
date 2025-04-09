@@ -1,6 +1,5 @@
 #include <algorithm>				// for std::find, std::min, std::distance
 #include <cerrno>					// for errno
-#include <unistd.h>					// for write
 #include <cctype>					// for std::isxdigit
 
 #include "ChunkedBody.hpp"			// for ChunkedBody
@@ -64,7 +63,7 @@ ssize_t	ChunkedBody::writeData(const char* begin, const char* end)
 {
 	const size_t	contentLength = std::distance(begin, end);
 	const size_t	charsToWrite = std::min(contentLength, (size_t)_chunkSize);
-	const ssize_t	written = write(getFd(), begin, charsToWrite);
+	const ssize_t	written = writeOrIgnore(begin, charsToWrite);
 
 	if (written == -1)
 	{
