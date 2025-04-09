@@ -8,7 +8,7 @@
 
 
 long	getLongMax();
-long	strToLongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
+long	strToLongBase(const char* begin, const char* end, int (&isInBase)(int character), int base);
 
 const std::string	ChunkedBody::_lineEnd("\r\n");
 
@@ -34,9 +34,9 @@ void	ChunkedBody::setFinished(uint16_t status)
 	ABody::setFinished(status);
 }
 
-ssize_t	ChunkedBody::readLength(char *begin, char *end)
+ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 {
-	char * const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
+	const char*  const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
 	
 	if (lineBreak == end)
 		return (0);
@@ -46,11 +46,11 @@ ssize_t	ChunkedBody::readLength(char *begin, char *end)
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
-	_state = CHUNKED_CONTENT;
+	_state = CHUNKED_DATA;
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
 
-ssize_t	ChunkedBody::writeData(char *begin, char *end)
+ssize_t	ChunkedBody::writeData(const char* begin, const char* end)
 {
 	const size_t	contentLength = std::distance(begin, end);
 	const size_t	charsToWrite = std::min(contentLength, (size_t)_chunkSize);
@@ -68,7 +68,7 @@ ssize_t	ChunkedBody::writeData(char *begin, char *end)
 }
 
 
-ssize_t	ChunkedBody::readEndLine(char *begin, char *end)
+ssize_t	ChunkedBody::readEndLine(const char* begin, const char* end)
 {
 	if ((size_t)std::distance(begin, end) < _lineEnd.size())
 		return (0);
@@ -85,9 +85,9 @@ ssize_t	ChunkedBody::readEndLine(char *begin, char *end)
 }
 
 
-ssize_t	ChunkedBody::readTrailer(char *begin, char *end)
+ssize_t	ChunkedBody::readTrailer(const char* begin, const char* end)
 {
-	char * const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
+	const char*  const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
 	
 	if (lineBreak == end)
 		return (0);
@@ -105,44 +105,24 @@ ssize_t	ChunkedBody::readTrailer(char *begin, char *end)
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
 
-ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
+typedef ssize_t (ChunkedBody::*ParserFunc)(const char* begin, const char* end);
+
+ssize_t	ChunkedBody::writeChunkedRequestToFd(const char* begin, const char* end)
 {
+	static const ParserFunc			parsers[4] = {
+		&ChunkedBody::readSize,
+		&ChunkedBody::writeData,
+		&ChunkedBody::readEndLine,
+		&ChunkedBody::readTrailer
+	};
+
 	ssize_t	totalWritten = 0;
-	char * end = (char*)buffer + bufferCapacity;
-	
-	while (_state != CHUNKED_TRAILERS && _state != CHUNKED_DONE)
+
+	while (_state != CHUNKED_DONE)
 	{
-		if (_state == CHUNKED_SIZE)
-		{
-			const ssize_t	written = readLength((char*)buffer + totalWritten, end);
-			if (written == 0)
-				return (totalWritten);
-			else if (written == -1)
-				return (-1);
-			totalWritten += written;
-		}
-		if (_state == CHUNKED_CONTENT)
-		{
-			const ssize_t	written = writeData((char*)buffer + totalWritten, end);
-			if (written == 0)
-				return (totalWritten);
-			else if (written == -1)
-				return (-1);
-			totalWritten += written;
-		}
-		if (_state == CHUNKED_ENDLINE)
-		{
-			const ssize_t	written = readEndLine((char*)buffer + totalWritten, end);
-			if (written == 0)
-				return (totalWritten);
-			else if (written == -1)
-				return (-1);
-			totalWritten += written;
-		}
-	}
-	while (_state == CHUNKED_TRAILERS)
-	{
-		const ssize_t	written = readTrailer((char*)buffer + totalWritten, end);
+		const ParserFunc	parser = parsers[_state];
+		const ssize_t 		written = (this->*parser)(begin + totalWritten, end);
+
 		if (written == 0)
 			return (totalWritten);
 		else if (written == -1)
@@ -150,4 +130,12 @@ ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
 		totalWritten += written;
 	}
 	return (totalWritten);
+}
+
+ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
+{
+	char*	begin = (char*)buffer;
+	char*	end = begin + bufferCapacity;
+
+	return (writeChunkedRequestToFd(begin, end));
 }

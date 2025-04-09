@@ -7,7 +7,7 @@
 enum ChunkedBodyState
 {
 	CHUNKED_SIZE,
-	CHUNKED_CONTENT,
+	CHUNKED_DATA,
 	CHUNKED_ENDLINE,
 	CHUNKED_TRAILERS,
 	CHUNKED_DONE
@@ -26,10 +26,11 @@ private:
 	ChunkedBody(const ChunkedBody &chunkedBody);
 	
 
-	ssize_t	readLength(char *begin, char *end);
-	ssize_t	writeData(char *begin, char *end);
-	ssize_t	readEndLine(char *begin, char *end);
-	ssize_t	readTrailer(char *begin, char *end);
+	ssize_t	readSize(const char* begin, const char* end);
+	ssize_t	writeData(const char* begin, const char* end);
+	ssize_t	readEndLine(const char* begin, const char* end);
+	ssize_t	readTrailer(const char* begin, const char* end);
+	ssize_t	writeChunkedRequestToFd(const char* begin, const char* end);
 
 	void	setFinished(uint16_t status);
 public:
