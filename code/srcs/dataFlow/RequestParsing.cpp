@@ -99,10 +99,11 @@ int		Request::parseHeader(const char *line, const char *end)
 	const char * const valueEnd = end - 1;
 	if (*valueEnd != '\r')
 		return (HTTP_BAD_REQUEST);
-	const std::string key(line, keyEnd);
+	std::string key(line, keyEnd);
+	std::transform(key.begin(), key.end(), key.begin(), toLowerCase);
+
 	const char * valuePosition = keyEnd + 2;
-	std::string value(valuePosition, valueEnd);
-	std::transform(value.begin(), value.end(), value.begin(), toLowerCase);
+	const std::string value(valuePosition, valueEnd);
 	this->_headers[key] = value;
 	return (HTTP_OK);
 }
