@@ -96,7 +96,7 @@ std::string	getFirstPart(const Response &response)
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	const bool	hasBody = _body.isManagingValue() && _body.getValue() != NULL && _srcBodyFd.isManagingValue() && _srcBodyFd.getValue() != -1;
-	if (_firstPartBuffer.getBufferLength() != 0)
+	if (_firstPartBuffer.getContentLength() != 0)
 	{
 		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
 
