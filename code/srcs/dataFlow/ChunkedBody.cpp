@@ -3,7 +3,7 @@
 #include <unistd.h>					// for write
 #include <cctype>					// for std::isxdigit
 
-#include "ChunkedBody.hpp"
+#include "ChunkedBody.hpp"			// for ChunkedBody
 #include "requestStatusCode.hpp"	// for HTTP_...
 
 
