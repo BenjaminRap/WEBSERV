@@ -36,6 +36,11 @@ void	ChunkedBody::setFinished(uint16_t status)
 	ABody::setFinished(status);
 }
 
+static bool	doesAdditionOverflow(size_t a, size_t b)
+{
+	return (a > (size_t)-1 - b);
+}
+
 ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 {
 	const char*  const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
@@ -43,17 +48,14 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	if (lineBreak == end)
 		return (0);
 	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
-	if (_chunkSize == getLongMax())
+	if (_chunkSize == getLongMax()
+		|| doesAdditionOverflow(_totalSize, _chunkSize)
+		|| _totalSize + _chunkSize > _maxSize)
 	{
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
 	_totalSize += _chunkSize;
-	if (_totalSize > _maxSize)
-	{
-		setFinished(HTTP_BAD_REQUEST);
-		return (-1);
-	}
 	_state = CHUNKED_DATA;
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
