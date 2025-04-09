@@ -20,6 +20,7 @@ ChunkedBody::ChunkedBody(int fd,  Request &request, size_t maxSize) :
 	_totalSize(0),
 	_numCharsWritten(0),
 	_chunkSize(-1),
+	_state(CHUNKED_SIZE),
 	_request(request)
 {
 }
