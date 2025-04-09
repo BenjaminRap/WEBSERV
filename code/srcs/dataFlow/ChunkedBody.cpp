@@ -4,6 +4,7 @@
 
 #include "ChunkedBody.hpp"			// for ChunkedBody
 #include "requestStatusCode.hpp"	// for HTTP_...
+#include "socketCommunication.hpp"	// for checkError
 
 
 long	getLongMax();
@@ -17,6 +18,7 @@ ChunkedBody::ChunkedBody(int fd,  Request &request, size_t maxSize) :
 	ABody(fd),
 	_maxSize(maxSize),
 	_totalSize(0),
+	_numCharsWritten(0),
 	_chunkSize(-1),
 	_request(request)
 {
@@ -46,6 +48,7 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	
 	if (lineBreak == end)
 		return (0);
+	_numCharsWritten = 0;
 	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
 	if (_chunkSize == getLongMax()
 		|| doesAdditionOverflow(_totalSize, _chunkSize)
@@ -62,16 +65,16 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 ssize_t	ChunkedBody::writeData(const char* begin, const char* end)
 {
 	const size_t	contentLength = std::distance(begin, end);
-	const size_t	charsToWrite = std::min(contentLength, (size_t)_chunkSize);
+	const size_t	charsToWrite = std::min(_chunkSize - _numCharsWritten, contentLength);
 	const ssize_t	written = writeOrIgnore(begin, charsToWrite);
 
-	if (written == -1)
+	if (checkError<ssize_t>(written, -1, "write() : "))
 	{
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
 		return (-1);
 	}
-	_chunkSize -= written;
-	if (_chunkSize == 0)
+	_numCharsWritten += written;
+	if (_numCharsWritten >= (size_t)_chunkSize)
 		_state = CHUNKED_ENDLINE;
 	return (written);
 }
