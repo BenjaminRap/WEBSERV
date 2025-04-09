@@ -72,7 +72,7 @@ void	FlowBuffer::moveBufferContentToStart(void)
 
 /**********************************Getters******************************************/
 
-size_t		FlowBuffer::getBufferLength(void) const
+size_t		FlowBuffer::getContentLength(void) const
 {
 	return (_contentLength);
 }

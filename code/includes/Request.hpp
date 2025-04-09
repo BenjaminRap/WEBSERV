@@ -86,10 +86,62 @@ private:
 	int		parseProtocol(const char *begin, const char *end);
 
 public:
-	void	reset();
-	Body	*getBody();
-	int		parseStatusLine(char *start, char *end);
-	int		parseHeader(char *start, char *end);
+
+	Request(void);
+	~Request(void);
+
+	/**
+	 * @brief Reset all the attributes of this instance, as they were after the
+	 * default constructor call.
+	 */
+	void				reset();
+	/**
+	 * @brief Parse the line and set the method and requestTare=get attributes.
+	 *
+	 * @param line the status line. It doesn't have to be null terminated.
+	 * @param end the position just after the last character.
+	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
+	 * or HTTP_OK if there is no errors.
+	 */
+	int					parseStatusLine(const char *line, const char *end);
+	/**
+	 * @brief Parse the line and add a header to the _headers map.
+	 *
+	 * @param line a line containing key:value. It doesn't have to be null terminated.
+	 * @param end the position just after the last character.
+	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
+	 * or HTTP_OK if there is no errors.
+	 */
+	int					parseHeader(const char *line, const char *end);
+	/**
+	 * @brief Set this instance _bodyDestFd, _isBlocking and _body, depending on
+	 * the headers. For example, a content-length header means a SizedBody.
+	 *
+	 * @param destFd The fd in which the body will write, (ex: a file, a pipe ...)
+	 * @param the configuration of the server, used to check if the content-length is
+	 * small enough.
+	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
+	 * or HTTP_OK if there is no errors.
+	 */
+	int					setBodyFromHeaders
+	(
+		SharedResource<int> destFd,
+		const ServerConfiguration& serverConfiguration
+	);
+
+	ABody*				getBody() const;
+	EMethods			getMethod(void) const;
+	const std::string&	getRequestTarget(void) const;
+	/**
+	 * @brief Get the value corresponding to the key from the _headers attribute.
+	 * If they key value doesn't exists, returns NULL.
+	 * @note The key has to be in lower case as every header keys are in lower case.
+	 *
+	 * @param key 
+	 */
+	const std::string*	getHeader(const std::string &key) const;
+	const Headers&		getHeaderMap(void) const;
+	bool				getIsBlocking(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);

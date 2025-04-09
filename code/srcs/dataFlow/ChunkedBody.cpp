@@ -1,13 +1,13 @@
-#include <algorithm>
+#include <algorithm>				// for std::find, std::min, std::distance
+#include <unistd.h>					// for write
 
 #include "ChunkedBody.hpp"
-
-const std::string	ChunkedBody::endLine("\n\r");
+#include "requestStatusCode.hpp"	// for HTTP_...
 
 /**********************Constructors/Destructors********************************/
 
 ChunkedBody::ChunkedBody(int fd, Response &response, Request &request) :
-	Body(fd),
+	ABody(fd),
 	_chunkSize(0),
 	_response(response),
 	_request(request)
@@ -18,35 +18,25 @@ ChunkedBody::~ChunkedBody()
 {
 }
 
-/*************************Static functions*************************************/
-
-ssize_t	ChunkedBody::writeToFile(int fd, char *buffer, size_t count, ChunkedBody &chunkedBody)
-{
-	return (chunkedBody.writeToFd(fd, buffer, buffer + count));
-}
-
 /*************************Private Member Functions*****************************/
 
-int		ChunkedBody::parseChunkSize(char *start, char *end)
+int		ChunkedBody::parseChunkSize(char *begin, char *end)
 {
-	(void)start;
+	(void)begin;
 	(void)end;
 	return (0);
 }
 
-ssize_t	ChunkedBody::readChunkedBodyLength(char *start, char *last)
+ssize_t	ChunkedBody::readChunkedBodyLength(char *begin, char *end)
 {
-	char * const	pos = std::search(start, last, endLine.begin(), endLine.end());
+	char * const	lineBreak = std::find(begin, end, '\n');
 	
-	if (pos == last)
+	if (lineBreak == end)
 		return (0);
-	const int ret = parseChunkSize(start, pos);
-	if (ret != 0)
+	const int code = parseChunkSize(begin, lineBreak);
+	if (code != HTTP_OK)
 	{
-		if (ret  == -1)
-			_response.setResponseCode(400, "Bad Request");
-		else
-			_response.setResponseCode(500, "Internal Server Error");
+		_response.setResponse(code);
 		setFinished();
 		_state = CHUNKED_DONE;
 		return (-1);
@@ -55,17 +45,18 @@ ssize_t	ChunkedBody::readChunkedBodyLength(char *start, char *last)
 		_state = CHUNKED_TRAILERS;
 	else
 		_state = CHUNKED_CONTENT;
-	return (std::distance(start, pos + endLine.size()));
+	return (std::distance(begin, lineBreak + 1));
 }
 
-ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *start, char *last)
+ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *begin, char *end)
 {
-	const size_t	contentLength = std::distance(start, last);
+	const size_t	contentLength = std::distance(begin, end);
 	const size_t	charsToWrite = std::min(contentLength, _chunkSize);
-	const ssize_t	written = write(fd, start, charsToWrite);
+	const ssize_t	written = write(fd, begin, charsToWrite);
+
 	if (written == -1)
 	{
-		_response.setResponseCode(500, "Internal Server Error");
+		_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		setFinished();
 		_state = CHUNKED_DONE;
 		return (-1);
@@ -77,11 +68,11 @@ ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *start, char *last)
 }
 
 
-ssize_t	ChunkedBody::readChunkedBodyEndLine(char *start, char *last)
+ssize_t	ChunkedBody::readChunkedBodyEndLine(char *begin, char *end)
 {
-	if ((size_t)std::distance(start, last) < endLine.size())
+	if ((size_t)std::distance(begin, end) < endLine.size())
 		return (0);
-	if (endLine.compare(0, endLine.size(), start, endLine.size()) != 0)
+	if (endLine.compare(0, endLine.size(), begin, endLine.size()) != 0)
 	{
 		_response.setResponseCode(400, "Bad Request");
 		setFinished();
@@ -93,41 +84,42 @@ ssize_t	ChunkedBody::readChunkedBodyEndLine(char *start, char *last)
 }
 
 
-ssize_t	ChunkedBody::readTrailer(char *start, char *last)
+ssize_t	ChunkedBody::readTrailer(char *begin, char *end)
 {
-	char * const	pos = std::search(start, last, endLine.begin(), endLine.end());
+	char * const	pos = std::find(begin, end, '\n');
 	
-	if (pos == last)
+	if (pos == end)
 		return (0);
-	if (pos == start)
+	if (pos == begin)
 	{
 		setFinished();
 		_state = CHUNKED_DONE;
 		return (endLine.size());
 	}
-	const int	ret = _request.parseHeader(start, pos);
+	const int	ret = _request.parseHeader(begin, pos);
 	if (ret != 0)
 	{
 		if (ret  == -1)
-			_response.setResponseCode(400, "Bad Request");
+			_response.setResponse(HTTP_BAD_REQUEST);
 		else
-			_response.setResponseCode(500, "Internal Server Error");
+			_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		setFinished();
 		_state = CHUNKED_DONE;
 		return (-1);
 	}
-	return (std::distance(start, pos + endLine.size()));
+	return (std::distance(begin, pos + endLine.size()));
 }
 
-ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
+ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
 {
 	ssize_t	totalWritten = 0;
+	char * end = (char*)buffer + bufferCapacity;
 	
 	while (_state != CHUNKED_TRAILERS && _state != CHUNKED_DONE)
 	{
 		if (_state == CHUNKED_SIZE)
 		{
-			const ssize_t	written = readChunkedBodyLength(start + totalWritten, end);
+			const ssize_t	written = readChunkedBodyLength((char*)buffer + totalWritten, end);
 			if (written == 0)
 				return (totalWritten);
 			else if (written == -1)
@@ -136,7 +128,7 @@ ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 		}
 		if (_state == CHUNKED_CONTENT)
 		{
-			const ssize_t	written = writeChunkedBodyData(fd, start + totalWritten, end);
+			const ssize_t	written = writeChunkedBodyData(getFd(), (char*)buffer + totalWritten, end);
 			if (written == 0)
 				return (totalWritten);
 			else if (written == -1)
@@ -145,7 +137,7 @@ ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 		}
 		if (_state == CHUNKED_CONTENT_ENDLINE)
 		{
-			const ssize_t	written = readChunkedBodyEndLine(start + totalWritten, end);
+			const ssize_t	written = readChunkedBodyEndLine((char*)buffer + totalWritten, end);
 			if (written == 0)
 				return (totalWritten);
 			else if (written == -1)
@@ -155,7 +147,7 @@ ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 	}
 	while (_state == CHUNKED_TRAILERS)
 	{
-		const ssize_t	written = readTrailer(start + totalWritten, end);
+		const ssize_t	written = readTrailer((char*)buffer + totalWritten, end);
 		if (written == 0)
 			return (totalWritten);
 		else if (written == -1)
@@ -163,21 +155,4 @@ ssize_t	ChunkedBody::writeToFd(int fd, char *start, char *end)
 		totalWritten += written;
 	}
 	return (totalWritten);
-}
-
-/*************************Public Member Functions******************************/
-
-FlowState	ChunkedBody::writeBodyFromBufferToFile(FlowBuffer &flowBuffer)
-{
-
-	return (flowBuffer.redirectBufferContentToFd(getFd(), *this, ChunkedBody::writeToFile));
-}
-
-FlowState	ChunkedBody::redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd)
-{
-	FdType	socketType = SOCKETFD;
-
-	return (flowBuffer.redirectContent(socketFd, socketType, getFd(), *this, \
-		readFromFdWithType,
-		ChunkedBody::writeToFile));
 }

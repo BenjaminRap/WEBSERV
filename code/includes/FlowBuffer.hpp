@@ -149,10 +149,30 @@ public:
 	);
 
 	size_t		getContentLength(void) const;
+	size_t		getBufferCapacity(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
-	bool		getLine(char **lineStart, char **lineLast);
-	void		moveContentToStartOfBuffer();
+
+	/**
+	 * @brief Get a line from this bufferFlow internal buffer.
+	 * @note The \n isn't taken into account in the length and there may not have a \0
+	 * after the \n. The internal buffer isn't changed.
+	 *
+	 * @param lineStart If the buffer contains a line, set this variable to the start
+	 * of the line, otherwise, this variable isn't changed.
+	 * @param length If the buffer contains a line, set this variable to the length
+	 * of the line, otherwise, this variable isn't changed.
+	 * @return True if there is a line, false otherwise.,
+	 */
+	bool		getLine(char **lineStart, size_t *length);
+	/**
+	 * @brief Move the content of the FlowBuffer to the start of the buffer,
+	 * setting the number of characters written to 0. It can be useful if we don't
+	 * want the _numCharsWritten to slowly reach the end of the buffer.
+	 * This functions is called in redirectFdContentToBuffer, if the number of characters
+	 * written exceeds MAX_CHARS_WRITTEN * _bufferCapacity.
+	 */
+	void		moveBufferContentToStart(void);
 };
 
 

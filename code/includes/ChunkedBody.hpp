@@ -1,7 +1,7 @@
 #ifndef CHUNKED_BODY_HPP
 # define CHUNKED_BODY_HPP
 
-# include "Body.hpp"
+# include "ABody.hpp"
 # include "Response.hpp"
 # include "Request.hpp"
 
@@ -14,11 +14,9 @@ enum ChunkedBodyState
 	CHUNKED_DONE
 };
 
-class ChunkedBody : public Body
+class ChunkedBody : public ABody
 {
 private:
-	static const std::string	endLine;
-
 	size_t				_chunkSize;
 	ChunkedBodyState	_state;
 	Response			&_response;
@@ -37,11 +35,7 @@ public:
 	ChunkedBody(int fd, Response &response, Request &request);
 	~ChunkedBody();
 	
-	static ssize_t	writeToFile(int fd, char *buffer, size_t bufferCapacity, ChunkedBody &chunkedBody);
-	
-	ssize_t		writeToFd(int fd, char *start, char *last);
-	FlowState	writeBodyFromBufferToFile(FlowBuffer &flowBuffer);
-	FlowState	redirectBodyFromSocketToFile(FlowBuffer &flowBuffer, int socketFd);
+	ssize_t		writeToFd(const void* buffer, size_t bufferCapacity);
 };
 
 #endif // !CHUNKED_BODY_HPP

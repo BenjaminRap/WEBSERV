@@ -39,17 +39,6 @@ FlowState	FlowBuffer::redirectContent
 	return (writeState);
 }
 
-/**
- * @brief Redirect the data from this instance's buffer to destFd.
- * @param destFd The file descriptor in which the data from buffer will be written
- * or sent into.
- * @param writeData that will be sent to the write function.
- * @param customWrite The function that will write the data in the destFd. If no parameter
- * is entered, the default customWrite is writeToFdWithType and writeData is a FdType.
- * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to write
- * and FLOW_MORE if there is more to write. In the latter case, we should
- * wait for an EPOLLOUT event before calling this function again.
- */
 template <typename WriteData>
 FlowState	FlowBuffer::redirectBufferContentToFd
 (
@@ -59,7 +48,7 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 {
 	if (_numCharsWritten < _contentLength)
 	{
-		const size_t	numCharsToWrite = _bufferLength - _numCharsWritten;
+		const size_t	numCharsToWrite = _contentLength - _numCharsWritten;
 		const ssize_t	written = customWrite(writeData, _buffer + _numCharsWritten, numCharsToWrite);
 		if (written == -1)
 			return (FLOW_ERROR);
@@ -74,19 +63,6 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 	return (FLOW_MORE);
 }
 
-/**
- * @brief Read or recv all the data from srcFd and write it in the internal
- * buffer.
- * @param srcFd The fd this functions will read from.
- * @param readData Data that will be sent to the read custom function.
- * @param customRead The function that will read the data in the srcFd. If no parameter
- * is entered, the default customRead is readFromFdWithType and readData is a FdType.
- * @return Return FLOW_ERROR on error, FLOW_DONE if there is nothing more to read,
- * FLOW_BUFFER_FULL if the buffer is full and nothing could be read, and FLOW_MORE
- * if there is more to read. In the latter case, we should wait for an EPOLLIN
- * event before calling this function again.
- * BUFFER_FULL also means that there is more to read.
- */
 template <typename ReadData>
 FlowState	FlowBuffer::redirectFdContentToBuffer
 (
@@ -98,10 +74,10 @@ FlowState	FlowBuffer::redirectFdContentToBuffer
 
 	if (_numCharsWritten > MAX_CHARS_WRITTEN * _bufferCapacity)
 		moveBufferContentToStart();
-	else if (_bufferLength >= _bufferCapacity)
+	else if (_contentLength >= _bufferCapacity)
 		return (FLOW_BUFFER_FULL);
-	remainingCapacity = _bufferCapacity - _bufferLength;
-	const ssize_t rd = customRead(readData, _buffer + _bufferLength, remainingCapacity);
+	remainingCapacity = _bufferCapacity - _contentLength;
+	const ssize_t rd = customRead(readData, _buffer + _contentLength, remainingCapacity);
 	if (rd == -1)
 		return (FLOW_ERROR);
 	if (rd == 0)
