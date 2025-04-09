@@ -27,8 +27,12 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
 	}
-	else if (flowState == FLOW_DONE && body->getFinished())
+	else if (body->getFinished())
+	{
 		_state = REQUEST_DONE;
+		if (body->getStatus() != HTTP_OK)
+			response.setResponse(body->getStatus());
+	}
 }
 
 /*************************public Member function*******************************/
@@ -53,7 +57,11 @@ RequestState			RequestHandler::redirectBody(int socketFd, Response &response)
 		_state = REQUEST_DONE;
 	}
 	else if (body->getFinished())
+	{
 		_state = REQUEST_DONE;
+		if (body->getStatus() != HTTP_OK)
+			response.setResponse(body->getStatus());
+	}
 	return (_state);
 }
 
