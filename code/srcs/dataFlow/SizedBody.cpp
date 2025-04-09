@@ -34,10 +34,8 @@ ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 	if (checkError<ssize_t>(written, -1, "write() : "))
 		return (-1);
 	_numCharsWritten += written;
-	if (_numCharsWritten == _size)
+	if (_numCharsWritten >= _size)
 		setFinished(HTTP_OK);
-	else if (_numCharsWritten > _size)
-		throw std::logic_error("addCharsWritten() : _numCharsWritten superior to _size");
 	if ((size_t)written != numCharsToWrite)
 	{
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
