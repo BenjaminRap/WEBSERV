@@ -27,17 +27,15 @@ ssize_t	SizedBody::writeToFd(const void *buffer, size_t bufferCapacity)
 		return (0);
 	const size_t	numCharsToWrite = std::min(_size - _numCharsWritten, bufferCapacity);
 
-	const ssize_t	written = writeOrIgnore(buffer, bufferCapacity);
+	const ssize_t	written = writeOrIgnore(buffer, numCharsToWrite);
 	
 	if (checkError<ssize_t>(written, -1, "write() : "))
-		return (-1);
-	_numCharsWritten += written;
-	if (_numCharsWritten >= _size)
-		setFinished(HTTP_OK);
-	if ((size_t)written != numCharsToWrite)
 	{
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
 		return (-1);
 	}
+	_numCharsWritten += written;
+	if (_numCharsWritten >= _size)
+		setFinished(HTTP_OK);
 	return (written);
 }
