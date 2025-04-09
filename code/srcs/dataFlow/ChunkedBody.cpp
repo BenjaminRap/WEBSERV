@@ -1,15 +1,22 @@
 #include <algorithm>				// for std::find, std::min, std::distance
+#include <cerrno>					// for errno
 #include <unistd.h>					// for write
+#include <cctype>					// for std::isxdigit
 
 #include "ChunkedBody.hpp"
 #include "requestStatusCode.hpp"	// for HTTP_...
 
+
+long	getLongMax();
+long	strToLongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
+
+const std::string	ChunkedBody::_lineEnd("\r\n");
+
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd, Response &response, Request &request) :
+ChunkedBody::ChunkedBody(int fd,  Request &request) :
 	ABody(fd),
-	_chunkSize(0),
-	_response(response),
+	_chunkSize(-1),
 	_request(request)
 {
 }
@@ -20,94 +27,82 @@ ChunkedBody::~ChunkedBody()
 
 /*************************Private Member Functions*****************************/
 
-int		ChunkedBody::parseChunkSize(char *begin, char *end)
+
+void	ChunkedBody::setFinished(uint16_t status)
 {
-	(void)begin;
-	(void)end;
-	return (0);
+	_state = CHUNKED_DONE;
+	ABody::setFinished(status);
 }
 
-ssize_t	ChunkedBody::readChunkedBodyLength(char *begin, char *end)
+ssize_t	ChunkedBody::readLength(char *begin, char *end)
 {
-	char * const	lineBreak = std::find(begin, end, '\n');
+	char * const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
 	
 	if (lineBreak == end)
 		return (0);
-	const int code = parseChunkSize(begin, lineBreak);
-	if (code != HTTP_OK)
+	const int chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
+	if (chunkSize == getLongMax())
 	{
-		_response.setResponse(code);
-		setFinished();
-		_state = CHUNKED_DONE;
+		setFinished(HTTP_BAD_REQUEST);
+		return (-1);
+	}
+	_state = CHUNKED_CONTENT;
+	return (std::distance(begin, lineBreak + _lineEnd.size()));
+}
+
+ssize_t	ChunkedBody::writeData(char *begin, char *end)
+{
+	const size_t	contentLength = std::distance(begin, end);
+	const size_t	charsToWrite = std::min(contentLength, (size_t)_chunkSize);
+	const ssize_t	written = write(getFd(), begin, charsToWrite);
+
+	if (written == -1)
+	{
+		setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		return (-1);
+	}
+	_chunkSize -= written;
+	if (_chunkSize == 0)
+		_state = CHUNKED_ENDLINE;
+	return (written);
+}
+
+
+ssize_t	ChunkedBody::readEndLine(char *begin, char *end)
+{
+	if ((size_t)std::distance(begin, end) < _lineEnd.size())
+		return (0);
+	if (std::memcmp(begin, _lineEnd.c_str(), _lineEnd.size()))
+	{
+		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
 	if (_chunkSize == 0)
 		_state = CHUNKED_TRAILERS;
 	else
-		_state = CHUNKED_CONTENT;
-	return (std::distance(begin, lineBreak + 1));
-}
-
-ssize_t	ChunkedBody::writeChunkedBodyData(int fd, char *begin, char *end)
-{
-	const size_t	contentLength = std::distance(begin, end);
-	const size_t	charsToWrite = std::min(contentLength, _chunkSize);
-	const ssize_t	written = write(fd, begin, charsToWrite);
-
-	if (written == -1)
-	{
-		_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		setFinished();
-		_state = CHUNKED_DONE;
-		return (-1);
-	}
-	_chunkSize -= written;
-	if (_chunkSize == 0)
-		_state = CHUNKED_CONTENT_ENDLINE;
-	return (written);
-}
-
-
-ssize_t	ChunkedBody::readChunkedBodyEndLine(char *begin, char *end)
-{
-	if ((size_t)std::distance(begin, end) < endLine.size())
-		return (0);
-	if (endLine.compare(0, endLine.size(), begin, endLine.size()) != 0)
-	{
-		_response.setResponseCode(400, "Bad Request");
-		setFinished();
-		_state = CHUNKED_DONE;
-		return (-1);
-	}
-	_state = CHUNKED_SIZE;
-	return (endLine.size());
+		_state = CHUNKED_SIZE;
+	return (_lineEnd.size());
 }
 
 
 ssize_t	ChunkedBody::readTrailer(char *begin, char *end)
 {
-	char * const	pos = std::find(begin, end, '\n');
+	char * const	lineBreak = std::search(begin, end, _lineEnd.begin(), _lineEnd.end());
 	
-	if (pos == end)
+	if (lineBreak == end)
 		return (0);
-	if (pos == begin)
+	if (lineBreak == begin)
 	{
-		setFinished();
-		_state = CHUNKED_DONE;
-		return (endLine.size());
+		setFinished(HTTP_OK);
+		return (_lineEnd.size());
 	}
-	const int	ret = _request.parseHeader(begin, pos);
-	if (ret != 0)
+	const int	code = _request.parseHeader(begin, lineBreak);
+	if (code != HTTP_OK)
 	{
-		if (ret  == -1)
-			_response.setResponse(HTTP_BAD_REQUEST);
-		else
-			_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		setFinished();
-		_state = CHUNKED_DONE;
+		setFinished(code);
 		return (-1);
 	}
-	return (std::distance(begin, pos + endLine.size()));
+	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
 
 ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
@@ -119,7 +114,7 @@ ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
 	{
 		if (_state == CHUNKED_SIZE)
 		{
-			const ssize_t	written = readChunkedBodyLength((char*)buffer + totalWritten, end);
+			const ssize_t	written = readLength((char*)buffer + totalWritten, end);
 			if (written == 0)
 				return (totalWritten);
 			else if (written == -1)
@@ -128,16 +123,16 @@ ssize_t	ChunkedBody::writeToFd(const void* buffer, size_t bufferCapacity)
 		}
 		if (_state == CHUNKED_CONTENT)
 		{
-			const ssize_t	written = writeChunkedBodyData(getFd(), (char*)buffer + totalWritten, end);
+			const ssize_t	written = writeData((char*)buffer + totalWritten, end);
 			if (written == 0)
 				return (totalWritten);
 			else if (written == -1)
 				return (-1);
 			totalWritten += written;
 		}
-		if (_state == CHUNKED_CONTENT_ENDLINE)
+		if (_state == CHUNKED_ENDLINE)
 		{
-			const ssize_t	written = readChunkedBodyEndLine((char*)buffer + totalWritten, end);
+			const ssize_t	written = readEndLine((char*)buffer + totalWritten, end);
 			if (written == 0)
 				return (totalWritten);
 			else if (written == -1)

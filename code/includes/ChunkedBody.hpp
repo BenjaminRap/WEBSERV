@@ -2,14 +2,13 @@
 # define CHUNKED_BODY_HPP
 
 # include "ABody.hpp"
-# include "Response.hpp"
 # include "Request.hpp"
 
 enum ChunkedBodyState
 {
 	CHUNKED_SIZE,
 	CHUNKED_CONTENT,
-	CHUNKED_CONTENT_ENDLINE,
+	CHUNKED_ENDLINE,
 	CHUNKED_TRAILERS,
 	CHUNKED_DONE
 };
@@ -17,22 +16,24 @@ enum ChunkedBodyState
 class ChunkedBody : public ABody
 {
 private:
-	size_t				_chunkSize;
-	ChunkedBodyState	_state;
-	Response			&_response;
-	Request				&_request;
+	static const std::string	_lineEnd;
+
+	ssize_t						_chunkSize;
+	ChunkedBodyState			_state;
+	Request&					_request;
 
 	ChunkedBody();
 	ChunkedBody(const ChunkedBody &chunkedBody);
 	
 
-	ssize_t	readChunkedBodyLength(char *start, char *last);
-	ssize_t	writeChunkedBodyData(int fd, char *start, char *last);
-	ssize_t	readChunkedBodyEndLine(char *start, char *last);
-	ssize_t	readTrailer(char *start, char *last);
-	int		parseChunkSize(char *start, char *end);
+	ssize_t	readLength(char *begin, char *end);
+	ssize_t	writeData(char *begin, char *end);
+	ssize_t	readEndLine(char *begin, char *end);
+	ssize_t	readTrailer(char *begin, char *end);
+
+	void	setFinished(uint16_t status);
 public:
-	ChunkedBody(int fd, Response &response, Request &request);
+	ChunkedBody(int fd, Request &request);
 	~ChunkedBody();
 	
 	ssize_t		writeToFd(const void* buffer, size_t bufferCapacity);
