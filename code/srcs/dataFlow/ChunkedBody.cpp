@@ -18,7 +18,6 @@ ChunkedBody::ChunkedBody(int fd,  Request &request, size_t maxSize) :
 	ABody(fd),
 	_maxSize(maxSize),
 	_totalSize(0),
-	_numCharsWritten(0),
 	_chunkSize(-1),
 	_state(CHUNKED_SIZE),
 	_request(request)
@@ -49,7 +48,6 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	
 	if (lineBreak == end)
 		return (0);
-	_numCharsWritten = 0;
 	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
 	if (_chunkSize == getLongMax()
 		|| doesAdditionOverflow(_totalSize, _chunkSize)
@@ -59,14 +57,17 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 		return (-1);
 	}
 	_totalSize += _chunkSize;
-	_state = CHUNKED_DATA;
+	if (_chunkSize == 0)
+		_state = CHUNKED_TRAILERS;
+	else
+		_state = CHUNKED_DATA;
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
 
 ssize_t	ChunkedBody::writeData(const char* begin, const char* end)
 {
 	const size_t	contentLength = std::distance(begin, end);
-	const size_t	charsToWrite = std::min(_chunkSize - _numCharsWritten, contentLength);
+	const size_t	charsToWrite = std::min((size_t)_chunkSize, contentLength);
 	const ssize_t	written = writeOrIgnore(begin, charsToWrite);
 
 	if (checkError<ssize_t>(written, -1, "write() : "))
@@ -74,8 +75,8 @@ ssize_t	ChunkedBody::writeData(const char* begin, const char* end)
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
 		return (-1);
 	}
-	_numCharsWritten += written;
-	if (_numCharsWritten >= (size_t)_chunkSize)
+	_chunkSize -= written;
+	if (_chunkSize == 0)
 		_state = CHUNKED_ENDLINE;
 	return (written);
 }
@@ -90,10 +91,7 @@ ssize_t	ChunkedBody::readEndLine(const char* begin, const char* end)
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
-	if (_chunkSize == 0)
-		_state = CHUNKED_TRAILERS;
-	else
-		_state = CHUNKED_SIZE;
+	_state = CHUNKED_SIZE;
 	return (_lineEnd.size());
 }
 

@@ -21,7 +21,6 @@ private:
 	const	size_t				_maxSize;
 
 	size_t						_totalSize;
-	size_t						_numCharsWritten;
 	ssize_t						_chunkSize;
 	ChunkedBodyState			_state;
 	Request&					_request;
