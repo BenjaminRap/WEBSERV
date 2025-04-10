@@ -37,8 +37,10 @@ function	createChunkedRequest(target, headers, chunks, trailers)
 async function	sendGoodChunkedRequest(header, target, headers, chunks, trailers)
 {
 	printHeader(header);
+
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
 	const	result = await compareBadRequests(message, target, printOK);
+
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
@@ -49,8 +51,10 @@ async function	sendGoodChunkedRequest(header, target, headers, chunks, trailers)
 async function	sendBadChunkedRequest(header, target, headers, chunks, trailers)
 {
 	printHeader(header);
+
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
 	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
+
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
