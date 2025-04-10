@@ -19,6 +19,14 @@ function	reset()
 
 function	createResponse()
 {
+	if (body == "")
+	{
+		return (new Response(null, {
+			status: statusCode,
+			statusText: statusText,
+			headers: new Headers(headers),
+		}));
+	}
 	return (new Response(body, {
 		status: statusCode,
 		statusText: statusText,

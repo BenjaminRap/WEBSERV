@@ -1,5 +1,17 @@
 import { compareBadRequests } from "./compareRequests.mjs"
-import { verifyServersAreRunning, exec, printHeader, generateString } from "./utils.mjs"
+import { verifyServersAreRunning, exec, printHeader, generateString, randomInt } from "./utils.mjs"
+
+function	randomStringArray(minArray, maxArray, minString, maxString)
+{
+    let		result = [];
+	const	length = randomInt(minArray, maxArray);
+
+    for (let i = 0; i < length; i++)
+	{
+        result.push(generateString(minString, maxString));
+    }
+    return (result);
+}
 
 function	sendGoodChunkedRequest(header, target, chunks)
 {
@@ -20,6 +32,11 @@ function	sendGoodChunkedRequest(header, target, chunks)
 async function runTests()
 {
 	await sendGoodChunkedRequest("Simple Chunked", "/chunked/simple.txt", [ "je suis", "un test", "tu peux \n le voir" ]);
+	await sendGoodChunkedRequest("Empty", "/chunked/empty.txt", []);
+	await sendGoodChunkedRequest("Random Small", "/chunked/small.txt", randomStringArray(1, 5, 50, 100));
+	await sendGoodChunkedRequest("Random Medium", "/chunked/medium.txt", randomStringArray(5, 20, 50, 100));
+	await sendGoodChunkedRequest("Random Big", "/chunked/big.txt", randomStringArray(50, 100, 50, 100));
+	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", randomStringArray(1000, 2000, 50, 100));
 }
 
 async function	run()
