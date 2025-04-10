@@ -16,6 +16,8 @@ build-containers:
 
 up:
 	$(DOCKER_EXEC) up -d
+	$(DOCKER_EXEC) logs -f nginx > ./dockerFiles/nginx/nginx.logs &
+	$(DOCKER_EXEC) logs -f webserv > ./dockerFiles/webserv/webserv.logs &
 
 test: build-webserv build-containers up
 	$(DOCKER_EXEC) attach tests
