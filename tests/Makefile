@@ -7,6 +7,7 @@ DOCKER_EXEC	=	docker compose -f $(DOCKER_DIR)$(DOCKER_FILE)
 
 restart-webserv-container: build-webserv
 	$(DOCKER_EXEC) restart --no-deps webserv
+	$(DOCKER_EXEC) logs -f webserv > ./dockerFiles/webserv/webserv.logs &
 
 build-webserv:
 	cd ../code && make all -j16
