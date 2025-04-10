@@ -15,19 +15,23 @@ function	randomStringArray(minArray, maxArray, minString, maxString)
     return (result);
 }
 
-async function	sendGoodChunkedRequest(header, target, chunks)
+async function	sendGoodChunkedRequest(header, target, headers, chunks, trailers)
 {
 	printHeader(header);
 	let message = "PUT " + target + " HTTP/1.1\r\n";
-	message += "Host: nginx\r\n";
-	message += "Connection: close\r\n";
-	message += "Transfer-Encoding: chunked\r\n"
+	headers.forEach((header) => {
+		message += header + "\r\n";
+	});
 	message += "\r\n";
 	chunks.forEach((chunk) => {
 		message += chunk.length.toString(16) + "\r\n"
 		message += chunk + "\r\n"
 	});
-	message += "0\r\n\r\n";
+	message += "0\r\n";
+	trailers.forEach((trailer) => {
+		message += trailer + "\r\n";
+	});
+	message += "\r\n";
 	const	result = await compareBadRequests(message, target, printOK);
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
@@ -37,12 +41,15 @@ async function	sendGoodChunkedRequest(header, target, chunks)
 
 async function runTests()
 {
-	await sendGoodChunkedRequest("Simple Chunked", "/chunked/simple.txt", [ "je suis", "un test", "tu peux \n le voir" ]);
-	await sendGoodChunkedRequest("Empty", "/chunked/empty.txt", []);
-	await sendGoodChunkedRequest("Random Small", "/chunked/small.txt", randomStringArray(1, 5, 50, 100));
-	await sendGoodChunkedRequest("Random Medium", "/chunked/medium.txt", randomStringArray(5, 20, 50, 100));
-	await sendGoodChunkedRequest("Random Big", "/chunked/big.txt", randomStringArray(50, 100, 50, 100));
-	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", randomStringArray(1000, 2000, 50, 100));
+	const	defaultHeaders = [ "Host: nginx", "Connection: close", "Transfer-Encoding: chunked" ];
+
+	await sendGoodChunkedRequest("Simple Chunked", "/chunked/simple.txt", defaultHeaders, [ "je suis", "un test", "tu peux \n le voir" ], []);
+	await sendGoodChunkedRequest("Empty", "/chunked/empty.txt", defaultHeaders, [], []);
+	await sendGoodChunkedRequest("Random Small", "/chunked/small.txt", defaultHeaders, randomStringArray(1, 5, 50, 100), []);
+	await sendGoodChunkedRequest("Random Medium", "/chunked/medium.txt", defaultHeaders, randomStringArray(5, 20, 50, 100), []);
+	await sendGoodChunkedRequest("Random Big", "/chunked/big.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), []);
+	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", defaultHeaders, randomStringArray(1000, 2000, 50, 100), []);
+	await sendGoodChunkedRequest("With Trailers", "/chunked/trailers.txt", defaultHeaders, randomStringArray(1000, 2000, 50, 100), ["Hello: mehe"]);
 }
 
 async function	run()
