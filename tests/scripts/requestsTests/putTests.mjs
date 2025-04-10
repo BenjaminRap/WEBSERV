@@ -33,25 +33,14 @@ function	sendChunkedRequest(header, target, chunks)
 	printHeader(header);
 	let message = "PUT " + target + " HTTP/1.1\r\n";
 	message += "Host: nginx\r\n";
+	message += "Connection: close\r\n";
 	message += "Transfer-Encoding: chunked\r\n"
 	message += "\r\n";
-	// chunks.forEach((chunk) => {
-	// 	message += chunk.length.toString(16) + "\r\n"
-	// 	message += chunk + "\r\n"
-	// });
-	// message += "0\r\n\r\n";
-	// let message = 
-// "PUT /upload HTTP/1.1\r\n" +
-// "Host: example.com\r\n" +
-// "Transfer-Encoding: chunked\r\n" +
-// "\r\n" +
-message += "7\r\n" +
-"je suis\r\n" +
-"7\r\n" +
-"un test\r\n" +
-"B\r\n" +
-"et voilà !\n\r\n" +
-"0\r\n\r\n"
+	chunks.forEach((chunk) => {
+		message += chunk.length.toString(16) + "\r\n"
+		message += chunk + "\r\n"
+	});
+	message += "0\r\n\r\n";
 	return (compareBadRequests(message, target));
 }
 
@@ -69,6 +58,7 @@ async function runTests()
 	// await runGoodPutTest("Creating directory that already exists, with no right and not empty Case", "/put/alreadyExistingDirNoRight/");
 
 	await sendChunkedRequest("Simple Chunked", "/upload", [ "je suis", "un test", "tu peux \n le voir" ]);
+	await sendChunkedRequest("Simple Chunked", "/put/allowed/bidule.bid", [ "je suis", "un test", "tu peux \n le voir" ]);
 }
 
 async function	run()
