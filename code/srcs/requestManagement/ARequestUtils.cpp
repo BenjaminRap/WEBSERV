@@ -11,9 +11,11 @@
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
 #include "socketCommunication.hpp"  // for checkError
 
-bool	checkAllowMeth(const Route &route, EMethods meth)
+bool	checkAllowMeth(const Route *route, EMethods meth)
 {
-	const std::vector<EMethods>	&meths = route.getAcceptedMethods();
+	if (route == NULL)
+		return (meth != PUT && meth != DELETE);
+	const std::vector<EMethods>	&meths = route->getAcceptedMethods();
 	size_t						len;
 
 	len = meths.size();
@@ -100,15 +102,15 @@ void	addRoot(ARequestType &req, const ServerConfiguration &config)
 {
 	const Route	*route = config.getRouteFromPath(req.getUrl());
 
+	req.setRoute(route);
+	if (!checkAllowMeth(route, req.getMethod()))
+	{
+		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
+		return ;
+	}
 	if (route == NULL)
 	{
 		buildNewURl(config.getRoot(), req.getUrl());
-		return ;
-	}
-	req.setRoute(route);
-	if (!checkAllowMeth(*route, req.getMethod()))
-	{
-		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
 	const std::string &redir = route->getRedirection().url;
