@@ -111,7 +111,7 @@ ssize_t	ChunkedBody::readTrailer(const char* begin, const char* end)
 		setFinished(HTTP_OK);
 		return (_lineEnd.size());
 	}
-	const int	code = _request.parseHeader(begin, lineBreak);
+	const int	code = _request.parseHeader(begin, lineBreak + 1); // + 1 because it takes the \r
 	if (code != HTTP_OK)
 	{
 		setFinished(code);
