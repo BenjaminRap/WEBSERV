@@ -49,11 +49,15 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	if (lineBreak == end)
 		return (0);
 	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
-	if (_chunkSize == getLongMax()
-		|| doesAdditionOverflow(_totalSize, _chunkSize)
-		|| _totalSize + _chunkSize > _maxSize)
+	if (_chunkSize == getLongMax())
 	{
 		setFinished(HTTP_BAD_REQUEST);
+		return (-1);
+	}
+	if (doesAdditionOverflow(_totalSize, _chunkSize)
+		|| _totalSize + _chunkSize > _maxSize)
+	{
+		setFinished(HTTP_CONTENT_TOO_LARGE);
 		return (-1);
 	}
 	_totalSize += _chunkSize;
