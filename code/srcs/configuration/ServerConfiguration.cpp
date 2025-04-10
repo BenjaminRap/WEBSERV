@@ -79,11 +79,15 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 
 const Route	*ServerConfiguration::getRouteFromPath(const std::string &path) const
 {
+	std::map<std::string, Route>::const_iterator temp = routes.end();
+
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (path.find(it->first) == 0)
-			return (&it->second);
+		if (path.find(it->first) == 0 && (temp == routes.end() || temp->first.size() < it->first.size()))
+			temp = it;
 	}
+	if (temp != routes.end())
+		return (&temp->second);
 	return (NULL);
 }
 
