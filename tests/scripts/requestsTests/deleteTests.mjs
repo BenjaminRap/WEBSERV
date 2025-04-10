@@ -1,12 +1,12 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const	print = false;
+const	printOK = false;
 
 async function	runGoodDeleteTest(header, target)
 {
 	printHeader(header);
-	const result = await compareGoodRequests(target, "DELETE", null, {}, print);
+	const result = await compareGoodRequests(target, "DELETE", null, {}, printOK);
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else

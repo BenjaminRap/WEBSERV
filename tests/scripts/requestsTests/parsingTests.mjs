@@ -1,12 +1,12 @@
 import { compareBadRequests, compareBadRequestWithValues  } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const	print = false;
+const	printOK = false;
 
 async function	runTest(header, message, target)
 {
 	printHeader(header);
-	const	result = await compareBadRequests(message, target, print);
+	const	result = await compareBadRequests(message, target, printOK);
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
@@ -17,7 +17,7 @@ async function	runTestWithStatusLine(header, statusLine, target)
 {
 	printHeader(header);
 	const message = statusLine + "\r\nhost: dummy\r\nconnection: close\r\n\r\n";
-	const	result = await  compareBadRequests(message, target, print);
+	const	result = await  compareBadRequests(message, target, printOK);
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
@@ -28,7 +28,7 @@ async function	runBadRequestTest(header, statusLine)
 {
 	printHeader(header + " -- Not nginx !");
 	const message = statusLine + "\r\nhost: dummy\r\nconnection: close\r\n\r\n";
-	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", print);
+	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
