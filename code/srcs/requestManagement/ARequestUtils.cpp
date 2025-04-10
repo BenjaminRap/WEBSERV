@@ -96,26 +96,26 @@ void	fixUrl(ARequestType &req, std::string &url)
 	}
 }
 
-void	addRoot(ARequestType &get, const ServerConfiguration &config)
+void	addRoot(ARequestType &req, const ServerConfiguration &config)
 {
-	const Route	*temp = config.getRouteFromPath(get.getUrl());
+	const Route	*route = config.getRouteFromPath(req.getUrl());
 
-	if (temp == NULL)
+	if (route == NULL)
 	{
-		buildNewURl(config.getRoot(), get.getUrl());
+		buildNewURl(config.getRoot(), req.getUrl());
 		return ;
 	}
-	get.setRoute(temp);
-	if (!checkAllowMeth(*temp, get.getMethod()))
+	req.setRoute(route);
+	if (!checkAllowMeth(*route, req.getMethod()))
 	{
-		get.setResponse(HTTP_METHOD_NOT_ALLOWED);
+		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
-	const std::string &redir = temp->getRedirection().url;
+	const std::string &redir = route->getRedirection().url;
 	if (!redir.empty())
-		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
+		req.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
 	else
-		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
+		replaceUrl(config.getLocation(req.getUrl()), route->getRoot(), req.getUrl());
 }
 
 ssize_t	getFileSize(const std::string &filePath)

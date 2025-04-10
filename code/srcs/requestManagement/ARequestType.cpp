@@ -17,7 +17,7 @@ void	buildNewURl(std::string root, std::string &url);
 void	replaceUrl(const std::string &location, const std::string &root, std::string &url);
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
-void	addRoot(ARequestType &get, const ServerConfiguration &config);
+void	addRoot(ARequestType &req, const ServerConfiguration &config);
 
 ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) :
 	_method(method),
