@@ -20,6 +20,7 @@ void	checkType(std::string &path, GetRequest &get)
 	if (lastChar != '/')
 	{
 		path += "/";
+		get.setBackupUrl(get.getBackupUrl() + "/");
 		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, path);
 	}
 	else

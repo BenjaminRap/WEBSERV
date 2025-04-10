@@ -52,23 +52,24 @@ void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redi
 	this->_code = code;
 	this->_redirection = redirection;
 
-
 	if (this->_route != NULL)
 	{
 		if (redirection.find(this->_route->getRoot()))
 		{
 			this->_redirection = this->getBackupUrl();
-			this->_redirection.erase(0, 1);
 		}
 	}
-	else if (std::strcmp(redirection.c_str(), getBackupUrl().c_str()))
+	else if (this->_config.getRoot() != "")
 	{
-		this->_redirection = this->getBackupUrl() + "/";
-		this->_redirection.erase(0, 1);
+		if (redirection.find(this->_config.getRoot()))
+		{
+			this->_redirection = this->getBackupUrl();
+		}
 	}
+	if (this->_redirection[0] == '.' || this->_redirection[0] == '/')
+		this->_redirection.erase(0, 1);
 	this->_redirection = this->_domain + this->_redirection;
 }
-
 
 void	ARequestType::setResponse(uint16_t code)
 {
