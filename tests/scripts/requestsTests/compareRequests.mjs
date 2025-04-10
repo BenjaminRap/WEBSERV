@@ -88,7 +88,6 @@ async function	compareRequests(target, nginxResponse, webservResponse, printOK)
 
 export async function	compareGoodRequests(target, method, body, headers, printOK)
 {
-	console.log("target : " + COLOR_BLUE + target + COLOR_RESET);
 	const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
 	const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
 	return (compareRequests(target, nginxResponse, webservResponse, printOK));
@@ -96,7 +95,6 @@ export async function	compareGoodRequests(target, method, body, headers, printOK
 
 export async function	compareBadRequests(message, target, printOK)
 {
-	console.log("message : " + message);
 	const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
 	const webservResponse = await makeRawRequest(webservHost, webservPort, message);
 	return (compareRequests(target, nginxResponse, webservResponse, printOK));

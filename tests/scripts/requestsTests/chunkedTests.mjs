@@ -1,5 +1,7 @@
 import { compareBadRequests } from "./compareRequests.mjs"
-import { verifyServersAreRunning, exec, printHeader, generateString, randomInt } from "./utils.mjs"
+import { verifyServersAreRunning, exec, printHeader, generateString, randomInt, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
+
+const	printOK = false;
 
 function	randomStringArray(minArray, maxArray, minString, maxString)
 {
@@ -13,7 +15,7 @@ function	randomStringArray(minArray, maxArray, minString, maxString)
     return (result);
 }
 
-function	sendGoodChunkedRequest(header, target, chunks)
+async function	sendGoodChunkedRequest(header, target, chunks)
 {
 	printHeader(header);
 	let message = "PUT " + target + " HTTP/1.1\r\n";
@@ -26,7 +28,11 @@ function	sendGoodChunkedRequest(header, target, chunks)
 		message += chunk + "\r\n"
 	});
 	message += "0\r\n\r\n";
-	return (compareBadRequests(message, target));
+	const	result = await compareBadRequests(message, target, printOK);
+	if (result == true)
+		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function runTests()
