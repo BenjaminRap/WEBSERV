@@ -19,6 +19,8 @@ async function runTests()
 	await runGoodPutTest("Creating directory that already exists, with right and not empty Case", "/put/alreadyExistingDir/");
 	await runGoodPutTest("Creating directory that already exists, with no right and empty Case", "/put/alreadyExistingDirEmptyNoRight/");
 	await runGoodPutTest("Creating directory that already exists, with no right and not empty Case", "/put/alreadyExistingDirNoRight/");
+	await runGoodPutTest("Existing File", "/put/allowed/main.html");
+	await runGoodPutTest("Folder Not Existing", "/put/allowed/whereAmI/test.txt");
 }
 
 async function	run()
