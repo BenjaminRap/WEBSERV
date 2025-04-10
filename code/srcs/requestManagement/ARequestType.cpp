@@ -47,11 +47,12 @@ ARequestType::~ARequestType()
 {
 }
 
-void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection)
+void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect)
 {
 	this->_code = code;
 	this->_redirection = redirection;
-
+	if (isReelRedirect)
+		return ;
 	if (this->_route != NULL)
 	{
 		if (redirection.find(this->_route->getRoot()))

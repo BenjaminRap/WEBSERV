@@ -43,7 +43,7 @@ class ARequestType
 		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain);
 		virtual ~ARequestType() = 0;
 
-		void									setRedirectionResponse(uint16_t code, const std::string &redirection);
+		void									setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect);
 		void									setResponse(uint16_t code);
 		void									setUrl(const std::string &src);
 		void									setRoute(const Route *root);

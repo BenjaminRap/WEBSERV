@@ -114,7 +114,7 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
+		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir, true);
 	else
 		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
 }
