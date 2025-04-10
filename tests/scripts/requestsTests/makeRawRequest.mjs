@@ -62,7 +62,6 @@ function sendRawRequest(host, port, requestData, httpParser)
 			httpParser.finish();
 			if (complete == true)
 			{
-				console.log("completed !!");
 				return (resolve(createResponse()));
 			}
 			return (reject("Could not finished"));

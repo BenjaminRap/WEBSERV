@@ -1,10 +1,16 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
-import { verifyServersAreRunning, exec, printHeader, generateString } from "./utils.mjs"
+import { verifyServersAreRunning, exec, printHeader, generateString, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-function	runGoodPutTest(header, target)
+const	print = false;
+
+async function	runGoodPutTest(header, target)
 {
 	printHeader(header);
-	return (compareGoodRequests(target, "PUT", generateString(10, 100), {}));
+	const	result = await compareGoodRequests(target, "PUT", generateString(10, 100), {}, print);
+	if (result == true)
+		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function runTests()

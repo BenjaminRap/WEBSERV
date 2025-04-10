@@ -33,7 +33,6 @@ export function	generateString(min, max)
 
 export function	printHeader(header)
 {
-	console.log("");
 	const band = "|" + "-".repeat(header.length + 6) + "|";
 	console.log(COLOR_MAGENTA + band + COLOR_RESET);
 	console.log(COLOR_BLUE + "|   " + header + "   |" + COLOR_RESET);
