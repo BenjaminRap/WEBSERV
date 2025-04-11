@@ -14,13 +14,12 @@ const std::string	ChunkedBody::_lineEnd("\r\n");
 
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd,  Request &request, size_t maxSize) :
+ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
 	ABody(fd),
 	_maxSize(maxSize),
 	_totalSize(0),
 	_chunkSize(-1),
-	_state(CHUNKED_SIZE),
-	_request(request)
+	_state(CHUNKED_SIZE)
 {
 }
 
@@ -110,12 +109,6 @@ ssize_t	ChunkedBody::readTrailer(const char* begin, const char* end)
 	{
 		setFinished(HTTP_OK);
 		return (_lineEnd.size());
-	}
-	const int	code = _request.parseHeader(begin, lineBreak + 1); // + 1 because it takes the \r
-	if (code != HTTP_OK)
-	{
-		setFinished(code);
-		return (-1);
 	}
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }

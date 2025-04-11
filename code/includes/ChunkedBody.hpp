@@ -23,7 +23,6 @@ private:
 	size_t						_totalSize;
 	ssize_t						_chunkSize;
 	ChunkedBodyState			_state;
-	Request&					_request;
 
 	ChunkedBody();
 	ChunkedBody(const ChunkedBody &chunkedBody);
@@ -37,7 +36,7 @@ private:
 
 	void	setFinished(uint16_t status);
 public:
-	ChunkedBody(int fd, Request &request, size_t maxSize);
+	ChunkedBody(int fd, size_t maxSize);
 	~ChunkedBody();
 	
 	ssize_t		writeToFd(const void* buffer, size_t bufferCapacity);

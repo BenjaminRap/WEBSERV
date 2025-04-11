@@ -76,7 +76,7 @@ int	Request::setBodyFromHeaders
 		body = new SizedBody(fd, contentLength);
 	}
 	else if (transferEncoding != NULL && *transferEncoding == "chunked")
-		body = new ChunkedBody(fd, *this, maxSize);
+		body = new ChunkedBody(fd, maxSize);
 	else if (_statusLine.method == PUT || _statusLine.method == POST)
 		return (HTTP_LENGTH_REQUIRED);
 	_body.setManagedResource(body, freePointer);
