@@ -34,6 +34,17 @@ function	createChunkedRequest(target, headers, chunks, trailers)
 	return (message);
 }
 
+async function	sendRawBadRequest(header, target, message)
+{
+	printHeader(header);
+	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
+
+	if (result == true)
+		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+}
+
 async function	sendGoodChunkedRequest(header, target, headers, chunks, trailers)
 {
 	printHeader(header);
@@ -74,6 +85,79 @@ async function runTests()
 	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", defaultHeaders, randomStringArray(100000, 200000, 50, 100), []);
 	await sendGoodChunkedRequest("With Single Trailer", "/chunked/singleTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe"]);
 	await sendGoodChunkedRequest("With Multiple Trailers", "/chunked/multipleTrailers.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe", "Quit: now", "Cookies: nop"]);
+	await sendGoodChunkedRequest("With Invalid Trailer", "/chunked/invalidTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), [ "test=tru" ]);
+	await sendRawBadRequest("No BreakLine On Size", "/chunked/noBreakLineOnSize", 
+"PUT /chunked/noBreakLineOnSize\r\n" +
+"Host: nginx\r\n" +
+"Connection: close\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"\r\n"  +
+"5\r" + // error here
+"je su\r\n" +
+"0\r\n" +
+"\r\n"
+)
+	await sendRawBadRequest("No Return Carriage On Size", "/chunked/noReturnCarriageOnSize", 
+"PUT /chunked/noReturnCarriageOnSize\r\n" +
+"Host: nginx\r\n" +
+"Connection: close\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"\r\n"  +
+"5\r\n" +
+"je su\r\n" +
+"0\n" + // error here
+"\r\n"
+)
+
+	await sendRawBadRequest("No Return Carriage Nor BreakLine", "/chunked/noReturnCarriageNorBreakLineOnSize", 
+"PUT /chunked/noReturnCarriageNorBreakLineOnSize\r\n" +
+"Host: nginx\r\n" +
+"Connection: close\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"\r\n"  +
+"5\r\n" +
+"je su\r\n" +
+"A" + // error here
+"je suis un\r\n" +
+"0\r\n" +
+"\r\n"
+)
+	await sendRawBadRequest("No BreakLine On Data", "/chunked/noBreakLineOnData", 
+"PUT /chunked/noBreakLineOnData\r\n" +
+"Host: nginx\r\n" +
+"Connection: close\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"\r\n"  +
+"5\r\n" +
+"je su\r" + // error here
+"0\r\n" +
+"\r\n"
+)
+	await sendRawBadRequest("No Return Carriage On Data", "/chunked/noReturnCarriageOnData", 
+"PUT /chunked/noReturnCarriageOnData\r\n" +
+"Host: nginx\r\n" +
+"Connection: close\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"\r\n"  +
+"5\r\n" +
+"je su\n" + // error here
+"0\n" +
+"\r\n"
+)
+
+	await sendRawBadRequest("No Return Carriage Nor BreakLine", "/chunked/noReturnCarriageNorBreakLineOnData", 
+"PUT /chunked/noReturnCarriageNorBreakLineOnData\r\n" +
+"Host: nginx\r\n" +
+"Connection: close\r\n" +
+"Transfer-Encoding: chunked\r\n" +
+"\r\n"  +
+"5\r\n" +
+"je su\r\n" +
+"A\r\b" +
+"je suis un" + // error here
+"0\r\n" +
+"\r\n"
+)
 }
 
 async function	run()

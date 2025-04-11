@@ -34,11 +34,15 @@ function	createResponse()
 	}));
 }
 
-export function	makeRawRequest(host, port, requestData)
+export async function	makeRawRequest(host, port, requestData)
 {
+	const start = performance.now();
 	reset();
-	const httpParser = getHTTPParser();
-	return (sendRawRequest(host, port, requestData, httpParser));
+	const	httpParser = getHTTPParser();
+	const	response = await sendRawRequest(host, port, requestData, httpParser);
+	const end = performance.now();
+	console.log("duree : " +  (end - start).toFixed(3) + "ms");
+	return (response);
 }
 
 function sendRawRequest(host, port, requestData, httpParser)

@@ -88,34 +88,74 @@ async function	compareRequests(target, nginxResponse, webservResponse, printOK)
 
 export async function	compareGoodRequests(target, method, body, headers, printOK)
 {
-	const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
-	const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-	return (compareRequests(target, nginxResponse, webservResponse, printOK));
+	try
+	{
+		console.log("webserv");
+		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
+		console.log("nginx");
+		const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
+		return (compareRequests(target, nginxResponse, webservResponse, printOK));
+	}
+	catch (error)
+	{
+		console.log(error);	
+		return (false);
+	}
 }
 
 export async function	compareBadRequests(message, target, printOK)
 {
-	const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
-	const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-	return (compareRequests(target, nginxResponse, webservResponse, printOK));
+	try
+	{
+		console.log("webserv");
+		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
+		console.log("nginx");
+		const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
+		return (compareRequests(target, nginxResponse, webservResponse, printOK));
+	}
+	catch (error)
+	{
+		console.log(error);
+		return (false);
+	}
 }
 
 export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText, printOK)
 {
-	const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-	const expectedResponse = {
-		status: statusCode,
-		statusText: statusText,
-	};
-	return (compareStatus(expectedResponse, webservResponse, printOK));
+	try
+	{
+		console.log("webserv");
+		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
+		console.log("nginx");
+		const expectedResponse = {
+			status: statusCode,
+			statusText: statusText,
+		};
+		return (compareStatus(expectedResponse, webservResponse, printOK));
+	}
+	catch (error)
+	{
+		console.log(error);
+		return (false);
+	}
 }
 
 export async function	compareBadRequestWithValues(message, statusCode, statusText, printOK)
 {
-	const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-	const expectedResponse = {
-		status: statusCode,
-		statusText: statusText,
-	};
-	return (compareStatus(expectedResponse, webservResponse, printOK));
+	try
+	{
+		console.log("webserv");
+		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
+		console.log("nginx");
+		const expectedResponse = {
+			status: statusCode,
+			statusText: statusText,
+		};
+		return (compareStatus(expectedResponse, webservResponse, printOK));
+	}
+	catch (error)
+	{
+		console.log(error);
+		return (false);
+	}
 }
