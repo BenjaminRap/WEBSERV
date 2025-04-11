@@ -100,14 +100,14 @@ export async function	compareBadRequests(message, target, printOK)
 	return (compareRequests(target, nginxResponse, webservResponse, printOK));
 }
 
-export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText)
+export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText, printOK)
 {
 	const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
 	const expectedResponse = {
 		status: statusCode,
 		statusText: statusText,
 	};
-	return (compareStatus(expectedResponse, webservResponse));
+	return (compareStatus(expectedResponse, webservResponse, printOK));
 }
 
 export async function	compareBadRequestWithValues(message, statusCode, statusText, printOK)

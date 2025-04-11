@@ -71,7 +71,7 @@ async function runTests()
 	await sendGoodChunkedRequest("Random Small", "/chunked/small.txt", defaultHeaders, randomStringArray(1, 5, 50, 100), []);
 	await sendGoodChunkedRequest("Random Medium", "/chunked/medium.txt", defaultHeaders, randomStringArray(5, 20, 50, 100), []);
 	await sendGoodChunkedRequest("Random Big", "/chunked/big.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), []);
-	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", defaultHeaders, randomStringArray(1000, 2000, 50, 100), []);
+	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", defaultHeaders, randomStringArray(100000, 200000, 50, 100), []);
 	await sendGoodChunkedRequest("With Single Trailer", "/chunked/singleTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe"]);
 	await sendGoodChunkedRequest("With Multiple Trailers", "/chunked/multipleTrailers.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe", "Quit: now", "Cookies: nop"]);
 }
