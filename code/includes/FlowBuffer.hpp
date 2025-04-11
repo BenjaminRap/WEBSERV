@@ -156,6 +156,7 @@ public:
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
 	bool		isBufferFull() const;
+	bool		isBufferEmpty() const;
 
 	/**
 	 * @brief Get a line from this bufferFlow internal buffer.
