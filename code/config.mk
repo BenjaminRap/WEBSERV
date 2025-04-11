@@ -55,6 +55,11 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							Status.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
 
+CGI_DIR					:=	cgi/
+CGI_FILES				:=	CgiIn.cpp				\
+							CgiOut.cpp
+CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
+
 UTILS_DIR				:=	utils/
 UTILS_FILES				:=	conversion.cpp			\
 							EMethods.cpp			\

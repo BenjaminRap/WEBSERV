@@ -35,7 +35,12 @@ protected:
 	SocketsHandler							&_socketsHandler;
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
-	AFdData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
+	AFdData
+	(
+		int fd,
+		SocketsHandler &socketsHandler,
+		const std::vector<ServerConfiguration> &serverConfigurations
+	);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);
