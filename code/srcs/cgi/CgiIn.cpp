@@ -2,19 +2,16 @@
 
 #include "CgiIn.hpp"		// for CgiIn
 #include "FlowBuffer.hpp"	// for FlowBUffer
-#include "ABody.hpp"		// for ABody
 
 CgiIn::CgiIn
 (
 	int fd,
 	SocketsHandler &socketsHandler,
 	const std::vector<ServerConfiguration> &serverConfigurations,
-	FlowBuffer& requestFlowBuffer,
-	ABody* body
+	FlowBuffer& requestFlowBuffer
 ) :
 	AFdData(fd, socketsHandler, serverConfigurations),
-	_requestFlowBuffer(requestFlowBuffer),
-	_body(body)
+	_requestFlowBuffer(requestFlowBuffer)
 {
 }
 

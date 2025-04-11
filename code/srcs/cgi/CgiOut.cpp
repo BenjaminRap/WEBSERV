@@ -2,19 +2,16 @@
 
 #include "CgiOut.hpp"		// for CgiOut
 #include "FlowBuffer.hpp"	// for FlowBUffer
-#include "ABody.hpp"		// for ABody
 
 CgiOut::CgiOut
 (
 	int fd,
 	SocketsHandler &socketsHandler,
 	const std::vector<ServerConfiguration> &serverConfigurations,
-	FlowBuffer&	responseFlowBuffer,
-	ABody* body
+	FlowBuffer&	responseFlowBuffer
 ) :
 	AFdData(fd, socketsHandler, serverConfigurations),
-	_responseFlowBuffer(responseFlowBuffer),
-	_body(body)
+	_responseFlowBuffer(responseFlowBuffer)
 {
 }
 
@@ -26,9 +23,9 @@ CgiOut::~CgiOut()
 void	CgiOut::callback(uint32_t events)
 {
 	if (!(events & EPOLLIN)
-		|| _responseFlowBuffer.isBufferFull()
-		|| _body == NULL)
+		|| _responseFlowBuffer.isBufferFull())
 	{
 		return ;
 	}
+	_responseFlowBuffer.redirectFdContentToBuffer<int>(getFd());
 }
