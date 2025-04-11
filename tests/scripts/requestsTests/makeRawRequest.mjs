@@ -61,17 +61,13 @@ function sendRawRequest(host, port, requestData, httpParser)
         client.on('end', () => {
 			httpParser.finish();
 			if (complete == true)
-			{
 				return (resolve(createResponse()));
-			}
 			return (reject("Could not finished"));
 		});
 
         client.on('error', (err) => {
-			console.log("err !!");
 			httpParser.finish();
-			httpParser.finish();
-			return (reject(err));
+			return (resolve(createResponse()));
 		});
     });
 }
