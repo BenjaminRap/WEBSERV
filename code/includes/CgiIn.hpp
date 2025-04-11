@@ -3,9 +3,15 @@
 
 # include "AFdData.hpp"	// for AFdData
 
+class	FlowBuffer;
+class	ABody;
+
 class CgiIn : AFdData
 {
 private:
+	FlowBuffer&	_requestFlowBuffer;
+	ABody*		_body;
+
 	CgiIn(void);
 	CgiIn(const CgiIn &ref);
 
@@ -16,7 +22,9 @@ public:
 	(
 		int fd,
 		SocketsHandler &socketsHandler,
-		const std::vector<ServerConfiguration> &serverConfigurations
+		const std::vector<ServerConfiguration> &serverConfigurations,
+		FlowBuffer& requestFlowBuffer,
+		ABody*		body
 	);
 	~CgiIn();
 

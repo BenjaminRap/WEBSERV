@@ -1,4 +1,6 @@
-#include "CgiOut.hpp"
+#include <sys/epoll.h>	// for EPOLLIN
+
+#include "CgiOut.hpp"	// for CgiOut
 
 CgiOut::CgiOut
 (
@@ -17,5 +19,6 @@ CgiOut::~CgiOut()
 
 void	CgiOut::callback(uint32_t events)
 {
-	(void)events;
+	if (!(events & EPOLLIN))
+		return ;
 }
