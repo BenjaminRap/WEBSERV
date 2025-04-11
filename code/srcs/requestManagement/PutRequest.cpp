@@ -35,7 +35,6 @@ void	removeFileName(std::string &url)
 	url.erase(pos + 1);
 }
 
-
 PutRequest::PutRequest(std::string url, const std::string &domain, const ServerConfiguration &config) : ARequestType(url, config, PUT, domain)
 {
 	std::string path;
@@ -47,16 +46,19 @@ PutRequest::PutRequest(std::string url, const std::string &domain, const ServerC
 	path = this->_url;
 	removeFileName(this->_url);
 	fileType = isDirOrFile(path);
-	if ((fileType == DIRE || fileType == LS_FILE)
-		|| (this->_fileName.empty() && fileType == HTTP_NOT_FOUND))
-	{
+	if (fileType == DIRE)
 		this->setResponse(HTTP_CONFLICT);
-	}
+	else if (this->_fileName.empty() && fileType == HTTP_NOT_FOUND)
+		this->setResponse(HTTP_CONFLICT);
 	else if (!canWrite(this->_url) && fileType != HTTP_FORBIDDEN)
-		this->setResponse(HTTP_FORBIDDEN);
+		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
 	{
-		const int fd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
+		int fd;
+		if (fileType == LS_FILE)
+			fd = open(path.c_str(), O_WRONLY | O_TRUNC);
+		else
+			fd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
 		if (checkError(fd, -1, "open() : "))
 		{
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
@@ -68,7 +70,10 @@ PutRequest::PutRequest(std::string url, const std::string &domain, const ServerC
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 			return ;
 		}
-		this->setResponse(HTTP_CREATED);
+		if (fileType == LS_FILE)
+			this->setResponse(HTTP_NO_CONTENT);
+		else
+			this->setResponse(HTTP_CREATED);
 	}
 }
 
