@@ -1,6 +1,8 @@
+#include <algorithm>				// for std::find
+#include <iostream>					// for operator<<
+
 #include "Headers.hpp"				// for Headers
 #include "requestStatusCode.hpp"	// for HTTP_...
-#include <algorithm>				// for std::find
 
 /*******************************Constructors / Destructors**********************/
 
@@ -17,14 +19,14 @@ Headers::~Headers(void)
 
 const std::string*	Headers::getHeader(const std::string &key) const
 {
-	std::map<std::string, std::string>::const_iterator it = _headers.find(key);
+	HeaderMapType::const_iterator it = _headers.find(key);
 
 	if (it != _headers.end())
 		return (&it->second);
 	return (NULL);
 }
 
-const HeaderMapType	Headers::getMap(void) const
+const HeaderMapType&	Headers::getMap(void) const
 {
 	return (_headers);
 }
@@ -66,7 +68,7 @@ void	Headers::clear(void)
 
 std::ostream& operator<<(std::ostream& o, const Headers& headers)
 {
-	const HeaderMapType			internalHeaders = headers.getMap();
+	const HeaderMapType&			internalHeaders = headers.getMap();
 
 	HeaderMapType::const_iterator	it;
 

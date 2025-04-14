@@ -18,8 +18,8 @@ public:
 	Headers(void);
 	~Headers(void);
 
-	const std::string*	getHeader(const std::string &key) const;
-	const HeaderMapType	getMap(void) const;
+	const std::string*		getHeader(const std::string &key) const;
+	const HeaderMapType&	getMap(void) const;
 
 	int					parseHeader(const char *line, const char *end);
 	void				clear(void);
