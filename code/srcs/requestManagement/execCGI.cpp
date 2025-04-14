@@ -11,11 +11,10 @@ int	close_on_err(int fd1, int fd2)
 	return (EXIT_FAILURE);
 }
 
-int	execCGI(const char *path, char **argv, char **env)
+int	execCGI(const char *path, char **argv, char **env, int fd[2])
 {
 
 	//creating the pipe
-	int		fd[2];
 	if (checkError(pipe(fd), -1, "pipe() :"))
 		return (EXIT_FAILURE);
 
@@ -42,6 +41,7 @@ int	execCGI(const char *path, char **argv, char **env)
 			return (close_on_err(fd[0], STDOUT_FILENO));
 		if (checkError(execve(path, argv, env), -1, "execve() :"))
 			return (close_on_err(fd[0], STDOUT_FILENO));
+		return (0);
 	}
 	else
 	{
@@ -51,5 +51,6 @@ int	execCGI(const char *path, char **argv, char **env)
 			return (close_on_err(fd[0], fd[1]));
 		if (status)
 			return (close_on_err(fd[0], fd[1]));
+		return (0);
 	}
 }
