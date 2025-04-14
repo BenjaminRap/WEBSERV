@@ -3,10 +3,10 @@
 
 # include <stdint.h>  				// for uint16_t
 # include <iostream>  				// for ostream
-# include <map>       				// for map
 # include <string>    				// for string, basic_string
 
 # include "ABody.hpp"				// for ABody
+# include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 # include "SharedResource.hpp"		// for SharedResource
 
@@ -24,7 +24,6 @@ class	ARequestType;
 class Response
 {
 private:
-	typedef std::map<std::string, std::string>	Headers;
 	/**
 	 * @brief The status of the response. If setResponse hasn't been
 	 * called yet, it is set at NULL.
@@ -119,7 +118,8 @@ public:
 	void					reset();
 
 	const Status*			getStatus(void) const;
-	const Headers&			getHeaderMap(void) const;
+	const Headers&			getHeaders(void) const;
+	Headers&				getHeaders(void);
 	bool					getIsBlocking(void) const;
 	SharedResource<int>		getSrcBodyFd(void) const;
 	SharedResource<ABody*>	getBody(void) const;

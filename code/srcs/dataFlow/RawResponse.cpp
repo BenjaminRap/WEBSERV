@@ -65,7 +65,7 @@ std::string	getFirstPart(const Response &response)
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	const std::map<std::string, std::string>	headers = response.getHeaderMap();
+	const std::map<std::string, std::string>	headers = response.getHeaders();
 	const std::string&							autoIndexPage = response.getAutoIndexPage();
 	const size_t								length = getFirstPartLength(headers, *status, autoIndexPage.size());
 

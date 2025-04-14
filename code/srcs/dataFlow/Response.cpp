@@ -137,7 +137,12 @@ void	Response::reset()
 
 /**********************************Getters**************************************************/
 
-const std::map<std::string, std::string>	&Response::getHeaderMap(void) const
+const Headers&	Response::getHeaders(void) const
+{
+	return (this->_headers);
+}
+
+Headers&	Response::getHeaders(void)
 {
 	return (this->_headers);
 }
@@ -172,7 +177,7 @@ const std::string&	Response::getAutoIndexPage(void) const
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs)
 {
-	const std::map<std::string, std::string>&	header = rhs.getHeaderMap();
+	const std::map<std::string, std::string>&	header = rhs.getHeaders();
 	const Status * const						status = rhs.getStatus();
 
 	o << PROTOCOL << " ";
