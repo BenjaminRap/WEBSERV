@@ -6,8 +6,7 @@
 
 /*******************************Constructors / Destructors**********************/
 
-Headers::Headers(void) :
-	_headers()
+Headers::Headers(void)
 {
 }
 
@@ -19,16 +18,11 @@ Headers::~Headers(void)
 
 const std::string*	Headers::getHeader(const std::string &key) const
 {
-	HeaderMapType::const_iterator it = _headers.find(key);
+	Headers::const_iterator it = find(key);
 
-	if (it != _headers.end())
+	if (it != end())
 		return (&it->second);
 	return (NULL);
-}
-
-const HeaderMapType&	Headers::getMap(void) const
-{
-	return (_headers);
 }
 
 static char toLowerCase(char& c)
@@ -53,14 +47,8 @@ int	Headers::parseHeader(const char *line, const char *end)
 
 	const char * valuePosition = keyEnd + 2;
 	const std::string value(valuePosition, valueEnd);
-	_headers[key] = value;
+	operator[](key) = value;
 	return (HTTP_OK);
-}
-
-
-void	Headers::clear(void)
-{
-	_headers.clear();
 }
 
 /**************************Operator Overload*************************************/
@@ -68,11 +56,9 @@ void	Headers::clear(void)
 
 std::ostream& operator<<(std::ostream& o, const Headers& headers)
 {
-	const HeaderMapType&			internalHeaders = headers.getMap();
+	Headers::const_iterator	it;
 
-	HeaderMapType::const_iterator	it;
-
-	for (it = internalHeaders.begin(); it != internalHeaders.end(); it++)
+	for (it = headers.begin(); it != headers.end(); it++)
 	{
 		o << it->first << ": " << it->second << '\n';
 	}
