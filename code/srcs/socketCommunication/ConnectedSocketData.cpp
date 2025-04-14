@@ -49,9 +49,21 @@ RequestState	ConnectedSocketData::processRequest(void)
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
 			requestState = _requestHandler.readRequest(currentResponse, _fd);
 	}
+	requestState = readNextRequests(currentResponse, requestState);
+	return (requestState);
+}
+
+
+RequestState	ConnectedSocketData::readNextRequests
+(
+	Response &currentResponse,
+	RequestState requestState
+)
+{
 	while  (requestState == REQUEST_DONE)
 	{
 		const Status*	status = currentResponse.getStatus();
+
 		_requestHandler.setNewRequest();
 		_responsesHandler.addCurrentResponseToQueue();
 		if (status == NULL || status->isOfType(STATUS_ERROR))

@@ -50,7 +50,12 @@ private:
 	 */
 	RequestState			processRequest(void);
 public:
-	ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration);
+	ConnectedSocketData
+	(
+		int fd,
+		SocketsHandler &socketsHandler,
+		const std::vector<ServerConfiguration> &serverConfiguration
+	);
 	~ConnectedSocketData(void);
 
 	/**
@@ -59,7 +64,12 @@ public:
 	 *
 	 * @param events 
 	 */
-	void	callback(uint32_t events);
+	void			callback(uint32_t events);
+	RequestState	readNextRequests
+	(
+		Response& currentResponse,
+		RequestState requestState
+	);
 };
 
 #endif // !CONNECTED_SOCKET_DATA_HPP
