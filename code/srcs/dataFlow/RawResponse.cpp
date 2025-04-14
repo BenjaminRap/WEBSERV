@@ -49,6 +49,7 @@ size_t	getFirstPartLength
 	length += LINE_END_LENGTH;
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		length += it->first.size() + it->second.size();
+		length += 2; // for the ": "
 		length += LINE_END_LENGTH;
 	}
 	length += LINE_END_LENGTH; // for the empty line
@@ -82,7 +83,7 @@ std::string	getFirstPart(const Response &response)
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
 	{
 		firstPart.append(it->first)
-			.append(":")
+			.append(": ")
 			.append(it->second)
 			.append(LINE_END);
 	}
