@@ -57,8 +57,8 @@ int	Request::setBodyFromHeaders
 )
 {
 	_bodyDestFd = destFd;
-	const std::string * const	contentLengthString = getHeader("content-length");
-	const std::string * const	transferEncoding = getHeader("transfer-encoding");
+	const std::string * const	contentLengthString = _headers.getHeader("content-length");
+	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
 	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
 	const int 					fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
 
@@ -103,32 +103,25 @@ const std::string	&Request::getRequestTarget(void) const
 	return (this->_statusLine.requestTarget);
 }
 
-const std::string	*Request::getHeader(const std::string &key) const
-{
-	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-
-	if (it != this->_headers.end())
-		return (&it->second);
-	return (NULL);
-}
-
-const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
-{
-	return (this->_headers);
-}
-
-
 bool	Request::getIsBlocking(void) const
 {
 	return (_isBlocking);
+}
+
+Headers&	Request::getHeaders()
+{
+	return (_headers);
+}
+
+const Headers&	Request::getHeaders() const
+{
+	return (_headers);
 }
 
 /******************************Operator Overload*****************************************/
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {
-	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
-
 	o << "Method:";
 	if (rhs.getMethod() == (EMethods)-1)
 		o << "unkown\n";
@@ -137,9 +130,6 @@ std::ostream & operator<<(std::ostream & o, Request const & rhs)
 	o << "Target :" << rhs.getRequestTarget() << '\n';
 	o << "Protocol :" << PROTOCOL << "\n\n";
 
-	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
-	{
-		o << it->first << ": " << it->second << '\n';
-	}
+	o << rhs.getHeaders() << "\n";
 	return (o);
 }

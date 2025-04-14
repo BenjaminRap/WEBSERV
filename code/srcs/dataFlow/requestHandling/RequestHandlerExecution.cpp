@@ -54,7 +54,7 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
 
-	const std::string* host = _request.getHeader("host");
+	const std::string* host = _request.getHeaders().getHeader("host");
 	if (host == NULL)
 	{
 		response.setResponse(HTTP_BAD_REQUEST);

@@ -3,10 +3,10 @@
 
 # include <cstring>       		// for size_t
 # include <iostream>      		// for ostream
-# include <map>           		// for map
 # include <string>        		// for string, basic_string
 
 # include "EMethods.hpp"  		// for EMethods
+# include "Headers.hpp"			// for Headers
 # include "SharedResource.hpp"	// for SharedResource
 
 class ABody;
@@ -18,7 +18,6 @@ class ServerConfiguration;
 class Request
 {
 private:
-	typedef std::map<std::string, std::string>	Headers;
 	/**
 	 * @brief The first line of the clients request.
 	 * @note It doesn't has a protocol variable because
@@ -95,15 +94,6 @@ public:
 	 */
 	int					parseStatusLine(const char *line, const char *end);
 	/**
-	 * @brief Parse the line and add a header to the _headers map.
-	 *
-	 * @param line a line containing key:value. It doesn't have to be null terminated.
-	 * @param end the position just after the last character.
-	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
-	 * or HTTP_OK if there is no errors.
-	 */
-	int					parseHeader(const char *line, const char *end);
-	/**
 	 * @brief Set this instance _bodyDestFd, _isBlocking and _body, depending on
 	 * the headers. For example, a content-length header means a SizedBody.
 	 *
@@ -120,17 +110,10 @@ public:
 	);
 
 	ABody*				getBody() const;
+	Headers&			getHeaders();
+	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;
-	/**
-	 * @brief Get the value corresponding to the key from the _headers attribute.
-	 * If they key value doesn't exists, returns NULL.
-	 * @note The key has to be in lower case as every header keys are in lower case.
-	 *
-	 * @param key 
-	 */
-	const std::string*	getHeader(const std::string &key) const;
-	const Headers&		getHeaderMap(void) const;
 	bool				getIsBlocking(void) const;
 };
 

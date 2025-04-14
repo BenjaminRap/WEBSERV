@@ -27,8 +27,9 @@ void	RequestHandler::readStatusLine(Response &response)
 
 void	RequestHandler::readHeaders(Response &response)
 {
-	char	*line;
-	size_t	lineLength;
+	char		*line;
+	size_t		lineLength;
+	Headers&	headers = _request.getHeaders();
 
 	if (_state != REQUEST_HEADERS)
 		return ;
@@ -39,7 +40,7 @@ void	RequestHandler::readHeaders(Response &response)
 			_state = REQUEST_EMPTY_LINE;
 			return ;
 		}
-		const int	statusCode = _request.parseHeader(line, line + lineLength);
+		const int	statusCode = headers.parseHeader(line, line + lineLength);
 		if (statusCode != HTTP_OK)
 		{
 			response.setResponse(statusCode);
