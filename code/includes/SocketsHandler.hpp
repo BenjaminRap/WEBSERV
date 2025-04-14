@@ -87,7 +87,15 @@ public:
 	 * @param events The events for which the epoll will notify with this fd
 	 * @return -1 on error, otherwise 0.
 	 */
-	int		addFdToListeners(AFdData &FdData, uint32_t events);
+	int		addFdToList(AFdData &fdData, uint32_t events);
+	/**
+	 * @brief Adds the fddData to the epoll interest list, but not in the SocketsHandler
+	 * list.
+	 * If the function fails, the FdData won't be destroyed.
+	 *
+	 * @return -1 on error, 0 otherwise
+	 */
+	int		addFdToEpoll(AFdData& fdData, uint32_t events);
 	/**
 	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 

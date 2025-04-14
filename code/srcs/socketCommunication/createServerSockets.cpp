@@ -71,7 +71,7 @@ const Configuration &conf,
 		try
 		{
 			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, socketsHandler, serverConfigurations));
-			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
+			if (socketsHandler.addFdToList(serverSocketData, events) == -1)
 			{
 				delete &serverSocketData;
 	  			closeFdAndPrintError(fd);

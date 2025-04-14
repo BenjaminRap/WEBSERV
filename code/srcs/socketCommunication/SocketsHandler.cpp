@@ -133,27 +133,38 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 	}
 }
 
-int	SocketsHandler::addFdToListeners
-(
-	AFdData &FdData,
-	uint32_t events
-)
+
+int	SocketsHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
 {
 	epoll_event	event;
 
+	event.data.ptr = &FdData;
+	event.events = events;
+	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData.getFd(), &event), -1, "epoll_ctl() :"))
+	{
+		_socketsData.pop_front();
+		return (-1);
+	}
+	return (0);
+}
+
+int	SocketsHandler::addFdToList
+(
+	AFdData &fdData,
+	uint32_t events
+)
+{
 	try
 	{
-		_socketsData.push_front(&FdData);
+		_socketsData.push_front(&fdData);
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (-1);
 	}
-	FdData.setIterator(_socketsData.begin());
-	event.data.ptr = &FdData;
-	event.events = events;
-	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData.getFd(), &event), -1, "epoll_ctl() :"))
+	fdData.setIterator(_socketsData.begin());
+	if (addFdToEpoll(fdData, events) == -1)
 	{
 		_socketsData.pop_front();
 		return (-1);
