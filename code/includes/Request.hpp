@@ -9,8 +9,9 @@
 # include "Headers.hpp"			// for Headers
 # include "SharedResource.hpp"	// for SharedResource
 
-class ABody;
-class ServerConfiguration;
+class	CgiIn;
+class	ABody;
+class	ServerConfiguration;
 
 /**
  * @brief the class that stores all the data send by the client.
@@ -50,6 +51,12 @@ private:
 	 * a chunked body ...
 	 */
 	SharedResource<ABody*>	_body;
+	/**
+	 * @brief A pointer on the instance managing the writing of the cgi
+	 * body into the cgi, if the request doesn't use cgi, this variables
+	 * is set to NULL;
+	 */
+	CgiIn*					_cgi;
 
 	/**
 	 * @brief parse the method and set the _statusLine.method variable.

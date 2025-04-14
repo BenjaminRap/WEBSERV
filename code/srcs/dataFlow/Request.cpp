@@ -1,10 +1,8 @@
 #include <cstring>                // for memcmp, size_t, NULL
-#include <exception>              // for exception
 #include <iostream>               // for basic_ostream, operator<<, endl, cout
-#include <map>                    // for map, operator!=, _Rb_tree_const_ite...
 #include <string>                 // for basic_string, char_traits, string
-#include <utility>                // for pair, make_pair
 
+#include "CgiIn.hpp"			  // for CgiIn
 #include "ChunkedBody.hpp"		  // for ChunkedBody
 #include "EMethods.hpp"           // for EMethods, getStringRepresentation
 #include "Request.hpp"            // for Request, operator<<
@@ -26,7 +24,8 @@ Request::Request(void) :
 	_headers(),
 	_bodyDestFd(),
 	_isBlocking(false),
-	_body()
+	_body(),
+	_cgi(NULL)
 {
 	_statusLine.method = (EMethods)-1;
 	_statusLine.requestTarget = "";
@@ -34,6 +33,8 @@ Request::Request(void) :
 
 Request::~Request(void)
 {
+	if (_cgi != NULL)
+		delete _cgi;
 }
 
 /*******************************Public Methods*********************************************/
@@ -46,6 +47,11 @@ void	Request::reset()
 	_bodyDestFd.stopManagingResource();
 	_isBlocking = false;
 	_body.stopManagingResource();
+	if (_cgi != NULL)
+	{
+		delete _cgi;
+		_cgi = NULL;
+	}
 }
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue);

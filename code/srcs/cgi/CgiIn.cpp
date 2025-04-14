@@ -28,7 +28,6 @@ CgiIn::CgiIn
 
 CgiIn::~CgiIn()
 {
-
 }
 
 /**
@@ -60,5 +59,4 @@ void	CgiIn::callback(uint32_t events)
 	if (code != HTTP_OK)
 		_response.setResponse(code);
 	_connectedSocketData.readNextRequests(_response, REQUEST_DONE);
-	_socketsHandler.removeFdDataFromList(_iterator);
 }
