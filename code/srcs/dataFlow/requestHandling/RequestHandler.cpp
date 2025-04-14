@@ -33,7 +33,7 @@ RequestState			RequestHandler::readRequest(Response &response, int socketFd)
 		readStatusLine(response);
 		readHeaders(response);
 		executeRequest(response, socketFd);
-		writeBodyFromBuffer(response);
+		redirectBody(socketFd, response, false);
 	}
 	catch (const std::exception& exception)
 	{

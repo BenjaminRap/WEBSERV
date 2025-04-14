@@ -107,6 +107,6 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	if (hasBody == false)
 		return (FLOW_DONE);
 	if (_isBlocking == false)
-		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd.getValue(), *_body.getValue(), ABody::callInstanceWriteToFd));
-	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body.getValue(), ABody::callInstanceWriteToFd));
+		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd.getValue(), *_body.getValue(), ABody::writeToFd));
+	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body.getValue(), ABody::writeToFd));
 }

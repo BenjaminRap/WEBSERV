@@ -81,7 +81,7 @@ public:
 	 * @throw It should not throw
 	 * @ref writeToFd The rest of the parameters and return value corresponds.
 	 */
-	static ssize_t	callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity);
+	static ssize_t	writeToFd(ABody &body, const void *buffer, size_t bufferCapacity);
 };
 
 #endif // !A_BODY_HPP

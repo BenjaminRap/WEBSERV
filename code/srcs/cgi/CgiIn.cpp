@@ -37,7 +37,7 @@ void	CgiIn::callback(uint32_t events)
 		return ;
 	}
 	const FlowState	flowState = _requestFlowBuffer.
-		redirectBufferContentToFd<ABody&>(_body, ABody::callInstanceWriteToFd);
+		redirectBufferContentToFd<ABody&>(_body, ABody::writeToFd);
 
 	if (_body.getFinished())
 		std::cout << "We remove this FdData cause it s done" << std::endl;

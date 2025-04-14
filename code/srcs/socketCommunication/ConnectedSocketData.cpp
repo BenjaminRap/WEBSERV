@@ -40,7 +40,7 @@ RequestState	ConnectedSocketData::processRequest(void)
 
 	if (_requestHandler.isStateRequestBody())
 	{
-		requestState = _requestHandler.redirectBody(_fd, currentResponse);
+		requestState = _requestHandler.redirectBody(_fd, currentResponse, true);
 	}
 	else
 	{

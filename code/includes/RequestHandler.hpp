@@ -104,12 +104,6 @@ private:
 	 */
 	void						executeRequest(Response &response, int socketFd);
 	/**
-	 * @brief Write the request body from the _buffer to the body fd.
-	 * If there is an error, it sets the response values.
-	 *
-	 */
-	void						writeBodyFromBuffer(Response &response);
-	/**
 	 * @brief Returns the ServerConfiguration corresponding to the Host header.
 	 * If no ServerConfiguration corresponds or if there is no Host header,
 	 * it returns the first ServerConfiguration of the vector.
@@ -127,20 +121,13 @@ public:
 	~RequestHandler();
 
 	/**
-	 * @brief Redirect the body of the request from the server socket to the response
-	 * body fd, using the body writeToFd method.
-	 *
-	 * @return The new state of the request
-	 */
-	RequestState				redirectBody(int socketFd, Response &response);
-	/**
 	 * @brief Redirect the body of the request from the _buffer to the response
 	 * body fd, using the body writeToFd method.
 	 *
 	 * @return The new state of the request
 	 */
 	RequestState				redirectFirstPart(int socketFd, Response &response);
-
+	RequestState				redirectBody(int socketFd, Response &response, bool canRead);
 	/**
 	 * @brief Read and handle the execution of the request
 	 *
