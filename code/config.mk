@@ -59,3 +59,8 @@ UTILS_FILES				:=	conversion.cpp			\
 							EMethods.cpp			\
 							closeAndPrintError.cpp
 UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))
+
+
+CGI_ENV_DIR			:=	cgiEnv/
+CGI_ENV_FILES		:=	setEnv.cpp
+CGI_ENV			:=	$(addprefix $(CGI_ENV_DIR), $(CGI_ENV_FILES))
