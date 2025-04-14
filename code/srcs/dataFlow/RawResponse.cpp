@@ -108,6 +108,8 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (hasBody == false)
 		return (FLOW_DONE);
+	if (_bodyBuffer.isBufferEmpty())
+		return (FLOW_MORE);
 	const int		srcFd = _srcBodyFd.getValue();
 	ABody * const	body = _body.getValue();
 
