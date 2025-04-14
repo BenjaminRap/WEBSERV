@@ -10,7 +10,7 @@ class CgiIn : AFdData
 {
 private:
 	FlowBuffer&	_requestFlowBuffer;
-	ABody*		_body;
+	ABody&		_body;
 
 	CgiIn(void);
 	CgiIn(const CgiIn &ref);
@@ -24,7 +24,7 @@ public:
 		SocketsHandler &socketsHandler,
 		const std::vector<ServerConfiguration> &serverConfigurations,
 		FlowBuffer& requestFlowBuffer,
-		ABody*		body
+		ABody&		body
 	);
 	~CgiIn();
 
