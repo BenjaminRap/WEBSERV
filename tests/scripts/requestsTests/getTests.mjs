@@ -1,9 +1,15 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
-import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
+import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-function	runGoodGetTest(target)
+const	printOK = false;
+
+async function	runGoodGetTest(target)
 {
-	return (compareGoodRequests(target, "GET", null, {}));
+	const	result = await compareGoodRequests(target, "GET", null, {}, printOK);
+	if (result == true)
+		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function runTests()

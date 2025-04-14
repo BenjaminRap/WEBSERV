@@ -7,6 +7,9 @@
 #include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"	// fpr HTTP_...
 
+long	strToLongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
+long	getLongMax();
+
 int	Request::parseMethod(const char *begin, const char *end)
 {
 	if (begin == end)
@@ -25,23 +28,6 @@ int	Request::parseMethod(const char *begin, const char *end)
 	return (HTTP_OK);
 }
 
-long	Request::parseProtocolNumber(const char* begin, const char* end)
-{
-	const int	errnoSave = errno;
-
-	errno = 0;
-
-	if (!std::isdigit(*begin))
-		return (-1);
-	char	*numberEnd;
-	const long number = std::strtol(begin, &numberEnd, 10);
-	if (begin == numberEnd || errno == ERANGE || numberEnd != end)
-		return (-1);
-
-	errno = errnoSave;
-	return (number);
-}
-
 int	Request::parseProtocol(const char *begin, const char *end)
 {
 	const char*		index;
@@ -55,11 +41,11 @@ int	Request::parseProtocol(const char *begin, const char *end)
 	const char*	delimiter = std::find(index, end, '.');
 	if (delimiter == end)
 		return (HTTP_BAD_REQUEST);
-	const long	major = parseProtocolNumber(index, delimiter);
-	if (major == -1)
+	const long	major = strToLongBase(index, delimiter, std::isdigit, 10);
+	if (major == getLongMax())
 		return (HTTP_BAD_REQUEST);
-	const long	minor = parseProtocolNumber(delimiter + 1, end);
-	if (minor == -1)
+	const long	minor = strToLongBase(delimiter + 1, end, std::isdigit, 10);
+	if (minor == getLongMax())
 		return (HTTP_BAD_REQUEST);
 	if (major != PROTOCOL_MAJOR || minor != PROTOCOL_MINOR)
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
@@ -113,10 +99,11 @@ int		Request::parseHeader(const char *line, const char *end)
 	const char * const valueEnd = end - 1;
 	if (*valueEnd != '\r')
 		return (HTTP_BAD_REQUEST);
-	const std::string key(line, keyEnd);
+	std::string key(line, keyEnd);
+	std::transform(key.begin(), key.end(), key.begin(), toLowerCase);
+
 	const char * valuePosition = keyEnd + 2;
-	std::string value(valuePosition, valueEnd);
-	std::transform(value.begin(), value.end(), value.begin(), toLowerCase);
+	const std::string value(valuePosition, valueEnd);
 	this->_headers[key] = value;
 	return (HTTP_OK);
 }

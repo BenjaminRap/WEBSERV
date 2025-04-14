@@ -115,7 +115,7 @@ private:
 	 * it returns the first ServerConfiguration of the vector.
 	 *
 	 */
-	const ServerConfiguration	&getServerConfiguration(void) const;
+	const ServerConfiguration	&getServerConfiguration(const std::string& host) const;
 	/**
 	 * @brief Set  the response values depending on the results of the
 	 * request.

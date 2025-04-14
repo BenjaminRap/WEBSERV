@@ -46,13 +46,13 @@ std::ostream & operator<<(std::ostream & o, Configuration const & rhs)
 
 	for (std::map<Host, std::vector<ServerConfiguration> >::const_iterator it = rhs.begin(); it != rhs.end(); ++it)
 	{
-		std::cout << "Host " << i << ":" << std::endl;
+		o << "Host " << i << ":\n";
 		for (size_t j = 0; j < it->second.size(); j++)
 		{
-			std::cout << "Server " << j + 1 << ":" << std::endl;
-			std::cout << it->second[j] << std::endl; 
+			o << "Server " << j + 1 << ":\n";
+			o << it->second[j] << '\n';
 		}
-		std::cout << std::endl;
+		o << '\n';
 		i++;
 	}
 	return (o);

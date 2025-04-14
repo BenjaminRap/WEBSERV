@@ -52,13 +52,13 @@ RequestState	ConnectedSocketData::processRequest(void)
 	while  (requestState == REQUEST_DONE)
 	{
 		const Status*	status = currentResponse.getStatus();
+		_requestHandler.setNewRequest();
 		_responsesHandler.addCurrentResponseToQueue();
 		if (status == NULL || status->isOfType(STATUS_ERROR))
 		{
 			_closing = true;
 			return (requestState);
 		}
-		_requestHandler.setNewRequest();
 		requestState = _requestHandler.readRequest(currentResponse, _fd);
 	}
 	return (requestState);

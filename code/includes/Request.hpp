@@ -63,16 +63,6 @@ private:
 	 */
 	int		parseMethod(const char *begin, const char *end);
 	/**
-	 * @brief parse a number from the protocol, either the major or minor.
-	 * This number has to be only composed by digit and be in the range of long.
-	 *
-	 * @param begin The beginning of the number
-	 * @param end the position just after the last character of the number.
-	 * It HAS to be a '.' or '\r' or the function could segfault.
-	 * @return The number parsed, or -1 if it is a bad request.
-	 */
-	long	parseProtocolNumber(const char *begin, const char *end);
-	/**
 	 * @brief parse the protocol and verify that the version major and minor
 	 * are respectively equal to PROTOCOL_MAJOR and PROTOCOL_MINOR.
 	 * It also checks that the protocol begin with HTTP/ or HTTPS/.

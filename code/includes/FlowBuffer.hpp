@@ -60,8 +60,11 @@ private:
 	/**
 	 * @brief The number of chars that has been written in this buffer, the chars
 	 * with an index superior to this number are undefined and shouldn't be use.
+	 * This is a position relative to the buffer beginning, not to _numCharsWritten.
+	 * contentLength is the position of the last character written by a read. It isn't
+	 * affected when writing data.
 	 */
-	size_t	_bufferLength;
+	size_t	_contentLength;
 	/**
 	 * @brief The number of chars from the buffer that has already be written in
 	 * the destination.
@@ -148,10 +151,11 @@ public:
 		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
 	);
 
-	size_t		getBufferLength(void) const;
+	size_t		getContentLength(void) const;
 	size_t		getBufferCapacity(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
+	bool		isBufferFull() const;
 
 	/**
 	 * @brief Get a line from this bufferFlow internal buffer.
