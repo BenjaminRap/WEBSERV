@@ -36,5 +36,13 @@ void	CgiIn::callback(uint32_t events)
 	{
 		return ;
 	}
-	_requestFlowBuffer.redirectBufferContentToFd<ABody&>(_body, ABody::callInstanceWriteToFd);
+	const FlowState	flowState = _requestFlowBuffer.
+		redirectBufferContentToFd<ABody&>(_body, ABody::callInstanceWriteToFd);
+
+	if (_body.getFinished())
+		std::cout << "We remove this FdData cause it s done" << std::endl;
+	else if (flowState == FLOW_ERROR)
+		std::cout << "Error" << std::endl;
+	else if (_requestFlowBuffer.isBufferFull())
+		std::cout << "It is a bad request" << std::endl;
 }
