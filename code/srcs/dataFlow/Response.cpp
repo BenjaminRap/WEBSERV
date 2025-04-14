@@ -175,10 +175,9 @@ const std::string&	Response::getAutoIndexPage(void) const
 
 /*********************************Operator Overload**********************************************/
 
-std::ostream & operator<<(std::ostream & o, Response const & rhs)
+std::ostream & operator<<(std::ostream & o, Response const & response)
 {
-	const std::map<std::string, std::string>&	header = rhs.getHeaders();
-	const Status * const						status = rhs.getStatus();
+	const Status * const						status = response.getStatus();
 
 	o << PROTOCOL << " ";
 	if (status == NULL)
@@ -186,16 +185,13 @@ std::ostream & operator<<(std::ostream & o, Response const & rhs)
 	else
 		o << status->getCode() << " " << status->getText() << '\n';
 
-	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
-	{
-		o << it->first << ": " << it->second << '\n';
-	}
+	o << response.getHeaders();
 	if (status != NULL)
 	{
 		if (status->isOfType(STATUS_ERROR))
 			o << status->getErrorPage();
 		else if (status->isOfType(STATUS_SUCESSFULL))
-			o << rhs.getAutoIndexPage();
+			o << response.getAutoIndexPage();
 	}
 	return (o);
 }

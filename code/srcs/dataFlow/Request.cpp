@@ -120,16 +120,16 @@ const Headers&	Request::getHeaders() const
 
 /******************************Operator Overload*****************************************/
 
-std::ostream & operator<<(std::ostream & o, Request const & rhs)
+std::ostream & operator<<(std::ostream & o, Request const & request)
 {
 	o << "Method:";
-	if (rhs.getMethod() == (EMethods)-1)
+	if (request.getMethod() == (EMethods)-1)
 		o << "unkown\n";
 	else
-		o << getStringRepresentation(rhs.getMethod()) << '\n';
-	o << "Target :" << rhs.getRequestTarget() << '\n';
+		o << getStringRepresentation(request.getMethod()) << '\n';
+	o << "Target :" << request.getRequestTarget() << '\n';
 	o << "Protocol :" << PROTOCOL << "\n\n";
 
-	o << rhs.getHeaders() << "\n";
+	o << request.getHeaders() << "\n";
 	return (o);
 }
