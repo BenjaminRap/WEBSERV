@@ -1,8 +1,12 @@
-#include <sys/epoll.h>		// for EPOLLOUT
+#include <sys/epoll.h>				// for EPOLLOUT
 
-#include "CgiIn.hpp"		// for CgiIn
-#include "FlowBuffer.hpp"	// for FlowBUffer
-#include "ABody.hpp"		// for ABody
+#include "CgiIn.hpp"				// for CgiIn
+#include "FlowBuffer.hpp"			// for FlowBUffer
+#include "ABody.hpp"				// for ABody
+#include "ConnectedSocketData.hpp"	// for ConnectedSocketData
+#include "Response.hpp"				// for Response
+#include "SocketsHandler.hpp"		// for SocketsHandler
+#include "requestStatusCode.hpp"	// for HTTP_...
 
 CgiIn::CgiIn
 (
@@ -10,11 +14,15 @@ CgiIn::CgiIn
 	SocketsHandler &socketsHandler,
 	const std::vector<ServerConfiguration> &serverConfigurations,
 	FlowBuffer& requestFlowBuffer,
-	ABody& body
+	ABody& body,
+	ConnectedSocketData& connectedSocketData,
+	Response& currentResponse
 ) :
 	AFdData(fd, socketsHandler, serverConfigurations),
 	_requestFlowBuffer(requestFlowBuffer),
-	_body(body)
+	_body(body),
+	_connectedSocketData(connectedSocketData),
+	_response(currentResponse)
 {
 }
 
@@ -39,10 +47,18 @@ void	CgiIn::callback(uint32_t events)
 	const FlowState	flowState = _requestFlowBuffer.
 		redirectBufferContentToFd<ABody&>(_body, ABody::writeToFd);
 
+	int	code;
+
 	if (_body.getFinished())
-		std::cout << "We remove this FdData cause it s done" << std::endl;
+		code = _body.getStatus();
 	else if (flowState == FLOW_ERROR)
-		std::cout << "Error" << std::endl;
+		code = HTTP_INTERNAL_SERVER_ERROR;
 	else if (_requestFlowBuffer.isBufferFull())
-		std::cout << "It is a bad request" << std::endl;
+		code = HTTP_BAD_REQUEST;
+	else
+		return ;
+	if (code != HTTP_OK)
+		_response.setResponse(code);
+	_connectedSocketData.readNextRequests(_response, REQUEST_DONE);
+	_socketsHandler.removeFdDataFromList(_iterator);
 }

@@ -32,22 +32,20 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	else
 		return (REQUEST_BODY);
 
-	uint16_t code = HTTP_OK;
+	int	code;
 
 	if (body->getFinished())
-	{
-		_state = REQUEST_DONE;
 		code = body->getStatus();
-	}
 	else if (flowState == FLOW_ERROR)
 		code = HTTP_INTERNAL_SERVER_ERROR;
-	else if (_request.getIsBlocking() == false && _flowBuffer.isBufferFull())
+	else if (canWrite && _flowBuffer.isBufferFull())
 		code = HTTP_BAD_REQUEST;
+	else
+		return (_state);
+
 	if (code != HTTP_OK)
-	{
-		_state = REQUEST_DONE;
 		response.setResponse(code);
-	}
+	_state = REQUEST_DONE;
 	return (_state);
 }
 
