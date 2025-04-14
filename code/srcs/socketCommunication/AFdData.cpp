@@ -53,3 +53,11 @@ void	AFdData::setIterator(const std::list<AFdData *>::iterator &iterator)
 	_isIteratorSet = true;
 	this->_iterator = iterator;
 }
+
+
+void	AFdData::removeFromSocketsHandler(void)
+{
+	if (_isIteratorSet == false)
+		return ;
+	_socketsHandler.removeFdDataFromList(_iterator);
+}

@@ -100,5 +100,5 @@ void	ConnectedSocketData::callback(uint32_t events)
 		removeFromListeners = true;
 	}
 	if (removeFromListeners)
-		_socketsHandler.removeFdDataFromList(_iterator);
+		removeFromSocketsHandler();
 }

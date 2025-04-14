@@ -75,6 +75,11 @@ public:
 	 * @param iterator The iterator that points to this FdData.
 	 */
 	void									setIterator(const std::list<AFdData *>::iterator &iterator);
+	/**
+	 * @brief Remove this AFdData from the SocketsHandler list of sockets.
+	 * @note Calling this function will destroy this instance.
+	 */
+	void									removeFromSocketsHandler(void);
 };
 
 #endif // !A_FD_DATA_HPP
