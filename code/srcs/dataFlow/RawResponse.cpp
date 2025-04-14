@@ -96,7 +96,8 @@ std::string	getFirstPart(const Response &response)
 
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	const bool	hasBody = _body.isManagingValue() && _body.getValue() != NULL && _srcBodyFd.isManagingValue() && _srcBodyFd.getValue() != -1;
+	const bool	hasBody = _body.isManagingValue() && _srcBodyFd.isManagingValue();
+
 	if (_firstPartBuffer.getContentLength() != 0)
 	{
 		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
@@ -107,7 +108,12 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (hasBody == false)
 		return (FLOW_DONE);
-	if (_isBlocking == false)
-		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd.getValue(), *_body.getValue(), ABody::writeToFd));
-	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body.getValue(), ABody::writeToFd));
+	const int		srcFd = _srcBodyFd.getValue();
+	ABody * const	body = _body.getValue();
+
+	const FlowState flowState = _isBlocking ?
+		_bodyBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd)
+		: _bodyBuffer.redirectContent<int, ABody&>(srcFd, *body, ABody::writeToFd);
+
+	return ((flowState == FLOW_DONE) ?  FLOW_MORE : flowState);
 }
