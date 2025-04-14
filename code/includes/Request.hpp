@@ -56,7 +56,7 @@ private:
 	 * body into the cgi, if the request doesn't use cgi, this variables
 	 * is set to NULL;
 	 */
-	CgiIn*					_cgi;
+	SharedResource<CgiIn*>	_cgi;
 
 	/**
 	 * @brief parse the method and set the _statusLine.method variable.

@@ -25,7 +25,7 @@ Request::Request(void) :
 	_bodyDestFd(),
 	_isBlocking(false),
 	_body(),
-	_cgi(NULL)
+	_cgi()
 {
 	_statusLine.method = (EMethods)-1;
 	_statusLine.requestTarget = "";
@@ -33,8 +33,8 @@ Request::Request(void) :
 
 Request::~Request(void)
 {
-	if (_cgi != NULL)
-		delete _cgi;
+	if (_cgi.isManagingValue())
+		_cgi.stopManagingResource();
 }
 
 /*******************************Public Methods*********************************************/
@@ -47,10 +47,9 @@ void	Request::reset()
 	_bodyDestFd.stopManagingResource();
 	_isBlocking = false;
 	_body.stopManagingResource();
-	if (_cgi != NULL)
+	if (_cgi.isManagingValue())
 	{
-		delete _cgi;
-		_cgi = NULL;
+		_cgi.stopManagingResource();
 	}
 }
 
