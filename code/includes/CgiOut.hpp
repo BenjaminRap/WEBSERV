@@ -6,7 +6,7 @@
 class	ABody;
 class	FlowBuffer;
 
-class CgiOut : AFdData
+class CgiOut : public AFdData
 {
 private:
 	FlowBuffer&	_responseFlowBuffer;
