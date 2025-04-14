@@ -55,6 +55,12 @@ int	Headers::parseHeader(const char *line, const char *end)
 	return (HTTP_OK);
 }
 
+
+void	Headers::clear(void)
+{
+	_headers.clear();
+}
+
 /**************************Operator Overload*************************************/
 
 

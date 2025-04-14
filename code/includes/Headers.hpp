@@ -22,6 +22,7 @@ public:
 	const HeaderMapType	getMap(void) const;
 
 	int					parseHeader(const char *line, const char *end);
+	void				clear(void);
 };
 
 std::ostream& operator<<(std::ostream& o, const Headers& rhs);
