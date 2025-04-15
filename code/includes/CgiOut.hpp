@@ -1,7 +1,7 @@
 #ifndef CGI_OUT_HPP
 # define CGI_OUT_HPP
 
-# include "AFdData.hpp"	// for AFdData
+# include "ASocketData.hpp"	// for ASocketData
 
 class	ABody;
 class	FlowBuffer;

@@ -1,7 +1,7 @@
 #ifndef SERVER_SOCKET_DATA_HPP
 # define SERVER_SOCKET_DATA_HPP
 
-# include "AFdData.hpp"
+# include "ASocketData.hpp"	// for ASocketData
 
 /**
  * @brief This class stores all the data needed by a server socket. A server socket

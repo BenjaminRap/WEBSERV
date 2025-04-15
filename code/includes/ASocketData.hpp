@@ -1,9 +1,10 @@
-#ifndef A_FD_DATA_HPP
-# define A_FD_DATA_HPP
+#ifndef A_SOCKET_DATA_HPP
+# define A_SOCKET_DATA_HPP
 
-# include "ServerConfiguration.hpp"
 # include <stdint.h>
 # include <list>
+
+# include "ServerConfiguration.hpp"
 
 class SocketsHandler;
 
@@ -82,4 +83,4 @@ public:
 	void										removeFromSocketsHandler(void);
 };
 
-#endif // !A_FD_DATA_HPP
+#endif // !A_SOCKET_DATA_HPP

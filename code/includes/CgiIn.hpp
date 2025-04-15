@@ -1,7 +1,7 @@
 #ifndef CGI_IN_HPP
 # define CGI_IN_HPP
 
-# include "AFdData.hpp"	// for AFdData
+# include "ASocketData.hpp"	// for ASocketData
 
 class	ConnectedSocketData;
 class	Response;
