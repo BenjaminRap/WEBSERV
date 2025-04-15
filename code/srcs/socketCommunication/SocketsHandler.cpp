@@ -56,7 +56,7 @@ SocketsHandler::SocketsHandler(const Configuration &conf) :
 SocketsHandler::~SocketsHandler()
 {
 	SocketsHandler::_instanciated = false;
-	for (std::list<AFdData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<ASocketData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
 		delete (*ci);
 	}
@@ -94,7 +94,7 @@ void	SocketsHandler::callSocketCallback(size_t eventIndex) const
 	}
 	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
 		return ;
-	AFdData	*fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
+	ASocketData	*fdData = static_cast<ASocketData *>(_events[eventIndex].data.ptr);
 
 	fdData->callback(_events[eventIndex].events);
 }
@@ -105,7 +105,7 @@ bool	SocketsHandler::closeIfConnectionStopped(size_t eventIndex)
 		throw std::logic_error("closeIfConnectionStopped was called with wrong index");
 	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
 		return (false);
-	const AFdData * const	fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
+	const ASocketData * const	fdData = static_cast<ASocketData *>(_events[eventIndex].data.ptr);
 
 	_socketsData.erase(fdData->getIterator());
 	delete fdData;
@@ -134,7 +134,7 @@ int	SocketsHandler::bindFdToHost(int fd, const Host& host)
 }
 
 
-int	SocketsHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
+int	SocketsHandler::addFdToEpoll(ASocketData& FdData, uint32_t events)
 {
 	epoll_event	event;
 
@@ -150,7 +150,7 @@ int	SocketsHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
 
 int	SocketsHandler::addFdToList
 (
-	AFdData &fdData,
+	ASocketData &fdData,
 	uint32_t events
 )
 {
@@ -172,9 +172,9 @@ int	SocketsHandler::addFdToList
 	return (0);
 }
 
-void	SocketsHandler::removeFdDataFromList(std::list<AFdData*>::iterator pos)
+void	SocketsHandler::removeFdDataFromList(std::list<ASocketData*>::iterator pos)
 {
-	const AFdData*	socket = *pos;
+	const ASocketData*	socket = *pos;
 
 	_socketsData.erase(pos);
 	delete socket;

@@ -13,7 +13,7 @@ class SocketsHandler;
  * receive an events (EPOLLIN/EPOLLOUT/...).
  * This class is abstract, so it can only be used through its childs.
  */
-class AFdData
+class ASocketData
 {
 protected:
 	/**
@@ -24,7 +24,7 @@ protected:
 	 * @brief The iterator of this instance in the SocketsHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
-	std::list<AFdData *>::iterator			_iterator;
+	std::list<ASocketData *>::iterator		_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a valid argument.
 	 */
@@ -35,19 +35,19 @@ protected:
 	SocketsHandler							&_socketsHandler;
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
-	AFdData
+	ASocketData
 	(
 		int fd,
 		SocketsHandler &socketsHandler,
 		const std::vector<ServerConfiguration> &serverConfigurations
 	);
 private:
-	AFdData(void);
-	AFdData(const AFdData &ref);
+	ASocketData(void);
+	ASocketData(const ASocketData &ref);
 
-	AFdData&	operator=(const AFdData& ref);
+	ASocketData&	operator=(const ASocketData& ref);
 public:
-	virtual ~AFdData(void);
+	virtual ~ASocketData(void);
 
 	/**
 	 * @brief This function is called when the _fd receives and events, the
@@ -56,9 +56,9 @@ public:
 	 *
 	 * @param events 
 	 */
-	virtual void							callback(uint32_t events) = 0;
+	virtual void								callback(uint32_t events) = 0;
 
-	int										getFd() const;
+	int											getFd() const;
 	/**
 	 * @brief Return the iterator pointing to this object in the SocketHandler _socketsData
 	 * list.
@@ -66,7 +66,7 @@ public:
 	 * a std::logic_error.
 	 * @return A const reference on the iterator pointing to this object.
 	 */
-	const std::list<AFdData *>::iterator&	getIterator() const;
+	const std::list<ASocketData *>::iterator&	getIterator() const;
 	/**
 	 * @brief Set the _iterator of this FdData to a copy of the iterator passed
 	 * as argument.
@@ -74,12 +74,12 @@ public:
 	 * If the FdData pointed by the iterator isn't this class, print an error.
 	 * @param iterator The iterator that points to this FdData.
 	 */
-	void									setIterator(const std::list<AFdData *>::iterator &iterator);
+	void										setIterator(const std::list<ASocketData *>::iterator &iterator);
 	/**
 	 * @brief Remove this AFdData from the SocketsHandler list of sockets.
 	 * @note Calling this function will destroy this instance.
 	 */
-	void									removeFromSocketsHandler(void);
+	void										removeFromSocketsHandler(void);
 };
 
 #endif // !A_FD_DATA_HPP

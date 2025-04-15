@@ -8,13 +8,13 @@
  * is a socket that listens on a specific host, and when it receives a request, 
  * creates another fd connected to that client.
  */
-class ServerSocketData : public AFdData
+class ServerSocketData : public ASocketData
 {
 private:
 	ServerSocketData(void);
-	ServerSocketData(const AFdData &ref);
+	ServerSocketData(const ASocketData &ref);
 
-	ServerSocketData&	operator=(const AFdData& ref);
+	ServerSocketData&	operator=(const ASocketData& ref);
 	
 	/**
 	 * @brief Accept a connection request, create a new fd, add it to the epoll interest

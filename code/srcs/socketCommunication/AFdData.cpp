@@ -9,7 +9,7 @@
 
 class ServerConfiguration;  // lines 11-11
 
-AFdData::AFdData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
+ASocketData::ASocketData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
 	_fd(fd),
 	_iterator(),
 	_isIteratorSet(false),
@@ -20,17 +20,17 @@ AFdData::AFdData(int fd, SocketsHandler& socketsHandler, const std::vector<Serve
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 }
 
-AFdData::~AFdData(void)
+ASocketData::~ASocketData(void)
 {
 	_socketsHandler.closeFdAndRemoveFromEpoll(_fd);
 }
 
-int	AFdData::getFd() const
+int	ASocketData::getFd() const
 {
 	return (this->_fd);
 }
 
-const std::list<AFdData *>::iterator	&AFdData::getIterator() const
+const std::list<ASocketData *>::iterator	&ASocketData::getIterator() const
 {
 	if (_isIteratorSet)
 		return (this->_iterator);
@@ -38,7 +38,7 @@ const std::list<AFdData *>::iterator	&AFdData::getIterator() const
 		throw std::logic_error("FdData getIterator() function with a unitialized iterator");
 }
 
-void	AFdData::setIterator(const std::list<AFdData *>::iterator &iterator)
+void	ASocketData::setIterator(const std::list<ASocketData *>::iterator &iterator)
 {
 	if (_isIteratorSet)
 	{
@@ -55,7 +55,7 @@ void	AFdData::setIterator(const std::list<AFdData *>::iterator &iterator)
 }
 
 
-void	AFdData::removeFromSocketsHandler(void)
+void	ASocketData::removeFromSocketsHandler(void)
 {
 	if (_isIteratorSet == false)
 		return ;

@@ -24,7 +24,7 @@ ServerSocketData::ServerSocketData
 	SocketsHandler &socketsHandler,
 	const std::vector<ServerConfiguration> &serverConfiguration
 ) :
-	AFdData(fd, socketsHandler, serverConfiguration)
+	ASocketData(fd, socketsHandler, serverConfiguration)
 {
 
 }

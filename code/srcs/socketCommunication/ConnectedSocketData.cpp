@@ -18,7 +18,7 @@ class Response;  // lines 11-11
 /*************************Constructors / Destructors***************************/
 
 ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	AFdData(fd, socketsHandler, serverConfiguration),
+	ASocketData(fd, socketsHandler, serverConfiguration),
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false)

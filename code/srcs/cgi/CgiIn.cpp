@@ -18,7 +18,7 @@ CgiIn::CgiIn
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
-	AFdData(fd, socketsHandler, serverConfigurations),
+	ASocketData(fd, socketsHandler, serverConfigurations),
 	_requestFlowBuffer(requestFlowBuffer),
 	_body(body),
 	_connectedSocketData(connectedSocketData),

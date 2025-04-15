@@ -13,7 +13,7 @@ class SocketsHandler;
  * @brief This class stores all the data needed by a connected Socket. This fd
  * process the request of a single client.
  */
-class ConnectedSocketData : public AFdData
+class ConnectedSocketData : public ASocketData
 {
 private:
 	/**
@@ -35,9 +35,9 @@ private:
 	bool				_closing;
 
 	ConnectedSocketData(void);
-	ConnectedSocketData(const AFdData &ref);
+	ConnectedSocketData(const ASocketData &ref);
 
-	ConnectedSocketData&	operator=(const AFdData& ref);
+	ConnectedSocketData&	operator=(const ASocketData& ref);
 	
 	/**
 	 * @brief It redirect the data into the first part or the body, then call

@@ -9,7 +9,7 @@ class	Response;
 class	FlowBuffer;
 class	ABody;
 
-class CgiIn : public AFdData
+class CgiIn : public ASocketData
 {
 private:
 	FlowBuffer&				_requestFlowBuffer;

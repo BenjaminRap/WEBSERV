@@ -10,7 +10,7 @@
 
 class Configuration;
 class Host;
-class AFdData;
+class ASocketData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
@@ -27,7 +27,7 @@ private:
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<AFdData*>			_socketsData;
+	std::list<ASocketData*>		_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -87,7 +87,7 @@ public:
 	 * @param events The events for which the epoll will notify with this fd
 	 * @return -1 on error, otherwise 0.
 	 */
-	int		addFdToList(AFdData &fdData, uint32_t events);
+	int		addFdToList(ASocketData &fdData, uint32_t events);
 	/**
 	 * @brief Adds the fddData to the epoll interest list, but not in the SocketsHandler
 	 * list.
@@ -95,7 +95,7 @@ public:
 	 *
 	 * @return -1 on error, 0 otherwise
 	 */
-	int		addFdToEpoll(AFdData& fdData, uint32_t events);
+	int		addFdToEpoll(ASocketData& fdData, uint32_t events);
 	/**
 	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
@@ -132,7 +132,7 @@ public:
 	 *
 	 * @param pos 
 	 */
-	void	removeFdDataFromList(std::list<AFdData*>::iterator pos);
+	void	removeFdDataFromList(std::list<ASocketData*>::iterator pos);
 };
 
 #endif // !SOCKETS_HANDLER_HPP

@@ -6,7 +6,7 @@
 class	ABody;
 class	FlowBuffer;
 
-class CgiOut : public AFdData
+class CgiOut : public ASocketData
 {
 private:
 	FlowBuffer&	_responseFlowBuffer;
