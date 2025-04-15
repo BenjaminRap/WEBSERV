@@ -1,12 +1,12 @@
 #ifndef A_SOCKET_DATA_HPP
 # define A_SOCKET_DATA_HPP
 
-# include <stdint.h>
-# include <list>
+# include <list>					// for std::list
 
-# include "ServerConfiguration.hpp"
+# include "AFdData.hpp"				// for AFdData
+# include "ServerConfiguration.hpp"	// for ServerConfiguration
 
-class SocketsHandler;
+class	SocketsHandler;
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
@@ -14,13 +14,9 @@ class SocketsHandler;
  * receive an events (EPOLLIN/EPOLLOUT/...).
  * This class is abstract, so it can only be used through its childs.
  */
-class ASocketData
+class ASocketData : public AFdData
 {
 protected:
-	/**
-	 * @brief The file descriptor on a file, socket, pipe ...
-	 */
-	const int								_fd;
 	/**
 	 * @brief The iterator of this instance in the SocketsHandler list. It is used
 	 * to remove this instance from the list in O(1).
@@ -50,16 +46,6 @@ private:
 public:
 	virtual ~ASocketData(void);
 
-	/**
-	 * @brief This function is called when the _fd receives and events, the
-	 * implementation depends on the child : a ServerSocketData will create
-	 * a new connection, the ConnectedSocketData will manage a request ...
-	 *
-	 * @param events 
-	 */
-	virtual void								callback(uint32_t events) = 0;
-
-	int											getFd() const;
 	/**
 	 * @brief Return the iterator pointing to this object in the SocketHandler _socketsData
 	 * list.

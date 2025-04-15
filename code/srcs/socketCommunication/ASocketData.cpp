@@ -4,30 +4,23 @@
 #include <string>              // for char_traits, basic_string
 #include <vector>              // for vector
 
-#include "ASocketData.hpp"         // for AFdData
+#include "ASocketData.hpp"     // for ASocketData
 #include "SocketsHandler.hpp"  // for SocketsHandler
 
 class ServerConfiguration;  // lines 11-11
 
 ASocketData::ASocketData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
-	_fd(fd),
+	AFdData(fd),
 	_iterator(),
 	_isIteratorSet(false),
 	_socketsHandler(socketsHandler),
 	_serverConfigurations(serverConfigurations)
 {
-	if (fd <= 3)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 }
 
 ASocketData::~ASocketData(void)
 {
 	_socketsHandler.closeFdAndRemoveFromEpoll(_fd);
-}
-
-int	ASocketData::getFd() const
-{
-	return (this->_fd);
 }
 
 const std::list<ASocketData *>::iterator	&ASocketData::getIterator() const
