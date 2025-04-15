@@ -19,16 +19,14 @@ protected:
 	 */
 	const int		_fd;
 	/**
-	 * @brief Does this fd can block reading or writing ?
-	 */
-	const bool		_isBlocking;
-	/**
 	 * @brief The class managing all fds in epoll, including this one,
 	 * if it is blocking.
+	 * If the fd is non blocking, this variable is set to NULL.
 	 */
-	EPollHandler&	_ePollHandler;
+	EPollHandler*	_ePollHandler;
 
-	AFdData(int fd, bool isBlocking, EPollHandler& ePollHandler);
+	AFdData(int fd, EPollHandler& ePollHandler);
+	AFdData(int fd);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);

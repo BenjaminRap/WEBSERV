@@ -7,23 +7,32 @@
 
 class ServerConfiguration;  // lines 11-11
 
-AFdData::AFdData(int fd, bool isBlocking, EPollHandler& ePollHandler) :
+AFdData::AFdData(int fd, EPollHandler& ePollHandler) :
 	_fd(fd),
-	_isBlocking(isBlocking),
-	_ePollHandler(ePollHandler)
+	_ePollHandler(&ePollHandler)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 
-	const int	flags = _isBlocking ? O_NONBLOCK | FD_CLOEXEC : FD_CLOEXEC;
-	if (addFlagsToFd(_fd, flags) == -1)
+	if (addFlagsToFd(_fd, O_NONBLOCK | FD_CLOEXEC) == -1)
+		throw std::runtime_error("AFdData: Can't apply flags to fd");
+}
+
+AFdData::AFdData(int fd) :
+	_fd(fd),
+	_ePollHandler(NULL)
+{
+	if (fd <= 3)
+		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+
+	if (addFlagsToFd(_fd, FD_CLOEXEC) == -1)
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
 
 AFdData::~AFdData(void)
 {
-	if (_isBlocking)
-		_ePollHandler.closeFdAndRemoveFromEpoll(_fd);
+	if (_ePollHandler != NULL)
+		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
 }
 
 int	AFdData::getFd() const
@@ -33,5 +42,5 @@ int	AFdData::getFd() const
 
 bool	AFdData::getIsBlocking(void) const
 {
-	return (_isBlocking);
+	return (_ePollHandler != NULL);
 }
