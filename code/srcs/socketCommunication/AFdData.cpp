@@ -1,3 +1,4 @@
+#include <fcntl.h>			   // for O_NONBLOCK, FD_CLOEXEC
 #include <stdexcept>           // for invalid_argument, logic_error
 #include <string>              // for char_traits, basic_string
 
@@ -13,6 +14,10 @@ AFdData::AFdData(int fd, bool isBlocking, EPollHandler& ePollHandler) :
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+
+	const int	flags = _isBlocking ? O_NONBLOCK | FD_CLOEXEC : FD_CLOEXEC;
+	if (addFlagsToFd(_fd, flags) == -1)
+		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
 
 AFdData::~AFdData(void)
