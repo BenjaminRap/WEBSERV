@@ -3,6 +3,7 @@ SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							AFdData.cpp				\
 							ASocketData.cpp			\
+							FileFd.cpp				\
 							signals.cpp				\
 							EPollHandler.cpp		\
 							setFdOption.cpp	\

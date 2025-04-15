@@ -1,0 +1,39 @@
+#ifndef FILE_FD_HPP
+# define FILE_FD_HPP
+
+# include <stdint.h>	// for uint32_t
+# include <string>		// for std::string
+# include <fcntl.h>		// for mode_t
+
+# include "AFdData.hpp"	// for AFdData
+
+
+class EPollHandler;
+
+/**
+ * @class FileFd
+ * @brief This class represents a classic file, it can not be blocking.
+ *
+ */
+class FileFd : AFdData
+{
+protected:
+	FileFd(const std::string& path, int flags, mode_t mode, EPollHandler& ePollHandler);
+private:
+	FileFd(void);
+	FileFd(const FileFd &ref);
+
+	FileFd&	operator=(const FileFd& ref);
+public:
+	~FileFd(void);
+
+	/**
+	 * @brief Unused function as this class isn't blocking.
+	 * @note If we change the function (epoll, poll, select), this will become usefull
+	 * as the non blocking fds will be treated the same as blocking fds.
+	 *
+	 */
+	void	callback(uint32_t events);
+};
+
+#endif // !FILE_FD_HPP
