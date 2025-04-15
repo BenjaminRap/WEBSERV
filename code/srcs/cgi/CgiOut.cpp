@@ -6,11 +6,9 @@
 CgiOut::CgiOut
 (
 	int fd,
-	SocketsHandler &socketsHandler,
-	const std::vector<ServerConfiguration> &serverConfigurations,
 	FlowBuffer&	responseFlowBuffer
 ) :
-	ASocketData(fd, socketsHandler, serverConfigurations),
+	AFdData(fd, true),
 	_responseFlowBuffer(responseFlowBuffer)
 {
 }

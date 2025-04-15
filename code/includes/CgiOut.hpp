@@ -1,12 +1,12 @@
 #ifndef CGI_OUT_HPP
 # define CGI_OUT_HPP
 
-# include "ASocketData.hpp"	// for ASocketData
+# include "AFdData.hpp"	// for ASocketData
 
 class	ABody;
 class	FlowBuffer;
 
-class CgiOut : public ASocketData
+class CgiOut : public AFdData
 {
 private:
 	FlowBuffer&	_responseFlowBuffer;
@@ -20,8 +20,6 @@ public:
 	CgiOut
 	(
 		int fd,
-		SocketsHandler &socketsHandler,
-		const std::vector<ServerConfiguration> &serverConfigurations,
 		FlowBuffer& responseFlowBuffer
 	);
 	~CgiOut();
