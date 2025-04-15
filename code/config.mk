@@ -1,6 +1,7 @@
 SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
+							AFdData.cpp				\
 							ASocketData.cpp			\
 							signals.cpp				\
 							SocketsHandler.cpp		\
