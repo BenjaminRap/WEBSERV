@@ -10,12 +10,13 @@
 CgiIn::CgiIn
 (
 	int fd,
+	EPollHandler& ePollHandler,
 	FlowBuffer& requestFlowBuffer,
 	ABody& body,
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
-	AFdData(fd, true),
+	AFdData(fd, true, ePollHandler),
 	_requestFlowBuffer(requestFlowBuffer),
 	_body(body),
 	_connectedSocketData(connectedSocketData),

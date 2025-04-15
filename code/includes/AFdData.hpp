@@ -17,13 +17,18 @@ protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
-	const int	_fd;
+	const int		_fd;
 	/**
 	 * @brief Does this fd can block reading or writing ?
 	 */
-	const bool	_isBlocking;
+	const bool		_isBlocking;
+	/**
+	 * @brief The class managing all fds in epoll, including this one,
+	 * if it is blocking.
+	 */
+	EPollHandler&	_ePollHandler;
 
-	AFdData(int fd, bool isBlocking);
+	AFdData(int fd, bool isBlocking, EPollHandler& ePollHandler);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);

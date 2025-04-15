@@ -20,6 +20,7 @@ public:
 	CgiOut
 	(
 		int fd,
+		EPollHandler& ePollHandler,
 		FlowBuffer& responseFlowBuffer
 	);
 	~CgiOut();

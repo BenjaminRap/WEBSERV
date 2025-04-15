@@ -6,9 +6,10 @@
 CgiOut::CgiOut
 (
 	int fd,
+	EPollHandler& ePollHandler,
 	FlowBuffer&	responseFlowBuffer
 ) :
-	AFdData(fd, true),
+	AFdData(fd, true, ePollHandler),
 	_responseFlowBuffer(responseFlowBuffer)
 {
 }

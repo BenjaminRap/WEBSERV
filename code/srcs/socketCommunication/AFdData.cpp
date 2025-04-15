@@ -5,9 +5,10 @@
 
 class ServerConfiguration;  // lines 11-11
 
-AFdData::AFdData(int fd, bool isBlocking) :
+AFdData::AFdData(int fd, bool isBlocking, EPollHandler& ePollHandler) :
 	_fd(fd),
-	_isBlocking(isBlocking)
+	_isBlocking(isBlocking),
+	_ePollHandler(ePollHandler)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");

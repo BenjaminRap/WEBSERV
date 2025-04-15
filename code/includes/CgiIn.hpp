@@ -26,6 +26,7 @@ public:
 	CgiIn
 	(
 		int fd,
+		EPollHandler& ePollHandler,
 		FlowBuffer& requestFlowBuffer,
 		ABody&		body,
 		ConnectedSocketData& connectedSocketData,

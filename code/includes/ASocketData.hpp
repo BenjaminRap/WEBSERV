@@ -6,8 +6,6 @@
 # include "AFdData.hpp"				// for AFdData
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 
-class	EPollHandler;
-
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
  * instance. This class store everything that the programs needs when the fd
@@ -26,10 +24,6 @@ protected:
 	 * @brief True if the setIterator has been called with a valid argument.
 	 */
 	bool									_isIteratorSet;
-	/**
-	 * @brief The class managing all the sockets, including this one.
-	 */
-	EPollHandler							&_ePollHandler;
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ASocketData
