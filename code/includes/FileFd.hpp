@@ -1,6 +1,7 @@
 #ifndef FILE_FD_HPP
 # define FILE_FD_HPP
 
+# include <cerrno>		// for errno
 # include <stdint.h>	// for uint32_t
 # include <string>		// for std::string
 # include <fcntl.h>		// for mode_t
@@ -34,6 +35,29 @@ public:
 	 *
 	 */
 	void	callback(uint32_t events);
+
+	class FileOpeningError : public std::exception
+	{
+	public:
+		FileOpeningError()
+		{
+			_errno = errno;
+		}
+
+		int getErrno() const
+		{
+			return (_errno);
+		}
+
+		virtual const char* what() const throw()
+		{
+			return ("Error opening a file");
+		}
+
+		virtual ~FileOpeningError() throw() {}
+	private:
+		int		_errno;
+	};
 };
 
 #endif // !FILE_FD_HPP
