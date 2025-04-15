@@ -18,8 +18,12 @@ protected:
 	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
 	const int	_fd;
+	/**
+	 * @brief Does this fd can block reading or writing ?
+	 */
+	const bool	_isBlocking;
 
-	AFdData(int fd);
+	AFdData(int fd, bool isBlocking);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);
@@ -37,7 +41,8 @@ public:
 	 */
 	virtual void	callback(uint32_t events) = 0;
 
-	int				getFd() const;
+	int				getFd(void) const;
+	bool			getIsBlocking(void) const;
 };
 
 #endif // !A_FD_DATA_HPP

@@ -10,7 +10,7 @@
 class ServerConfiguration;  // lines 11-11
 
 ASocketData::ASocketData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
-	AFdData(fd),
+	AFdData(fd, true),
 	_iterator(),
 	_isIteratorSet(false),
 	_socketsHandler(socketsHandler),
