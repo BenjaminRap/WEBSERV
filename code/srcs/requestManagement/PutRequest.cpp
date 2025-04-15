@@ -6,6 +6,7 @@
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "PutRequest.hpp"           // for PutRequest
+#include "FileFd.hpp"				// for FileFd
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
 #include "socketCommunication.hpp"  // for addFlagsToFd, checkError, closeFd...
@@ -62,19 +63,17 @@ PutRequest::PutRequest
 		this->setResponse(HTTP_FORBIDDEN);
 	else
 	{
-		const int fd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
-		if (checkError(fd, -1, "open() : "))
+		try
+		{
+			FileFd*	fileFd = new FileFd(path, O_CREAT | O_EXCL | O_WRONLY, 0666);
+
+			this->_inFd.setManagedResource(fileFd, freePointer);
+			this->setResponse(HTTP_CREATED);
+		}
+		catch(std::exception& exception)
 		{
 			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-			return ;
 		}
-		this->_inFd.setManagedResource(fd, closeFdAndPrintError);
-		if (addFlagsToFd(this->_inFd.getValue(), FD_CLOEXEC) == -1)
-		{
-			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-			return ;
-		}
-		this->setResponse(HTTP_CREATED);
 	}
 }
 

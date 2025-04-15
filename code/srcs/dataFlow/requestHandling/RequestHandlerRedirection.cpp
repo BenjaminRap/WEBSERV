@@ -19,7 +19,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 		_state = REQUEST_DONE;
 		return (_state);
 	}
-	const bool	canWrite = _request.getIsBlocking() == false;
+	const bool	canWrite = _request.isBodyBlocking() == false;
 
 	FlowState	flowState;
 

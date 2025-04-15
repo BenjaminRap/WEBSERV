@@ -9,6 +9,7 @@
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "Response.hpp"             // for Response, operator<<
+#include "FileFd.hpp"				// for FileFd
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
 #include "SizedBody.hpp"            // for SizedBody
@@ -16,7 +17,6 @@
 #include "exception.hpp"            // for CustomException
 #include "protocol.hpp"             // for PROTOCOL
 #include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
-#include "socketCommunication.hpp"  // for closeFdAndPrintError
 
 class ABody;
 
@@ -25,8 +25,7 @@ class ABody;
 Response::Response(const ServerConfiguration& defaultConfig) :
 	_status(NULL),
 	_headers(),
-	_bodySrcFd(),
-	_isBlocking(false),
+	_fdData(),
 	_body(),
 	_defaultConfig(defaultConfig),
 	_autoIndexPage()
@@ -57,7 +56,7 @@ void	Response::setBody(ARequestType* requestResult, int socketFd)
 {
 	size_t	bodySize = 0;
 
-	if (requestResult != NULL && _bodySrcFd.isManagingValue() && _bodySrcFd.getValue() > 0)
+	if (requestResult != NULL && _fdData.isManagingValue())
 	{
 		bodySize = requestResult->getOutSize();
 		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
@@ -73,27 +72,31 @@ uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& server
 {
 	if (Status::isCodeOfType(code, STATUS_ERROR) == false)
 		return (code);
-	_bodySrcFd.stopManagingResource();
+	_fdData.stopManagingResource();
 	try
 	{
 		const std::string& errorPage = serverConfiguration.getErrorPage(code);
-		const int fd = open(errorPage.c_str(), O_RDONLY);
-		if (fd != -1)
+
+		FileFd*				fileFd = new FileFd(errorPage, O_RDONLY);
+		_fdData.setManagedResource(fileFd, freePointer);
+	}
+	catch (const FileFd::FileOpeningError& openError)
+	{
+		switch (openError.getErrno())
 		{
-			_bodySrcFd.setManagedResource(fd, closeFdAndPrintError);
-			return (code);
-		}
-		if (errno == ENOENT)
+		case ENOENT:
 			return (HTTP_NOT_FOUND);
-		else if (errno == EACCES)
+		case EACCES:
 			return (HTTP_FORBIDDEN);
-		else
+		default:
 			return (HTTP_INTERNAL_SERVER_ERROR);
+		}
 	}
 	catch (const CustomException& exception)
 	{
 		return (code);
 	}
+	return (code);
 }
 
 void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd)
@@ -115,7 +118,7 @@ void	Response::setResponse(int code)
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
 	reset();
-	_bodySrcFd = requestResult.getOutFd();
+	_fdData = requestResult.getOutFd();
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig(), &requestResult, socketFd);
 	if (requestResult.getRedirection().empty() == false
@@ -129,8 +132,7 @@ void	Response::reset()
 {
 	this->_status = NULL;
 	this->_headers.clear();
-	this->_bodySrcFd.stopManagingResource();
-	this->_isBlocking = false;
+	this->_fdData.stopManagingResource();
 	this->_body.stopManagingResource();
 	this->_autoIndexPage = "";
 }
@@ -147,15 +149,9 @@ Headers&	Response::getHeaders(void)
 	return (this->_headers);
 }
 
-bool	Response::getIsBlocking(void) const
+SharedResource<AFdData*>	Response::getFdData(void) const
 {
-	return (_isBlocking);
-}
-
-
-SharedResource<int>	Response::getSrcBodyFd(void) const
-{
-	return (_bodySrcFd);
+	return (_fdData);
 }
 
 SharedResource<ABody*>	Response::getBody(void) const

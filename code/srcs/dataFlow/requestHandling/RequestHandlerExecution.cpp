@@ -32,7 +32,12 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::str
 	return (_serverConfs[0]);
 }
 
-void	RequestHandler::processRequestResult(ARequestType &requestResult, Response &response, int socketFd)
+void	RequestHandler::processRequestResult
+(
+	ARequestType &requestResult,
+	Response &response,
+	int socketFd
+)
 {
 	{
 		const int status = _request.setBodyFromHeaders(requestResult.getInFd(), requestResult.getConfig());
@@ -49,7 +54,7 @@ void	RequestHandler::processRequestResult(ARequestType &requestResult, Response 
 }
 
 
-void	RequestHandler::executeRequest(Response &response, int socketFd)
+void	RequestHandler::executeRequest(Response &response, int socketFd, EPollHandler& ePollHandler)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
@@ -65,17 +70,17 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
 			processRequestResult(getRequest, response, socketFd);
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
 			processRequestResult(putRequest, response, socketFd);
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
 			processRequestResult(deleteRequest, response, socketFd);
 			break;
 		}

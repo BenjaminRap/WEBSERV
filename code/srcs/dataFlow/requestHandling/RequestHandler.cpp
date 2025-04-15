@@ -26,13 +26,13 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(Response &response, int socketFd)
+RequestState			RequestHandler::readRequest(Response &response, int socketFd, EPollHandler& ePollHandler)
 {
 	try
 	{
 		readStatusLine(response);
 		readHeaders(response);
-		executeRequest(response, socketFd);
+		executeRequest(response, socketFd, ePollHandler);
 		redirectBody(socketFd, response, false);
 	}
 	catch (const std::exception& exception)

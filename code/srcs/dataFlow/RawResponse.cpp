@@ -19,8 +19,7 @@ std::string	getFirstPart(const Response& response);
 RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(getFirstPart(response)),
 	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
-	_isBlocking(response.getIsBlocking()),
-	_srcBodyFd(response.getSrcBodyFd()), _body(response.getBody()),
+	_fdData(response.getFdData()), _body(response.getBody()),
 	_bodyBuffer(bodyBuffer)
 {
 	
@@ -96,7 +95,7 @@ std::string	getFirstPart(const Response &response)
 
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	const bool	hasBody = _body.isManagingValue() && _srcBodyFd.isManagingValue();
+	const bool	hasBody = _body.isManagingValue() && _fdData.isManagingValue();
 
 	if (_firstPartBuffer.getContentLength() != 0)
 	{
@@ -110,12 +109,12 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 		return (FLOW_DONE);
 	// if (_bodyBuffer.isBufferEmpty())	// it has to be fixed !
 	// 	return (FLOW_MORE);
-	const int		srcFd = _srcBodyFd.getValue();
+	const AFdData*	fdData = _fdData.getValue();
 	ABody * const	body = _body.getValue();
 
-	const FlowState flowState = _isBlocking ?
+	const FlowState flowState = fdData->getIsBlocking() ?
 		_bodyBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd)
-		: _bodyBuffer.redirectContent<int, ABody&>(srcFd, *body, ABody::writeToFd);
+		: _bodyBuffer.redirectContent<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd);
 
 	// return ((flowState == FLOW_DONE) ?  FLOW_MORE : flowState);	// same, has to be fixed
 	return (flowState);

@@ -12,6 +12,7 @@
 class	CgiIn;
 class	ABody;
 class	ServerConfiguration;
+class	AFdData;
 
 /**
  * @brief the class that stores all the data send by the client.
@@ -29,34 +30,23 @@ private:
 		/**
 		 * @brief The method requested by the client.
 		 */
-		EMethods			method;
+		EMethods				method;
 		/**
 		 * @brief A path on the element the methods is applied to.
 		 */
-		std::string			requestTarget;
-	}						_statusLine;
-	Headers					_headers;
+		std::string				requestTarget;
+	}							_statusLine;
+	Headers						_headers;
 	/**
 	 * @brief A SharedResource on the fd in which the request body will
 	 * be written. It is the same value as the fd in the _body.
 	 */
-	SharedResource<int>		_bodyDestFd;
-	/**
-	 * @brief True if the _bodyDestFd is a blocking fd (socket, pipe).
-	 * It should be set to true even if the fd has been flagged by O_NONBLOCK
-	 */
-	bool					_isBlocking;
+	SharedResource<AFdData*>	_fdData;
 	/**
 	 * @brief A SharedResource on the body of the request, could be a sized body
 	 * a chunked body ...
 	 */
-	SharedResource<ABody*>	_body;
-	/**
-	 * @brief A pointer on the instance managing the writing of the cgi
-	 * body into the cgi, if the request doesn't use cgi, this variables
-	 * is set to NULL;
-	 */
-	SharedResource<CgiIn*>	_cgi;
+	SharedResource<ABody*>		_body;
 
 	/**
 	 * @brief parse the method and set the _statusLine.method variable.
@@ -112,7 +102,7 @@ public:
 	 */
 	int					setBodyFromHeaders
 	(
-		SharedResource<int> destFd,
+		SharedResource<AFdData*> fdData,
 		const ServerConfiguration& serverConfiguration
 	);
 
@@ -121,7 +111,7 @@ public:
 	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;
-	bool				getIsBlocking(void) const;
+	bool				isBodyBlocking() const;
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);

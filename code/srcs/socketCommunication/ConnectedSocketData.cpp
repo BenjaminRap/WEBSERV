@@ -47,7 +47,7 @@ RequestState	ConnectedSocketData::processRequest(void)
 		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
-			requestState = _requestHandler.readRequest(currentResponse, _fd);
+			requestState = _requestHandler.readRequest(currentResponse, _fd, *_ePollHandler);
 	}
 	requestState = readNextRequests(currentResponse, requestState);
 	return (requestState);
@@ -71,7 +71,7 @@ RequestState	ConnectedSocketData::readNextRequests
 			_closing = true;
 			return (requestState);
 		}
-		requestState = _requestHandler.readRequest(currentResponse, _fd);
+		requestState = _requestHandler.readRequest(currentResponse, _fd, *_ePollHandler);
 	}
 	return (requestState);
 }

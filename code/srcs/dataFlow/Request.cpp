@@ -22,10 +22,8 @@ long	stringToLongBase(const std::string& str, int (&isInBase)(int character), in
 Request::Request(void) :
 	_statusLine(),
 	_headers(),
-	_bodyDestFd(),
-	_isBlocking(false),
-	_body(),
-	_cgi()
+	_fdData(),
+	_body()
 {
 	_statusLine.method = (EMethods)-1;
 	_statusLine.requestTarget = "";
@@ -33,8 +31,6 @@ Request::Request(void) :
 
 Request::~Request(void)
 {
-	if (_cgi.isManagingValue())
-		_cgi.stopManagingResource();
 }
 
 /*******************************Public Methods*********************************************/
@@ -44,28 +40,23 @@ void	Request::reset()
 	this->_statusLine.method = (EMethods)-1;
 	this->_statusLine.requestTarget.clear();
 	this->_headers.clear();
-	_bodyDestFd.stopManagingResource();
-	_isBlocking = false;
+	_fdData.stopManagingResource();
 	_body.stopManagingResource();
-	if (_cgi.isManagingValue())
-	{
-		_cgi.stopManagingResource();
-	}
 }
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
 int	Request::setBodyFromHeaders
 (
-	SharedResource<int> destFd,
+	SharedResource<AFdData*> fdData,
 	const ServerConfiguration& serverConfiguration
 )
 {
-	_bodyDestFd = destFd;
+	_fdData = fdData;
 	const std::string * const	contentLengthString = _headers.getHeader("content-length");
 	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
 	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
-	const int 					fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
+	const int 					fd = fdData.isManagingValue() ? fdData.getValue()->getFd() : -1;
 
 	ABody*						body = NULL;
 
@@ -108,11 +99,6 @@ const std::string	&Request::getRequestTarget(void) const
 	return (this->_statusLine.requestTarget);
 }
 
-bool	Request::getIsBlocking(void) const
-{
-	return (_isBlocking);
-}
-
 Headers&	Request::getHeaders()
 {
 	return (_headers);
@@ -121,6 +107,16 @@ Headers&	Request::getHeaders()
 const Headers&	Request::getHeaders() const
 {
 	return (_headers);
+}
+
+
+bool	Request::isBodyBlocking() const
+{
+	if (_fdData.isManagingValue() == false)
+		return (false);
+
+	const AFdData * const	fdData = _fdData.getValue();
+	return (fdData->getIsBlocking());
 }
 
 /******************************Operator Overload*****************************************/
