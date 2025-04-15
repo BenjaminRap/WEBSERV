@@ -5,6 +5,11 @@ FileFd::FileFd(const std::string& path, int flags, mode_t mode, EPollHandler& eP
 {
 }
 
+FileFd::FileFd(const std::string& path, int flags, EPollHandler& ePollHandler) :
+	AFdData(open(path.c_str(), flags), false, ePollHandler)
+{
+}
+
 FileFd::~FileFd()
 {
 }

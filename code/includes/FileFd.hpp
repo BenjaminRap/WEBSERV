@@ -24,6 +24,7 @@ private:
 	FileFd&	operator=(const FileFd& ref);
 public:
 	FileFd(const std::string& path, int flags, mode_t mode, EPollHandler& ePollHandler);
+	FileFd(const std::string& path, int flags, EPollHandler& ePollHandler);
 	~FileFd(void);
 
 	/**
