@@ -17,14 +17,13 @@ class EPollHandler;
  */
 class FileFd : AFdData
 {
-protected:
-	FileFd(const std::string& path, int flags, mode_t mode, EPollHandler& ePollHandler);
 private:
 	FileFd(void);
 	FileFd(const FileFd &ref);
 
 	FileFd&	operator=(const FileFd& ref);
 public:
+	FileFd(const std::string& path, int flags, mode_t mode, EPollHandler& ePollHandler);
 	~FileFd(void);
 
 	/**
