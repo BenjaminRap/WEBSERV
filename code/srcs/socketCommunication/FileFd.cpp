@@ -18,13 +18,13 @@ static	int	openFile(const std::string& path, int flags)
 	return (fd);
 }
 
-FileFd::FileFd(const std::string& path, int flags, mode_t mode, EPollHandler& ePollHandler) :
-	AFdData(openFile(path, flags, mode), false, ePollHandler)
+FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
+	AFdData(openFile(path, flags, mode))
 {
 }
 
-FileFd::FileFd(const std::string& path, int flags, EPollHandler& ePollHandler) :
-	AFdData(openFile(path, flags), false, ePollHandler)
+FileFd::FileFd(const std::string& path, int flags) :
+	AFdData(openFile(path, flags))
 {
 }
 
