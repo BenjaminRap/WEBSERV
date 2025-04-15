@@ -106,6 +106,7 @@ char	**setEnv(Request *request, size_t lenght)
 	addToEnv(&env, "HTTP_COOKIE=", checkHeader("Cookie", request));
 	addToEnv(&env, "CONTENT_TYPE=", checkHeader("content-type", request));
 	addToEnv(&env, "CONTENT_LENGTH=" + sizeTToString(lenght), NULL);
+	addToEnv(&env, "REFERER=", checkHeader("Referer", request));
 	printEnv(env);
 	return (env);
 }
