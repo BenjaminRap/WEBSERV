@@ -5,20 +5,17 @@
 #include "ABody.hpp"				// for ABody
 #include "ConnectedSocketData.hpp"	// for ConnectedSocketData
 #include "Response.hpp"				// for Response
-#include "SocketsHandler.hpp"		// for SocketsHandler
 #include "requestStatusCode.hpp"	// for HTTP_...
 
 CgiIn::CgiIn
 (
 	int fd,
-	SocketsHandler &socketsHandler,
-	const std::vector<ServerConfiguration> &serverConfigurations,
 	FlowBuffer& requestFlowBuffer,
 	ABody& body,
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
-	ASocketData(fd, socketsHandler, serverConfigurations),
+	AFdData(fd, true),
 	_requestFlowBuffer(requestFlowBuffer),
 	_body(body),
 	_connectedSocketData(connectedSocketData),

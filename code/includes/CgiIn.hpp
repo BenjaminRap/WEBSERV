@@ -1,7 +1,7 @@
 #ifndef CGI_IN_HPP
 # define CGI_IN_HPP
 
-# include "ASocketData.hpp"	// for ASocketData
+# include "AFdData.hpp"	// for AFdData
 
 class	ConnectedSocketData;
 class	Response;
@@ -9,7 +9,7 @@ class	Response;
 class	FlowBuffer;
 class	ABody;
 
-class CgiIn : public ASocketData
+class CgiIn : public AFdData
 {
 private:
 	FlowBuffer&				_requestFlowBuffer;
@@ -26,8 +26,6 @@ public:
 	CgiIn
 	(
 		int fd,
-		SocketsHandler &socketsHandler,
-		const std::vector<ServerConfiguration> &serverConfigurations,
 		FlowBuffer& requestFlowBuffer,
 		ABody&		body,
 		ConnectedSocketData& connectedSocketData,
