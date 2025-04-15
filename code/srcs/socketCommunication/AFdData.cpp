@@ -2,6 +2,7 @@
 #include <string>              // for char_traits, basic_string
 
 #include "AFdData.hpp"         // for AFdData
+#include "EPollHandler.hpp"	   // for EPollHandler
 
 class ServerConfiguration;  // lines 11-11
 
@@ -16,6 +17,8 @@ AFdData::AFdData(int fd, bool isBlocking, EPollHandler& ePollHandler) :
 
 AFdData::~AFdData(void)
 {
+	if (_isBlocking)
+		_ePollHandler.closeFdAndRemoveFromEpoll(_fd);
 }
 
 int	AFdData::getFd() const

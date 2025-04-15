@@ -19,7 +19,6 @@ ASocketData::ASocketData(int fd, EPollHandler& ePollHandler, const std::vector<S
 
 ASocketData::~ASocketData(void)
 {
-	_ePollHandler.closeFdAndRemoveFromEpoll(_fd);
 }
 
 const std::list<ASocketData *>::iterator	&ASocketData::getIterator() const
