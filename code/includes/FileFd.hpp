@@ -15,7 +15,7 @@ class EPollHandler;
  * @brief This class represents a classic file, it can not be blocking.
  *
  */
-class FileFd : AFdData
+class FileFd : public AFdData
 {
 private:
 	FileFd(void);
