@@ -7,7 +7,7 @@
 # include "RequestHandler.hpp"    // for RequestHandler
 # include "ResponsesHandler.hpp"  // for ResponsesHandler
 
-class SocketsHandler;
+class EPollHandler;
 
 /**
  * @brief This class stores all the data needed by a connected Socket. This fd
@@ -53,7 +53,7 @@ public:
 	ConnectedSocketData
 	(
 		int fd,
-		SocketsHandler &socketsHandler,
+		EPollHandler &ePollHandler,
 		const std::vector<ServerConfiguration> &serverConfiguration
 	);
 	~ConnectedSocketData(void);

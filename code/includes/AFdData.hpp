@@ -3,7 +3,7 @@
 
 # include <stdint.h>	// for uint32_t
 
-class SocketsHandler;
+class EPollHandler;
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData

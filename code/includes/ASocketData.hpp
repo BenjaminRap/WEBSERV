@@ -6,7 +6,7 @@
 # include "AFdData.hpp"				// for AFdData
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 
-class	SocketsHandler;
+class	EPollHandler;
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
@@ -18,7 +18,7 @@ class ASocketData : public AFdData
 {
 protected:
 	/**
-	 * @brief The iterator of this instance in the SocketsHandler list. It is used
+	 * @brief The iterator of this instance in the EPollHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
 	std::list<ASocketData *>::iterator		_iterator;
@@ -29,13 +29,13 @@ protected:
 	/**
 	 * @brief The class managing all the sockets, including this one.
 	 */
-	SocketsHandler							&_socketsHandler;
+	EPollHandler							&_ePollHandler;
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ASocketData
 	(
 		int fd,
-		SocketsHandler &socketsHandler,
+		EPollHandler &ePollHandler,
 		const std::vector<ServerConfiguration> &serverConfigurations
 	);
 private:
@@ -63,10 +63,10 @@ public:
 	 */
 	void										setIterator(const std::list<ASocketData *>::iterator &iterator);
 	/**
-	 * @brief Remove this AFdData from the SocketsHandler list of sockets.
+	 * @brief Remove this ASocketData from the EPollHandler list of sockets.
 	 * @note Calling this function will destroy this instance.
 	 */
-	void										removeFromSocketsHandler(void);
+	void										removeFromEPollHandler(void);
 };
 
 #endif // !A_SOCKET_DATA_HPP

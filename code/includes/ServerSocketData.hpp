@@ -18,12 +18,12 @@ private:
 	
 	/**
 	 * @brief Accept a connection request, create a new fd, add it to the epoll interest
-	 * list and add a ConnectedSocketData node to the socketsHandler list.
+	 * list and add a ConnectedSocketData node to the EpollHandler list.
 	 * @param events The events registered by epoll.
 	 */
 	void	acceptConnection(uint32_t events);
 public:
-	ServerSocketData(int fd , SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
+	ServerSocketData(int fd , EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations);
 	~ServerSocketData(void);
 
 	/**

@@ -10,15 +10,15 @@
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "EPollHandler.hpp"         // for EPollHandler
 #include "Status.hpp"				// for Status, STATUS_ERROR
 
 class Response;  // lines 11-11
 
 /*************************Constructors / Destructors***************************/
 
-ConnectedSocketData::ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	ASocketData(fd, socketsHandler, serverConfiguration),
+ConnectedSocketData::ConnectedSocketData(int fd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
+	ASocketData(fd, ePollHandler, serverConfiguration),
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false)
@@ -100,5 +100,5 @@ void	ConnectedSocketData::callback(uint32_t events)
 		removeFromListeners = true;
 	}
 	if (removeFromListeners)
-		removeFromSocketsHandler();
+		removeFromEPollHandler();
 }

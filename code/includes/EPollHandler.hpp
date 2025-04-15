@@ -1,5 +1,5 @@
-#ifndef SOCKETS_HANDLER_HPP
-# define SOCKETS_HANDLER_HPP
+#ifndef EPOLL_HANDLER_HPP
+# define EPOLL_HANDLER_HPP
 
 # include <list>
 # include <sys/epoll.h>
@@ -16,7 +16,7 @@ class ASocketData;
  * @brief Manage the epoll functions : add or remove fd to the interest list and
  * execute the socket callback on events.
  */
-class SocketsHandler
+class EPollHandler
 {
 private:
 	/**
@@ -53,10 +53,10 @@ private:
 	 */
 	std::vector<std::string>	_unixSocketsToRemove;
 
-	SocketsHandler(const SocketsHandler& ref);
-	SocketsHandler(void);
+	EPollHandler(const EPollHandler& ref);
+	EPollHandler(void);
 
-	SocketsHandler&	operator=(const SocketsHandler &ref);
+	EPollHandler&	operator=(const EPollHandler &ref);
 
 public:
 	/**
@@ -64,15 +64,15 @@ public:
 	 * It also create a vector of sockets path to destroy, its size is the number of
 	 * unix socket hosts in the Configuration class.
 	 * This class can only has one instance.
-	 * @param conf The SocketsHandler use the configuration to initialize its variables.
+	 * @param conf The EPollHandler use the configuration to initialize its variables.
 	 * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
 	 * failed (std::exception) or this class already has an instance (std::logic_error).
 	 */
-	SocketsHandler(const Configuration &conf);
+	EPollHandler(const Configuration &conf);
 	/**
 	 * @brief Free the events array, close the sockets and close the epoll fd.
 	 */
-	~SocketsHandler();
+	~EPollHandler();
 
 	/**
 	 * @brief Call epoll_wait with the SocketHandler variables and return its result;
@@ -89,7 +89,7 @@ public:
 	 */
 	int		addFdToList(ASocketData &fdData, uint32_t events);
 	/**
-	 * @brief Adds the fddData to the epoll interest list, but not in the SocketsHandler
+	 * @brief Adds the fddData to the epoll interest list, but not in the EPollHandler
 	 * list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
@@ -113,7 +113,7 @@ public:
 	/**
 	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
 	 * delete the socket at the host.sun_path, recreate a socket and add the socket
-	 * path to the SocketsHandler _unixSocketsToRemove vector.
+	 * path to the EPollHandler _unixSocketsToRemove vector.
 	 * @param The fd to bind, should be a socket fd.
 	 * @param host The host whose address will be used to bind the socket.
 	 * @return 0 on success, -1 on error with an error message printed in the terminal.
@@ -135,4 +135,4 @@ public:
 	void	removeFdDataFromList(std::list<ASocketData*>::iterator pos);
 };
 
-#endif // !SOCKETS_HANDLER_HPP
+#endif // !EPOLL_HANDLER_HPP

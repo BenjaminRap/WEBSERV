@@ -5,22 +5,22 @@
 #include <vector>              // for vector
 
 #include "ASocketData.hpp"     // for ASocketData
-#include "SocketsHandler.hpp"  // for SocketsHandler
+#include "EPollHandler.hpp"    // for EPollHandler
 
 class ServerConfiguration;  // lines 11-11
 
-ASocketData::ASocketData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
+ASocketData::ASocketData(int fd, EPollHandler& ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
 	AFdData(fd, true),
 	_iterator(),
 	_isIteratorSet(false),
-	_socketsHandler(socketsHandler),
+	_ePollHandler(ePollHandler),
 	_serverConfigurations(serverConfigurations)
 {
 }
 
 ASocketData::~ASocketData(void)
 {
-	_socketsHandler.closeFdAndRemoveFromEpoll(_fd);
+	_ePollHandler.closeFdAndRemoveFromEpoll(_fd);
 }
 
 const std::list<ASocketData *>::iterator	&ASocketData::getIterator() const
@@ -48,9 +48,9 @@ void	ASocketData::setIterator(const std::list<ASocketData *>::iterator &iterator
 }
 
 
-void	ASocketData::removeFromSocketsHandler(void)
+void	ASocketData::removeFromEPollHandler(void)
 {
 	if (_isIteratorSet == false)
 		return ;
-	_socketsHandler.removeFdDataFromList(_iterator);
+	_ePollHandler.removeFdDataFromList(_iterator);
 }
