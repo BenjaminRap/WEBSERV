@@ -10,7 +10,7 @@
 class ServerConfiguration;  // lines 11-11
 
 ASocketData::ASocketData(int fd, EPollHandler& ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
-	AFdData(fd, true, ePollHandler),
+	AFdData(fd, ePollHandler),
 	_iterator(),
 	_isIteratorSet(false),
 	_serverConfigurations(serverConfigurations)
@@ -50,5 +50,5 @@ void	ASocketData::removeFromEPollHandler(void)
 {
 	if (_isIteratorSet == false)
 		return ;
-	_ePollHandler.removeFdDataFromList(_iterator);
+	_ePollHandler->removeFdDataFromList(_iterator);
 }

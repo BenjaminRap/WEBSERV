@@ -9,7 +9,7 @@ CgiOut::CgiOut
 	EPollHandler& ePollHandler,
 	FlowBuffer&	responseFlowBuffer
 ) :
-	AFdData(fd, true, ePollHandler),
+	AFdData(fd, ePollHandler),
 	_responseFlowBuffer(responseFlowBuffer)
 {
 }
