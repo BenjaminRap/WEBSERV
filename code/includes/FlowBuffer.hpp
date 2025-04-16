@@ -98,6 +98,7 @@ public:
 	 * FLOW_DONE if the customRead returns 0 the buffer has been entirely written.
 	 * FLOW_MORE if the customRead returns 0, or there is more to write, or if the buffer
 	 * was full and the customWrite freed some spaces.
+	 * FLOW_BUFFER_FULL if the buffer is full and the customWrite return 0.
 	 */
 	template <typename ReadData, typename WriteData>
 	FlowState	redirectContent
@@ -121,6 +122,8 @@ public:
 	 * @return FLOW_ERROR if customWrite returns -1
 	 * FLOW_DONE if the buffer has been entirely written
 	 * FLOW_MORE if the buffer has remaining characters to write.
+	 * FLOW_BUFFER_FULL if the buffer is full and the customWrite return 0. That means that
+	 * customWrite can't write, and we can't read.
 	 */
 	template <typename WriteData>
 	FlowState	redirectBufferContentToFd

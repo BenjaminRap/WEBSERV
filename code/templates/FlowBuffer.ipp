@@ -30,14 +30,15 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 	ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity)
 )
 {
-	if (_numCharsWritten < _contentLength)
-	{
-		const size_t	numCharsToWrite = _contentLength - _numCharsWritten;
-		const ssize_t	written = customWrite(writeData, _buffer + _numCharsWritten, numCharsToWrite);
-		if (written == -1)
-			return (FLOW_ERROR);
-		_numCharsWritten += written;
-	}
+	if (_numCharsWritten >= _contentLength)
+		return (FLOW_DONE);
+	const size_t	numCharsToWrite = _contentLength - _numCharsWritten;
+	const ssize_t	written = customWrite(writeData, _buffer + _numCharsWritten, numCharsToWrite);
+	if (written == -1)
+		return (FLOW_ERROR);
+	if (written == 0 && isBufferFull())
+		return (FLOW_BUFFER_FULL);
+	_numCharsWritten += written;
 	if (_numCharsWritten >= _contentLength)
 	{
 		_contentLength = 0;

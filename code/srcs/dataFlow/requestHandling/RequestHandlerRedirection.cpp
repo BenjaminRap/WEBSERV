@@ -38,7 +38,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 		code = body->getStatus();
 	else if (flowState == FLOW_ERROR)
 		code = HTTP_INTERNAL_SERVER_ERROR;
-	else if (canWrite && _flowBuffer.isBufferFull())
+	else if (canWrite && flowState == FLOW_BUFFER_FULL)
 		code = HTTP_BAD_REQUEST;
 	else
 		return (_state);
