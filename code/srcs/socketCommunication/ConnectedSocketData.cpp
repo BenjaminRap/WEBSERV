@@ -78,27 +78,25 @@ RequestState	ConnectedSocketData::readNextRequests
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	bool		removeFromListeners = false;
-
 	try
 	{
 		if (_closing == false && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
-				removeFromListeners = true;
+				_isActive = false;
 		}
-		if (removeFromListeners == false && events & EPOLLOUT)
+		if (_isActive == true && events & EPOLLOUT)
 		{
 			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
-				removeFromListeners = true;
+				_isActive = false;
 		}
 	}
 	catch (const std::exception& exception)
 	{
 		std::cerr << exception.what() << std::endl;
-		removeFromListeners = true;
+		_isActive = false;
 	}
-	if (removeFromListeners)
+	if (_isActive == false)
 		removeFromEPollHandler();
 }
