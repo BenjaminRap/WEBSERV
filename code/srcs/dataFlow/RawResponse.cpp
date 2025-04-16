@@ -107,15 +107,23 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (hasBody == false)
 		return (FLOW_DONE);
-	// if (_bodyBuffer.isBufferEmpty())	// it has to be fixed !
-	// 	return (FLOW_MORE);
 	const AFdData*	fdData = _fdData.getValue();
 	ABody * const	body = _body.getValue();
 
-	const FlowState flowState = fdData->getIsBlocking() ?
-		_bodyBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd)
-		: _bodyBuffer.redirectContent<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd);
+	if (fdData->getIsBlocking())
+	{
+		const FlowState flowState = _bodyBuffer.
+			redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
 
-	// return ((flowState == FLOW_DONE) ?  FLOW_MORE : flowState);	// same, has to be fixed
-	return (flowState);
+		if (flowState == FLOW_DONE)
+			return (fdData->getIsActive() ? FLOW_MORE : FLOW_DONE);
+		return (flowState);
+	}
+	else
+	{
+		const FlowState	flowState = _bodyBuffer.
+			redirectContent<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd);
+
+		return (flowState);
+	}
 }
