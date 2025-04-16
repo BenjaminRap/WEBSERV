@@ -24,6 +24,12 @@ protected:
 	 * If the fd is non blocking, this variable is set to NULL.
 	 */
 	EPollHandler*	_ePollHandler;
+	/**
+	 * @brief A boolean indicating if this fd can still receive/send
+	 * data. For example, if the other end of the fd has been closed,
+	 * this variable is set to false.
+	 */
+	bool			_isActive;
 
 	AFdData(int fd, EPollHandler& ePollHandler);
 	AFdData(int fd);
@@ -46,6 +52,7 @@ public:
 
 	int				getFd(void) const;
 	bool			getIsBlocking(void) const;
+	bool			getIsActive(void) const;
 };
 
 #endif // !A_FD_DATA_HPP
