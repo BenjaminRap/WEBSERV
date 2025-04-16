@@ -21,10 +21,10 @@ CgiOut::~CgiOut()
 
 void	CgiOut::callback(uint32_t events)
 {
-	if (!(events & EPOLLIN)
-		|| _responseFlowBuffer.isBufferFull())
-	{
+	if (!(_isActive && events & EPOLLIN))
 		return ;
-	}
-	_responseFlowBuffer.redirectFdContentToBuffer<int>(getFd());
+	const FlowState flowState = _responseFlowBuffer.redirectFdContentToBuffer<int>(getFd());
+
+	if (flowState == FLOW_ERROR || flowState == FLOW_DONE)
+		_isActive = false;
 }

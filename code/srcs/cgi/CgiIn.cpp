@@ -28,19 +28,10 @@ CgiIn::~CgiIn()
 {
 }
 
-/**
- * @brief 
- * @note We consider that the cgin has a body, or else this class is useless
- *
- * @param events 
- */
 void	CgiIn::callback(uint32_t events)
 {
-	if (!(events & EPOLLOUT)
-		|| _requestFlowBuffer.isBufferEmpty())
-	{
+	if (!(_isActive && events & EPOLLOUT))
 		return ;
-	}
 	const FlowState	flowState = _requestFlowBuffer.
 		redirectBufferContentToFd<ABody&>(_body, ABody::writeToFd);
 
@@ -50,11 +41,12 @@ void	CgiIn::callback(uint32_t events)
 		code = _body.getStatus();
 	else if (flowState == FLOW_ERROR)
 		code = HTTP_INTERNAL_SERVER_ERROR;
-	else if (_requestFlowBuffer.isBufferFull())
+	else if (flowState == FLOW_BUFFER_FULL)
 		code = HTTP_BAD_REQUEST;
 	else
 		return ;
 	if (code != HTTP_OK)
 		_response.setResponse(code);
-	_connectedSocketData.readNextRequests(_response, REQUEST_DONE);
+	_isActive = false;
+	_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
 }
