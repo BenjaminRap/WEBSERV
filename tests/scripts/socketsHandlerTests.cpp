@@ -7,25 +7,24 @@
 #include <cstdlib>
 #include <csignal>
 
-#include "SocketsHandler.hpp"
+#include "EPollHandler.hpp"
 #include "Configuration.hpp"
-#include "ServerSocketData.hpp"
 #include "parsing.hpp"
 
 #include "utils.cpp"
 
 #define PATH_TO_TESTS "../tests/scripts/"
 
-void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler);
+void	createAllServerSockets(const Configuration &conf, EPollHandler &ePollHandler);
 
 void	tryCreatingMultipleInstance(const Configuration &conf)
 {
-	SocketsHandler		socketsHandler(conf);
+	EPollHandler		ePollHandler(conf);
 
 	printInfo("Try creating multiples instance");
 	try
 	{
-		SocketsHandler	socketsHandler2(conf);
+		EPollHandler	ePollHandler2(conf);
 	}
 	catch(const std::exception& e)
 	{
@@ -34,7 +33,7 @@ void	tryCreatingMultipleInstance(const Configuration &conf)
 	}
 	try
 	{
-		SocketsHandler	socketsHandler2(conf);
+		EPollHandler	ePollHandler2(conf);
 	}
 	catch(const std::exception& e)
 	{
@@ -47,10 +46,10 @@ void	createAndDestroyMultipleInstance(const Configuration& conf)
 {
 	printInfo("try creating and destroying multiple instances");
 	{
-		SocketsHandler	socketsHandler(conf);
+		EPollHandler	ePollHandler(conf);
 	}
 	{
-		SocketsHandler	socketsHandler(conf);
+		EPollHandler	ePollHandler(conf);
 	}
 	verify(true);
 }
@@ -72,17 +71,17 @@ void	tryPassingAWrongIPV6Array(const Configuration& conf)
 
 void	executeCallbackWithIndexTooBig(int errorFd, const Configuration& conf)
 {
-	SocketsHandler		socketsHandler(conf);
+	EPollHandler		ePollHandler(conf);
 
 	printInfo("Try executing callSocketCallback with an index too big");
 	printInfo("Should output an error");
-	socketsHandler.callSocketCallback(5);
+	ePollHandler.callSocketCallback(5);
 	verify(checkError(errorFd));
 }
 
 void	bindUnixSocketWithWrongFd(int errorFd, const Configuration &conf)
 {
-	SocketsHandler	socketsHandler(conf);
+	EPollHandler	ePollHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
 	path += "test.sock";
@@ -90,13 +89,13 @@ void	bindUnixSocketWithWrongFd(int errorFd, const Configuration &conf)
 
 	printInfo("Try binding a wrong fd");
 	printInfo("Should output an error");
-	socketsHandler.bindFdToHost(-1, host);
+	ePollHandler.bindFdToHost(-1, host);
 	verify(checkError(errorFd));
 }
 
 void	creatingUnixSocketWithExistingFile(int errorFd, const Configuration& conf)
 {
-	SocketsHandler	socketsHandler(conf);
+	EPollHandler	ePollHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
 	path += "unixSocketsTests/test.txt";
@@ -104,13 +103,13 @@ void	creatingUnixSocketWithExistingFile(int errorFd, const Configuration& conf)
 
 	printInfo("Try creating a unix socket with an existing file");
 	printInfo("Should output an error");
-	socketsHandler.bindFdToHost(-1, host);
+	ePollHandler.bindFdToHost(-1, host);
 	verify(checkError(errorFd));
 }
 
 void	creatingUnixSocketWithExistingDirectory(int errorFd, const Configuration& conf)
 {
-	SocketsHandler	socketsHandler(conf);
+	EPollHandler	ePollHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
 	path += "unixSocketsTests/";
@@ -118,13 +117,13 @@ void	creatingUnixSocketWithExistingDirectory(int errorFd, const Configuration& c
 
 	printInfo("Try creating a unix socket with an existing directory");
 	printInfo("Should output an error");
-	socketsHandler.bindFdToHost(-1, host);
+	ePollHandler.bindFdToHost(-1, host);
 	verify(checkError(errorFd));
 }
 
 void	creatingUnixSocketInNoRightFolder(int errorFd, const Configuration& conf)
 {
-	SocketsHandler	socketsHandler(conf);
+	EPollHandler	ePollHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
 	path += "unixSocketsTests/noRight/test.sock";
@@ -132,13 +131,13 @@ void	creatingUnixSocketInNoRightFolder(int errorFd, const Configuration& conf)
 
 	printInfo("Try creating a unix socket in a directory with no right");
 	printInfo("Should output an error");
-	socketsHandler.bindFdToHost(-1, host);
+	ePollHandler.bindFdToHost(-1, host);
 	verify(checkError(errorFd));
 }
 
 void	creatingUnixSocketWithExistingSocket(int errorFd, const Configuration& conf)
 {
-	SocketsHandler		socketsHandler(conf);
+	EPollHandler		ePollHandler(conf);
 	std::string			path(PATH_TO_TESTS);
 	path += "unixSocketsTests/test.sock";
 	int					firstSocket;
@@ -155,7 +154,7 @@ void	creatingUnixSocketWithExistingSocket(int errorFd, const Configuration& conf
 
 	printInfo("Try creating a unix with an existing socket");
 	printInfo("Shouldn't output an error, even though the file is deleted, previous connection to the first socket aren't closed, the first socket close when there is no more connection");
-	socketsHandler.bindFdToHost(secondSocket, host);
+	ePollHandler.bindFdToHost(secondSocket, host);
 	verify(!checkError(errorFd));
 	close(firstSocket);
 	close(secondSocket);
@@ -164,7 +163,7 @@ void	creatingUnixSocketWithExistingSocket(int errorFd, const Configuration& conf
 
 void	creatingUnixSocketWithNothing(int errorFd, const Configuration& conf)
 {
-	SocketsHandler		socketsHandler(conf);
+	EPollHandler		ePollHandler(conf);
 	std::string			path(PATH_TO_TESTS);
 	path += "unixSocketsTests/test.sock";
 	int					secondSocket;
@@ -175,7 +174,7 @@ void	creatingUnixSocketWithNothing(int errorFd, const Configuration& conf)
 
 	printInfo("Try creating a unix with a path that points to nothing");
 	printInfo("Shouldn't output an error");
-	socketsHandler.bindFdToHost(secondSocket, host);
+	ePollHandler.bindFdToHost(secondSocket, host);
 	verify(!checkError(errorFd));
 	close(secondSocket);
 	std::remove(path.c_str());

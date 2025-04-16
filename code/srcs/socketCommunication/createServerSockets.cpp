@@ -13,7 +13,7 @@
 #include "Configuration.hpp"        // for Configuration
 #include "Host.hpp"                 // for Host
 #include "ServerSocketData.hpp"     // for ServerSocketData
-#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "EPollHandler.hpp"         // for EPollHandler
 #include "socketCommunication.hpp"  // for checkError, setIPV6Only, setReusa...
 //
 class ServerConfiguration;
@@ -32,7 +32,7 @@ static int	createServerSocket
 (
 	const Host &host,
 	const Configuration	&conf,
-	SocketsHandler &socketsHandler
+	EPollHandler &ePollHandler
 )
 {
 	const sa_family_t	family = host.getFamily();
@@ -43,7 +43,7 @@ static int	createServerSocket
 	if (addFlagsToFd(fd, O_NONBLOCK | FD_CLOEXEC) == -1 // set the non blocking and closing on fork flags
 		|| setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
 		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1) // set the IPV6 sockets to only listen to IPV6
-		|| socketsHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
+		|| ePollHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
 		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ")) // set the socket to listening
 	{
 			closeFdAndPrintError(fd);
@@ -55,7 +55,7 @@ static int	createServerSocket
 void	createAllServerSockets
 (
 const Configuration &conf,
-	SocketsHandler &socketsHandler
+	EPollHandler &ePollHandler
 )
 {
 	const uint32_t	events = EPOLLIN | EPOLLERR | EPOLLHUP;
@@ -64,14 +64,14 @@ const Configuration &conf,
 	{
 		const Host								&host = ci->first;
 		const std::vector<ServerConfiguration>	&serverConfigurations = ci->second;
-		const int								fd = createServerSocket(host, conf, socketsHandler);
+		const int								fd = createServerSocket(host, conf, ePollHandler);
 
 		if (fd == -1)
 			continue ;
 		try
 		{
-			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, socketsHandler, serverConfigurations));
-			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
+			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations));
+			if (ePollHandler.addFdToList(serverSocketData, events) == -1)
 			{
 				delete &serverSocketData;
 	  			closeFdAndPrintError(fd);

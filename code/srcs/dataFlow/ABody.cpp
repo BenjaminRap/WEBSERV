@@ -39,7 +39,7 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 	return (write(_fd, buffer, bufferCapacity));
 }
 
-ssize_t	ABody::callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity)
+ssize_t	ABody::writeToFd(ABody &body, const void *buffer, size_t bufferCapacity)
 {
 	return (body.writeToFd(buffer, bufferCapacity));
 }

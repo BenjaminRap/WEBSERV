@@ -102,7 +102,7 @@ private:
 	 *
 	 * @param socketFd the socket fd of the client.
 	 */
-	void						executeRequest(Response &response, int socketFd);
+	void						executeRequest(Response &response, int socketFd, EPollHandler& ePollHandler);
 	/**
 	 * @brief Write the request body from the _buffer to the body fd.
 	 * If there is an error, it sets the response values.
@@ -121,18 +121,16 @@ private:
 	 * request.
 	 *
 	 */
-	void						processRequestResult(ARequestType& request, Response &response, int socketFd);
+	void						processRequestResult
+	(
+		ARequestType& request,
+		Response &response,
+		int socketFd
+	);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();
 
-	/**
-	 * @brief Redirect the body of the request from the server socket to the response
-	 * body fd, using the body writeToFd method.
-	 *
-	 * @return The new state of the request
-	 */
-	RequestState				redirectBody(int socketFd, Response &response);
 	/**
 	 * @brief Redirect the body of the request from the _buffer to the response
 	 * body fd, using the body writeToFd method.
@@ -140,13 +138,21 @@ public:
 	 * @return The new state of the request
 	 */
 	RequestState				redirectFirstPart(int socketFd, Response &response);
-
+	/**
+	 * @brief Redirect the body.
+	 *
+	 * @param socketFd The fd of the client.
+	 * @param response The response that will be set if an error happend.
+	 * @param canRead Can this function read from the socketFd.
+	 * @return 
+	 */
+	RequestState				redirectBody(int socketFd, Response &response, bool canRead);
 	/**
 	 * @brief Read and handle the execution of the request
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(Response &response, int socketFd);
+	RequestState				readRequest(Response &response, int socketFd, EPollHandler& ePollHandler);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *

@@ -19,9 +19,16 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
 
-ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method) :
+ARequestType::ARequestType
+(
+	std::string &url,
+	const ServerConfiguration& config,
+	EPollHandler& ePollHandler,
+	EMethods method
+) :
 	_method(method),
 	_config(config),
+	_ePollHandler(ePollHandler),
 	_route(NULL),
 	_url(url),
 	_code(0),
@@ -97,12 +104,12 @@ EMethods	ARequestType::getMethod() const
 	return (this->_method);
 }
 
-SharedResource<int>	ARequestType::getInFd() const
+SharedResource<AFdData*>	ARequestType::getInFd() const
 {
 	return (_inFd);
 }
 
-SharedResource<int>	ARequestType::getOutFd() const
+SharedResource<AFdData*>	ARequestType::getOutFd() const
 {
 	return (_outFd);
 }
