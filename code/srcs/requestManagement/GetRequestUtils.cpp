@@ -1,10 +1,17 @@
-#include <sys/stat.h>
-#include <cstring>
-#include <vector>
-#include <dirent.h>
-#include <list>
-#include <cerrno>
-#include "GetRequest.hpp"
+#include <dirent.h>               // for closedir, opendir, readdir, DIR
+#include <stdint.h>               // for uint16_t
+#include <sys/stat.h>             // for stat, S_ISDIR, S_ISREG
+#include <cerrno>                 // for errno, EACCES, ENOENT, ENOTDIR
+#include <cstring>                // for memset, size_t
+#include <list>                   // for list, _List_iterator, operator!=
+#include <new>                    // for bad_alloc
+#include <string>                 // for basic_string, allocator, string
+#include <vector>                 // for vector
+
+#include "ARequestType.hpp"       // for DIRE, LS_FILE
+#include "GetRequest.hpp"         // for GetRequest
+#include "Status.hpp"             // for Status, StatusType
+#include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
 
 void	checkType(std::string &path, GetRequest &get)
 {
@@ -13,13 +20,13 @@ void	checkType(std::string &path, GetRequest &get)
 	if (lastChar != '/')
 	{
 		path += "/";
-		get.setResponse(301, "Moved Permanently",path);
+		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, path);
 	}
 	else
 		get.setUrl(path);
 }
 
-int	isDirOrFile(const std::string& path)
+uint16_t	isDirOrFile(const std::string& path)
 {
 	struct stat	stats;
 
@@ -29,20 +36,22 @@ int	isDirOrFile(const std::string& path)
 	if (stat(path.c_str(), &stats) == -1)
 	{
 		if (errno == EACCES)
-			return (FORBIDEN);
+			return (HTTP_FORBIDDEN);
 		else if (errno == ENOENT || errno == ENOTDIR)
-			return (NF);
+			return (HTTP_NOT_FOUND);
 		else
-			return (ERROR500);
+		{
+			return (HTTP_INTERNAL_SERVER_ERROR);
+		}
 	}
 	if (S_ISDIR(stats.st_mode))
 		return (DIRE);
 	else if (S_ISREG(stats.st_mode))
 		return (LS_FILE);
-	return (NF);
+	return (HTTP_NOT_FOUND);
 }
 
-int	ls(const std::string& path, std::list<std::string> &lst)
+uint16_t	ls(const std::string& path, std::list<std::string> &lst)
 {
 	DIR				*dw;
 	struct dirent	*res;
@@ -51,9 +60,9 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 	if (!dw)
 	{
 		if (errno == EACCES)
-			return (FORBIDEN);
+			return (HTTP_FORBIDDEN);
 		else
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 	}
 	while ((res = readdir(dw)))
 	{
@@ -63,11 +72,11 @@ int	ls(const std::string& path, std::list<std::string> &lst)
 		catch (std::bad_alloc &e)
 		{
 			closedir(dw);
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
 	closedir(dw);
-	return (0);
+	return (HTTP_OK);
 }
 
 size_t	getBuildPagelength(std::list<std::string> &files, const std::string &path)
@@ -115,7 +124,7 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 {
 	size_t		size;
 	std::string	temp;
-	int			ret;
+	uint16_t	ret;
 
 	size = indexs.size();
 	for (unsigned long i = 0; i < size; i++)
@@ -125,9 +134,9 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 		if (ret == LS_FILE || ret == DIRE)
 		{
 			if (ret == DIRE)
-				get.setResponse(301, "Moved Permanently", temp + "/");
+				get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, temp + "/");
 			else
-				get.setResponse(200, "OK", temp);
+				get.setRedirectionResponse(HTTP_OK, temp);
 			return (true);
 		}
 	}
@@ -137,32 +146,24 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 void	autoIndexCase(GetRequest &get)
 {
 	std::list<std::string>	files;
-	int						response;
+	uint16_t				response;
 
 	response = ls(get.getUrl(), files);
-	if (response == FORBIDEN)
-		get.setResponse(403, "Forbidden", get.getError(403));
-	else if (response == ERROR500)
-		get.setResponse(500, "Internal Server Error", get.getError(500));
+	if (Status::isCodeOfType(response, STATUS_ERROR))
+		get.setResponse(response);
 	else
-		get.setResponse(200, "OK", buildPage(files, get.getUrl()));
+		get.setResponseWithAutoIndex(response, buildPage(files, get.getUrl()));
 }
 
 void	directoryCase(GetRequest &get)
 {
 	checkType(get.getUrl(), get);
-	if (get.getCode() == 301)
+	if (get.getCode() == HTTP_MOVED_PERMANENTLY)
 		return;
-	if (get.getIsRoute())
-	{
-		const std::vector<std::string>	&indexs = get.getIndexVec();
-		if (findIndex(get, indexs))
-			return ;
-	}
-	if (findIndex(get, get.getDefaultIndexVec()))
+	if (findIndex(get, get.getIndexs()))
 		return ;
 	if (get.getAutoIndex())
 		autoIndexCase(get);
 	else
-		get.setResponse(403, "Forbidden", get.getError(403));
+		get.setResponse(HTTP_FORBIDDEN);
 }

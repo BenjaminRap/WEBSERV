@@ -1,39 +1,41 @@
-#include "ServerConfiguration.hpp"
-#include "exception.hpp"
+#include <stddef.h>                 // for size_t, NULL
+#include <stdint.h>                 // for uint16_t
+#include <map>                      // for map, _Rb_tree_const_iterator, ope...
+#include <ostream>                  // for basic_ostream, operator<<, endl
+#include <string>                   // for char_traits, string, basic_string
+#include <utility>                  // for pair
+#include <vector>                   // for vector
 
-ServerConfiguration::ServerConfiguration(	const std::vector<std::string> &serverNames, \
-											const std::map<unsigned short, std::string> &errorPages, \
-											const size_t &maxClientBodySize, \
-											const std::map<std::string, Route> &routes, \
-											const std::string &root, \
-											const std::vector<std::string> &index) : \
-											serverNames(serverNames), \
-											errorPages(errorPages), \
-											maxClientBodySize(maxClientBodySize), \
-											routes(routes), \
-											root(root), \
-											index(index)
+#include "Route.hpp"                // for Route, operator<<
+#include "ServerConfiguration.hpp"  // for ServerConfiguration, operator<<
+#include "exception.hpp"            // for CustomException
+
+ServerConfiguration::ServerConfiguration
+(
+	const std::vector<std::string> &serverNames,
+	const std::map<unsigned short, std::string> &errorPages,
+	const size_t &maxClientBodySize,
+	const std::map<std::string, Route> &routes,
+	const std::string &root,
+	const std::vector<std::string> &index
+) :
+	serverNames(serverNames),
+	errorPages(errorPages),
+	maxClientBodySize(maxClientBodySize),
+	routes(routes),
+	root(root),
+	index(index)
 {
-	return ;
 }
 
 ServerConfiguration::ServerConfiguration(ServerConfiguration const &src)
 {
-	*this = src;
-}
-
-ServerConfiguration    &ServerConfiguration::operator=(ServerConfiguration const &src)
-{
-	if (this != &src)
-	{
-		this->serverNames = src.serverNames;
-		this->errorPages = src.errorPages;
-		this->maxClientBodySize = src.maxClientBodySize;
-		this->routes = src.routes;
-		this->root = src.root;
-		this->index = src.index;
-	}
-	return (*this);
+	this->serverNames = src.serverNames;
+	this->errorPages = src.errorPages;
+	this->maxClientBodySize = src.maxClientBodySize;
+	this->routes = src.routes;
+	this->root = src.root;
+	this->index = src.index;
 }
 
 ServerConfiguration::~ServerConfiguration(void)
@@ -41,7 +43,7 @@ ServerConfiguration::~ServerConfiguration(void)
 	return ;
 }
 
-const std::string				&ServerConfiguration::getRoot(void) const
+const std::string	&ServerConfiguration::getRoot(void) const
 {
 	return (this->root);
 }
@@ -51,16 +53,16 @@ const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 	return (this->serverNames);
 }
 
-const std::string				&ServerConfiguration::getErrorPage(unsigned short error) const
+const std::string	&ServerConfiguration::getErrorPage(uint16_t errorCode) const
 {
-	std::map<unsigned short, std::string>::const_iterator it = this->errorPages.find(error);
+	std::map<uint16_t, std::string>::const_iterator it = this->errorPages.find(errorCode);
 
 	if (it == this->errorPages.end())
 		throw (CustomException("Non existing error_page"));
     return (it->second);
 }
 
-const std::map<unsigned short, std::string>	&ServerConfiguration::getErrorPages(void) const
+const std::map<uint16_t, std::string>	&ServerConfiguration::getErrorPages(void) const
 {
 	return (this->errorPages);
 }
@@ -75,13 +77,17 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 	return (this->routes);
 }
 
-const Route	*ServerConfiguration::getOneRoutes(const std::string &path) const
+const Route	*ServerConfiguration::getRouteFromPath(const std::string &path) const
 {
+	std::map<std::string, Route>::const_iterator temp = routes.end();
+
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (path.find(it->first) == 0)
-			return (&it->second);
+		if (path.find(it->first) == 0 && (temp == routes.end() || temp->first.size() < it->first.size()))
+			temp = it;
 	}
+	if (temp != routes.end())
+		return (&temp->second);
 	return (NULL);
 }
 
@@ -95,7 +101,7 @@ const std::string	ServerConfiguration::getLocation(const std::string &path) cons
 	return ("");
 }
 
-const std::vector<std::string>				&ServerConfiguration::getIndex(void) const
+const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 {
 	return (this->index);
 }

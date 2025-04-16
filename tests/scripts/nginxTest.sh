@@ -2,7 +2,7 @@ telnet 127.0.0.1 8181 << EOF
 PUT /uploads/test.html HTTP/1.1
 Host: foo.com
 Content-Type: text/html
-Content-Length: 16
+content-length: 16
 Connection: keep-alive
 
 say=Hi&

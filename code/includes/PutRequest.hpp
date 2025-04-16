@@ -1,18 +1,15 @@
-#include <cstring>
+#ifndef PUT_REQUEST_HPP
+# define PUT_REQUEST_HPP
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+# include <string>            // for string, basic_string
 
-#include <cerrno>
+# include "ARequestType.hpp"  // for ARequestType
 
-#include "ServerConfiguration.hpp"
-#include "ARequestType.hpp"
+class ServerConfiguration;
 
 class PutRequest : public ARequestType
 {
 	private :
-		int			_fd;
 		std::string _fileName;
 
 		PutRequest();
@@ -22,8 +19,6 @@ class PutRequest : public ARequestType
 	public :
 		explicit PutRequest(std::string url, const ServerConfiguration &config);
 		~PutRequest();
-
-		int getFd(void) const;
-
-		void setFd(int fd);
 };
+
+#endif // !PUT_REQUEST_HPP

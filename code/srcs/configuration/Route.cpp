@@ -1,43 +1,40 @@
-#include "Route.hpp"
-#include <iostream>
+#include <stddef.h>      // for size_t
+#include <iostream>      // for basic_ostream, operator<<, char_traits, endl
+#include <string>        // for basic_string, string, operator<<
+#include <vector>        // for vector
 
-Route::Route(const std::vector<EMethods> &acceptedMethods, \
-			const SRedirection &redirection, \
-			const std::vector<std::string> &index, \
-			const bool &auto_index, \
-			const std::string &root, \
-			const std::string &cgiFileExtension, \
-			const bool	&acceptUploads) : \
-			acceptedMethods(acceptedMethods), \
-			redirection(redirection), \
-			index(index), \
-			auto_index(auto_index), \
-			root(root), \
-			cgiFileExtension(cgiFileExtension), \
-			acceptUploads(acceptUploads)
+#include "EMethods.hpp"  // for EMethods
+#include "Route.hpp"     // for Route, SRedirection, operator<<
+
+Route::Route
+(
+	const std::vector<EMethods> &acceptedMethods,
+	const SRedirection &redirection,
+	const std::vector<std::string> &index,
+	const bool &auto_index,
+	const std::string &root,
+	const std::string &cgiFileExtension,
+	const bool	&acceptUploads
+) :
+	acceptedMethods(acceptedMethods),
+	redirection(redirection),
+	index(index),
+	autoIndex(auto_index),
+	root(root),
+	cgiFileExtension(cgiFileExtension),
+	acceptUploads(acceptUploads)
 {
-	return;
 }
 
 Route::Route(Route const &src)
 {
-    *this = src;
-    return;
-}
-
-Route    &Route::operator=(Route const &src)
-{
-    if (this != &src)
-    {
-		this->acceptedMethods = src.acceptedMethods;
-		this->redirection = src.redirection;
-		this->index = src.index;
-		this->auto_index = src.auto_index;
-		this->root = src.root;
-		this->cgiFileExtension = src.cgiFileExtension;
-		this->acceptUploads = src.acceptUploads;
-    }
-    return (*this);
+	this->acceptedMethods = src.acceptedMethods;
+	this->redirection = src.redirection;
+	this->index = src.index;
+	this->autoIndex = src.autoIndex;
+	this->root = src.root;
+	this->cgiFileExtension = src.cgiFileExtension;
+	this->acceptUploads = src.acceptUploads;
 }
 
 Route::~Route(void)
@@ -60,9 +57,9 @@ const std::vector<std::string>	&Route::getIndex(void) const
 	return (index);
 }
 
-const bool						&Route::getAutoIndex(void) const
+bool	Route::getAutoIndex(void) const
 {
-	return (auto_index);
+	return (autoIndex);
 }
 
 const std::string				&Route::getRoot(void) const
@@ -75,7 +72,7 @@ const std::string				&Route::getCgiFileExtension(void) const
 	return (cgiFileExtension);
 }
 
-const bool					&Route::getAcceptUploads(void) const
+bool	Route::getAcceptUploads(void) const
 {
 	return (acceptUploads);
 }
@@ -104,12 +101,7 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	o << "accepted methods :";
 	for (size_t i = 0; i < acceptedMethods.size(); i++)
 	{
-		if (acceptedMethods[i] == GET)
-			o << "GET ";
-		else if (acceptedMethods[i] == POST)
-			o << "POST ";
-		else if (acceptedMethods[i] == DELETE)
-			o << "DELETE ";
+		o << getStringRepresentation(acceptedMethods[i]);
 	}
 	o << std::endl;
 	if (!redirection.url.empty())

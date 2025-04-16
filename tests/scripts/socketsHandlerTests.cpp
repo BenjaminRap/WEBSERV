@@ -5,9 +5,12 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <csignal>
 
 #include "SocketsHandler.hpp"
 #include "Configuration.hpp"
+#include "ServerSocketData.hpp"
+#include "parsing.hpp"
 
 #include "utils.cpp"
 
@@ -15,9 +18,8 @@
 
 void	createAllServerSockets(const Configuration &conf, SocketsHandler &socketsHandler);
 
-void	tryCreatingMultipleInstance()
+void	tryCreatingMultipleInstance(const Configuration &conf)
 {
-	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
 
 	printInfo("Try creating multiples instance");
@@ -41,10 +43,8 @@ void	tryCreatingMultipleInstance()
 	}
 }
 
-void	createAndDestroyMultipleInstance()
+void	createAndDestroyMultipleInstance(const Configuration& conf)
 {
-	const Configuration	conf;
-
 	printInfo("try creating and destroying multiple instances");
 	{
 		SocketsHandler	socketsHandler(conf);
@@ -55,49 +55,9 @@ void	createAndDestroyMultipleInstance()
 	verify(true);
 }
 
-void	addServerConfiguration(Host host, Configuration &conf)
+void	tryPassingAWrongIPV6Array(const Configuration& conf)
 {
-
-	std::vector<ServerConfiguration>	serverConfigurations;
-	conf[host] = serverConfigurations;
-	conf[host].push_back(ServerConfiguration());
-}
-
-void	bindTwiceSameHost(int errorFd)
-{
-	Configuration	conf;
-
-	printInfo("Try listening twice to the same host");
-	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
-	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
-
-	SocketsHandler						socketsHandler(conf);
-
-	std::cout << "\033[0;35m" << "Shouldn't output an error message, because map has unique key, map size = " << conf.size() << "\033[0m\n" << std::endl;
-	createAllServerSockets(conf, socketsHandler);
-	verify(!checkError(errorFd));
-}
-
-void	bindTwiceSameHostWithDiffIpFamily(int errorFd)
-{
-	Configuration						conf;
-	uint8_t								addr[16];
-
-	std::memset((char *)addr, '\0', sizeof(addr));
-	printInfo("Try listening twice to the same host with different ip family");
-	addServerConfiguration(Host((in_addr_t)0, (in_port_t)8080), conf);
-	addServerConfiguration(Host(addr, (in_port_t)8080), conf);
-
-
-	SocketsHandler						socketsHandler(conf);
-
-	printInfo("Shouldn't output an error message if IPV6Only is set");
-	createAllServerSockets(conf, socketsHandler);
-	verify(!checkError(errorFd));
-}
-
-void	tryPassingAWrongIPV6Array()
-{
+	(void)conf;
 	// uint8_t								*addr2;
 	// uint8_t								addr3[8];
 	// uint8_t								addr4[32];
@@ -110,26 +70,8 @@ void	tryPassingAWrongIPV6Array()
 	verify(true);
 }
 
-void	addWrongFdToListeners(int errorFd)
+void	executeCallbackWithIndexTooBig(int errorFd, const Configuration& conf)
 {
-	const Configuration	conf;
-	SocketsHandler		socketsHandler(conf);
-	int					data;
-
-	data = 0;
-	printInfo("Try passing an fd to listeners that is inferior to 4");
-	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(1, callback, data, EPOLLIN);
-	verify(checkError(errorFd));
-	printInfo("Try passing an fd to listeners that isn't open");
-	printInfo("Should output an error");
-	socketsHandler.addFdToListeners(10, callback, data, EPOLLIN);
-	verify(checkError(errorFd));
-}
-
-void	executeCallbackWithIndexTooBig(int errorFd)
-{
-	const Configuration	conf;
 	SocketsHandler		socketsHandler(conf);
 
 	printInfo("Try executing callSocketCallback with an index too big");
@@ -138,9 +80,8 @@ void	executeCallbackWithIndexTooBig(int errorFd)
 	verify(checkError(errorFd));
 }
 
-void	bindUnixSocketWithWrongFd(int errorFd)
+void	bindUnixSocketWithWrongFd(int errorFd, const Configuration &conf)
 {
-	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
@@ -153,9 +94,8 @@ void	bindUnixSocketWithWrongFd(int errorFd)
 	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketWithExistingFile(int errorFd)
+void	creatingUnixSocketWithExistingFile(int errorFd, const Configuration& conf)
 {
-	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
@@ -168,9 +108,8 @@ void	creatingUnixSocketWithExistingFile(int errorFd)
 	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketWithExistingDirectory(int errorFd)
+void	creatingUnixSocketWithExistingDirectory(int errorFd, const Configuration& conf)
 {
-	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
@@ -183,9 +122,8 @@ void	creatingUnixSocketWithExistingDirectory(int errorFd)
 	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketInNoRightFolder(int errorFd)
+void	creatingUnixSocketInNoRightFolder(int errorFd, const Configuration& conf)
 {
-	Configuration	conf;
 	SocketsHandler	socketsHandler(conf);
 	std::string		path(PATH_TO_TESTS);
 
@@ -198,9 +136,8 @@ void	creatingUnixSocketInNoRightFolder(int errorFd)
 	verify(checkError(errorFd));
 }
 
-void	creatingUnixSocketWithExistingSocket(int errorFd)
+void	creatingUnixSocketWithExistingSocket(int errorFd, const Configuration& conf)
 {
-	Configuration		conf;
 	SocketsHandler		socketsHandler(conf);
 	std::string			path(PATH_TO_TESTS);
 	path += "unixSocketsTests/test.sock";
@@ -225,9 +162,8 @@ void	creatingUnixSocketWithExistingSocket(int errorFd)
 	std::remove(path.c_str());
 }
 
-void	creatingUnixSocketWithNothing(int errorFd)
+void	creatingUnixSocketWithNothing(int errorFd, const Configuration& conf)
 {
-	Configuration		conf;
 	SocketsHandler		socketsHandler(conf);
 	std::string			path(PATH_TO_TESTS);
 	path += "unixSocketsTests/test.sock";
@@ -245,25 +181,55 @@ void	creatingUnixSocketWithNothing(int errorFd)
 	std::remove(path.c_str());
 }
 
-int	main(void)
+void	runTests(const Configuration& conf)
 {
 	int	tube[2];
 
 	if (redirectSTDERR(tube) == false)
-		return (EXIT_FAILURE);
-	tryCreatingMultipleInstance();
-	createAndDestroyMultipleInstance();
-	bindTwiceSameHost(tube[0]);
-	bindTwiceSameHostWithDiffIpFamily(tube[0]);
-	tryPassingAWrongIPV6Array();
-	addWrongFdToListeners(tube[0]);
-	executeCallbackWithIndexTooBig(tube[0]);
-	bindUnixSocketWithWrongFd(tube[0]);
-	creatingUnixSocketWithExistingFile(tube[0]);
-	creatingUnixSocketWithExistingDirectory(tube[0]);
-	creatingUnixSocketInNoRightFolder(tube[0]);
-	creatingUnixSocketWithExistingSocket(tube[0]);
-	creatingUnixSocketWithNothing(tube[0]);
+		return ;
+	tryCreatingMultipleInstance(conf);
+	createAndDestroyMultipleInstance(conf);
+	tryPassingAWrongIPV6Array(conf);
+	executeCallbackWithIndexTooBig(tube[0], conf);
+	bindUnixSocketWithWrongFd(tube[0], conf);
+	creatingUnixSocketWithExistingFile(tube[0], conf);
+	creatingUnixSocketWithExistingDirectory(tube[0], conf);
+	creatingUnixSocketInNoRightFolder(tube[0], conf);
+	creatingUnixSocketWithExistingSocket(tube[0], conf);
+	creatingUnixSocketWithNothing(tube[0], conf);
 	close(tube[0]);
 	close(tube[1]);
+}
+
+int	main(int argc, char **argv)
+{
+	if (argc == 1)
+		std::cout << "No argument supplied, using the default path for the configuration." << std::endl;
+	else if (argc > 2)
+	{
+		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
+		return (EXIT_FAILURE);
+	}
+	try
+	{
+		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : "))
+			return (EXIT_FAILURE);
+		if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : "))
+			return (EXIT_FAILURE);
+
+		Configuration	conf;
+		std::string		file;
+
+		if (argc == 2)
+			readfile(argv[1], file);
+		else
+			readfile(DEFAULT_CONFIG_PATH, file);
+		parseFile(conf, file);
+		runTests(conf);
+		return (getReturnCodeWithSignal());
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 }

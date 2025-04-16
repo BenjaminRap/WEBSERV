@@ -6,14 +6,23 @@
 
 # define DEFAULT_CONFIG_PATH "./configurations/configuration.txt"
 
-/// @brief This class describe all the configuration parsed from the configuration
-/// file. This program should process multiples 'servers', each having their own
-/// configuration
+/**
+ * @class Configuration
+ *
+ * @brief This class describe all the configuration parsed from the configuration
+ * file. This program should process multiples 'servers', each having their own
+ * configuration.
+ * It is a map with the Host as key, and a vector of all ServerConfiguration as
+ * value. Each host can have 1 or more ServerConfiguration.
+ *
+ */
 class Configuration : public std::map<Host, std::vector<ServerConfiguration> >
 {
 private:
 	/**
 	 * @brief The boolean used to guarantee that there is only one instance.
+	 * This variable is set to true when an instance is created and false
+	 * when one is destroyed.
 	 */
 	static bool		_instanciated;
 

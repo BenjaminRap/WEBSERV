@@ -1,12 +1,12 @@
-#include "Configuration.hpp"
-#include "parsing.hpp"
-#include <csignal>                  // for signal, SIG_ERR, SIGINT
+#include <csignal>                  // for signal, SIG_ERR, SIGINT, SIGPIPE
 #include <cstdlib>                  // for EXIT_FAILURE
 #include <exception>                // for exception
-#include <iostream>                 // for char_traits, basic_ostream, opera...
-#include <string>                   // for basic_string
-#include "Configuration.hpp"        // for Configuration
-#include "socketCommunication.hpp"  // for getReturnCodeWithSignal, getSigna...
+#include <iostream>                 // for basic_ostream, operator<<, cerr
+#include <string>                   // for char_traits, basic_string, string
+
+#include "Configuration.hpp"        // for Configuration, DEFAULT_CONFIG_PATH
+#include "parsing.hpp"              // for ft_readfile, parse_file
+#include "socketCommunication.hpp"  // for checkError, getReturnCodeWithSignal
 
 int	main(int argc, char **argv)
 {
@@ -15,21 +15,23 @@ int	main(int argc, char **argv)
 	else if (argc > 2)
 	{
 		std::cout << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
-	return (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	try
 	{
-		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : ") == SIG_ERR)
+		if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : "))
+			return (EXIT_FAILURE);
+		if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : "))
 			return (EXIT_FAILURE);
 
 		Configuration	conf;
 		std::string		file;
 
 		if (argc == 2)
-			ft_readfile(argv[1], file);
+			readfile(argv[1], file);
 		else
-			ft_readfile(DEFAULT_CONFIG_PATH, file);
-		parse_file(conf, file);
+			readfile(DEFAULT_CONFIG_PATH, file);
+		parseFile(conf, file);
 		while(getSignalStatus() == NO_SIGNAL)
 		{
 			try
@@ -38,13 +40,13 @@ int	main(int argc, char **argv)
 			}
 			catch(const std::exception& e)
 			{
-				std::cerr << e.what() << std::endl;
+				std::cerr << e.what() << '\n';
 			}
 		}
 		return (getReturnCodeWithSignal());
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << e.what() << '\n';
 	}
 }

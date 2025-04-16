@@ -1,7 +1,18 @@
-#include "parsing.hpp"
-#include "error_pages.hpp"
+#include <cctype>                   // for isdigit
+#include <cstdlib>                  // for size_t, atol
+#include <map>                      // for map, _Rb_tree_iterator, operator==
+#include <string>                   // for basic_string, string, operator==
+#include <utility>                  // for make_pair, pair
+#include <vector>                   // for vector
 
-void	parse_file(Configuration &config, std::string &file)
+#include "Configuration.hpp"        // for Configuration
+#include "Host.hpp"                 // for Host
+#include "Route.hpp"                // for Route
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "exception.hpp"            // for CustomLineException, CustomKeyWor...
+#include "parsing.hpp"              // for skip_wspace, ip_s, SEP_WSPACE, ip_t
+
+void	parseFile(Configuration &config, std::string &file)
 {
 	size_t	i = 0;
 	size_t	line = 1;
@@ -9,21 +20,21 @@ void	parse_file(Configuration &config, std::string &file)
 
 	while (i < file.size())
 	{
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 		if (file[i] == '#')
-			skip_line(file, i, line);
+			skipLine(file, i, line);
 		else if (file.substr(i, 6) == "server")
 		{
 			i += 6;
-			skip_wspace(file, i , line);
+			skipWSpace(file, i , line);
 			if (file[i] != '{')
 				throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 			i++;
-			parse_server(conf, file, i, line);
+			parseServer(conf, file, i, line);
 		}
 		else if (i == std::string::npos)
 			throw (CustomLineException("Unexpected error", line));
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 	}
 	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
 	{
@@ -42,11 +53,11 @@ void	parse_file(Configuration &config, std::string &file)
 	}
 }
 
-void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::string &file, size_t &i, size_t &line)
+void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::string &file, size_t &i, size_t &line)
 {
 	std::vector<std::string>				serverNames;
 	std::map<unsigned short, std::string>	errorPages;
-	size_t									maxClientBodySize = 0;
+	size_t									maxClientBodySize = -1;
 	std::map<std::string, Route>			routes;
 	std::string								root;
 	ip_t									ip;
@@ -54,86 +65,76 @@ void	parse_server(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::
 
 	while (i < file.size() && file[i] != '}')
 	{
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 		if (file[i] == '#')
-			skip_line(file, i, line);
+			skipLine(file, i, line);
 		else if (!file.compare(i, 6, "listen"))
 		{
 			i += 6;
-			parse_host(file, i, line, ip);
+			parseHost(file, i, line, ip);
 		}
 		else if (!file.compare(i, 20, "client_max_body_size"))
 		{
 			i += 20;
-			parse_maxClientBodySize(file, i, line, maxClientBodySize);
+			parseMaxClientBodySize(file, i, line, maxClientBodySize);
 		}
 		else if (!file.compare(i, 11, "server_name"))
 		{
 			i += 11;
-			parse_servername(file, i, line, serverNames);
+			parseServerName(file, i, line, serverNames);
 		}
 		else if (!file.compare(i, 10, "error_page"))
 		{
 			i += 10;
-			parse_errorpages(file, i, line, errorPages);
+			parseErrorPages(file, i, line, errorPages);
 		}
 		else if (!file.compare(i, 8, "location"))
 		{
 			i += 8;
-			parse_route(file, i, line, routes);
+			parseRoute(file, i, line, routes);
 		}
 		else if (!file.compare(i, 4, "root"))
 		{
 			i += 4;
-			parse_root(file, i, line, root);
+			parseRoot(file, i, line, root);
 		}
 		else if (!file.compare(i, 5, "index"))
 		{
 			i += 5;
-			parse_route_index(file, i, line, index);
+			parseRouteIndex(file, i, line, index);
 		}
 		else if (file[i] != '}')
 			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
 			throw (CustomLineException("Unexpected error", line));
-		skip_wspace(file, i, line);
+		skipWSpace(file, i, line);
 	}
 	if (file[i] != '}')
 		throw (CustomLineException("Unclosed brace", line));
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (CustomException("Missing host"));
-	if (errorPages.find(ERROR_403_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_403_INT, ERROR_403_STR));
-	if (errorPages.find(ERROR_404_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_404_INT, ERROR_404_STR));
-	if (errorPages.find(ERROR_405_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_405_INT, ERROR_405_STR));
-	if (errorPages.find(ERROR_500_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_500_INT, ERROR_500_STR));
-	if (errorPages.find(ERROR_505_INT) == errorPages.end())
-		errorPages.insert(std::make_pair(ERROR_505_INT, ERROR_505_STR));
-	insert_host(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
+	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
 }
 
-void	parse_maxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
+void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
 {
-	if (maxClientBodySize)
+	if (maxClientBodySize != (size_t)-1)
 		throw (CustomKeyWordAndLineException("Multiple definition of", line, "maxClientBodySize"));
-	skip_wspace(file, i , line);
+	skipWSpace(file, i , line);
 	maxClientBodySize = std::atol(file.substr(i, file.find_first_not_of(DIGITS, i) - i).c_str());
 	i = file.find_first_not_of(DIGITS, i);
-	skip_wspace(file, i , line);
+	skipWSpace(file, i , line);
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
 }
 
-void	parse_servername(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames)
+void	parseServerName(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames)
 {
 	while (i < file.size() && file[i] != ';')
 	{
-		skip_wspace(file, i , line);
+		skipWSpace(file, i , line);
 		if (file[i] != ';')
 		{
 			std::string	name = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
@@ -152,22 +153,22 @@ void	parse_servername(std::string &file, size_t &i, size_t &line, std::vector<st
 	i++;
 }
 
-void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages)
+void	parseErrorPages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages)
 {
 	std::vector<unsigned short>	errors;
 	std::string					error_page;
 	
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	while (std::isdigit(file[i]))
 	{
-		errors.push_back(real_atoi(file, i, line, 999, 3));
-		skip_wspace(file, i, line);
+		errors.push_back(realAtoi(file, i, line, 999, 3));
+		skipWSpace(file, i, line);
 	}
 	if (file[i] != '/')
 		throw (CustomLineException("Missing error pages", line));
 	error_page = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
@@ -177,14 +178,14 @@ void	parse_errorpages(std::string &file, size_t &i, size_t &line, std::map<unsig
 	}
 }
 
-void	parse_root(std::string &file, size_t &i, size_t &line, std::string &root)
+void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 {
 	if (!root.empty())
 		throw (CustomLineException("Multiple definition of root", line));
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	root = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
-	skip_wspace(file, i, line);
+	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;

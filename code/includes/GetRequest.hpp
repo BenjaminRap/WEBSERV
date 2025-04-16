@@ -1,16 +1,15 @@
-#ifndef GETREQUEST_HPP
-# define GETREQUEST_HPP
+#ifndef GET_REQUEST_HPP
+# define GET_REQUEST_HPP
 
-#include <string>
-#include "ServerConfiguration.hpp"
-#include "ARequestType.hpp"
+# include <string>				// for std::string
+
+# include "ARequestType.hpp"	// for ARequestType
+
+class ServerConfiguration;
 
 class GetRequest : public ARequestType
 {
 	private :
-		bool				_autoIndex;
-		int					_index;
-
 		GetRequest();
 		GetRequest(const GetRequest& src);
 		GetRequest& operator=(const GetRequest& src);
@@ -19,10 +18,8 @@ class GetRequest : public ARequestType
 		explicit GetRequest(std::string url, const ServerConfiguration &config);
 		~GetRequest();
 
-		bool							getAutoIndex() const;
-		void							setAutoIndex(bool src);
-		const std::vector<std::string>	&getIndexVec();
-		const std::vector<std::string>	&getDefaultIndexVec();
+		void	setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage);
+		void	openFileAndSetSize(void);
 };
 
-#endif
+#endif //!GET_REQUEST_HPP

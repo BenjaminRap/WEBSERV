@@ -1,17 +1,28 @@
-#include "parsing.hpp"
+#include <netinet/in.h>             // for in_port_t, in_addr_t
+#include <stddef.h>                 // for size_t
+#include <stdint.h>                 // for uint8_t
+#include <cctype>                   // for isdigit, isspace
+#include <fstream>                  // for basic_ifstream, basic_ios, basic_...
+#include <map>                      // for map, _Rb_tree_iterator, operator!=
+#include <string>                   // for basic_string, string, getline
+#include <utility>                  // for pair, make_pair
+#include <vector>                   // for vector
 
-void	ft_readfile(const char *path, std::string &buff)
+#include "Route.hpp"                // for Route
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "exception.hpp"            // for CustomLineException, CustomException
+#include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ft_hextoint
+
+void	readfile(const char *path, std::string &buff)
 {
 	std::ifstream	file;
 
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	file.open(path, file.in);
-	if (file.fail())
-		throw (CustomException("Couldn't open file"));
 	std::getline(file, buff, '\0');
-	file.close();
 }
 
-void	skip_line(std::string &file, size_t &i, size_t &line)
+void	skipLine(std::string &file, size_t &i, size_t &line)
 {
 	i = file.find('\n', i);
 	if (i == std::string::npos)
@@ -21,7 +32,7 @@ void	skip_line(std::string &file, size_t &i, size_t &line)
 	i++;
 }
 
-void	skip_wspace(std::string &file, size_t &i, size_t &line)
+void	skipWSpace(std::string &file, size_t &i, size_t &line)
 {
 	if (i == std::string::npos)
 		throw (CustomLineException("Unexpected error", line));
@@ -33,7 +44,7 @@ void	skip_wspace(std::string &file, size_t &i, size_t &line)
 	}
 }
 
-short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len)
+short	realAtoi(std::string &file, size_t &i, size_t &line, short max, short len)
 {
 	short	nb = 0;
 
@@ -48,7 +59,7 @@ short	real_atoi(std::string &file, size_t &i, size_t &line, short max, short len
 	return (nb);
 }
 
-uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line)
+uint8_t	hexToInt(std::string &file, size_t &i, size_t &line)
 {
 	int		j = 2;
 	short	nb = 0;
@@ -65,9 +76,17 @@ uint8_t	ft_hextoint(std::string &file, size_t &i, size_t &line)
 	return (nb);
 }
 
-void	insert_host(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
-&serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index)
+void	insertHost
+(
+	std::map<ip_t, std::vector<ServerConfiguration> > &conf,
+	std::vector<std::string> &serverNames,
+	std::map<unsigned short, std::string> &errorPages,
+	size_t &maxClientBodySize,
+	std::map<std::string, Route> &routes,
+	std::string &root,
+	ip_t &ip,
+	std::vector<std::string> &index
+)
 {
 	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
 	{

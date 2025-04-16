@@ -26,7 +26,7 @@ class CustomException : public std::exception
 	private:
 		std::string error;
 		std::string message;
-	};
+};
 
 class CustomLineException : public std::exception
 {

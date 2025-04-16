@@ -1,4 +1,15 @@
-#include "ARequestType.hpp"
+#include <stddef.h>                 // for size_t, NULL
+#include <sys/stat.h>               // for stat
+#include <sys/types.h>              // for ssize_t
+#include <string>                   // for basic_string, string
+#include <vector>                   // for vector
+
+#include "ARequestType.hpp"         // for ARequestType
+#include "EMethods.hpp"             // for EMethods
+#include "Route.hpp"                // for Route, SRedirection
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "socketCommunication.hpp"  // for checkError
 
 bool	checkAllowMeth(const Route &route, EMethods meth)
 {
@@ -77,7 +88,7 @@ void	fixPath(std::string &path)
 void	fixUrl(ARequestType &req, std::string &url)
 {
 	if (*url.begin() != '/')
-		req.setResponse(400, "Bad Request", "Bad Request");
+		req.setResponse(HTTP_BAD_REQUEST);
 	else
 	{
 		fixPath(url);
@@ -87,7 +98,7 @@ void	fixUrl(ARequestType &req, std::string &url)
 
 void	addRoot(ARequestType &get, const ServerConfiguration &config)
 {
-	const Route	*temp = config.getOneRoutes(get.getUrl());
+	const Route	*temp = config.getRouteFromPath(get.getUrl());
 
 	if (temp == NULL)
 	{
@@ -95,15 +106,25 @@ void	addRoot(ARequestType &get, const ServerConfiguration &config)
 		return ;
 	}
 	get.setRoute(temp);
-	get.setIsRoute(true);
 	if (!checkAllowMeth(*temp, get.getMethod()))
 	{
-		get.setResponse(405, "Not Allowed", config.getErrorPage(405));
+		get.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
 	const std::string &redir = temp->getRedirection().url;
 	if (!redir.empty())
-		get.setResponse(301, "Moved Permanently", redir);
+		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
 	else
 		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
+}
+
+ssize_t	getFileSize(const std::string &filePath)
+{
+	struct stat fileStat;
+
+	const int	ret = stat(filePath.c_str(), &fileStat);
+	
+	if (checkError(ret, -1, "stat() : "))
+		return (-1);
+	return (fileStat.st_size);
 }

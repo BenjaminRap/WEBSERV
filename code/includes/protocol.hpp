@@ -1,0 +1,9 @@
+#ifndef PROTOCOL_HPP
+# define PROTOCOL_HPP
+
+# define PROTOCOL "HTTP/1.1"
+# define PROTOCOL_LENGTH 8
+# define PROTOCOL_MAJOR 1
+# define PROTOCOL_MINOR 1
+
+#endif // !PROTOCOL_HPP

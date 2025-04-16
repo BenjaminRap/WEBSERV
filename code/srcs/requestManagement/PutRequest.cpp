@@ -1,7 +1,19 @@
-#include "PutRequest.hpp"
+#include <fcntl.h>                  // for open, FD_CLOEXEC, O_CREAT, O_EXCL
+#include <stdint.h>                 // for uint16_t
+#include <cstring>                  // for size_t
+#include <string>                   // for basic_string, string
 
-int							isDirOrFile(const std::string& path);
-bool						canWrite(const std::string &path);
+#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
+#include "EMethods.hpp"             // for EMethods
+#include "PutRequest.hpp"           // for PutRequest
+#include "SharedResource.hpp"       // for SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
+#include "socketCommunication.hpp"  // for addFlagsToFd, checkError, closeFd...
+
+class ServerConfiguration;  // lines 11-11
+
+uint16_t	isDirOrFile(const std::string& path);
+bool		canWrite(const std::string &path);
 
 std::string getName(std::string &path)
 {
@@ -24,41 +36,42 @@ void	removeFileName(std::string &url)
 }
 
 
-PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, PUT), _fd(-1)
+PutRequest::PutRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, PUT)
 {
 	std::string path;
-	int			ret;
+	uint16_t	fileType;
 
 	if (this->_code != 0)
 		return ;
 	this->_fileName = getName(this->_url);
 	path = this->_url;
 	removeFileName(this->_url);
-	ret = isDirOrFile(path);
-	if ((ret != NF && ret != FORBIDEN) || (this->_fileName.empty() && ret == NF))
-		this->setResponse(409, "Conflict", "Conflict");
-	else if (!canWrite( this->_url) && ret != FORBIDEN)
-		this->setResponse(403, "Forbidden", "Forbidden");
+	fileType = isDirOrFile(path);
+	if ((fileType == DIRE || fileType == LS_FILE)
+		|| (this->_fileName.empty() && fileType == HTTP_NOT_FOUND))
+	{
+		this->setResponse(HTTP_CONFLICT);
+	}
+	else if (!canWrite(this->_url) && fileType != HTTP_FORBIDDEN)
+		this->setResponse(HTTP_FORBIDDEN);
 	else
 	{
-		this->_fd = open(path.c_str(), O_CREAT | O_EXCL, 0666);
-		if (this->_fd == -1)
-			this->setResponse(500, "Internal Server Error", this->getError(500));
-		else
-			this->setResponse(201, "Created", path);
+		const int fd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
+		if (checkError(fd, -1, "open() : "))
+		{
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			return ;
+		}
+		this->_inFd.setManagedResource(fd, closeFdAndPrintError);
+		if (addFlagsToFd(this->_inFd.getValue(), FD_CLOEXEC) == -1)
+		{
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			return ;
+		}
+		this->setResponse(HTTP_CREATED);
 	}
 }
 
 PutRequest::~PutRequest()
 {
-}
-
-void PutRequest::setFd(int fd)
-{
-	this->_fd = fd;
-}
-
-int PutRequest::getFd(void) const
-{
-	return (this->_fd);
 }

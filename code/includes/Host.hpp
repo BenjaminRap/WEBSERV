@@ -3,6 +3,7 @@
 
 # include <netinet/in.h>
 # include <sys/un.h>
+# include <string>
 
 /**
  * @brief This class represents the host : addresse, port and family. It will be

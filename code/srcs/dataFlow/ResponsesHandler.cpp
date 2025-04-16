@@ -1,13 +1,17 @@
-#include <cstddef>               // for size_t
+#include <iostream>              // for basic_ostream, char_traits, operator<<
 #include <queue>                 // for queue
 
 #include "FlowBuffer.hpp"        // for FlowState
 #include "RawResponse.hpp"       // for RawResponse
+#include "Response.hpp"          // for operator<<, Response
 #include "ResponsesHandler.hpp"  // for ResponsesHandler, RESPONSE_BUFFER_SIZE
+
+class ServerConfiguration;
 
 /*************************Constructors / Destructors **************************/
 
-ResponsesHandler::ResponsesHandler() :
+ResponsesHandler::ResponsesHandler(const ServerConfiguration &defaultConfig) :
+	_currentResponse(defaultConfig),
 	_responses(),
 	_buffer(),
 	_responseBuffer(_buffer, RESPONSE_BUFFER_SIZE, 0)
@@ -17,72 +21,44 @@ ResponsesHandler::ResponsesHandler() :
 
 ResponsesHandler::~ResponsesHandler()
 {
-
+	while (_responses.size() != 0)
+	{
+		const RawResponse*	rawResponse = _responses.front();
+		delete rawResponse;
+		_responses.pop();
+	}
 }
 
 /***************************Member functions***********************************/
 
-/**
- * @brief Send all the responses to the client socket.
- * @param socketFd the file descriptor to the client socket.
- * @return FLOW_ERROR on error, FLOW_DONE if all responses has been entirely
- * written, FLOW_MORE if there is more to send. In the latter case,
- * we should wait for an EPOLLOUT and call this function again, until we
- * receive a FLOR_ERROR or FLOW_DONE.
- */
-FlowState	ResponsesHandler::sendResponsesToSocket(int socketFd)
+FlowState	ResponsesHandler::sendResponseToSocket(int socketFd)
 {
 	if (_responses.size() == 0)
 		return (FLOW_DONE);
 
-	RawResponse		&response = _responses.front();
-	const FlowState	flowState = response.sendResponseToSocket(socketFd);
+	RawResponse		*response = _responses.front();
+	const FlowState	flowState = response->sendResponseToSocket(socketFd);
 
 	if (flowState == FLOW_DONE)
 	{
+		std::cout << "Raw Response written !" << std::endl;
 		_responses.pop();
+		delete response;
 		return ((_responses.size() == 0) ? FLOW_DONE : FLOW_MORE);
 	}
 	else
 		return (flowState);
 }
 
-/**
- * @brief Add a response at the end of the _responses queue. The response has a
- * body fd.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * It can also throw (std::bad_alloc) if the push fail.
- * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body.
- * @param firstPartLength The length of firstPart.
- * @param bodyFd The fd of the body.
- */
-void	ResponsesHandler::addResponse
-(
-	char *firstPart,
-	std::size_t firstPartLength,
-	int bodyFd
-)
+void		ResponsesHandler::addCurrentResponseToQueue()
 {
-	_responses.push(RawResponse(firstPart, firstPartLength, bodyFd, _responseBuffer));
+	_responses.push(new RawResponse(_currentResponse, _responseBuffer));
+	std::cout << "Add response to queue : \n" << _currentResponse << std::endl;
+	_currentResponse.reset();
 }
 
-/**
- * @brief Add a response at the end of the _responses queue. The response doesn't
- * have a body fd.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * It can also throw (std::bad_alloc) if the push fail.
- * @param firstPart The first part of the response. It is composed by the status line,
- * the headers, the empty line and, maybe, a part of the body.
- * @param firstPartLength The length of firstPart.
- */
-void	ResponsesHandler::addResponse
-(
-	char *firstPart,
-	std::size_t firstPartLength
-)
+
+Response&	ResponsesHandler::getCurrentResponse()
 {
-	_responses.push(RawResponse(firstPart, firstPartLength));
+	return (_currentResponse);
 }

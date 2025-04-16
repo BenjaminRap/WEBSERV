@@ -1,12 +1,17 @@
-#include <sys/stat.h>
-#include <cstring>
-#include <dirent.h>
-#include <cstdio>
+#include <dirent.h>               // for closedir, dirent, opendir, readdir
+#include <stdint.h>               // for uint16_t
+#include <sys/stat.h>             // for stat, S_IWGRP, S_IWOTH
+#include <cstdio>                 // for remove, size_t
+#include <cstring>                // for strcmp, memset
+#include <exception>              // for exception
+#include <string>                 // for allocator, basic_string, string
 
-#include "DeleteRequest.hpp"
+#include "ARequestType.hpp"       // for DIRE
+#include "DeleteRequest.hpp"      // for DeleteRequest
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_CO...
 
-int				isDirOrFile(const std::string &path);
-int				removeDirectory(const std::string &path, DeleteRequest &del);
+uint16_t		isDirOrFile(const std::string &path);
+uint16_t		removeDirectory(const std::string &path, DeleteRequest &del);
 std::string		getParentPath(const std::string &path);
 
 void	checkEnd(std::string &path, DeleteRequest &del)
@@ -15,7 +20,7 @@ void	checkEnd(std::string &path, DeleteRequest &del)
 	if (lastChar != '/')
 	{
 		path += "/";
-		del.setResponse(409, "Conflict", "Conflict");
+		del.setResponse(HTTP_CONFLICT);
 	}
 	else
 		del.setUrl(path);
@@ -35,16 +40,16 @@ bool	canWrite(const std::string &path)
 	return (true);
 }
 
-int	directoryCase(const std::string &path, DeleteRequest &del)
+uint16_t	directoryCase(const std::string &path, DeleteRequest &del)
 {
 	checkEnd(del.getUrl(), del);
-	if (del.getCode() == 409)
-		del.setResponse(409, "Conflict", "Conflict");
-	else if (!canWrite(path) || removeDirectory(path, del) != 0
+	if (del.getCode() == HTTP_CONFLICT)
+		return (HTTP_CONFLICT);
+	if (!canWrite(path) || removeDirectory(path, del) != HTTP_OK
 			|| !canWrite(getParentPath(path)) || std::remove(path.c_str()) != 0)
-		del.setResponse(500, "Internal Server Error", "Internal Server Error");
+		del.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
-		del.setResponse(204, "No Content", "No Content");
+		del.setResponse(HTTP_NO_CONTENT);
 	return (del.getCode());
 }
 
@@ -59,7 +64,7 @@ std::string	getParentPath(const std::string &path)
 	return (temp);
 }
 
-int	removeDirectory(const std::string &path, DeleteRequest &del)
+uint16_t	removeDirectory(const std::string &path, DeleteRequest &del)
 {
 	DIR				*dw;
 	struct dirent	*res;
@@ -67,7 +72,7 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 
 	dw = opendir(path.c_str());
 	if (!dw)
-		return (ERROR500);
+		return (HTTP_INTERNAL_SERVER_ERROR);
 	while ((res = readdir(dw)))
 	{
 		try
@@ -82,28 +87,28 @@ int	removeDirectory(const std::string &path, DeleteRequest &del)
 				else
 				{
 					closedir(dw);
-					return (ERROR500);
+					return (HTTP_INTERNAL_SERVER_ERROR);
 				}
 			}
 		}
 		catch (std::exception & e)
 		{
 			closedir(dw);
-			return (ERROR500);
+			return (HTTP_INTERNAL_SERVER_ERROR);
 		}
 	}
 	closedir(dw);
-	return (0);
+	return (HTTP_OK);
 }
 
-int	fileCase(const std::string &path, DeleteRequest &del)
+uint16_t	fileCase(const std::string &path, DeleteRequest &del)
 {
 	if (!canWrite(getParentPath(path)))
-		del.setResponse(403, "Forbidden", "Forbidden");
+		del.setResponse(HTTP_FORBIDDEN);
 	else if (std::remove(path.c_str()) != 0)
-		del.setResponse(500, "Internal Server Error", "Internal Server Error");
+		del.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
-		del.setResponse(204, "No Content", "No Content");
+		del.setResponse(HTTP_NO_CONTENT);
 	return (del.getCode());
 }
 
