@@ -60,6 +60,8 @@ class ARequestType
 		SharedResource<int>						getOutFd(void) const;
 		size_t									getOutSize(void) const;
 		const ServerConfiguration&				getConfig(void) const;
+
+		int							execCGI(const char *path, char **argv, char **env, int fd[2]);
 };
 
 #endif //!A_REQUEST_HPP

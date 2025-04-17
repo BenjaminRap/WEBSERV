@@ -21,7 +21,7 @@ void	RequestHandler::writeBodyFromBuffer(Response &response)
 	if (_request.getIsBlocking())
 		return ;
 	const FlowState flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::callInstanceWriteToFd);
-	
+
 	if (flowState == FLOW_ERROR)
 	{
 		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
