@@ -62,7 +62,6 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 		return ;
 	}
 	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
-
 	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
