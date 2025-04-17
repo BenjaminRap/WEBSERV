@@ -60,7 +60,7 @@ int	getCGIStatus(pid_t pid)
 	else if (checkError(kill(pid, SIGKILL), -1, "kill() :"))
 	{
 		std::cerr << "kill() failed, be aware of zombies" << std::endl;
-		return (-2);
+		return (-1);
 	}
 	else
 		return (-1);

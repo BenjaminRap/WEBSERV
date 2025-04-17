@@ -56,7 +56,8 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 			}
 			this->_inFd = SharedResource(fd[1], close);
 			this->_outFd = SharedResource(fd[0], close);
-			if (execCGI(path, argv, env, fd))
+			pid_t	pid = execCGI(path, argv, env, fd);
+			if (pid == -1)
 			{
 				this->_code = HTTP_INTERNAL_SERVER_ERROR;
 			}
