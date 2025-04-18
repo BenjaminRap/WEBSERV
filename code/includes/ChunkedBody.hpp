@@ -10,6 +10,7 @@
  * ChunkedBody. As this class could parse the messsage in
  * mutliple calls, it has to remember where it was the previous
  * time. 
+ * @note This ABody SHOULD NOT be used with blocking fd !!
  *
  */
 enum ChunkedBodyState
