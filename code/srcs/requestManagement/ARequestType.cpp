@@ -31,7 +31,8 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_autoIndexPage(),
 	_inFd(),
 	_outFd(),
-	_outSize(0)
+	_outSize(0),
+	_isCGI(false)
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -41,7 +42,26 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 		return;
 	if (this->_url[0] != '.')
 		this->_url.insert(0, ".");
+
+	if (_route != NULL)
+	{
+		std::string ext = config.getRouteFromPath(_url)->getCgiFileExtension();
+		if (ext.empty())
+			std::cout
+					<< "-------------------------------------------------------------------------------------------------- NOOOOOOOO CGI FILE EXTENSION"
+					<< std::endl;
+		else
+		{
+			this->_isCGI = true;
+			std::cout
+					<< "-------------------------------------------------------------------------------------------------- CGI FILE EXTENSION : "
+					<< ext << std::endl;
+		}
+	}
+	else
+		std::cout << "-------------------------------------------------------------------------------------------------- NO ROUTE" << std::endl;
 }
+
 
 ARequestType::~ARequestType()
 {

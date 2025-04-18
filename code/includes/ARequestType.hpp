@@ -38,6 +38,7 @@ class ARequestType
 		SharedResource<int>			_outFd;
 		size_t						_outSize;
 		std::string					_backupUrl;
+		bool						_isCGI;
 
 	public :
 		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain);
