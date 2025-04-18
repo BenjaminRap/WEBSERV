@@ -1,8 +1,6 @@
 #include <stddef.h>            // for size_t, NULL
-#include <map>                 // for map, _Rb_tree_const_iterator, operator!=
 #include <stdexcept>           // for logic_error
 #include <string>              // for basic_string, string
-#include <utility>             // for pair
 
 #include "ABody.hpp"           // for ABody
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
@@ -33,7 +31,7 @@ RawResponse::~RawResponse()
 
 size_t	getFirstPartLength
 (
-	const std::map<std::string, std::string>& headers,
+	const Headers& headers,
 	const Status& status,
 	size_t autoIndexPageSize
 )
@@ -46,11 +44,7 @@ size_t	getFirstPartLength
 	length += 1; // + 1 for the space
 	length += status.getText().size();
 	length += LINE_END_LENGTH;
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
-		length += it->first.size() + it->second.size();
-		length += 2; // for the ": "
-		length += LINE_END_LENGTH;
-	}
+	length += headers.getTotalSize();
 	length += LINE_END_LENGTH; // for the empty line
 	length += status.getErrorPage().size();
 	if (status.isOfType(STATUS_SUCESSFULL))
@@ -65,9 +59,8 @@ std::string	getFirstPart(const Response &response)
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	const std::map<std::string, std::string>	headers = response.getHeaders();
 	const std::string&							autoIndexPage = response.getAutoIndexPage();
-	const size_t								length = getFirstPartLength(headers, *status, autoIndexPage.size());
+	const size_t								length = getFirstPartLength(response.getHeaders(), *status, autoIndexPage.size());
 
 	std::string									firstPart;
 
@@ -79,13 +72,7 @@ std::string	getFirstPart(const Response &response)
 		.append(status->getText())
 		.append(LINE_END);
 
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
-	{
-		firstPart.append(it->first)
-			.append(": ")
-			.append(it->second)
-			.append(LINE_END);
-	}
+	firstPart += response.getHeaders();
 	firstPart.append(LINE_END);
 	firstPart.append(status->getErrorPage());
 	if (status->isOfType(STATUS_SUCESSFULL))

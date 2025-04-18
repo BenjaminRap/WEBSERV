@@ -8,9 +8,6 @@
 # include "FlowBuffer.hpp"		// for FlowBuffer
 # include "SharedResource.hpp"	// for SharedResource
 
-# define LINE_END "\r\n"
-# define LINE_END_LENGTH 2;
-
 class Response;
 
 /**
