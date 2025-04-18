@@ -38,17 +38,13 @@ size_t	getFirstPartLength
 {
 	size_t										length = 0;
 
-	length += PROTOCOL_LENGTH;
-	length += 1; // + 1 for the space
-	length += 3; // 3 for the code length
-	length += 1; // + 1 for the space
-	length += status.getText().size();
-	length += LINE_END_LENGTH;
+	length += status.getRepresentationSize();
 	length += headers.getTotalSize();
 	length += LINE_END_LENGTH; // for the empty line
-	length += status.getErrorPage().size();
 	if (status.isOfType(STATUS_SUCESSFULL))
 		length += autoIndexPageSize;
+	else if (status.isOfType(STATUS_ERROR))
+		length += status.getErrorPage().size();
 	length += 1; // for the /0
 	return (length);
 }
@@ -65,18 +61,13 @@ std::string	getFirstPart(const Response &response)
 	std::string									firstPart;
 
 	firstPart.reserve(length);
-	firstPart.append(PROTOCOL)
-		.append(" ")
-		.append(status->getCodeStringRepresentation())
-		.append(" ")
-		.append(status->getText())
-		.append(LINE_END);
-
+	firstPart += status->getRepresentation();
 	firstPart += response.getHeaders();
 	firstPart.append(LINE_END);
-	firstPart.append(status->getErrorPage());
 	if (status->isOfType(STATUS_SUCESSFULL))
 		firstPart.append(autoIndexPage);
+	else if (status->isOfType(STATUS_ERROR))
+		firstPart.append(status->getErrorPage());
 	return (firstPart);
 }
 
