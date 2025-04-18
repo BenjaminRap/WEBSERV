@@ -18,20 +18,6 @@
 
 std::string	sizeTToString(size_t value);
 
-void	printEnv(char **env)
-{
-	std::cout << std::endl;
-	std::cout << CYAN << "--------------		setEnv		--------------" << RESET << std::endl << std::endl;
-	int i = 0;
-	while (env[i])
-	{
-		std::cout << GREEN << env[i] << RESET << std::endl;
-		i++;
-	}
-	std::cout << CYAN << "------------------------------------------------------" << RESET << std::endl << std::endl;
-
-}
-
 char *duplicateString(const std::string &str)
 {
 	char *dup = new char[str.length() + 1];
@@ -161,6 +147,5 @@ char	**setEnv(Request *request, size_t lenght)
 	addToEnv(&env, "SCRIPT_NAME=" + findScriptName(target, &pos), NULL);
 	addToEnv(&env, "PATH_INFO=" + findPathInfo(target, &pos), NULL);
 	addToEnv(&env, "QUERY_STRING=" + findQueryString(target, &pos), NULL);
-	printEnv(env);
 	return (env);
 }
