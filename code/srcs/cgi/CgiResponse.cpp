@@ -52,8 +52,7 @@ void	setFirstPart
 
 void	CgiResponse::generateFirstPart(void)
 {
-	if (_areHeadersDone != true)
-		throw std::logic_error("generateFirstPart called when headers aren't done!");
+	_areHeadersDone = true;
 	const uint16_t	code = checkHeaders();
 	try
 	{
@@ -76,7 +75,6 @@ ssize_t		CgiResponse::readHeader(const char* begin, const char* end)
 		return (0);
 	if (lineBreak == begin)
 	{
-		_areHeadersDone = true;
 		generateFirstPart();
 		return (_lineEnd.size());
 	}
