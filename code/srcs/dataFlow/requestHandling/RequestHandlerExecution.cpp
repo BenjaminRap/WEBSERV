@@ -54,17 +54,6 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 		return ;
 
 	const ServerConfiguration	serverConfiguration = getServerConfiguration();
-
-	char	**setEnv(Request *request, size_t lenght);
-	char **env = setEnv(&_request, 6551);
-	int i = 0;
-	while (env[i])
-	{
-		delete[] env[i];
-		i++;
-	}
-	delete[] env;
-
 	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
