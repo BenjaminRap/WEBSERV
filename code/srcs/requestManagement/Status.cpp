@@ -42,12 +42,6 @@ bool	Status::operator<(const Status& other)
 	return (_code < other._code);
 }
 
-
-bool	operator==(const Status& status, int code)
-{
-	return (status.getCode() == code);
-}
-
 /********************************Private Methods**********************************************/
 
 void	Status::buildErrorPage(void)
