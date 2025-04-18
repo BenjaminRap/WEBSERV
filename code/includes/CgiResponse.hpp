@@ -10,6 +10,7 @@ private:
 	static const std::string	_lineEnd;
 
 	std::string	_firstPart;
+	size_t		_charsWritten;
 	Headers		_headers;
 	bool		_areHeadersDone;
 
@@ -22,6 +23,8 @@ private:
 	ssize_t		writeCgiResponseToFd(const char* begin, const char* end);
 	uint16_t	checkHeaders(void);
 	void		generateFirstPart(void);
+	ssize_t		writeFirstPart(void);
+	ssize_t		writeBody(const char* begin, const char* end);
 public:
 	CgiResponse(int fd);
 	~CgiResponse();

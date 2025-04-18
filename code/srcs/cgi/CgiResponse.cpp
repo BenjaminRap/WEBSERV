@@ -10,6 +10,7 @@ const std::string	CgiResponse::_lineEnd("\r\n");
 CgiResponse::CgiResponse(int fd) :
 	ABody(fd),
 	_firstPart(),
+	_charsWritten(0),
 	_headers(),
 	_areHeadersDone(false)
 {
@@ -86,21 +87,51 @@ ssize_t		CgiResponse::readHeader(const char* begin, const char* end)
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
 
+
+ssize_t	CgiResponse::writeFirstPart(void)
+{
+	const size_t	numCharsToWrite = _firstPart.length() - _charsWritten;
+	const ssize_t	written = writeOrIgnore(_firstPart.c_str() + _charsWritten, numCharsToWrite);
+
+	if (written == -1)
+		return (-1);
+	_charsWritten += written;
+	return (0);
+}
+
+ssize_t	CgiResponse::writeBody(const char* begin, const char* end)
+{
+	const	size_t	numCharsToWrite = std::distance(begin, end);
+
+	return (writeOrIgnore(begin, numCharsToWrite));
+}
+
 ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 {
 	ssize_t	totalConsumed = 0;
 
-	while (getFinished() == false)
+	while (_areHeadersDone == false)
 	{
-		if (_areHeadersDone == false)
-		{
-			ssize_t	consumed = readHeader(begin + totalConsumed, end);
-			if (consumed == 0)
-				return (totalConsumed);
-			if (consumed == -1)
-				return (-1);
-			totalConsumed += consumed;
-		}			
+		ssize_t	consumed = readHeader(begin + totalConsumed, end);
+
+		if (consumed == 0)
+			return (totalConsumed);
+		if (consumed == -1)
+			return (-1);
+		totalConsumed += consumed;
+	}
+	if (_charsWritten < _firstPart.length())
+	{
+		if (writeFirstPart() == -1)
+			return (-1);
+	}
+	else
+	{
+		const ssize_t	consumed = writeBody(begin + totalConsumed, end);
+
+		if (consumed == -1)
+			return (-1);
+		totalConsumed += consumed;
 	}
 	return (totalConsumed);
 }
