@@ -86,11 +86,62 @@ std::string getStringFromMethod(EMethods method)
 	}
 }
 
+std::string findScriptName(const std::string &target, size_t *pos)
+{
+	size_t end = target.find(".cgi");
+	if (end == std::string::npos)
+		return ("");
+	std::string result = target.substr(0, end + 4);
+	*pos = end + 4;
+	return (result);
+}
+
+std::string findPathInfo(const std::string &target, size_t *pos)
+{
+	if (target[*pos] != '/')
+		return ("");
+	size_t end = target.find("?", *pos + 1);
+	std::string result;
+	if (end == std::string::npos)
+	{
+		result = target.substr(*pos);
+		return (result);
+	}
+	else
+	{
+		result = target.substr(*pos, end - *pos);
+		*pos = end;
+		return (result);
+	}
+}
+
+std::string findQueryString(const std::string &target, size_t *pos)
+{
+	if (target[*pos] != '?')
+		return ("");
+
+	std::string result;
+	size_t end = target.find("#", *pos + 1);
+	if (end == std::string::npos)
+	{
+		result = target.substr(*pos);
+		return (result);
+	}
+	else
+	{
+		result = target.substr(*pos, end - *pos);
+		*pos = end;
+		return (result);
+	}
+}
+
 char	**setEnv(Request *request, size_t lenght)
 {
 	char	**env;
-	std::string temp;
+	std::string target;
+	size_t pos = 0;
 
+	target = request->getRequestTarget();
 	env = new char *[20];
 	if (env == NULL)
 		return (NULL);
@@ -107,6 +158,9 @@ char	**setEnv(Request *request, size_t lenght)
 	addToEnv(&env, "CONTENT_TYPE=", checkHeader("content-type", request));
 	addToEnv(&env, "CONTENT_LENGTH=" + sizeTToString(lenght), NULL);
 	addToEnv(&env, "REFERER=", checkHeader("Referer", request));
+	addToEnv(&env, "SCRIPT_NAME=" + findScriptName(target, &pos), NULL);
+	addToEnv(&env, "PATH_INFO=" + findPathInfo(target, &pos), NULL);
+	addToEnv(&env, "QUERY_STRING=" + findQueryString(target, &pos), NULL);
 	printEnv(env);
 	return (env);
 }
