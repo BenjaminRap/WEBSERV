@@ -8,7 +8,6 @@
 #include "Response.hpp"        // for Response
 #include "SharedResource.hpp"  // for SharedResource
 #include "Status.hpp"          // for Status, StatusType
-#include "protocol.hpp"        // for PROTOCOL, PROTOCOL_LENGTH
 
 /*************************Constructors / Destructors***************************/
 
@@ -29,7 +28,7 @@ RawResponse::~RawResponse()
 
 /*******************************Member functions*******************************/
 
-size_t	getFirstPartLength
+static size_t	getFirstPartLength
 (
 	const Headers& headers,
 	const Status& status,
@@ -49,25 +48,35 @@ size_t	getFirstPartLength
 	return (length);
 }
 
+void	setFirstPart
+(
+	std::string& result,
+	const Status& status,
+	const std::string& autoIndexPage,
+	const Headers& headers
+)
+{
+	const size_t								length = getFirstPartLength(headers, status, autoIndexPage.size());
+
+	result.reserve(length);
+	result += status.getRepresentation();
+	result += headers;
+	result.append(LINE_END);
+	if (status.isOfType(STATUS_SUCESSFULL))
+		result.append(autoIndexPage);
+	else if (status.isOfType(STATUS_ERROR))
+		result.append(status.getErrorPage());
+}
+
 std::string	getFirstPart(const Response &response)
 {
-	const Status * const						status = response.getStatus();
+	const Status * const		status = response.getStatus();
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	const std::string&							autoIndexPage = response.getAutoIndexPage();
-	const size_t								length = getFirstPartLength(response.getHeaders(), *status, autoIndexPage.size());
-
-	std::string									firstPart;
-
-	firstPart.reserve(length);
-	firstPart += status->getRepresentation();
-	firstPart += response.getHeaders();
-	firstPart.append(LINE_END);
-	if (status->isOfType(STATUS_SUCESSFULL))
-		firstPart.append(autoIndexPage);
-	else if (status->isOfType(STATUS_ERROR))
-		firstPart.append(status->getErrorPage());
+	std::string	firstPart;
+	
+	setFirstPart(firstPart, *status, response.getAutoIndexPage(), response.getHeaders());
 	return (firstPart);
 }
 
