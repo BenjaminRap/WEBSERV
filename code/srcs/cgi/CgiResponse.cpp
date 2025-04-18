@@ -30,6 +30,8 @@ uint16_t	CgiResponse::checkHeaders(void)
 	{
 		char	*end;
 		const long	code = std::strtol(status->c_str(), &end, 10);
+
+		_headers.erase("status");
 		if (end != status->c_str() + 2 || code < 100 || code >= 600)
 			return (HTTP_INTERNAL_SERVER_ERROR);
 		return (code);
