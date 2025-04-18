@@ -11,6 +11,8 @@
 # define LS_FILE 2
 
 class	AFdData;
+class	FileFd;
+class	CgiIn;
 class	EPollHandler;
 
 /**
@@ -36,7 +38,8 @@ class ARequestType
 		int							_code;
 		std::string					_redirection;
 		std::string					_autoIndexPage;
-		SharedResource<AFdData*>	_inFd;
+		SharedResource<FileFd*>		_inFd;
+		SharedResource<CgiIn*>		_cgi;
 		SharedResource<AFdData*>	_outFd;
 		size_t						_outSize;
 

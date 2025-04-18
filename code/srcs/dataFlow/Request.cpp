@@ -11,6 +11,7 @@
 #include "SizedBody.hpp"          // for SizedBody
 #include "protocol.hpp"           // for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
+#include "FileFd.hpp"			  // for FileFd
 
 class ABody;
 
@@ -48,11 +49,13 @@ bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
 int	Request::setBodyFromHeaders
 (
-	SharedResource<AFdData*> fdData,
+	SharedResource<FileFd*> fdData,
+	SharedResource<CgiIn*> cgiIn,
 	const ServerConfiguration& serverConfiguration
 )
 {
 	_fdData = fdData;
+	_cgi = cgiIn;
 	const std::string * const	contentLengthString = _headers.getHeader("content-length");
 	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
 	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
