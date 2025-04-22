@@ -84,9 +84,3 @@ bool	FlowBuffer::isBufferFull() const
 {
 	return (_contentLength >= _bufferCapacity);
 }
-
-
-bool	FlowBuffer::isBufferEmpty() const
-{
-	return (_numCharsWritten == _contentLength);
-}
