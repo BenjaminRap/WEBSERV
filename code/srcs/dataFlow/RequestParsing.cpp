@@ -81,29 +81,3 @@ int		Request::parseStatusLine(const char *line, const char *end)
 	}
 	return (HTTP_OK);
 }
-
-static char toLowerCase(char& c)
-{
-    return (std::tolower(c));
-}
-
-int		Request::parseHeader(const char *line, const char *end)
-{
-	if (std::distance(line, end) < 5)
-		return (HTTP_BAD_REQUEST);
-	const char * const keyEnd = std::find(line, end, ':');
-
-	if (keyEnd == end || *(keyEnd + 1) != ' ')
-		return (HTTP_BAD_REQUEST);
-
-	const char * const valueEnd = end - 1;
-	if (*valueEnd != '\r')
-		return (HTTP_BAD_REQUEST);
-	std::string key(line, keyEnd);
-	std::transform(key.begin(), key.end(), key.begin(), toLowerCase);
-
-	const char * valuePosition = keyEnd + 2;
-	const std::string value(valuePosition, valueEnd);
-	this->_headers[key] = value;
-	return (HTTP_OK);
-}

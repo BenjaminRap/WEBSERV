@@ -1,11 +1,9 @@
 #ifndef A_FD_DATA_HPP
 # define A_FD_DATA_HPP
 
-# include "ServerConfiguration.hpp"
-# include <stdint.h>
-# include <list>
+# include <stdint.h>	// for uint32_t
 
-class SocketsHandler;
+class EPollHandler;
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
@@ -19,23 +17,22 @@ protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
-	const int								_fd;
+	const int		_fd;
 	/**
-	 * @brief The iterator of this instance in the SocketsHandler list. It is used
-	 * to remove this instance from the list in O(1).
+	 * @brief The class managing all fds in epoll, including this one,
+	 * if it is blocking.
+	 * If the fd is non blocking, this variable is set to NULL.
 	 */
-	std::list<AFdData *>::iterator			_iterator;
+	EPollHandler*	_ePollHandler;
 	/**
-	 * @brief True if the setIterator has been called with a valid argument.
+	 * @brief A boolean indicating if this fd can still receive/send
+	 * data. For example, if the other end of the fd has been closed,
+	 * this variable is set to false.
 	 */
-	bool									_isIteratorSet;
-	/**
-	 * @brief The class managing all the sockets, including this one.
-	 */
-	SocketsHandler							&_socketsHandler;
-	const std::vector<ServerConfiguration>	&_serverConfigurations;
+	bool			_isActive;
 
-	AFdData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations);
+	AFdData(int fd, EPollHandler& ePollHandler);
+	AFdData(int fd);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);
@@ -51,25 +48,11 @@ public:
 	 *
 	 * @param events 
 	 */
-	virtual void							callback(uint32_t events) = 0;
+	virtual void	callback(uint32_t events) = 0;
 
-	int										getFd() const;
-	/**
-	 * @brief Return the iterator pointing to this object in the SocketHandler _socketsData
-	 * list.
-	 * @throw If the iterator hasn't been set with the setIterator function, throw
-	 * a std::logic_error.
-	 * @return A const reference on the iterator pointing to this object.
-	 */
-	const std::list<AFdData *>::iterator&	getIterator() const;
-	/**
-	 * @brief Set the _iterator of this FdData to a copy of the iterator passed
-	 * as argument.
-	 * If the iterator has already been set, print an error.
-	 * If the FdData pointed by the iterator isn't this class, print an error.
-	 * @param iterator The iterator that points to this FdData.
-	 */
-	void									setIterator(const std::list<AFdData *>::iterator &iterator);
+	int				getFd(void) const;
+	bool			getIsBlocking(void) const;
+	bool			getIsActive(void) const;
 };
 
 #endif // !A_FD_DATA_HPP

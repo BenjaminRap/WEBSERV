@@ -3,10 +3,11 @@
 
 # include <stdint.h>  				// for uint16_t
 # include <iostream>  				// for ostream
-# include <map>       				// for map
 # include <string>    				// for string, basic_string
 
 # include "ABody.hpp"				// for ABody
+# include "AFdData.hpp"				// for AFdData
+# include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 # include "SharedResource.hpp"		// for SharedResource
 
@@ -24,7 +25,6 @@ class	ARequestType;
 class Response
 {
 private:
-	typedef std::map<std::string, std::string>	Headers;
 	/**
 	 * @brief The status of the response. If setResponse hasn't been
 	 * called yet, it is set at NULL.
@@ -37,13 +37,7 @@ private:
 	 * whose content will be written into the buffer.
 	 * The body will then write the buffer into the client socket.
 	 */
-	SharedResource<int>			_bodySrcFd;
-	/**
-	 * @brief True if the _srcBodyFd is a blocking fd (a socket or a pipe).
-	 * This flag should be set to true even if the O_NONBLOCK flag has been
-	 * applied to the fd.
-	 */
-	bool						_isBlocking;
+	SharedResource<AFdData*>	_fdData;
 	/**
 	 * @brief The body of the response, it could be a sized body, a
 	 * chunked body ...
@@ -111,19 +105,19 @@ public:
 	Response(const ServerConfiguration &defaultConfig);
 	~Response(void);
 
-	void					setResponse(int code);
-	void					setResponse(ARequestType& ARequestType, int socketFd);
+	void							setResponse(int code);
+	void							setResponse(ARequestType& ARequestType, int socketFd);
 	/**
 	 * @brief Reset this instance as it was after construction.
 	 */
-	void					reset();
+	void							reset();
 
-	const Status*			getStatus(void) const;
-	const Headers&			getHeaderMap(void) const;
-	bool					getIsBlocking(void) const;
-	SharedResource<int>		getSrcBodyFd(void) const;
-	SharedResource<ABody*>	getBody(void) const;
-	const std::string&		getAutoIndexPage(void) const;
+	const Status*					getStatus(void) const;
+	const Headers&					getHeaders(void) const;
+	Headers&						getHeaders(void);
+	SharedResource<AFdData*>		getFdData(void) const;
+	SharedResource<ABody*>			getBody(void) const;
+	const std::string&				getAutoIndexPage(void) const;
 };
 
 std::ostream & operator<<(std::ostream & o, Response const & rhs);

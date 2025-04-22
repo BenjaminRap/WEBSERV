@@ -1,10 +1,8 @@
 #include <cstring>                // for memcmp, size_t, NULL
-#include <exception>              // for exception
 #include <iostream>               // for basic_ostream, operator<<, endl, cout
-#include <map>                    // for map, operator!=, _Rb_tree_const_ite...
 #include <string>                 // for basic_string, char_traits, string
-#include <utility>                // for pair, make_pair
 
+#include "CgiIn.hpp"			  // for CgiIn
 #include "ChunkedBody.hpp"		  // for ChunkedBody
 #include "EMethods.hpp"           // for EMethods, getStringRepresentation
 #include "Request.hpp"            // for Request, operator<<
@@ -24,8 +22,7 @@ long	stringToLongBase(const std::string& str, int (&isInBase)(int character), in
 Request::Request(void) :
 	_statusLine(),
 	_headers(),
-	_bodyDestFd(),
-	_isBlocking(false),
+	_fdData(),
 	_body()
 {
 	_statusLine.method = (EMethods)-1;
@@ -43,8 +40,7 @@ void	Request::reset()
 	this->_statusLine.method = (EMethods)-1;
 	this->_statusLine.requestTarget.clear();
 	this->_headers.clear();
-	_bodyDestFd.stopManagingResource();
-	_isBlocking = false;
+	_fdData.stopManagingResource();
 	_body.stopManagingResource();
 }
 
@@ -52,15 +48,15 @@ bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
 int	Request::setBodyFromHeaders
 (
-	SharedResource<int> destFd,
+	SharedResource<AFdData*> fdData,
 	const ServerConfiguration& serverConfiguration
 )
 {
-	_bodyDestFd = destFd;
-	const std::string * const	contentLengthString = getHeader("content-length");
-	const std::string * const	transferEncoding = getHeader("transfer-encoding");
+	_fdData = fdData;
+	const std::string * const	contentLengthString = _headers.getHeader("content-length");
+	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
 	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
-	const int 					fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
+	const int 					fd = fdData.isManagingValue() ? fdData.getValue()->getFd() : -1;
 
 	ABody*						body = NULL;
 
@@ -103,43 +99,38 @@ const std::string	&Request::getRequestTarget(void) const
 	return (this->_statusLine.requestTarget);
 }
 
-const std::string	*Request::getHeader(const std::string &key) const
+Headers&	Request::getHeaders()
 {
-	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-
-	if (it != this->_headers.end())
-		return (&it->second);
-	return (NULL);
+	return (_headers);
 }
 
-const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
+const Headers&	Request::getHeaders() const
 {
-	return (this->_headers);
+	return (_headers);
 }
 
 
-bool	Request::getIsBlocking(void) const
+bool	Request::isBodyBlocking() const
 {
-	return (_isBlocking);
+	if (_fdData.isManagingValue() == false)
+		return (false);
+
+	const AFdData * const	fdData = _fdData.getValue();
+	return (fdData->getIsBlocking());
 }
 
 /******************************Operator Overload*****************************************/
 
-std::ostream & operator<<(std::ostream & o, Request const & rhs)
+std::ostream & operator<<(std::ostream & o, Request const & request)
 {
-	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
-
 	o << "Method:";
-	if (rhs.getMethod() == (EMethods)-1)
+	if (request.getMethod() == (EMethods)-1)
 		o << "unkown\n";
 	else
-		o << getStringRepresentation(rhs.getMethod()) << '\n';
-	o << "Target :" << rhs.getRequestTarget() << '\n';
+		o << getStringRepresentation(request.getMethod()) << '\n';
+	o << "Target :" << request.getRequestTarget() << '\n';
 	o << "Protocol :" << PROTOCOL << "\n\n";
 
-	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
-	{
-		o << it->first << ": " << it->second << '\n';
-	}
+	o << request.getHeaders() << "\n";
 	return (o);
 }

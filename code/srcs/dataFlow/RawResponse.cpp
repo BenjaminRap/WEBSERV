@@ -19,8 +19,7 @@ std::string	getFirstPart(const Response& response);
 RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(getFirstPart(response)),
 	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
-	_isBlocking(response.getIsBlocking()),
-	_srcBodyFd(response.getSrcBodyFd()), _body(response.getBody()),
+	_fdData(response.getFdData()), _body(response.getBody()),
 	_bodyBuffer(bodyBuffer)
 {
 	
@@ -49,6 +48,7 @@ size_t	getFirstPartLength
 	length += LINE_END_LENGTH;
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
 		length += it->first.size() + it->second.size();
+		length += 2; // for the ": "
 		length += LINE_END_LENGTH;
 	}
 	length += LINE_END_LENGTH; // for the empty line
@@ -65,7 +65,7 @@ std::string	getFirstPart(const Response &response)
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	const std::map<std::string, std::string>	headers = response.getHeaderMap();
+	const std::map<std::string, std::string>	headers = response.getHeaders();
 	const std::string&							autoIndexPage = response.getAutoIndexPage();
 	const size_t								length = getFirstPartLength(headers, *status, autoIndexPage.size());
 
@@ -82,7 +82,7 @@ std::string	getFirstPart(const Response &response)
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
 	{
 		firstPart.append(it->first)
-			.append(":")
+			.append(": ")
 			.append(it->second)
 			.append(LINE_END);
 	}
@@ -95,7 +95,8 @@ std::string	getFirstPart(const Response &response)
 
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
-	const bool	hasBody = _body.isManagingValue() && _body.getValue() != NULL && _srcBodyFd.isManagingValue() && _srcBodyFd.getValue() != -1;
+	const bool	hasBody = _body.isManagingValue() && _fdData.isManagingValue();
+
 	if (_firstPartBuffer.getContentLength() != 0)
 	{
 		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
@@ -106,7 +107,23 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (hasBody == false)
 		return (FLOW_DONE);
-	if (_isBlocking == false)
-		return (_bodyBuffer.redirectContent<int, ABody&>(_srcBodyFd.getValue(), *_body.getValue(), ABody::callInstanceWriteToFd));
-	return (_bodyBuffer.redirectBufferContentToFd<ABody&>(*_body.getValue(), ABody::callInstanceWriteToFd));
+	const AFdData*	fdData = _fdData.getValue();
+	ABody * const	body = _body.getValue();
+
+	if (fdData->getIsBlocking())
+	{
+		const FlowState flowState = _bodyBuffer.
+			redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
+
+		if (flowState == FLOW_DONE)
+			return (fdData->getIsActive() ? FLOW_MORE : FLOW_DONE);
+		return (flowState);
+	}
+	else
+	{
+		const FlowState	flowState = _bodyBuffer.
+			redirectContent<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd);
+
+		return (flowState);
+	}
 }
