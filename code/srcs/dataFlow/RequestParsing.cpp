@@ -7,8 +7,7 @@
 #include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"	// fpr HTTP_...
 
-long	strToLongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
-long	getLongMax();
+unsigned long	strToULongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
 
 int	Request::parseMethod(const char *begin, const char *end)
 {
@@ -41,11 +40,11 @@ int	Request::parseProtocol(const char *begin, const char *end)
 	const char*	delimiter = std::find(index, end, '.');
 	if (delimiter == end)
 		return (HTTP_BAD_REQUEST);
-	const long	major = strToLongBase(index, delimiter, std::isdigit, 10);
-	if (major == getLongMax())
+	const unsigned long	major = strToULongBase(index, delimiter, std::isdigit, 10);
+	if (major == (unsigned long)-1)
 		return (HTTP_BAD_REQUEST);
-	const long	minor = strToLongBase(delimiter + 1, end, std::isdigit, 10);
-	if (minor == getLongMax())
+	const unsigned long	minor = strToULongBase(delimiter + 1, end, std::isdigit, 10);
+	if (minor == (unsigned long)-1)
 		return (HTTP_BAD_REQUEST);
 	if (major != PROTOCOL_MAJOR || minor != PROTOCOL_MINOR)
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);

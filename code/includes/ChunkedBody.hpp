@@ -53,7 +53,7 @@ private:
 	 * @brief The size of the current chunk.
 	 * When no chunk has been read, it is set to -1.
 	 */
-	ssize_t						_chunkSize;
+	unsigned long				_chunkSize;
 	/**
 	 * @brief The state of this request
 	 * @ref ChunkedBodyState

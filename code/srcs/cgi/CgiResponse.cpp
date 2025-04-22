@@ -12,7 +12,8 @@ CgiResponse::CgiResponse(int fd) :
 	_firstPart(),
 	_charsWritten(0),
 	_headers(),
-	_areHeadersDone(false)
+	_areHeadersDone(false),
+	_size(-1)
 {
 }
 
@@ -20,16 +21,27 @@ CgiResponse::~CgiResponse()
 {
 }
 
+unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
 uint16_t	CgiResponse::checkHeaders(void)
 {
 	if (_headers.getHeader("content-type") == NULL)
 		return (HTTP_INTERNAL_SERVER_ERROR);
+	const std::string*	contentLength = _headers.getHeader("content-length");
+	if (contentLength != NULL)
+	{
+		const unsigned long	length = stringToULongBase(*contentLength, std::isdigit, 10);
+
+		if (length == (unsigned long)-1)
+			return (HTTP_INTERNAL_SERVER_ERROR);
+		_size = length;
+	}
+
 	const std::string*	status = _headers.getHeader("status");
 	if (status != NULL)
 	{
 		char	*end;
-		const long	code = std::strtol(status->c_str(), &end, 10);
+		const unsigned long	code = std::strtoul(status->c_str(), &end, 10);
 
 		_headers.erase("status");
 		if (end != status->c_str() + 2 || code < 100 || code >= 600)

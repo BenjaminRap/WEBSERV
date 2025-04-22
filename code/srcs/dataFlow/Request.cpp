@@ -14,8 +14,7 @@
 
 class ABody;
 
-long	getLongMax();
-long	stringToLongBase(const std::string& str, int (&isInBase)(int character), int base);
+unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
 /*****************************Constructors/Destructors*********************************/
 
@@ -44,8 +43,6 @@ void	Request::reset()
 	_body.stopManagingResource();
 }
 
-bool	stringToSizeT(const  std::string &str, size_t &outValue);
-
 int	Request::setBodyFromHeaders
 (
 	SharedResource<AFdData*> fdData,
@@ -64,8 +61,8 @@ int	Request::setBodyFromHeaders
 		return (HTTP_BAD_REQUEST);
 	if (contentLengthString != NULL)
 	{
-		long	contentLength = stringToLongBase(*contentLengthString, std::isdigit, 10);
-		if (contentLength == getLongMax())
+		const unsigned long	contentLength = stringToULongBase(*contentLengthString, std::isdigit, 10);
+		if (contentLength == (unsigned long)-1)
 			return (HTTP_BAD_REQUEST);
 		if ((size_t)contentLength > maxSize)
 			return (HTTP_CONTENT_TOO_LARGE);

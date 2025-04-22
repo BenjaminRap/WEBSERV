@@ -9,11 +9,12 @@ class CgiResponse : ABody
 private:
 	static const std::string	_lineEnd;
 
-	std::string	_firstPart;
-	size_t		_charsWritten;
-	Headers		_headers;
-	bool		_areHeadersDone;
-
+	std::string		_firstPart;
+	size_t			_charsWritten;
+	Headers			_headers;
+	bool			_areHeadersDone;
+	unsigned long	_size;
+	
 	CgiResponse();
 	CgiResponse(const CgiResponse& ref);
 
