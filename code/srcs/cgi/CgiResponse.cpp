@@ -30,12 +30,12 @@ uint16_t	CgiResponse::checkHeaders(void)
 	const std::string*	contentLength = _headers.getHeader("content-length");
 	if (contentLength != NULL)
 	{
-		const unsigned long	length = stringToULongBase(*contentLength, std::isdigit, 10);
-
-		if (length == (unsigned long)-1)
+		_size = stringToULongBase(*contentLength, std::isdigit, 10);
+		if (_size == (unsigned long)-1)
 			return (HTTP_INTERNAL_SERVER_ERROR);
-		_size = length;
 	}
+	else
+		_headers["transfer-encoding"] = "chunked";
 
 	const std::string*	status = _headers.getHeader("status");
 	if (status != NULL)
