@@ -62,21 +62,20 @@ void	RequestHandler::executeRequest(Response &response, int socketFd)
 		return ;
 	}
 	const ServerConfiguration	serverConfiguration = getServerConfiguration(*host);
-	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, *host);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration);
 			processRequestResult(getRequest, response, socketFd);
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, *host);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration);
 			processRequestResult(putRequest, response, socketFd);
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, *host);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration);
 			processRequestResult(deleteRequest, response, socketFd);
 			break;
 		}

@@ -53,7 +53,7 @@ const std::map<int, Status>	getStatuses(void)
     _statuses.insert(std::make_pair(410, Status(410, "Gone")));
     _statuses.insert(std::make_pair(411, Status(411, "Length Required")));
     _statuses.insert(std::make_pair(412, Status(412, "Precondition Failed")));
-    _statuses.insert(std::make_pair(413, Status(413, "Payload Too Large")));
+    _statuses.insert(std::make_pair(413, Status(413, "Request Entity Too Large")));
     _statuses.insert(std::make_pair(414, Status(414, "URI Too Long")));
     _statuses.insert(std::make_pair(415, Status(415, "Unsupported Media Type")));
     _statuses.insert(std::make_pair(416, Status(416, "Range Not Satisfiable")));

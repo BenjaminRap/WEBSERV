@@ -5,6 +5,7 @@
 #include <string>                 // for basic_string, char_traits, string
 #include <utility>                // for pair, make_pair
 
+#include "ChunkedBody.hpp"		  // for ChunkedBody
 #include "EMethods.hpp"           // for EMethods, getStringRepresentation
 #include "Request.hpp"            // for Request, operator<<
 #include "ServerConfiguration.hpp"
@@ -14,6 +15,9 @@
 #include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
 
 class ABody;
+
+long	getLongMax();
+long	stringToLongBase(const std::string& str, int (&isInBase)(int character), int base);
 
 /*****************************Constructors/Destructors*********************************/
 
@@ -46,30 +50,36 @@ void	Request::reset()
 
 bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
-int	Request::setBodyFromHeaders(SharedResource<int> destFd, const ServerConfiguration& serverConfiguration)
+int	Request::setBodyFromHeaders
+(
+	SharedResource<int> destFd,
+	const ServerConfiguration& serverConfiguration
+)
 {
 	_bodyDestFd = destFd;
 	const std::string * const	contentLengthString = getHeader("content-length");
+	const std::string * const	transferEncoding = getHeader("transfer-encoding");
+	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
+	const int 					fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
+
+	ABody*						body = NULL;
+
+	if (contentLengthString != NULL && transferEncoding != NULL)
+		return (HTTP_BAD_REQUEST);
 	if (contentLengthString != NULL)
 	{
-		size_t contentLength = 0;
-		if (stringToSizeT(*contentLengthString, contentLength) == false)
+		long	contentLength = stringToLongBase(*contentLengthString, std::isdigit, 10);
+		if (contentLength == getLongMax())
 			return (HTTP_BAD_REQUEST);
-		if (contentLength > serverConfiguration.getMaxClientBodySize())
+		if ((size_t)contentLength > maxSize)
 			return (HTTP_CONTENT_TOO_LARGE);
-		try
-		{
-			const int fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
-			_body.setManagedResource(new SizedBody(fd, contentLength), freePointer);
-		}
-		catch (const std::exception&)
-		{
-			return (HTTP_INTERNAL_SERVER_ERROR);
-		}
-		return (HTTP_OK);
+		body = new SizedBody(fd, contentLength);
 	}
+	else if (transferEncoding != NULL && *transferEncoding == "chunked")
+		body = new ChunkedBody(fd, maxSize);
 	else if (_statusLine.method == PUT || _statusLine.method == POST)
 		return (HTTP_LENGTH_REQUIRED);
+	_body.setManagedResource(body, freePointer);
 	return (HTTP_OK);
 }
 
@@ -119,13 +129,17 @@ std::ostream & operator<<(std::ostream & o, Request const & rhs)
 {
 	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
 
-	std::cout << "Method :" << getStringRepresentation(rhs.getMethod()) << std::endl;
-	std::cout << "Target :" << rhs.getRequestTarget() << std::endl;
-	std::cout << "Protocol :" << PROTOCOL << std::endl << std::endl;
+	o << "Method:";
+	if (rhs.getMethod() == (EMethods)-1)
+		o << "unkown\n";
+	else
+		o << getStringRepresentation(rhs.getMethod()) << '\n';
+	o << "Target :" << rhs.getRequestTarget() << '\n';
+	o << "Protocol :" << PROTOCOL << "\n\n";
 
 	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
 	{
-		std::cout << it->first << ": " << it->second << std::endl;
+		o << it->first << ": " << it->second << '\n';
 	}
 	return (o);
 }

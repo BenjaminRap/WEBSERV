@@ -24,6 +24,7 @@ DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							ABody.cpp				\
 							SizedBody.cpp			\
 							Request.cpp				\
+							ChunkedBody.cpp			\
 							RequestParsing.cpp		\
 							Response.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
