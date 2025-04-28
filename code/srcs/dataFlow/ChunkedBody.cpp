@@ -23,6 +23,24 @@ ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
 {
 }
 
+ChunkedBody::ChunkedBody(std::FILE* file,  size_t maxSize) :
+	ABody(file),
+	_maxSize(maxSize),
+	_totalSize(0),
+	_chunkSize(-1),
+	_state(CHUNKED_SIZE)
+{
+}
+
+ChunkedBody::ChunkedBody(size_t maxSize) :
+	ABody(),
+	_maxSize(maxSize),
+	_totalSize(0),
+	_chunkSize(-1),
+	_state(CHUNKED_SIZE)
+{
+}
+
 ChunkedBody::~ChunkedBody()
 {
 }

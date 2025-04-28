@@ -7,6 +7,23 @@
 
 ABody::ABody(int fd) :
 	_fd(fd),
+	_file(NULL),
+	_finished(false),
+	_status(HTTP_OK)
+{
+}
+
+ABody::ABody(std::FILE* file) :
+	_fd(-1),
+	_file(file),
+	_finished(false),
+	_status(HTTP_OK)
+{
+}
+
+ABody::ABody() :
+	_fd(-1),
+	_file(NULL),
 	_finished(false),
 	_status(HTTP_OK)
 {
@@ -34,9 +51,11 @@ uint16_t	ABody::getStatus() const
 
 ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 {
-	if (_fd == -1)
-		return (bufferCapacity);
-	return (write(_fd, buffer, bufferCapacity));
+	if (_fd != -1)
+		return (write(_fd, buffer, bufferCapacity));
+	else if (_file != NULL)
+		return (fwrite(buffer, 1, bufferCapacity, _file));
+	return (bufferCapacity);
 }
 
 ssize_t	ABody::writeToFd(ABody &body, const void *buffer, size_t bufferCapacity)

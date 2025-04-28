@@ -1,6 +1,7 @@
 #ifndef A_BODY_HPP
 # define A_BODY_HPP
 
+# include <cstdio>		// for FILE
 # include <stdint.h>	// for uint16_t
 # include <sys/types.h>	// for ssize_t
 
@@ -9,7 +10,7 @@
  * @brief A purely abtrasct class representing a Body.
  * A body is the content of a request or response.
  * This class can write the content of that body into
- * another fd.
+ * another fd or FILE
  * Depending on the Body type, the writing process
  * can be different (from a chunked body to a sized body).
  *
@@ -24,6 +25,12 @@ private:
 	 * check for the body end.
 	 */
 	int			_fd;
+	/**
+	 * @brief the FILE in which the body will write.
+	 * If this value is NULL, then the body will not write but will
+	 * check for the body end.
+	 */
+	std::FILE*	_file;
 	/**
 	 * @brief True if this body has been entirely written.
 	 */
@@ -59,6 +66,8 @@ protected:
 	virtual ssize_t		writeToFd(const void *buffer, size_t bufferCapacity) = 0;
 public:
 	ABody(int fd);
+	ABody(std::FILE* file);
+	ABody();
 	virtual ~ABody();
 	
 	bool		getFinished() const;
