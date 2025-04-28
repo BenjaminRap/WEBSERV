@@ -49,13 +49,11 @@ bool	stringToSizeT(const  std::string &str, size_t &outValue);
 
 int	Request::setBodyFromHeaders
 (
-	SharedResource<FileFd*> fdData,
-	SharedResource<CgiIn*> cgiIn,
+	SharedResource<AFdData*> fdData,
 	const ServerConfiguration& serverConfiguration
 )
 {
 	_fdData = fdData;
-	_cgi = cgiIn;
 	const std::string * const	contentLengthString = _headers.getHeader("content-length");
 	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
 	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();

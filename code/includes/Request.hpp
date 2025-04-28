@@ -12,7 +12,7 @@
 class	CgiIn;
 class	ABody;
 class	ServerConfiguration;
-class	FileFd;
+class	AFdData;
 
 /**
  * @brief the class that stores all the data send by the client.
@@ -30,24 +30,23 @@ private:
 		/**
 		 * @brief The method requested by the client.
 		 */
-		EMethods			method;
+		EMethods				method;
 		/**
 		 * @brief A path on the element the methods is applied to.
 		 */
-		std::string			requestTarget;
-	}						_statusLine;
-	Headers					_headers;
+		std::string				requestTarget;
+	}							_statusLine;
+	Headers						_headers;
 	/**
 	 * @brief A SharedResource on the fd in which the request body will
 	 * be written. It is the same value as the fd in the _body.
 	 */
-	SharedResource<FileFd*>	_fdData;
+	SharedResource<AFdData*>	_fdData;
 	/**
 	 * @brief A SharedResource on the body of the request, could be a sized body
 	 * a chunked body ...
 	 */
-	SharedResource<ABody*>	_body;
-	SharedResource<CgiIn*>	_cgi;
+	SharedResource<ABody*>		_body;
 
 	/**
 	 * @brief parse the method and set the _statusLine.method variable.
@@ -103,8 +102,7 @@ public:
 	 */
 	int					setBodyFromHeaders
 	(
-		SharedResource<FileFd*> fdData,
-		SharedResource<CgiIn*> cgiIn,
+		SharedResource<AFdData*> fdData,
 		const ServerConfiguration& serverConfiguration
 	);
 
