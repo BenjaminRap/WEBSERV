@@ -13,8 +13,17 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	if (_state != REQUEST_BODY)
 		return (_state);
 	ABody * const	body = _request.getBody();
-	
+
 	if (body == NULL)
+	{
+		_state = REQUEST_DONE;
+		return ;
+	}
+	if (_request.getIsBlocking())
+		return ;
+	const FlowState flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::callInstanceWriteToFd);
+
+	if (flowState == FLOW_ERROR)
 	{
 		_state = REQUEST_DONE;
 		return (_state);

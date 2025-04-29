@@ -13,16 +13,14 @@ Route::Route
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
-	const std::string &cgiFileExtension,
-	const bool	&acceptUploads
+	const std::string &cgiFileExtension
 ) :
 	acceptedMethods(acceptedMethods),
 	redirection(redirection),
 	index(index),
 	autoIndex(auto_index),
 	root(root),
-	cgiFileExtension(cgiFileExtension),
-	acceptUploads(acceptUploads)
+	cgiFileExtension(cgiFileExtension)
 {
 }
 
@@ -34,7 +32,6 @@ Route::Route(Route const &src)
 	this->autoIndex = src.autoIndex;
 	this->root = src.root;
 	this->cgiFileExtension = src.cgiFileExtension;
-	this->acceptUploads = src.acceptUploads;
 }
 
 Route::~Route(void)
@@ -72,11 +69,6 @@ const std::string				&Route::getCgiFileExtension(void) const
 	return (cgiFileExtension);
 }
 
-bool	Route::getAcceptUploads(void) const
-{
-	return (acceptUploads);
-}
-
 void							Route::setIndex(const std::vector<std::string> &v)
 {
 	this->index = v;
@@ -88,6 +80,7 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	const std::vector<EMethods> 	&acceptedMethods = rhs.getAcceptedMethods();
 	const std::string				&root = rhs.getRoot();
 	const SRedirection				&redirection = rhs.getRedirection();
+	const std::string				&cgiFileExtension = rhs.getRoot();
 
     o << "auto_index :" << rhs.getAutoIndex() << '\n';
 	if (!root.empty())
@@ -109,6 +102,7 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 		o << "redirection status code:" << redirection.responseStatusCode << '\n';
 		o << "redirection url:" << redirection.url << '\n';
 	}
-	o << "accepted uploads:" << rhs.getAcceptUploads() << '\n';
-    return (o);
+	if (!cgiFileExtension.empty())
+		o << "cgiFileExtension:" << cgiFileExtension << std::endl;
+  return (o);
 }

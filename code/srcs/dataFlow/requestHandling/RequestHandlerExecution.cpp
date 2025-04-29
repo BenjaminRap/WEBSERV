@@ -66,7 +66,8 @@ void	RequestHandler::executeRequest(Response &response, int socketFd, EPollHandl
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const ServerConfiguration	serverConfiguration = getServerConfiguration(*host);
+	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
+	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {

@@ -3,6 +3,7 @@
 #include <map>                      // for map
 #include <string>                   // for string, basic_string
 #include <vector>                   // for vector
+#include <unistd.h>					// for pipe()
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
@@ -46,6 +47,29 @@ ARequestType::ARequestType
 		return;
 	if (this->_url[0] != '.')
 		this->_url.insert(0, ".");
+	if (this->_route != NULL)
+	{
+		const std::string	CGIextention = this->_route->getCgiFileExtension();
+		if (!CGIextention.empty())
+		{
+			char		**env = getEnv();
+			int			fd[2];
+			char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
+			const char *path = this->_url.c_str();
+
+			if (pipe(fd))
+			{
+				this->_code = HTTP_INTERNAL_SERVER_ERROR;
+			}
+			this->_inFd = SharedResource(fd[1], close);
+			this->_outFd = SharedResource(fd[0], close);
+			pid_t	pid = execCGI(path, argv, env, fd);
+			if (pid == -1)
+			{
+				this->_code = HTTP_INTERNAL_SERVER_ERROR;
+			}
+		}
+	}
 }
 
 ARequestType::~ARequestType()

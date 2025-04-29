@@ -18,7 +18,6 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	std::string					root;
 	bool						auto_index = 0;
 	std::string					cgiFileExtension;
-	bool						acceptUploads = 0;
 
 	redirection.responseStatusCode = 0;
 	skipWSpace(file, i, line);
@@ -58,10 +57,10 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 			i += 6;
 			parseRouteRedirection(file, i, line, redirection);
 		}
-		else if (!file.compare(i, 7, "uploads"))
+		else if (!file.compare(i, 13, "cgi_extension"))
 		{
-			i += 7;
-			parseRouteUploads(file, i, line, acceptUploads);
+			i += 13;
+			parseRouteCgiFileExtension(file, i, line, cgiFileExtension);
 		}
 		else if (file[i] == '#')
 			skipLine(file, i, line);
@@ -79,7 +78,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		acceptedMethods.push_back(GET);
 		acceptedMethods.push_back(POST);
 	}
-	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, acceptUploads)));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension)));
 }
 
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)
@@ -161,21 +160,10 @@ void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirect
 	i++;
 }
 
-void	parseRouteUploads(std::string &file, size_t &i, size_t &line, bool &acceptUploads)
+void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention)
 {
 	skipWSpace(file, i, line);
-	if (!file.compare(i, 2, "on"))
-	{
-		acceptUploads = true;
-		i += 2;
-	}
-	else if (!file.compare(i, 3, "off"))
-	{
-		acceptUploads = false;
-		i += 3;
-	}
-	else
-		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+	cgiFileExtention = file.substr(i, file.find_first_of(WSPACE, i) - i);
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
