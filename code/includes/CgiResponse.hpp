@@ -4,6 +4,14 @@
 # include "ABody.hpp"	// for ABody
 # include "Headers.hpp"	// for Headers
 
+enum	CgiState
+{
+	READ_HEADER,
+	CGI_TO_TEMP,
+	TEMP_TO_FD,
+	CGI_TO_FD
+};
+
 class CgiResponse : ABody
 {
 private:
@@ -12,8 +20,8 @@ private:
 	std::string		_firstPart;
 	size_t			_charsWritten;
 	Headers			_headers;
-	bool			_areHeadersDone;
-	unsigned long	_size;
+	std::FILE*		_tempFile;
+	CgiState		_state;
 	
 	CgiResponse();
 	CgiResponse(const CgiResponse& ref);
@@ -23,9 +31,10 @@ private:
 	ssize_t		readHeader(const char* begin, const char* end);
 	ssize_t		writeCgiResponseToFd(const char* begin, const char* end);
 	uint16_t	checkHeaders(void);
-	void		generateFirstPart(void);
+	void		generateFirstPart(uint16_t code);
 	ssize_t		writeFirstPart(void);
-	ssize_t		writeBody(const char* begin, const char* end);
+	ssize_t		writeBodyFromCgi(const char* begin, const char* end);
+	ssize_t 	writeBodyFromTemp(void);
 public:
 	CgiResponse(int fd);
 	~CgiResponse();

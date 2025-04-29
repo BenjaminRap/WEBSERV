@@ -12,8 +12,8 @@ CgiResponse::CgiResponse(int fd) :
 	_firstPart(),
 	_charsWritten(0),
 	_headers(),
-	_areHeadersDone(false),
-	_size(-1)
+	_tempFile(NULL),
+	_state(READ_HEADER)
 {
 }
 
@@ -28,14 +28,23 @@ uint16_t	CgiResponse::checkHeaders(void)
 	if (_headers.getHeader("content-type") == NULL)
 		return (HTTP_INTERNAL_SERVER_ERROR);
 	const std::string*	contentLength = _headers.getHeader("content-length");
+	const std::string*	transferEncoding = _headers.getHeader("transfer-encoding");
 	if (contentLength != NULL)
 	{
-		_size = stringToULongBase(*contentLength, std::isdigit, 10);
-		if (_size == (unsigned long)-1)
+		const unsigned long	size = stringToULongBase(*contentLength, std::isdigit, 10);
+		if (size == (unsigned long)-1)
 			return (HTTP_INTERNAL_SERVER_ERROR);
+		_state = CGI_TO_FD;
 	}
-	else
-		_headers["transfer-encoding"] = "chunked";
+	else if (transferEncoding == NULL || *transferEncoding != "chunked")
+		_state = CGI_TO_FD;
+	else 
+	{
+		_tempFile = std::tmpfile();
+		if (_tempFile == NULL)
+			return (HTTP_INTERNAL_SERVER_ERROR);
+		_state = CGI_TO_TEMP;
+	}
 
 	const std::string*	status = _headers.getHeader("status");
 	if (status != NULL)
@@ -62,10 +71,8 @@ void	setFirstPart
 	const Headers& headers
 );
 
-void	CgiResponse::generateFirstPart(void)
+void	CgiResponse::generateFirstPart(uint16_t code)
 {
-	_areHeadersDone = true;
-	const uint16_t	code = checkHeaders();
 	try
 	{
 		const Status&	status = Status::getStatus(code);
@@ -87,7 +94,11 @@ ssize_t		CgiResponse::readHeader(const char* begin, const char* end)
 		return (0);
 	if (lineBreak == begin)
 	{
-		generateFirstPart();
+		const uint16_t	code = checkHeaders();
+
+		if (_state == CGI_TO_TEMP)
+			return (_lineEnd.size());
+		generateFirstPart(code);
 		return (_lineEnd.size());
 	}
 	const uint16_t	code = _headers.parseHeader(begin, lineBreak + 1);
@@ -111,18 +122,23 @@ ssize_t	CgiResponse::writeFirstPart(void)
 	return (0);
 }
 
-ssize_t	CgiResponse::writeBody(const char* begin, const char* end)
+ssize_t	CgiResponse::writeBodyFromCgi(const char* begin, const char* end)
 {
 	const	size_t	numCharsToWrite = std::distance(begin, end);
 
 	return (writeOrIgnore(begin, numCharsToWrite));
 }
 
+ssize_t CgiResponse::writeBodyFromTemp(void)
+{
+	return (-1);
+}
+
 ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 {
 	ssize_t	totalConsumed = 0;
 
-	while (_areHeadersDone == false)
+	while (_state == READ_HEADER)
 	{
 		ssize_t	consumed = readHeader(begin + totalConsumed, end);
 
@@ -132,6 +148,10 @@ ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 			return (-1);
 		totalConsumed += consumed;
 	}
+	while (_state == CGI_TO_TEMP)
+	{
+		
+	}
 	if (_charsWritten < _firstPart.length())
 	{
 		if (writeFirstPart() == -1)
@@ -139,7 +159,9 @@ ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 	}
 	else
 	{
-		const ssize_t	consumed = writeBody(begin + totalConsumed, end);
+		const ssize_t	consumed = (_state == CGI_TO_FD)
+			? writeBodyFromCgi(begin + totalConsumed, end)
+			: writeBodyFromTemp();
 
 		if (consumed == -1)
 			return (-1);
