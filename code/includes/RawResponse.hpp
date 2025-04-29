@@ -46,7 +46,7 @@ private:
 	 * @brief A reference on the ResponsesHandler FlowBuffer. It allows this class
 	 * to redirect the content from _bodyFd to the client socket Fd.
 	 */
-	FlowBuffer&					_bodyBuffer;
+	FlowBuffer&					_flowBuf;
 
 	RawResponse();
 	RawResponse(const RawResponse& ref);

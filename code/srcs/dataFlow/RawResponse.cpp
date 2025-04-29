@@ -17,7 +17,7 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(getFirstPart(response)),
 	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
 	_fdData(response.getFdData()), _body(response.getBody()),
-	_bodyBuffer(bodyBuffer)
+	_flowBuf(bodyBuffer)
 {
 	
 }
@@ -86,7 +86,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 
 	if (_firstPartBuffer.getContentLength() != 0)
 	{
-		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
+		const FlowState flowState = _firstPartBuffer.buffToDest(socketFd);
 
 		if (flowState == FLOW_DONE)
 			return (hasBody ? FLOW_MORE : FLOW_DONE);
@@ -99,8 +99,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 
 	if (fdData->getIsBlocking())
 	{
-		const FlowState flowState = _bodyBuffer.
-			redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
+		const FlowState flowState = _flowBuf.buffToDest<ABody&>(*body, ABody::writeToFd);
 
 		if (flowState == FLOW_DONE)
 			return (fdData->getIsActive() ? FLOW_MORE : FLOW_DONE);
@@ -109,9 +108,8 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	else
 	{
-		const FlowState	flowState = _bodyBuffer.
-			redirectContent<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd);
+		const int	fd = fdData->getFd();
 
-		return (flowState);
+		return (_flowBuf.redirect<int, ABody&>(fd, *body, ABody::writeToFd));
 	}
 }

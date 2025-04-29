@@ -33,7 +33,7 @@ void	CgiIn::callback(uint32_t events)
 	if (!(_isActive && events & EPOLLOUT))
 		return ;
 	const FlowState	flowState = _requestFlowBuffer.
-		redirectBufferContentToFd<ABody&>(_body, ABody::writeToFd);
+		buffToDest<ABody&>(_body, ABody::writeToFd);
 
 	int	code;
 

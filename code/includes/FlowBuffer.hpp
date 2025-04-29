@@ -101,7 +101,7 @@ public:
 	 * FLOW_BUFFER_FULL if the buffer is full and the customWrite return 0.
 	 */
 	template <typename ReadData, typename WriteData>
-	FlowState	redirectContent
+	FlowState	redirect
 	(
 		ReadData readData,
 		WriteData writeData,
@@ -126,7 +126,7 @@ public:
 	 * customWrite can't write, and we can't read.
 	 */
 	template <typename WriteData>
-	FlowState	redirectBufferContentToFd
+	FlowState	buffToDest
 	(
 		WriteData writeData,
 		ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity) = write
@@ -148,7 +148,7 @@ public:
 	 * FLOW_MORE otherwise.
 	 */
 	template <typename ReadData>
-	FlowState	redirectFdContentToBuffer
+	FlowState	srcToBuff
 	(
 		ReadData readData,
 		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read

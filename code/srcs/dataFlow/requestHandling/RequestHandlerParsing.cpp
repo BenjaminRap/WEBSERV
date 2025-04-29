@@ -13,7 +13,7 @@ void	RequestHandler::readStatusLine(Response &response)
 
 	if (_state != REQUEST_STATUS_LINE)
 		return ;
-	if (!_flowBuffer.getLine(&line, &lineLength))
+	if (!_flowBuf.getLine(&line, &lineLength))
 		return ;
 	const int	statusCode = _request.parseStatusLine(line, line + lineLength);
 	if (statusCode != HTTP_OK)
@@ -33,7 +33,7 @@ void	RequestHandler::readHeaders(Response &response)
 
 	if (_state != REQUEST_HEADERS)
 		return ;
-	while (_flowBuffer.getLine(&line, &lineLength))
+	while (_flowBuf.getLine(&line, &lineLength))
 	{
 		if (lineLength == 1 && *line == '\r')
 		{

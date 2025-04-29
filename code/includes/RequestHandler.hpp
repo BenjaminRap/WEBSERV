@@ -55,7 +55,7 @@ private:
 	/**
 	 * @brief The FlowBuffer managing the read of the request into the _buffer.
 	 */
-	FlowBuffer								_flowBuffer;
+	FlowBuffer								_flowBuf;
 	/**
 	 * @brief It keeps track of where the request is. (reading the status line, a header ...)
 	 */

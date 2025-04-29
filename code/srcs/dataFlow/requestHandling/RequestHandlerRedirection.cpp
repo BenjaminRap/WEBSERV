@@ -7,7 +7,6 @@
 #include "Response.hpp"           // for Response
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
 
-
 RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool canRead)
 {
 	if (_state != REQUEST_BODY)
@@ -18,7 +17,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	if (body == NULL)
 	{
 		_state = REQUEST_DONE;
-		return (_state);
+		return (REQUEST_DONE);
 	}
 	const bool	canWrite = _request.isBodyBlocking() == false;
 
@@ -26,13 +25,13 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 
 	if (canRead && !canWrite)
 	{
-		flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
+		flowState = _flowBuf.srcToBuff<int>(socketFd);
 		fdData->callback(0);
 	}
 	else if (!canRead && canWrite)
-		flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
+		flowState = _flowBuf.buffToDest<ABody&>(*body, ABody::writeToFd);
 	else if (canRead && canWrite)
-		_flowBuffer.redirectContent<int, ABody&>(socketFd, *body, ABody::writeToFd);
+		_flowBuf.redirect<int, ABody&>(socketFd, *body, ABody::writeToFd);
 	else
 		return (REQUEST_BODY);
 
@@ -50,12 +49,12 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	if (code != HTTP_OK)
 		response.setResponse(code);
 	_state = REQUEST_DONE;
-	return (_state);
+	return (REQUEST_DONE);
 }
 
 RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
-	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
+	const FlowState flowState = _flowBuf.srcToBuff<int>(socketFd);
 
 	if (flowState == FLOW_ERROR)
 	{
