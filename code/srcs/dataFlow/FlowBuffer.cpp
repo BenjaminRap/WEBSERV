@@ -17,10 +17,8 @@ FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t contentLength
 {
 	if (contentLength > bufferCapacity)
 		throw std::logic_error("FlowBuffer constructor called with a contentLength superior to the bufferCapacity");
-	if (buffer == NULL)
-		throw std::logic_error("The buffer passed as argument is NULL");
-	if (bufferCapacity == 0)
-		throw std::logic_error("The buffer capacity is 0");
+	if (_buffer == NULL && _bufferCapacity != 0)
+		throw std::logic_error("FlowBuffer constructor called with a NULL buffer and a postive bufferCapacity");
 }
 
 FlowBuffer::~FlowBuffer()
@@ -55,6 +53,20 @@ void	FlowBuffer::moveBufferContentToStart(void)
 		return ;
 	std::memmove(_buffer, _buffer + _numCharsWritten, _contentLength - _numCharsWritten);
 	_contentLength -= _numCharsWritten;
+	_numCharsWritten = 0;
+}
+
+
+void	FlowBuffer::setBuffer(char* buffer, size_t contentLength, size_t bufferCapacity)
+{
+
+	if (contentLength > bufferCapacity)
+		throw std::logic_error("FlowBuffer setBuffer called with a contentLength superior to the bufferCapacity");
+	if (_buffer == NULL && _bufferCapacity != 0)
+		throw std::logic_error("FlowBuffer constructor called with a NULL buffer and a postive bufferCapacity");
+	_buffer = buffer;
+	_contentLength = contentLength;
+	_bufferCapacity = bufferCapacity;
 	_numCharsWritten = 0;
 }
 

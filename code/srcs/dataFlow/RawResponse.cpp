@@ -11,15 +11,22 @@
 
 /*************************Constructors / Destructors***************************/
 
-std::string	getFirstPart(const Response& response);
+
+void	setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers);
 
 RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
-	_firstPart(getFirstPart(response)),
-	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
-	_fdData(response.getFdData()), _body(response.getBody()),
+	_firstPart(),
+	_firstPartBuffer(NULL, 0, 0),
+	_fdData(response.getFdData()),
+	_body(response.getBody()),
 	_flowBuf(bodyBuffer)
 {
-	
+	const Status * const		status = response.getStatus();
+
+	if (status == NULL)
+		throw std::logic_error("RawResponse constructor called with an unset response !");
+	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders());
+	_firstPartBuffer.setBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity());
 }
 
 RawResponse::~RawResponse()
@@ -66,18 +73,6 @@ void	setFirstPart
 		result.append(autoIndexPage);
 	else if (status.isOfType(STATUS_ERROR))
 		result.append(status.getErrorPage());
-}
-
-std::string	getFirstPart(const Response &response)
-{
-	const Status * const		status = response.getStatus();
-
-	if (status == NULL)
-		throw std::logic_error("RawResponse constructor called with an unset response !");
-	std::string	firstPart;
-	
-	setFirstPart(firstPart, *status, response.getAutoIndexPage(), response.getHeaders());
-	return (firstPart);
 }
 
 FlowState	RawResponse::sendResponseToSocket(int socketFd)

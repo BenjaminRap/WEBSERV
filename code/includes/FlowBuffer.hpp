@@ -154,6 +154,8 @@ public:
 		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
 	);
 
+	void		setBuffer(char* buffer, size_t contentLength, size_t bufferCapacity);
+
 	size_t		getContentLength(void) const;
 	size_t		getBufferCapacity(void) const;
 	size_t		getNumCharsWritten(void) const;
