@@ -82,9 +82,9 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	const SRedirection				&redirection = rhs.getRedirection();
 	const std::string				&cgiFileExtension = rhs.getRoot();
 
-    o << "auto_index :" << rhs.getAutoIndex() << std::endl;
+    o << "auto_index :" << rhs.getAutoIndex() << '\n';
 	if (!root.empty())
-		o << "root :" << rhs.getRoot() << std::endl;
+		o << "root :" << rhs.getRoot() << '\n';
 	o << "index : ";
 	for (size_t i = 0; i < index.size(); i++)
 	{
@@ -96,13 +96,13 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	{
 		o << getStringRepresentation(acceptedMethods[i]);
 	}
-	o << std::endl;
+	o << '\n';
 	if (!redirection.url.empty())
 	{
-		o << "redirection status code:" << redirection.responseStatusCode << std::endl;
-		o << "redirection url:" << redirection.url << std::endl;
+		o << "redirection status code:" << redirection.responseStatusCode << '\n';
+		o << "redirection url:" << redirection.url << '\n';
 	}
 	if (!cgiFileExtension.empty())
 		o << "cgiFileExtension:" << cgiFileExtension << std::endl;
-    return (o);
+  return (o);
 }

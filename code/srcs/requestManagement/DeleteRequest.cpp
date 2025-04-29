@@ -11,7 +11,13 @@ uint16_t	isDirOrFile(const std::string& path);
 uint16_t	directoryCase(const std::string &path, DeleteRequest &del);
 uint16_t	fileCase(const std::string &path, DeleteRequest &del);
 
-DeleteRequest::DeleteRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, DELETE)
+DeleteRequest::DeleteRequest
+(
+	std::string url,
+	const ServerConfiguration &config,
+	EPollHandler& ePollHandler
+) :
+	ARequestType(url, config, ePollHandler, DELETE)
 {
 	uint16_t	fileType;
 

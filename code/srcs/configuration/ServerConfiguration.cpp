@@ -79,11 +79,15 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 
 const Route	*ServerConfiguration::getRouteFromPath(const std::string &path) const
 {
+	std::map<std::string, Route>::const_iterator temp = routes.end();
+
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (path.find(it->first) == 0)
-			return (&it->second);
+		if (path.find(it->first) == 0 && (temp == routes.end() || temp->first.size() < it->first.size()))
+			temp = it;
 	}
+	if (temp != routes.end())
+		return (&temp->second);
 	return (NULL);
 }
 
@@ -109,27 +113,27 @@ std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
 	const std::map<std::string, Route>			&routes = rhs.getRoutes();
 	const std::vector<std::string>				&index = rhs.getIndex();
 
-	o << "root:" << rhs.getRoot() << std::endl;
-	o << "client_max_body_size:" << rhs.getMaxClientBodySize() << std::endl;
+	o << "root:" << rhs.getRoot() << '\n';
+	o << "client_max_body_size:" << rhs.getMaxClientBodySize() << '\n';
     for (size_t i = 0; i < serverNames.size(); i++)
 	{
-    	o << "server_name " << i << ":" << serverNames[i] << std::endl;
+    	o << "server_name " << i << ":" << serverNames[i] << '\n';
     }
 	o << "index : ";
 	for (size_t i = 0; i < index.size(); i++)
 	{
 		o << index[i] << " ";
 	}
-	o << "error pages :" << std::endl;
+	o << "error pages :i\n";
 	for (std::map<unsigned short, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it)
 	{
-		o << it->first << " : " << it->second << std::endl;
+		o << it->first << " : " << it->second << '\n';
     }
-	o << std::endl << "Routes :" << std::endl;
+	o << "\nRoutes :\n";
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		o << it->first << ":" << std::endl << it->second << std::endl;
+		o << it->first << ":\n" << it->second << '\n';
     }
-	o << std::endl << std::endl;
+	o << "\n\n";
 	return (o);
 }

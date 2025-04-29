@@ -10,6 +10,8 @@
 # define DIRE 1
 # define LS_FILE 2
 
+class	AFdData;
+class	EPollHandler;
 
 /**
  * @class ARequestType
@@ -26,19 +28,26 @@ class ARequestType
 
 	protected :
 		EMethods					_method;
-		const ServerConfiguration	&_config;
-		const Route					*_route;
+		const ServerConfiguration&	_config;
+		EPollHandler&				_ePollHandler;
+		const Route*				_route;
 		std::string					_url;
 
 		int							_code;
 		std::string					_redirection;
 		std::string					_autoIndexPage;
-		SharedResource<int>			_inFd;
-		SharedResource<int>			_outFd;
+		SharedResource<AFdData*>	_inFd;
+		SharedResource<AFdData*>	_outFd;
 		size_t						_outSize;
 
 	public :
-		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method);
+		explicit ARequestType
+		(
+			std::string &url,
+			const ServerConfiguration& config,
+			EPollHandler& ePollHandler,
+			EMethods method
+		);
 		virtual ~ARequestType() = 0;
 
 		void									setRedirectionResponse(uint16_t code, const std::string &redirection);
@@ -56,8 +65,8 @@ class ARequestType
 		const Route*							getRoute(void) const;
 		int										getCode(void) const;
 		EMethods								getMethod(void) const;
-		SharedResource<int>						getInFd(void) const;
-		SharedResource<int>						getOutFd(void) const;
+		SharedResource<AFdData*>				getInFd(void) const;
+		SharedResource<AFdData*>				getOutFd(void) const;
 		size_t									getOutSize(void) const;
 		const ServerConfiguration&				getConfig(void) const;
 

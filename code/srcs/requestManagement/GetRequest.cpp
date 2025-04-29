@@ -6,6 +6,7 @@
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
+#include "FileFd.hpp"				// for FileFd
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
 #include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
@@ -16,7 +17,13 @@ uint16_t	isDirOrFile(const std::string& path);
 void		directoryCase(GetRequest& get);
 ssize_t		getFileSize(const std::string &filePath);
 
-GetRequest::GetRequest(std::string url, const ServerConfiguration &config) : ARequestType(url, config, GET)
+GetRequest::GetRequest
+(
+	std::string url,
+	const ServerConfiguration &config,
+	EPollHandler& ePollHandler
+) :
+	ARequestType(url, config, ePollHandler, GET)
 {
 	uint16_t	targetType;
 
@@ -40,13 +47,17 @@ GetRequest::~GetRequest()
 
 void	GetRequest::openFileAndSetSize(void)
 {
-	const int fd = open(this->_url.c_str(), O_RDONLY);
-	if (checkError(fd, -1, "open() : "))
+	try
+	{
+		FileFd*	fileFd = new FileFd(_url, O_RDONLY);
+
+		this->_outFd.setManagedResource(fileFd, freePointer);
+	}
+	catch(std::exception& exception)
 	{
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		return ;
 	}
-	this->_outFd.setManagedResource(fd, closeFdAndPrintError);
 	const ssize_t fileSize = getFileSize(this->_url.c_str());
 	if (fileSize == -1)
 	{

@@ -1,6 +1,7 @@
 #ifndef A_BODY_HPP
 # define A_BODY_HPP
 
+# include <stdint.h>	// for uint16_t
 # include <sys/types.h>	// for ssize_t
 
 /**
@@ -27,6 +28,12 @@ private:
 	 * @brief True if this body has been entirely written.
 	 */
 	bool		_finished;
+	/**
+	 * @brief The error status if an error happened, or HTTP_OK
+	 * if there was no error. When the writeToFd function returns
+	 * a -1, this value should not be set to HTTP_OK.
+	 */
+	uint16_t	_status;
 
 	ABody(const ABody& ref);
 	
@@ -37,7 +44,7 @@ protected:
 	 * @brief Tag this instance has finished.
 	 * @note It isn't reversible !
 	 */
-	void	setFinished();
+	void	setFinished(uint16_t status);
 
 	/**
 	 * @brief Write the buffer content to the _fd.
@@ -54,8 +61,18 @@ public:
 	ABody(int fd);
 	virtual ~ABody();
 	
-	int			getFd() const;
 	bool		getFinished() const;
+	uint16_t	getStatus() const;
+	/**
+	 * @brief Write bufferSize bytes from the buffer to the _fd.
+	 * If the _fd is set to -1, it justs ignores them.
+	 *
+	 * @param buffer The buffer whose characters will be written.
+	 * @param bufferCapacity The number of characters to write.
+	 * @return The number of characters written, or, if _fd is set to
+	 * -1 : bufferCapacity.
+	 */
+	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
 	
 	/**
 	 * @brief Call the ABody child class writeToFd
@@ -64,7 +81,7 @@ public:
 	 * @throw It should not throw
 	 * @ref writeToFd The rest of the parameters and return value corresponds.
 	 */
-	static ssize_t	callInstanceWriteToFd(ABody &body, const void *buffer, size_t bufferCapacity);
+	static ssize_t	writeToFd(ABody &body, const void *buffer, size_t bufferCapacity);
 };
 
 #endif // !A_BODY_HPP

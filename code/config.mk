@@ -2,8 +2,10 @@ SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							AFdData.cpp				\
+							ASocketData.cpp			\
+							FileFd.cpp				\
 							signals.cpp				\
-							SocketsHandler.cpp		\
+							EPollHandler.cpp		\
 							setFdOption.cpp	\
 							unixSocket.cpp			\
 							ConnectedSocketData.cpp	\
@@ -24,8 +26,10 @@ DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							ABody.cpp				\
 							SizedBody.cpp			\
 							Request.cpp				\
+							ChunkedBody.cpp			\
 							RequestParsing.cpp		\
-							Response.cpp
+							Response.cpp			\
+							Headers.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
@@ -53,6 +57,11 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							statuses.cpp			\
 							Status.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
+
+CGI_DIR					:=	cgi/
+CGI_FILES				:=	CgiIn.cpp				\
+							CgiOut.cpp
+CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 
 UTILS_DIR				:=	utils/
 UTILS_FILES				:=	conversion.cpp			\

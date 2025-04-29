@@ -18,10 +18,6 @@ RequestHandler::RequestHandler(const std::vector<ServerConfiguration>	&serverCon
 	_request(),
 	_serverConfs(serverConfs)
 {
-	std::cout << "TODO  : renvoyer un HTTP_CONTENT_TOO_LARGE quand le body est trop grand" << std::endl;
-	std::cout << "TODO  : renvoyer un REQUEST_HEADERS_FIELD_TOO_LARGE quand les headers sont trop grand" << std::endl;
-	std::cout << "TODO  : renvoyer un URI_TOO_LONG quand la status line est trop grande" << std::endl;
-	std::cout << "TODO  : voir si il faut renvoyer un LENGTH_REQUIRED avec un post" << std::endl;
 }
 
 RequestHandler::~RequestHandler()
@@ -30,14 +26,14 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(Response &response, int socketFd)
+RequestState			RequestHandler::readRequest(Response &response, int socketFd, EPollHandler& ePollHandler)
 {
 	try
 	{
 		readStatusLine(response);
 		readHeaders(response);
-		executeRequest(response, socketFd);
-		writeBodyFromBuffer(response);
+		executeRequest(response, socketFd, ePollHandler);
+		redirectBody(socketFd, response, false);
 	}
 	catch (const std::exception& exception)
 	{
@@ -50,6 +46,7 @@ RequestState			RequestHandler::readRequest(Response &response, int socketFd)
 
 void			RequestHandler::setNewRequest()
 {
+	std::cout << "request : " << _request << std::endl;
 	_state = REQUEST_STATUS_LINE;
 	_request.reset();
 }

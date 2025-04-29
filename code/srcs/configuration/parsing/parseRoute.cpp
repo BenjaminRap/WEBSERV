@@ -77,7 +77,6 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	{
 		acceptedMethods.push_back(GET);
 		acceptedMethods.push_back(POST);
-		acceptedMethods.push_back(DELETE);
 	}
 	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension)));
 }
@@ -126,6 +125,11 @@ void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::v
 		{
 			i += 3;
 			acceptedMethods.push_back(GET);
+		}
+		else if (!file.compare(i, 3, "PUT"))
+		{
+			i += 3;
+			acceptedMethods.push_back(PUT);
 		}
 		else if (!file.compare(i, 4, "POST"))
 		{

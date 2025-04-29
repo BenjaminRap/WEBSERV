@@ -8,10 +8,10 @@
 #include <iostream>                 // for basic_ostream, operator<<, basic_...
 #include <vector>                   // for vector
 
-#include "AFdData.hpp"              // for AFdData
+#include "ASocketData.hpp"          // for ASocketData
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "ServerSocketData.hpp"     // for ServerSocketData
-#include "SocketsHandler.hpp"       // for SocketsHandler
+#include "EPollHandler.hpp"         // for EPollHandler
 #include "socketCommunication.hpp"  // for checkError
 
 class ServerConfiguration;
@@ -21,10 +21,10 @@ class ServerConfiguration;
 ServerSocketData::ServerSocketData
 (
 	int fd ,
-	SocketsHandler &socketsHandler,
+	EPollHandler &ePollHandler,
 	const std::vector<ServerConfiguration> &serverConfiguration
 ) :
-	AFdData(fd, socketsHandler, serverConfiguration)
+	ASocketData(fd, ePollHandler, serverConfiguration)
 {
 
 }
@@ -57,8 +57,8 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	}
 	try
 	{
-		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newConnectionFd, _socketsHandler, _serverConfigurations));
-		if (_socketsHandler.addFdToListeners(connectedSocketData, newConnectionEvents) == -1)
+		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newConnectionFd, *_ePollHandler, _serverConfigurations));
+		if (_ePollHandler->addFdToList(connectedSocketData, newConnectionEvents) == -1)
 		{
 			std::cerr << "Can't accept new connection" << std::endl;
 			delete &connectedSocketData;
