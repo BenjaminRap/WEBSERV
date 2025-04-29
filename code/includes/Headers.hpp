@@ -7,6 +7,8 @@
 # define LINE_END "\r\n"
 # define LINE_END_LENGTH 2;
 
+# define MAX_HEADER_COUNT 30
+
 class Headers : public std::map<std::string, std::string>
 {
 private:

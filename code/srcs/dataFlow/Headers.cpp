@@ -32,6 +32,8 @@ static char toLowerCase(char& c)
 
 int	Headers::parseHeader(const char *line, const char *end)
 {
+	if (this->size() >= MAX_HEADER_COUNT)
+		return (HTTP_BAD_REQUEST);
 	if (std::distance(line, end) < 5)
 		return (HTTP_BAD_REQUEST);
 	const char * const keyEnd = std::find(line, end, ':');
