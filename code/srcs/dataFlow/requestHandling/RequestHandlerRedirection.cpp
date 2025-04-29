@@ -7,51 +7,65 @@
 #include "Response.hpp"           // for Response
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
 
+static FlowState	redirect
+(
+	int srcFd,
+	ABody& destBody,
+	AFdData& fdData,
+	bool canRead,
+	bool canWrite,
+	FlowBuffer &flowBuf
+)
+{
+	if (canRead && !canWrite)
+		return (flowBuf.srcToBuff<int>(srcFd));
+	else if (!canRead && canWrite)
+		return (flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd));
+	else
+		return (flowBuf.redirect<int, ABody&>(srcFd, destBody, ABody::writeToFd));
+	fdData.callback(0);
+}
+
+static uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
+{
+
+	if (canWrite && body.getFinished())
+		return (body.getStatus());
+	else if (flowResult == FLOW_ERROR)
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	else if (canWrite && flowResult == FLOW_BUFFER_FULL)
+		return (HTTP_BAD_REQUEST);
+	return (0);
+}
 
 RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool canRead)
 {
 	if (_state != REQUEST_BODY)
 		return (_state);
 	ABody * const	body = _request.getBody();
+	AFdData * const	fdData = _request.getFdData();
 	
-	if (body == NULL)
+	if (body == NULL || fdData == NULL)
 	{
 		_state = REQUEST_DONE;
-		return (_state);
+		return (REQUEST_DONE);
 	}
-	const bool	canWrite = _request.isBodyBlocking() == false;
 
-	FlowState	flowState;
+	const bool		canWrite = fdData->getIsBlocking() == false;
+	const FlowState	flowState = redirect(socketFd, *body, *fdData, canRead, canWrite, _flowBuf);
+	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
 
-	if (canRead && !canWrite)
-		flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
-	else if (!canRead && canWrite)
-		flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
-	else if (canRead && canWrite)
-		_flowBuffer.redirectContent<int, ABody&>(socketFd, *body, ABody::writeToFd);
-	else
+	if (code == 0)
 		return (REQUEST_BODY);
-
-	int	code;
-
-	if (body->getFinished())
-		code = body->getStatus();
-	else if (flowState == FLOW_ERROR)
-		code = HTTP_INTERNAL_SERVER_ERROR;
-	else if (canWrite && flowState == FLOW_BUFFER_FULL)
-		code = HTTP_BAD_REQUEST;
-	else
-		return (_state);
-
 	if (code != HTTP_OK)
 		response.setResponse(code);
 	_state = REQUEST_DONE;
-	return (_state);
+	return (REQUEST_DONE);
 }
 
 RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
-	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
+	const FlowState flowState = _flowBuf.srcToBuff<int>(socketFd);
 
 	if (flowState == FLOW_ERROR)
 	{

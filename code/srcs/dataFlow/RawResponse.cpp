@@ -1,8 +1,6 @@
 #include <stddef.h>            // for size_t, NULL
-#include <map>                 // for map, _Rb_tree_const_iterator, operator!=
 #include <stdexcept>           // for logic_error
 #include <string>              // for basic_string, string
-#include <utility>             // for pair
 
 #include "ABody.hpp"           // for ABody
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
@@ -10,7 +8,6 @@
 #include "Response.hpp"        // for Response
 #include "SharedResource.hpp"  // for SharedResource
 #include "Status.hpp"          // for Status, StatusType
-#include "protocol.hpp"        // for PROTOCOL, PROTOCOL_LENGTH
 
 /*************************Constructors / Destructors***************************/
 
@@ -20,7 +17,7 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(getFirstPart(response)),
 	_firstPartBuffer(&_firstPart[0], _firstPart.capacity(), _firstPart.length()),
 	_fdData(response.getFdData()), _body(response.getBody()),
-	_bodyBuffer(bodyBuffer)
+	_flowBuf(bodyBuffer)
 {
 	
 }
@@ -31,65 +28,55 @@ RawResponse::~RawResponse()
 
 /*******************************Member functions*******************************/
 
-size_t	getFirstPartLength
+static size_t	getFirstPartLength
 (
-	const std::map<std::string, std::string>& headers,
+	const Headers& headers,
 	const Status& status,
 	size_t autoIndexPageSize
 )
 {
 	size_t										length = 0;
 
-	length += PROTOCOL_LENGTH;
-	length += 1; // + 1 for the space
-	length += 3; // 3 for the code length
-	length += 1; // + 1 for the space
-	length += status.getText().size();
-	length += LINE_END_LENGTH;
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
-		length += it->first.size() + it->second.size();
-		length += 2; // for the ": "
-		length += LINE_END_LENGTH;
-	}
+	length += status.getRepresentationSize();
+	length += headers.getTotalSize();
 	length += LINE_END_LENGTH; // for the empty line
-	length += status.getErrorPage().size();
 	if (status.isOfType(STATUS_SUCESSFULL))
 		length += autoIndexPageSize;
+	else if (status.isOfType(STATUS_ERROR))
+		length += status.getErrorPage().size();
 	length += 1; // for the /0
 	return (length);
 }
 
+void	setFirstPart
+(
+	std::string& result,
+	const Status& status,
+	const std::string& autoIndexPage,
+	const Headers& headers
+)
+{
+	const size_t								length = getFirstPartLength(headers, status, autoIndexPage.size());
+
+	result.reserve(length);
+	result += status.getRepresentation();
+	result += headers;
+	result.append(LINE_END);
+	if (status.isOfType(STATUS_SUCESSFULL))
+		result.append(autoIndexPage);
+	else if (status.isOfType(STATUS_ERROR))
+		result.append(status.getErrorPage());
+}
+
 std::string	getFirstPart(const Response &response)
 {
-	const Status * const						status = response.getStatus();
+	const Status * const		status = response.getStatus();
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	const std::map<std::string, std::string>	headers = response.getHeaders();
-	const std::string&							autoIndexPage = response.getAutoIndexPage();
-	const size_t								length = getFirstPartLength(headers, *status, autoIndexPage.size());
-
-	std::string									firstPart;
-
-	firstPart.reserve(length);
-	firstPart.append(PROTOCOL)
-		.append(" ")
-		.append(status->getCodeStringRepresentation())
-		.append(" ")
-		.append(status->getText())
-		.append(LINE_END);
-
-	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
-	{
-		firstPart.append(it->first)
-			.append(": ")
-			.append(it->second)
-			.append(LINE_END);
-	}
-	firstPart.append(LINE_END);
-	firstPart.append(status->getErrorPage());
-	if (status->isOfType(STATUS_SUCESSFULL))
-		firstPart.append(autoIndexPage);
+	std::string	firstPart;
+	
+	setFirstPart(firstPart, *status, response.getAutoIndexPage(), response.getHeaders());
 	return (firstPart);
 }
 
@@ -99,7 +86,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 
 	if (_firstPartBuffer.getContentLength() != 0)
 	{
-		const FlowState flowState = _firstPartBuffer.redirectBufferContentToFd(socketFd);
+		const FlowState flowState = _firstPartBuffer.buffToDest(socketFd);
 
 		if (flowState == FLOW_DONE)
 			return (hasBody ? FLOW_MORE : FLOW_DONE);
@@ -107,23 +94,18 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (hasBody == false)
 		return (FLOW_DONE);
-	const AFdData*	fdData = _fdData.getValue();
+	AFdData * const	fdData = _fdData.getValue();
 	ABody * const	body = _body.getValue();
 
+	fdData->callback(0);
 	if (fdData->getIsBlocking())
 	{
-		const FlowState flowState = _bodyBuffer.
-			redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
+		const FlowState flowState = _flowBuf.buffToDest<ABody&>(*body, ABody::writeToFd);
 
 		if (flowState == FLOW_DONE)
 			return (fdData->getIsActive() ? FLOW_MORE : FLOW_DONE);
 		return (flowState);
 	}
 	else
-	{
-		const FlowState	flowState = _bodyBuffer.
-			redirectContent<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd);
-
-		return (flowState);
-	}
+		return (_flowBuf.redirect<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd));
 }

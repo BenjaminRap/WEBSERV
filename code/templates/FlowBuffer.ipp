@@ -3,7 +3,7 @@
 #include "FlowBuffer.hpp"
 
 template <typename ReadData, typename WriteData>
-FlowState	FlowBuffer::redirectContent
+FlowState	FlowBuffer::redirect
 (
 	ReadData readData,
 	WriteData writeData,
@@ -11,12 +11,12 @@ FlowState	FlowBuffer::redirectContent
 	ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity)
 )
 {
-	const FlowState	readState = redirectFdContentToBuffer<ReadData>(readData, customRead);
+	const FlowState	readState = srcToBuff<ReadData>(readData, customRead);
 
 
 	if (readState == FLOW_ERROR)
 		return (FLOW_ERROR);
-	const FlowState writeState = redirectBufferContentToFd<WriteData>(writeData, customWrite);
+	const FlowState writeState = buffToDest<WriteData>(writeData, customWrite);
 
 	if (writeState == FLOW_DONE)
 		return (readState);
@@ -24,7 +24,7 @@ FlowState	FlowBuffer::redirectContent
 }
 
 template <typename WriteData>
-FlowState	FlowBuffer::redirectBufferContentToFd
+FlowState	FlowBuffer::buffToDest
 (
 	WriteData writeData,
 	ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity)
@@ -49,7 +49,7 @@ FlowState	FlowBuffer::redirectBufferContentToFd
 }
 
 template <typename ReadData>
-FlowState	FlowBuffer::redirectFdContentToBuffer
+FlowState	FlowBuffer::srcToBuff
 (
 	ReadData readData,
 	ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity)

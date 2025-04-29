@@ -4,6 +4,9 @@
 # include <map>		// for std::map
 # include <string>	// for std::string
 
+# define LINE_END "\r\n"
+# define LINE_END_LENGTH 2;
+
 class Headers : public std::map<std::string, std::string>
 {
 private:
@@ -17,8 +20,10 @@ public:
 	const std::string*		getHeader(const std::string &key) const;
 
 	int						parseHeader(const char *line, const char *end);
+	size_t					getTotalSize(void) const;
 };
 
-std::ostream& operator<<(std::ostream& o, const Headers& rhs);
+std::ostream&	operator<<(std::ostream& o, const Headers& rhs);
+std::string&	operator+=(std::string& dest, const Headers& src);
 
 #endif // !HEADERS_HPP

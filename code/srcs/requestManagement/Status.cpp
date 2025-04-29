@@ -1,11 +1,13 @@
-#include <stddef.h>    // for size_t
-#include <stdint.h>    // for uint16_t, uint8_t
-#include <map>         // for map, operator==
-#include <sstream>     // for basic_ostringstream, basic_ostream, char_traits
-#include <stdexcept>   // for logic_error
-#include <string>      // for basic_string, allocator, string
-#include <utility>     // for pair
-#include "Status.hpp"  // for Status, StatusType, operator==
+#include <stddef.h>    	// for size_t
+#include <stdint.h>    	// for uint16_t, uint8_t
+#include <map>         	// for map, operator==
+#include <sstream>     	// for basic_ostringstream, basic_ostream, char_traits
+#include <stdexcept>   	// for logic_error
+#include <string>      	// for basic_string, allocator, string
+#include <utility>     	// for pair
+
+#include "Status.hpp"   // for Status, StatusType, operator==
+#include "protocol.hpp"	// for PROTOCOL
 
 /*******************************Constructors/Destructors*********************************/
 
@@ -13,20 +15,18 @@ std::string	getUInt16TInString(uint16_t value);
 
 Status::Status(uint16_t code, const std::string &text) :
 	_code(code),
-	_codeStrRepresentation(getUInt16TInString(code)),
 	_text(text),
-	_errorPage(),
-	_errorPageSize(-1)
+	_representation(buildRepresentation()),
+	_errorPage()
 {
 	buildErrorPage();
 }
 
 Status::Status(const Status& ref) :
 	_code(ref._code),
-	_codeStrRepresentation(ref._codeStrRepresentation),
 	_text(ref._text),
-	_errorPage(ref._errorPage),
-	_errorPageSize(ref._errorPageSize)
+	_representation(ref._representation),
+	_errorPage(ref._errorPage)
 {
 }
 
@@ -42,62 +42,35 @@ bool	Status::operator<(const Status& other)
 	return (_code < other._code);
 }
 
-
-bool	operator==(const Status& status, int code)
-{
-	return (status.getCode() == code);
-}
-
 /********************************Private Methods**********************************************/
-
-size_t	Status::getErrorPageSize(void) const
-{
-	if (isOfType(STATUS_ERROR) == false)
-		return (0);
-	if (_errorPageSize != -1)
-		return (_errorPageSize);
-	size_t	size = 0;
-
-	size += 149;
-	size += _codeStrRepresentation.size();
-	size += 96;
-	size += _codeStrRepresentation.size();
-	size += 12;
-	size += _text.size();
-	size += 22;
-	return (size);
-}
 
 void	Status::buildErrorPage(void)
 {
 	if (isOfType(STATUS_ERROR) == false)
 		return ;
+	std::ostringstream	oss;
 
-	const size_t	size = getErrorPageSize();
-
-	_errorPage.reserve(size);
-	_errorPage +=
+	oss << 
 "<!DOCTYPE html>\n\
 <html lang=\"fr\">\n\
 	<head>\n\
 		<meta charset=\"UTF-8\">\n\
 		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
-		<title>"
-;
-	_errorPage += _codeStrRepresentation;
-	_errorPage += "</title>\n\
+		<title>" << _code << "</title>\n\
 	</head>\n\
 	<body style=\"font-family:sans-serif;text-align:center;padding:50px;\">\n\
-		<h1>"
-;
-	_errorPage += _codeStrRepresentation;
-	_errorPage += "</h1>\n\
-		<p>";
-	_errorPage += _text;
-	_errorPage += "</p>\n\
+		<h1>" << _code << "</h1>\n\
+		<p>" << _text << "</p>\n\
 	</body>\n\
 </html>";
-	_errorPageSize = _errorPage.size();
+}
+
+std::string	Status::buildRepresentation(void)
+{
+	std::ostringstream	oss;
+
+	oss << PROTOCOL << " " << _code << " " << _text << "\r\n";
+	return (oss.str());
 }
 
 /*******************************Getters/Setters****************************************/
@@ -107,9 +80,14 @@ uint16_t	Status::getCode(void) const
 	return (_code);
 }
 
-const std::string&	Status::getCodeStringRepresentation(void) const
+const std::string&	Status::getRepresentation(void) const
 {
-	return (_codeStrRepresentation);
+	return (_representation);
+}
+
+size_t	Status::getRepresentationSize(void) const
+{
+	return (_representation.size());
 }
 
 const std::string&	Status::getText(void) const
@@ -152,14 +130,4 @@ const Status&	Status::getStatus(int code)
 	if (it == _statuses.end())
 		throw std::logic_error("Unkown status code !");
 	return (it->second);
-}
-
-/*********************************Helpers********************************************/
-
-std::string	getUInt16TInString(uint16_t value)
-{
-	std::ostringstream	oss;
-
-	oss << value;
-	return (oss.str());
 }

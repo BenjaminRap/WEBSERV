@@ -175,11 +175,10 @@ std::ostream & operator<<(std::ostream & o, Response const & response)
 {
 	const Status * const						status = response.getStatus();
 
-	o << PROTOCOL << " ";
 	if (status == NULL)
-		o << "unset unset\n";
+		o << "unset unset unset\n";
 	else
-		o << status->getCode() << " " << status->getText() << '\n';
+		o << status->getRepresentation();
 
 	o << response.getHeaders();
 	if (status != NULL)

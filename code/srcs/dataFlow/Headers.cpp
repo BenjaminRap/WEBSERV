@@ -51,16 +51,42 @@ int	Headers::parseHeader(const char *line, const char *end)
 	return (HTTP_OK);
 }
 
+
+size_t	Headers::getTotalSize(void) const
+{
+	size_t	length = 0;
+
+	for (Headers::const_iterator it = begin(); it != end(); it++)
+	{
+		length += it->first.size() + it->second.size();
+		length += 2; // for the ": "
+		length += LINE_END_LENGTH;
+	}
+	return (length);
+}
+
 /**************************Operator Overload*************************************/
 
+std::string&	operator+=(std::string& dest, const Headers& headers)
+{
+	const size_t	length = headers.getTotalSize();
+
+	dest.reserve(dest.length() + length + 1);
+	for (Headers::const_iterator it = headers.begin(); it != headers.end(); it++)
+	{
+		dest.append(it->first);
+		dest.append(": ");
+		dest.append(it->second);
+		dest.append(LINE_END);
+	}
+	return (dest);
+}
 
 std::ostream& operator<<(std::ostream& o, const Headers& headers)
 {
-	Headers::const_iterator	it;
+	std::string	representation;
 
-	for (it = headers.begin(); it != headers.end(); it++)
-	{
-		o << it->first << ": " << it->second << '\n';
-	}
+	representation += headers;
+	o << representation;
 	return (o);
 }

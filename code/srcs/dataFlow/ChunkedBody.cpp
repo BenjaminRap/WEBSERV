@@ -6,9 +6,7 @@
 #include "requestStatusCode.hpp"	// for HTTP_...
 #include "socketCommunication.hpp"	// for checkError
 
-
-long	getLongMax();
-long	strToLongBase(const char* begin, const char* end, int (&isInBase)(int character), int base);
+unsigned long	strToULongBase(const char* begin, const char* end, int (&isInBase)(int character), int base);
 
 const std::string	ChunkedBody::_lineEnd("\r\n");
 
@@ -16,6 +14,24 @@ const std::string	ChunkedBody::_lineEnd("\r\n");
 
 ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
 	ABody(fd),
+	_maxSize(maxSize),
+	_totalSize(0),
+	_chunkSize(-1),
+	_state(CHUNKED_SIZE)
+{
+}
+
+ChunkedBody::ChunkedBody(std::FILE* file,  size_t maxSize) :
+	ABody(file),
+	_maxSize(maxSize),
+	_totalSize(0),
+	_chunkSize(-1),
+	_state(CHUNKED_SIZE)
+{
+}
+
+ChunkedBody::ChunkedBody(size_t maxSize) :
+	ABody(),
 	_maxSize(maxSize),
 	_totalSize(0),
 	_chunkSize(-1),
@@ -47,8 +63,8 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	
 	if (lineBreak == end)
 		return (0);
-	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
-	if (_chunkSize == getLongMax())
+	_chunkSize = strToULongBase(begin, lineBreak, std::isxdigit, 16);
+	if (_chunkSize == (unsigned long)-1)
 	{
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
