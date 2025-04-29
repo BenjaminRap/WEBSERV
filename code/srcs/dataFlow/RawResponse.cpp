@@ -97,19 +97,15 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	AFdData * const	fdData = _fdData.getValue();
 	ABody * const	body = _body.getValue();
 
+	fdData->callback(0);
 	if (fdData->getIsBlocking())
 	{
 		const FlowState flowState = _flowBuf.buffToDest<ABody&>(*body, ABody::writeToFd);
 
 		if (flowState == FLOW_DONE)
 			return (fdData->getIsActive() ? FLOW_MORE : FLOW_DONE);
-		fdData->callback(0);
 		return (flowState);
 	}
 	else
-	{
-		const int	fd = fdData->getFd();
-
-		return (_flowBuf.redirect<int, ABody&>(fd, *body, ABody::writeToFd));
-	}
+		return (_flowBuf.redirect<int, ABody&>(fdData->getFd(), *body, ABody::writeToFd));
 }

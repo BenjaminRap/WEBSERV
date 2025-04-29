@@ -7,6 +7,37 @@
 #include "Response.hpp"           // for Response
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
 
+static FlowState	redirect
+(
+	int srcFd,
+	ABody& destBody,
+	AFdData& fdData,
+	bool canRead,
+	bool canWrite,
+	FlowBuffer &flowBuf
+)
+{
+	fdData.callback(0);
+	if (canRead && !canWrite)
+		return (flowBuf.srcToBuff<int>(srcFd));
+	else if (!canRead && canWrite)
+		return (flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd));
+	else
+		return (flowBuf.redirect<int, ABody&>(srcFd, destBody, ABody::writeToFd));
+}
+
+static uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
+{
+
+	if (canWrite && body.getFinished())
+		return (body.getStatus());
+	else if (flowResult == FLOW_ERROR)
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	else if (canWrite && flowResult == FLOW_BUFFER_FULL)
+		return (HTTP_BAD_REQUEST);
+	return (0);
+}
+
 RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool canRead)
 {
 	if (_state != REQUEST_BODY)
@@ -19,33 +50,13 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 		_state = REQUEST_DONE;
 		return (REQUEST_DONE);
 	}
-	const bool	canWrite = _request.isBodyBlocking() == false;
 
-	FlowState	flowState;
+	const bool		canWrite = fdData->getIsBlocking() == false;
+	const FlowState	flowState = redirect(socketFd, *body, *fdData, canRead, canWrite, _flowBuf);
+	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
 
-	if (canRead && !canWrite)
-	{
-		flowState = _flowBuf.srcToBuff<int>(socketFd);
-		fdData->callback(0);
-	}
-	else if (!canRead && canWrite)
-		flowState = _flowBuf.buffToDest<ABody&>(*body, ABody::writeToFd);
-	else if (canRead && canWrite)
-		_flowBuf.redirect<int, ABody&>(socketFd, *body, ABody::writeToFd);
-	else
+	if (code == 0)
 		return (REQUEST_BODY);
-
-	int	code;
-
-	if (canWrite && body->getFinished())
-		code = body->getStatus();
-	else if (flowState == FLOW_ERROR)
-		code = HTTP_INTERNAL_SERVER_ERROR;
-	else if (canWrite && flowState == FLOW_BUFFER_FULL)
-		code = HTTP_BAD_REQUEST;
-	else
-		return (_state);
-
 	if (code != HTTP_OK)
 		response.setResponse(code);
 	_state = REQUEST_DONE;

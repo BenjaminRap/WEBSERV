@@ -30,7 +30,9 @@ CgiIn::~CgiIn()
 
 void	CgiIn::callback(uint32_t events)
 {
-	if (!(_isActive && events & EPOLLOUT))
+	if (!_isActive)
+		return ;
+	if (!(events & EPOLLOUT))
 		return ;
 	const FlowState	flowState = _requestFlowBuffer.
 		buffToDest<ABody&>(_body, ABody::writeToFd);

@@ -113,16 +113,6 @@ const Headers&	Request::getHeaders() const
 	return (_headers);
 }
 
-
-bool	Request::isBodyBlocking() const
-{
-	if (_fdData.isManagingValue() == false)
-		return (false);
-
-	const AFdData * const	fdData = _fdData.getValue();
-	return (fdData->getIsBlocking());
-}
-
 /******************************Operator Overload*****************************************/
 
 std::ostream & operator<<(std::ostream & o, Request const & request)
