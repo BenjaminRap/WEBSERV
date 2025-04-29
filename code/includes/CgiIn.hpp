@@ -10,6 +10,13 @@ class	Response;
 class	FlowBuffer;
 class	ABody;
 
+enum	CgiInState
+{
+	BUF_TO_TEMP,
+	TEMP_TO_CGI,
+	BUF_TO_CGI
+};
+
 class CgiIn : public AFdData
 {
 private:
@@ -19,6 +26,7 @@ private:
 	Response&				_response;
 	std::FILE*				_tempFile;
 	ssize_t					_tempFileSize;
+	CgiInState				_state;
 
 	CgiIn(void);
 	CgiIn(const CgiIn &ref);
