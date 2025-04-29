@@ -108,6 +108,7 @@ public:
 
 	ABody*				getBody() const;
 	Headers&			getHeaders();
+	AFdData*			getFdData();
 	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;

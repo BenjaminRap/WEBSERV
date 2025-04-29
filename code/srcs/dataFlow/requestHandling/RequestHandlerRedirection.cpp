@@ -13,6 +13,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	if (_state != REQUEST_BODY)
 		return (_state);
 	ABody * const	body = _request.getBody();
+	AFdData * const	fdData = _request.getFdData();
 	
 	if (body == NULL)
 	{
@@ -24,7 +25,10 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	FlowState	flowState;
 
 	if (canRead && !canWrite)
+	{
 		flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
+		fdData->callback(0);
+	}
 	else if (!canRead && canWrite)
 		flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::writeToFd);
 	else if (canRead && canWrite)
@@ -34,7 +38,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 
 	int	code;
 
-	if (body->getFinished())
+	if (canWrite && body->getFinished())
 		code = body->getStatus();
 	else if (flowState == FLOW_ERROR)
 		code = HTTP_INTERNAL_SERVER_ERROR;

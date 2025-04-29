@@ -94,7 +94,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	}
 	if (hasBody == false)
 		return (FLOW_DONE);
-	const AFdData*	fdData = _fdData.getValue();
+	AFdData * const	fdData = _fdData.getValue();
 	ABody * const	body = _body.getValue();
 
 	if (fdData->getIsBlocking())
@@ -104,6 +104,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 
 		if (flowState == FLOW_DONE)
 			return (fdData->getIsActive() ? FLOW_MORE : FLOW_DONE);
+		fdData->callback(0);
 		return (flowState);
 	}
 	else

@@ -86,6 +86,13 @@ ABody	*Request::getBody() const
 }
 
 
+AFdData*	Request::getFdData()
+{
+	if (_fdData.isManagingValue() == false)
+		return (NULL);
+	return (_fdData.getValue());
+}
+
 EMethods	Request::getMethod(void) const
 {
 	return (this->_statusLine.method);
