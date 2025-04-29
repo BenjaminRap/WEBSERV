@@ -13,7 +13,7 @@ class	ABody;
 class CgiIn : public AFdData
 {
 private:
-	FlowBuffer&				_requestFlowBuffer;
+	FlowBuffer&				_flowBuf;
 	ABody&					_body;
 	ConnectedSocketData&	_connectedSocketData;
 	Response&				_response;

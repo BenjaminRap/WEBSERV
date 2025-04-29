@@ -26,7 +26,7 @@ static FlowState	redirect
 	fdData.callback(0);
 }
 
-static uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
+uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
 {
 
 	if (canWrite && body.getFinished())

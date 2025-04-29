@@ -18,7 +18,7 @@ CgiIn::CgiIn
 	Response& currentResponse
 ) :
 	AFdData(fd, ePollHandler),
-	_requestFlowBuffer(requestFlowBuffer),
+	_flowBuf(requestFlowBuffer),
 	_body(body),
 	_connectedSocketData(connectedSocketData),
 	_response(currentResponse),
@@ -38,30 +38,48 @@ CgiIn::~CgiIn()
 		fclose(_tempFile);
 }
 
+ssize_t	fwriteChar(FILE* file, void* buffer, size_t length)
+{
+	const size_t	written = fwrite(buffer, 1, length, file);
+
+	if (written < length)
+		return (-1);
+	return (written);
+}
+
+uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
+
 void	CgiIn::callback(uint32_t events)
 {
-	(void)events;
 	if (!_isActive)
 		return ;
-	if (_tempFile != NULL)
+	if (_tempFile != NULL && _tempFileSize == -1)
 	{
+		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+
+		if (code == 0)
+			return ;
+		if (code == HTTP_OK)
+			_tempFileSize = std::ftell(_tempFile);
+		else
+		{
+			_response.setResponse(code);
+			_isActive = false;
+			return ;
+		}
 	}
+	if (!(events & EPOLLIN))
 		return ;
-	const FlowState	flowState = _requestFlowBuffer.
-		buffToDest<ABody&>(_body, ABody::writeToFd);
 
-	int	code;
+	const FlowState	flowState = (_tempFile != NULL)
+		? _flowBuf.redirect(_tempFile, getFd(), write, fwriteChar)
+		: _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
 
-	if (_body.getFinished())
-		code = _body.getStatus();
-	else if (flowState == FLOW_ERROR)
-		code = HTTP_INTERNAL_SERVER_ERROR;
-	else if (flowState == FLOW_BUFFER_FULL)
-		code = HTTP_BAD_REQUEST;
-	else
+	const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+	if (code == 0)
 		return ;
-	if (code != HTTP_OK)
-		_response.setResponse(code);
+	_response.setResponse(code);
 	_isActive = false;
 	_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
 }
