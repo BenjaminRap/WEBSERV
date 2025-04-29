@@ -126,6 +126,8 @@ private:
 	void	setFinished(uint16_t status);
 public:
 	ChunkedBody(int fd, size_t maxSize);
+	ChunkedBody(std::FILE* file, size_t maxSize);
+	ChunkedBody(size_t maxSize);
 	~ChunkedBody();
 	
 	/**

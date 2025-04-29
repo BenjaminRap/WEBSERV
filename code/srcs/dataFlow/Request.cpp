@@ -11,6 +11,7 @@
 #include "SizedBody.hpp"          // for SizedBody
 #include "protocol.hpp"           // for PROTOCOL, PROTOCOL_LENGTH
 #include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
+#include "FileFd.hpp"			  // for FileFd
 
 class ABody;
 
