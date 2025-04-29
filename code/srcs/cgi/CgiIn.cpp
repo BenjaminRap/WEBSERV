@@ -61,7 +61,10 @@ void	CgiIn::callback(uint32_t events)
 		if (code == 0)
 			return ;
 		if (code == HTTP_OK)
+		{
 			_tempFileSize = std::ftell(_tempFile);
+			std::rewind(_tempFile);
+		}
 		else
 		{
 			_response.setResponse(code);
