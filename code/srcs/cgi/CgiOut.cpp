@@ -55,7 +55,11 @@ uint16_t	CgiOut::checkHeaders(void)
 			return (HTTP_INTERNAL_SERVER_ERROR);
 		_state = CGI_TO_TEMP;
 	}
+	return (HTTP_OK);
+}
 
+uint16_t	CgiOut::getStatusCode(void)
+{
 	const std::string*	status = _headers.getHeader("status");
 	if (status != NULL)
 	{
@@ -64,7 +68,7 @@ uint16_t	CgiOut::checkHeaders(void)
 
 		_headers.erase("status");
 		if (end != status->c_str() + 2 || code < 100 || code >= 600)
-			return (HTTP_BAD_GATEWAY);
+			return (-1);
 		return (code);
 	}
 	if (_headers.getHeader("Location") != NULL)
@@ -106,8 +110,10 @@ ssize_t		CgiOut::readHeader(void)
 	if (begin == end - 1 && *begin == '\r')
 	{
 		_code = checkHeaders();
-
-		if (_state != CGI_TO_TEMP)
+		if (_code != HTTP_OK)
+			return (-1);
+		_code = getStatusCode();
+		if (_state != CGI_TO_TEMP || _code == (uint16_t)-1)
 			generateFirstPart();
 		return (1);
 	}

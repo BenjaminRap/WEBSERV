@@ -31,8 +31,9 @@ private:
 
 	CgiOut&		operator=(const CgiOut &ref);
 
-	ssize_t		readHeader(void);
 	uint16_t	checkHeaders(void);
+	uint16_t	getStatusCode(void);
+	ssize_t		readHeader(void);
 	void		generateFirstPart(void);
 
 public:
