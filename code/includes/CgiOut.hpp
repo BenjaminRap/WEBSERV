@@ -2,14 +2,29 @@
 # define CGI_OUT_HPP
 
 # include "AFdData.hpp"	// for ASocketData
+# include "Headers.hpp"	// for Headers
+# include <cstdio>		// for std::FILE
 
-class	ABody;
 class	FlowBuffer;
+
+enum	CgiOutState
+{
+	READ_HEADER,
+	CGI_TO_TEMP,
+	TEMP_TO_BUFFER,
+	CGI_TO_BUFFER
+};
 
 class CgiOut : public AFdData
 {
 private:
 	FlowBuffer&	_responseFlowBuffer;
+	std::string	_firstPart;
+	size_t		_charsWritten;
+	Headers		_headers;
+	std::FILE*	_tempFile;
+	CgiOutState	_state;
+	uint16_t	_code;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);

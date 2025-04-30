@@ -22,7 +22,8 @@ private:
 	Headers			_headers;
 	std::FILE*		_tempFile;
 	CgiState		_state;
-	
+	uint16_t		_code;
+
 	CgiResponse();
 	CgiResponse(const CgiResponse& ref);
 
@@ -31,7 +32,7 @@ private:
 	ssize_t		readHeader(const char* begin, const char* end);
 	ssize_t		writeCgiResponseToFd(const char* begin, const char* end);
 	uint16_t	checkHeaders(void);
-	void		generateFirstPart(uint16_t code);
+	void		generateFirstPart(void);
 	ssize_t		writeFirstPart(void);
 	ssize_t		writeCgiBody(const char* begin, const char* end);
 public:

@@ -13,7 +13,8 @@ CgiResponse::CgiResponse(int fd) :
 	_charsWritten(0),
 	_headers(),
 	_tempFile(NULL),
-	_state(READ_HEADER)
+	_state(READ_HEADER),
+	_code(0)
 {
 }
 
@@ -72,20 +73,21 @@ void	setFirstPart
 	std::string& result,
 	const Status& status,
 	const std::string& autoIndexPage,
-	const Headers& headers
+	const Headers& headers,
+	bool hasBody
 );
 
-void	CgiResponse::generateFirstPart(uint16_t code)
+void	CgiResponse::generateFirstPart(void)
 {
 	try
 	{
-		const Status&	status = Status::getStatus(code);
-		setFirstPart(_firstPart, status, "", _headers);
+		const Status&	status = Status::getStatus(_code);
+		setFirstPart(_firstPart, status, "", _headers, true);
 	}
 	catch (std::logic_error& err)
 	{
 		const Status&	status = Status::getStatus(HTTP_BAD_GATEWAY);
-		setFirstPart(_firstPart, status, "", _headers);
+		setFirstPart(_firstPart, status, "", _headers, false);
 	}
 }
 
@@ -98,10 +100,10 @@ ssize_t		CgiResponse::readHeader(const char* begin, const char* end)
 		return (0);
 	if (lineBreak == begin)
 	{
-		const uint16_t	code = checkHeaders();
+		_code = checkHeaders();
 
 		if (_state != CGI_TO_TEMP)
-			generateFirstPart(code);
+			generateFirstPart();
 		return (_lineEnd.size());
 	}
 	const uint16_t	code = _headers.parseHeader(begin, lineBreak + 1);

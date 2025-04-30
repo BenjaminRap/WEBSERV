@@ -53,15 +53,14 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiIn::callback(uint32_t events)
 {
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)
-		&& _isActive)
+	if (!_isActive)
+		return ;
+	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
 	{
 		_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
 		_isActive = false;
 	}
-	if (!_isActive)
-		return ;
 	if (_state == BUF_TO_TEMP)
 	{
 		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
