@@ -174,7 +174,7 @@ public:
 	 * of the line, otherwise, this variable isn't changed.
 	 * @return True if there is a line, false otherwise.,
 	 */
-	bool		getLine(char **lineStart, size_t *length);
+	bool		getLine(char **lineBegin, char **lineEnd);
 	/**
 	 * @brief Move the content of the FlowBuffer to the start of the buffer,
 	 * setting the number of characters written to 0. It can be useful if we don't

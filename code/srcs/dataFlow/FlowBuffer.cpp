@@ -28,7 +28,7 @@ FlowBuffer::~FlowBuffer()
 
 /*****************************Member Functions*********************************/
 
-bool		FlowBuffer::getLine(char **lineStart, size_t *length)
+bool		FlowBuffer::getLine(char **lineBegin, char **lineEnd)
 {
 	char * const	start = _buffer + _numCharsWritten;
 	char * const	afterEnd = _buffer + _contentLength;
@@ -36,8 +36,8 @@ bool		FlowBuffer::getLine(char **lineStart, size_t *length)
 
 	if (breakline == afterEnd)
 		return (false);
-	*lineStart = start;
-	*length = std::distance(start, breakline);
+	*lineBegin = start;
+	*lineEnd = breakline;
 	_numCharsWritten += std::distance(start, breakline + 1); // +1 because we go past the /n
 	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
 	{
