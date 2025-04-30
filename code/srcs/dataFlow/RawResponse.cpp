@@ -12,7 +12,7 @@
 /*************************Constructors / Destructors***************************/
 
 
-void	setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers);
+void	setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers, bool hasBody);
 
 RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(),
@@ -25,7 +25,7 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders());
+	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders(), _fdData.isManagingValue());
 	_firstPartBuffer.setBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity());
 }
 
@@ -39,7 +39,8 @@ static size_t	getFirstPartLength
 (
 	const Headers& headers,
 	const Status& status,
-	size_t autoIndexPageSize
+	size_t autoIndexPageSize,
+	bool hasBody
 )
 {
 	size_t										length = 0;
@@ -47,11 +48,13 @@ static size_t	getFirstPartLength
 	length += status.getRepresentationSize();
 	length += headers.getTotalSize();
 	length += LINE_END_LENGTH; // for the empty line
+	length += 1; // for the /0
+	if (hasBody)
+		return (length);
 	if (status.isOfType(STATUS_SUCESSFULL))
 		length += autoIndexPageSize;
 	else if (status.isOfType(STATUS_ERROR))
 		length += status.getErrorPage().size();
-	length += 1; // for the /0
 	return (length);
 }
 
@@ -60,15 +63,18 @@ void	setFirstPart
 	std::string& result,
 	const Status& status,
 	const std::string& autoIndexPage,
-	const Headers& headers
+	const Headers& headers,
+	bool hasBody
 )
 {
-	const size_t								length = getFirstPartLength(headers, status, autoIndexPage.size());
+	const size_t								length = getFirstPartLength(headers, status, autoIndexPage.size(), hasBody);
 
 	result.reserve(length);
 	result += status.getRepresentation();
 	result += headers;
 	result.append(LINE_END);
+	if (hasBody)
+		return ;
 	if (status.isOfType(STATUS_SUCESSFULL))
 		result.append(autoIndexPage);
 	else if (status.isOfType(STATUS_ERROR))
