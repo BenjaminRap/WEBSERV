@@ -33,7 +33,7 @@ public :
 
 	const std::string&							getRoot(void) const;
 	const std::vector<std::string>&				getServerNames(void) const;
-	const std::string&							getErrorPage(uint16_t error) const;
+	const std::string*							getErrorPage(uint16_t error) const;
 	const std::map<uint16_t, std::string>&		getErrorPages(void) const;
 	const size_t&								getMaxClientBodySize(void) const;
 	const std::map<std::string, Route>&			getRoutes(void) const;

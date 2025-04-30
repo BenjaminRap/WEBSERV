@@ -53,13 +53,13 @@ const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 	return (this->serverNames);
 }
 
-const std::string	&ServerConfiguration::getErrorPage(uint16_t errorCode) const
+const std::string	*ServerConfiguration::getErrorPage(uint16_t errorCode) const
 {
 	std::map<uint16_t, std::string>::const_iterator it = this->errorPages.find(errorCode);
 
 	if (it == this->errorPages.end())
-		throw (CustomException("Non existing error_page"));
-    return (it->second);
+		return (NULL);
+    return (&it->second);
 }
 
 const std::map<uint16_t, std::string>	&ServerConfiguration::getErrorPages(void) const
