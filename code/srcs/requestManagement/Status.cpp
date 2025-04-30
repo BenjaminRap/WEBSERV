@@ -124,10 +124,10 @@ bool	Status::isCodeOfType(uint16_t code, StatusType type)
  * @throw If the current code doesn't correspond to a status text, throw a std::logic_error
  * @note This function should only be called if the request is done.
  */
-const Status&	Status::getStatus(int code)
+const Status*	Status::getStatus(int code)
 {
 	const std::map<int, Status>::const_iterator	it = Status::_statuses.find(code);
 	if (it == _statuses.end())
-		throw std::logic_error("Unkown status code !");
-	return (it->second);
+		return (NULL);
+	return (&it->second);
 }

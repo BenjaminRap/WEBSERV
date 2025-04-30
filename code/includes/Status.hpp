@@ -94,7 +94,7 @@ public:
 	 * map
 	 *
 	 */
-	static const Status&	getStatus(int code);
+	static const Status*	getStatus(int code);
 
 	bool					operator<(const Status& other);
 
