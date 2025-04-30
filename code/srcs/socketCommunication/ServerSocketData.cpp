@@ -76,5 +76,8 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 
 void	ServerSocketData::callback(uint32_t events)
 {
-	acceptConnection(events);
+	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+		removeFromEPollHandler();
+	else
+		acceptConnection(events);
 }

@@ -53,6 +53,13 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiIn::callback(uint32_t events)
 {
+	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)
+		&& _isActive)
+	{
+		_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
+		_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
+		_isActive = false;
+	}
 	if (!_isActive)
 		return ;
 	if (_state == BUF_TO_TEMP)
@@ -85,7 +92,7 @@ void	CgiIn::callback(uint32_t events)
 	const uint16_t	code = getCodeIfFinished(true, flowState, _body);
 	if (code == 0)
 		return ;
-	_response.setResponse(code);
 	_isActive = false;
+	_response.setResponse(code);
 	_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
 }

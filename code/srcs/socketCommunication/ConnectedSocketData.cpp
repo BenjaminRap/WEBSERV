@@ -78,14 +78,16 @@ RequestState	ConnectedSocketData::readNextRequests
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
+	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+		_isActive = false;
 	try
 	{
-		if (_closing == false && events & EPOLLIN)
+		if (_isActive && !_closing && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
 				_isActive = false;
 		}
-		if (_isActive == true && events & EPOLLOUT)
+		if (_isActive && events & EPOLLOUT)
 		{
 			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))

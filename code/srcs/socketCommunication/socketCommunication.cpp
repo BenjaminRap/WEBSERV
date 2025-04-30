@@ -22,8 +22,6 @@ void	handleIOEvents(const Configuration &conf)
 			break ;
 		for (int i = 0; i < nfds; i++)
 		{
-			if (ePollHandler.closeIfConnectionStopped(i))
-				continue;
 			ePollHandler.callSocketCallback(i);
 		}
 	}

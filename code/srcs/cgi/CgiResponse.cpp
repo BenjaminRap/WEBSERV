@@ -148,7 +148,7 @@ ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 			return (-1);
 		totalConsumed += consumed;
 	}
-	while (_state == CGI_TO_TEMP)
+	if (_state == CGI_TO_TEMP)
 	{
 		
 	}

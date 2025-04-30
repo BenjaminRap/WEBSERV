@@ -92,24 +92,9 @@ void	EPollHandler::callSocketCallback(size_t eventIndex) const
 		std::cerr << "EPollHandler callSocketCallback method was called with a wrong index" << std::endl;
 		return ;
 	}
-	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
-		return ;
-	ASocketData	*fdData = static_cast<ASocketData *>(_events[eventIndex].data.ptr);
+	AFdData	*fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
 
 	fdData->callback(_events[eventIndex].events);
-}
-
-bool	EPollHandler::closeIfConnectionStopped(size_t eventIndex)
-{
-	if (eventIndex >= _eventsCount)
-		throw std::logic_error("closeIfConnectionStopped was called with wrong index");
-	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
-		return (false);
-	const ASocketData * const	fdData = static_cast<ASocketData *>(_events[eventIndex].data.ptr);
-
-	_socketsData.erase(fdData->getIterator());
-	delete fdData;
-	return (true);
 }
 
 int	EPollHandler::bindFdToHost(int fd, const Host& host)
