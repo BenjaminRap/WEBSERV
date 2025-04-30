@@ -79,16 +79,12 @@ void	setFirstPart
 
 void	CgiResponse::generateFirstPart(void)
 {
-	try
-	{
-		const Status&	status = Status::getStatus(_code);
-		setFirstPart(_firstPart, status, "", _headers, true);
-	}
-	catch (std::logic_error& err)
-	{
-		const Status&	status = Status::getStatus(HTTP_BAD_GATEWAY);
-		setFirstPart(_firstPart, status, "", _headers, false);
-	}
+	const Status*	status = Status::getStatus(_code);
+	if (status == NULL)
+		status = Status::getStatus(HTTP_BAD_GATEWAY);
+	if (status == NULL)
+		throw std::logic_error("No Status for HTTP_BAD_GATEWAY !");
+	setFirstPart(_firstPart, *status, "", _headers, false);
 }
 
 ssize_t		CgiResponse::readHeader(const char* begin, const char* end)

@@ -68,6 +68,20 @@ void	Response::setBody(ARequestType* requestResult, int socketFd)
 	this->_headers.insert(std::make_pair("content-length", sizeTToString(bodySize)));
 }
 
+
+uint16_t	getStatusCodeFromErrno(int errnoValue)
+{
+	switch (errnoValue)
+	{
+	case ENOENT:
+		return (HTTP_NOT_FOUND);
+	case EACCES:
+		return (HTTP_FORBIDDEN);
+	default:
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	}
+}
+
 uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration)
 {
 	if (Status::isCodeOfType(code, STATUS_ERROR) == false)
@@ -75,26 +89,16 @@ uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& server
 	_fdData.stopManagingResource();
 	try
 	{
-		const std::string& errorPage = serverConfiguration.getErrorPage(code);
+		const std::string* errorPage = serverConfiguration.getErrorPage(code);
+		if (errorPage == NULL)
+			return (code);
 
-		FileFd*				fileFd = new FileFd(errorPage, O_RDONLY);
+		FileFd*				fileFd = new FileFd(*errorPage, O_RDONLY);
 		_fdData.setManagedResource(fileFd, freePointer);
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{
-		switch (openError.getErrno())
-		{
-		case ENOENT:
-			return (HTTP_NOT_FOUND);
-		case EACCES:
-			return (HTTP_FORBIDDEN);
-		default:
-			return (HTTP_INTERNAL_SERVER_ERROR);
-		}
-	}
-	catch (const CustomException& exception)
-	{
-		return (code);
+		return (getStatusCodeFromErrno(openError.getErrno()));
 	}
 	return (code);
 }
@@ -102,7 +106,9 @@ uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& server
 void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd)
 {
 	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
-	_status = &Status::getStatus(code);
+	_status = Status::getStatus(code);
+	if (_status == NULL)
+		throw std::logic_error("Response setResponse called with an invalid status code !");
 	addDefaultHeaders();
 	setBody(requestResult, socketFd);
 }
