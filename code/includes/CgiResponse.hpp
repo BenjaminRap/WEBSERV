@@ -33,8 +33,7 @@ private:
 	uint16_t	checkHeaders(void);
 	void		generateFirstPart(uint16_t code);
 	ssize_t		writeFirstPart(void);
-	ssize_t		writeBodyFromCgi(const char* begin, const char* end);
-	ssize_t 	writeBodyFromTemp(void);
+	ssize_t		writeCgiBody(const char* begin, const char* end);
 public:
 	CgiResponse(int fd);
 	~CgiResponse();

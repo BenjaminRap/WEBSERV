@@ -19,6 +19,8 @@ CgiResponse::CgiResponse(int fd) :
 
 CgiResponse::~CgiResponse()
 {
+	if (_tempFile != NULL)
+		fclose(_tempFile);
 }
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
@@ -29,6 +31,8 @@ uint16_t	CgiResponse::checkHeaders(void)
 		return (HTTP_INTERNAL_SERVER_ERROR);
 	const std::string*	contentLength = _headers.getHeader("content-length");
 	const std::string*	transferEncoding = _headers.getHeader("transfer-encoding");
+	if (contentLength != NULL && transferEncoding != NULL)
+		return (HTTP_INTERNAL_SERVER_ERROR);
 	if (contentLength != NULL)
 	{
 		const unsigned long	size = stringToULongBase(*contentLength, std::isdigit, 10);
@@ -38,7 +42,7 @@ uint16_t	CgiResponse::checkHeaders(void)
 	}
 	else if (transferEncoding == NULL || *transferEncoding != "chunked")
 		_state = CGI_TO_FD;
-	else 
+	else
 	{
 		_tempFile = std::tmpfile();
 		if (_tempFile == NULL)
@@ -122,16 +126,20 @@ ssize_t	CgiResponse::writeFirstPart(void)
 	return (0);
 }
 
-ssize_t	CgiResponse::writeBodyFromCgi(const char* begin, const char* end)
+ssize_t	CgiResponse::writeCgiBody(const char* begin, const char* end)
 {
 	const	size_t	numCharsToWrite = std::distance(begin, end);
 
-	return (writeOrIgnore(begin, numCharsToWrite));
-}
+	if (_state == CGI_TO_TEMP)
+	{
+		const size_t	consumed = fwrite(begin, 1, numCharsToWrite, _tempFile);
 
-ssize_t CgiResponse::writeBodyFromTemp(void)
-{
-	return (-1);
+		if (consumed < numCharsToWrite)
+			return (-1);
+		return (consumed);
+	}
+	else
+		return (writeOrIgnore(begin, numCharsToWrite));
 }
 
 ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
@@ -148,10 +156,6 @@ ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 			return (-1);
 		totalConsumed += consumed;
 	}
-	if (_state == CGI_TO_TEMP)
-	{
-		
-	}
 	if (_charsWritten < _firstPart.length())
 	{
 		if (writeFirstPart() == -1)
@@ -159,9 +163,7 @@ ssize_t		CgiResponse::writeCgiResponseToFd(const char* begin, const char* end)
 	}
 	else
 	{
-		const ssize_t	consumed = (_state == CGI_TO_FD)
-			? writeBodyFromCgi(begin + totalConsumed, end)
-			: writeBodyFromTemp();
+		const ssize_t	consumed = writeCgiBody(begin + totalConsumed, end);
 
 		if (consumed == -1)
 			return (-1);
