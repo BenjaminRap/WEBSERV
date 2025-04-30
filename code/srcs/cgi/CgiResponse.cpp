@@ -28,16 +28,16 @@ unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int char
 uint16_t	CgiResponse::checkHeaders(void)
 {
 	if (_headers.getHeader("content-type") == NULL)
-		return (HTTP_INTERNAL_SERVER_ERROR);
+		return (HTTP_BAD_GATEWAY);
 	const std::string*	contentLength = _headers.getHeader("content-length");
 	const std::string*	transferEncoding = _headers.getHeader("transfer-encoding");
 	if (contentLength != NULL && transferEncoding != NULL)
-		return (HTTP_INTERNAL_SERVER_ERROR);
+		return (HTTP_BAD_GATEWAY);
 	if (contentLength != NULL)
 	{
 		const unsigned long	size = stringToULongBase(*contentLength, std::isdigit, 10);
 		if (size == (unsigned long)-1)
-			return (HTTP_INTERNAL_SERVER_ERROR);
+			return (HTTP_BAD_GATEWAY);
 		_state = CGI_TO_FD;
 	}
 	else if (transferEncoding == NULL || *transferEncoding != "chunked")
@@ -58,7 +58,7 @@ uint16_t	CgiResponse::checkHeaders(void)
 
 		_headers.erase("status");
 		if (end != status->c_str() + 2 || code < 100 || code >= 600)
-			return (HTTP_INTERNAL_SERVER_ERROR);
+			return (HTTP_BAD_GATEWAY);
 		return (code);
 	}
 	if (_headers.getHeader("Location") != NULL)
@@ -84,7 +84,7 @@ void	CgiResponse::generateFirstPart(uint16_t code)
 	}
 	catch (std::logic_error& err)
 	{
-		const Status&	status = Status::getStatus(HTTP_INTERNAL_SERVER_ERROR);
+		const Status&	status = Status::getStatus(HTTP_BAD_GATEWAY);
 		setFirstPart(_firstPart, status, "", _headers);
 	}
 }
@@ -100,9 +100,8 @@ ssize_t		CgiResponse::readHeader(const char* begin, const char* end)
 	{
 		const uint16_t	code = checkHeaders();
 
-		if (_state == CGI_TO_TEMP)
-			return (_lineEnd.size());
-		generateFirstPart(code);
+		if (_state != CGI_TO_TEMP)
+			generateFirstPart(code);
 		return (_lineEnd.size());
 	}
 	const uint16_t	code = _headers.parseHeader(begin, lineBreak + 1);
