@@ -18,7 +18,7 @@ enum	CgiOutState
 class CgiOut : public AFdData
 {
 private:
-	FlowBuffer&	_responseFlowBuffer;
+	FlowBuffer&	_flowBuf;
 	std::string	_firstPart;
 	size_t		_charsWritten;
 	Headers		_headers;
@@ -29,7 +29,11 @@ private:
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
 
-	CgiOut&	operator=(const CgiOut &ref);
+	CgiOut&		operator=(const CgiOut &ref);
+
+	ssize_t		readHeader(void);
+	uint16_t	checkHeaders(void);
+	void		generateFirstPart(void);
 
 public:
 	CgiOut
