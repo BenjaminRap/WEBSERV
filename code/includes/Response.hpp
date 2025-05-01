@@ -76,11 +76,7 @@ private:
 	 * It could be different if an error occured while opening the custom error
 	 * page.
 	 */
-	const Status*			setErrorPage
-	(
-		const Status* status,
-		const ServerConfiguration& serverConfiguration
-	);
+	void					setErrorPage(const ServerConfiguration& serverConfiguration);
 	/**
 	 * @brief Initialise the values of the response : code, text, headers, body
 	 *

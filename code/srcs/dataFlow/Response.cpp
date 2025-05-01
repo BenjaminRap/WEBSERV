@@ -89,25 +89,32 @@ uint16_t	getStatusCodeFromErrno(int errnoValue)
 	}
 }
 
-const Status*	Response::setErrorPage(const Status* currentStatus, const ServerConfiguration& serverConfiguration)
+FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration)
 {
-	_fdData.stopManagingResource();
 	try
 	{
-		const std::string* errorPage = serverConfiguration.getErrorPage(currentStatus->getCode());
-		if (errorPage == NULL)
-			return (currentStatus);
+		const std::string* errorPage = serverConfiguration.getErrorPage((*currentStatus)->getCode());
 
-		FileFd*				fileFd = new FileFd(*errorPage, O_RDONLY);
-		_fdData.setManagedResource(fileFd, freePointer);
+		if (errorPage == NULL)
+			return (NULL);
+
+		return (new FileFd(*errorPage, O_RDONLY));
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{
 		const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
 
-		return (Status::getStatus(code));
+		*currentStatus = Status::getStatus(code);
+		return (NULL);
 	}
-	return (currentStatus);
+}
+
+void	Response::setErrorPage(const ServerConfiguration& serverConfiguration)
+{
+	_fdData.stopManagingResource();
+	FileFd * errorPage = getErrorPage(&_status, serverConfiguration);
+	if (errorPage != NULL)
+		_fdData.setManagedResource(errorPage, freePointer);
 }
 
 void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, int socketFd)
@@ -117,7 +124,7 @@ void	Response::initValues(int code, const ServerConfiguration& serverConfigurati
 		throw std::logic_error("initValues called with an invalid code !");
 
 	if (Status::isCodeOfType(code, STATUS_ERROR))
-		_status = setErrorPage(_status, serverConfiguration);
+		setErrorPage(serverConfiguration);
 	addDefaultHeaders(_headers, _status);
 	setBody(socketFd);
 }

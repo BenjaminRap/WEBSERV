@@ -29,7 +29,7 @@ CgiOut::CgiOut
 CgiOut::~CgiOut()
 {
 	if (_srcFile != NULL)
-		fclose(_srcFile);
+		delete _srcFile;
 }
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
@@ -53,9 +53,17 @@ uint16_t	CgiOut::checkHeaders(void)
 		_state = CGI_TO_BUFFER;
 	else
 	{
-		_srcFile = std::tmpfile();
-		if (_srcFile == NULL)
+		if (!std::tmpnam(_tempName))
 			return (HTTP_INTERNAL_SERVER_ERROR);
+		try
+		{
+			_srcFile = new FileFd(_tempName, O_RDONLY);
+		}
+		catch (std::exception& exception)
+		{
+			if (_srcFile == NULL)
+				return (HTTP_INTERNAL_SERVER_ERROR);
+		}
 		_state = CGI_TO_FILE;
 	}
 	return (HTTP_OK);
@@ -79,34 +87,18 @@ uint16_t	CgiOut::getStatusCode(void)
 	return (HTTP_OK);
 }
 
-uint16_t	getStatusCodeFromErrno(int errnoValue);
 void		addDefaultHeaders(Headers& headers, const Status* status);
+FileFd*		getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration);
 
-const Status*	CgiOut::setErrorPage(const Status* currentStatus)
+void	CgiOut::setErrorPage(const Status** currentStatus)
 {
 	if (_error == false)
-		return (currentStatus);
+		return ;
 	_headers.clear();
-	addDefaultHeaders(_headers, currentStatus);
+	addDefaultHeaders(_headers, *currentStatus);
 	if (_srcFile != NULL)
-	{
-		fclose(_srcFile);
-		_srcFile = NULL;
-	}
-	const std::string* errorPage = _serverConf.getErrorPage(_code);
-	if (errorPage == NULL)
-		return (currentStatus);
-
-	_srcFile = fopen(errorPage->c_str(), "r");
-	if (_srcFile == NULL)
-	{
-		_code = getStatusCodeFromErrno(errno);
-		const Status*	status = Status::getStatus(_code);
-		if (status == NULL)
-			throw std::logic_error("Unkown status !");
-		return (status);
-	}
-	return (currentStatus);
+		delete _srcFile;
+	_srcFile = getErrorPage(currentStatus, _serverConf);
 }
 
 void	setFirstPart
@@ -128,8 +120,7 @@ void	CgiOut::generateFirstPart(void)
 		status = Status::getStatus(HTTP_BAD_GATEWAY);
 		_error = true;
 	}
-	status = setErrorPage(status);
-	status = setErrorPage(status);
+	setErrorPage(&status);
 	const bool	hasBody = (_srcFile != NULL);
 
 	setFirstPart(_firstPart, *status, "", _headers, hasBody);

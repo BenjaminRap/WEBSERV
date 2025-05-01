@@ -2,9 +2,10 @@
 # define CGI_OUT_HPP
 
 # include "AFdData.hpp"				// for ASocketData
+# include "FileFd.hpp"
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
-# include <cstdio>					// for std::FILE
+# include <cstdio>					// for L_tmpnam
 
 class	FlowBuffer;
 class	Status;
@@ -24,7 +25,8 @@ private:
 	std::string					_firstPart;
 	size_t						_charsWritten;
 	Headers						_headers;
-	std::FILE*					_srcFile;
+	char						_tempName[L_tmpnam];
+	FileFd*						_srcFile;
 	CgiOutState					_state;
 	uint16_t					_code;
 	bool						_error;
@@ -35,11 +37,11 @@ private:
 
 	CgiOut&			operator=(const CgiOut &ref);
 
-	uint16_t		checkHeaders(void);
-	uint16_t		getStatusCode(void);
-	ssize_t			readHeader(void);
-	void			generateFirstPart(void);
-	const Status*	setErrorPage(const Status* currentStatus);
+	uint16_t	checkHeaders(void);
+	uint16_t	getStatusCode(void);
+	ssize_t		readHeader(void);
+	void		generateFirstPart(void);
+	void		setErrorPage(const Status** currentStatus);
 
 public:
 	CgiOut
