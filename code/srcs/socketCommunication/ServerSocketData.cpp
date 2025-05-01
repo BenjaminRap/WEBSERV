@@ -24,7 +24,7 @@ ServerSocketData::ServerSocketData
 	EPollHandler &ePollHandler,
 	const std::vector<ServerConfiguration> &serverConfiguration
 ) :
-	ASocketData(fd, ePollHandler, serverConfiguration)
+	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA)
 {
 
 }

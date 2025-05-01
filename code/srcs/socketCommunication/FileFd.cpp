@@ -19,12 +19,12 @@ static	int	openFile(const std::string& path, int flags)
 }
 
 FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
-	AFdData(openFile(path, flags, mode))
+	AFdData(openFile(path, flags, mode), FILEFD)
 {
 }
 
 FileFd::FileFd(const std::string& path, int flags) :
-	AFdData(openFile(path, flags))
+	AFdData(openFile(path, flags), FILEFD)
 {
 }
 

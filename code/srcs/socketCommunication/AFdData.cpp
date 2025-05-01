@@ -7,10 +7,11 @@
 
 class ServerConfiguration;  // lines 11-11
 
-AFdData::AFdData(int fd, EPollHandler& ePollHandler) :
+AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type) :
 	_fd(fd),
 	_ePollHandler(&ePollHandler),
-	_isActive(true)
+	_isActive(true),
+	_type(type)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
@@ -19,9 +20,10 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler) :
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
 
-AFdData::AFdData(int fd) :
+AFdData::AFdData(int fd, AFdDataChilds type) :
 	_fd(fd),
-	_ePollHandler(NULL)
+	_ePollHandler(NULL),
+	_type(type)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
@@ -49,4 +51,9 @@ bool	AFdData::getIsBlocking(void) const
 bool	AFdData::getIsActive(void) const
 {
 	return (_isActive);
+}
+
+AFdDataChilds	AFdData::getType(void) const
+{
+	return (_type);
 }

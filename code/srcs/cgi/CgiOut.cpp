@@ -1,5 +1,4 @@
 #include <cstdlib>					// for std::strtoul
-#include <stdexcept>				// for std::logic_error
 #include <sys/epoll.h>				// for EPOLLIN
 
 #include "CgiOut.hpp"				// for CgiOut
@@ -14,7 +13,7 @@ CgiOut::CgiOut
 	FlowBuffer&	responseFlowBuffer,
 	const ServerConfiguration& serverConfiguration
 ) :
-	AFdData(fd, ePollHandler),
+	AFdData(fd, ePollHandler, CGIOUT),
 	_flowBuf(responseFlowBuffer),
 	_firstPart(),
 	_charsWritten(0),
