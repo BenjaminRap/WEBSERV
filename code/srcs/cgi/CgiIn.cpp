@@ -22,31 +22,23 @@ CgiIn::CgiIn
 	_body(body),
 	_connectedSocketData(connectedSocketData),
 	_response(currentResponse),
+	_tempName(),
 	_tempFile(NULL),
-	_tempFileSize(-1),
 	_state(BUF_TO_CGI)
 {
+	_tempName[0] = '\0';
 	if (dynamic_cast<ChunkedBody*>(&_body) == NULL)
 		return ;
-	_tempFile = std::tmpfile();
-	_state =  BUF_TO_TEMP;
-	if (_tempFile == NULL)
+	if (!std::tmpnam(_tempName))
 		throw std::runtime_error("error creating a temporary file !");
+	_tempFile = new FileFd(_tempName, O_RDONLY | O_CREAT | O_EXCL);
+	_state =  BUF_TO_TEMP;
 }
 
 CgiIn::~CgiIn()
 {
 	if (_tempFile != NULL)
-		fclose(_tempFile);
-}
-
-ssize_t	fwriteChar(FILE* file, void* buffer, size_t length)
-{
-	const size_t	written = fwrite(buffer, 1, length, file);
-
-	if (written < length)
-		return (-1);
-	return (written);
+		delete(_tempFile);
 }
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
@@ -68,8 +60,8 @@ void	CgiIn::redirectToTemp(void)
 		return ;
 	if (code == HTTP_OK)
 	{
-		_tempFileSize = std::ftell(_tempFile);
-		std::rewind(_tempFile);
+		delete _tempFile;
+		_tempFile = new FileFd(_tempName, O_WRONLY);
 		_state = TEMP_TO_CGI;
 	}
 	else
@@ -94,7 +86,7 @@ void	CgiIn::callback(uint32_t events)
 		return ;
 
 	const FlowState	flowState = (TEMP_TO_CGI)
-		? _flowBuf.redirect(_tempFile, getFd(), write, fwriteChar)
+		? _flowBuf.redirect(_tempFile->getFd(), getFd())
 		: _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
 
 	const uint16_t	code = getCodeIfFinished(true, flowState, _body);

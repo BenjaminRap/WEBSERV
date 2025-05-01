@@ -2,7 +2,8 @@
 # define CGI_IN_HPP
 
 # include "AFdData.hpp"	// for AFdData
-# include <cstdio>		// for FILE
+# include "FileFd.hpp"	// for FileFd
+# include <cstdio>		// for L_tmpnam
 
 class	ConnectedSocketData;
 class	Response;
@@ -24,8 +25,8 @@ private:
 	ABody&					_body;
 	ConnectedSocketData&	_connectedSocketData;
 	Response&				_response;
-	std::FILE*				_tempFile;
-	ssize_t					_tempFileSize;
+	char					_tempName[L_tmpnam];
+	FileFd*					_tempFile;
 	CgiInState				_state;
 
 	CgiIn(void);

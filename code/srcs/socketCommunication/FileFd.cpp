@@ -48,23 +48,6 @@ FileFd::FileFd(const std::string& path, int flags) :
 	_fileSize = fileSize;
 }
 
-static int	openTemporaryFile(int rights)
-{
-	char* const	name = std::tmpnam(NULL);
-	const int	fd = open(name, O_CREAT | rights);
-
-	if (fd == -1)
-		throw FileFd::FileOpeningError();
-	std::remove(name);
-	return (fd);
-}
-
-FileFd::FileFd(int rights) :
-	AFdData(openTemporaryFile(rights), FILEFD),
-	_fileSize(0)
-{
-}
-
 FileFd::~FileFd()
 {
 }

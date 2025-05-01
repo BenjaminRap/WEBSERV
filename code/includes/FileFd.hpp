@@ -28,7 +28,6 @@ private:
 public:
 	FileFd(const std::string& path, int flags, mode_t mode);
 	FileFd(const std::string& path, int flags);
-	FileFd(int rights);
 	~FileFd(void);
 
 	/**
