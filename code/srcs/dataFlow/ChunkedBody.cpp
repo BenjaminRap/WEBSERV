@@ -15,16 +15,6 @@ const std::string	ChunkedBody::_lineEnd("\r\n");
 ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
 	ABody(fd),
 	_maxSize(maxSize),
-	_totalSize(0),
-	_chunkSize(-1),
-	_state(CHUNKED_SIZE)
-{
-}
-
-ChunkedBody::ChunkedBody(std::FILE* file,  size_t maxSize) :
-	ABody(file),
-	_maxSize(maxSize),
-	_totalSize(0),
 	_chunkSize(-1),
 	_state(CHUNKED_SIZE)
 {
@@ -33,7 +23,6 @@ ChunkedBody::ChunkedBody(std::FILE* file,  size_t maxSize) :
 ChunkedBody::ChunkedBody(size_t maxSize) :
 	ABody(),
 	_maxSize(maxSize),
-	_totalSize(0),
 	_chunkSize(-1),
 	_state(CHUNKED_SIZE)
 {
@@ -69,13 +58,12 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
-	if (doesAdditionOverflow(_totalSize, _chunkSize)
-		|| _totalSize + _chunkSize > _maxSize)
+	if (doesAdditionOverflow(getWritten(), _chunkSize)
+		|| getWritten() + _chunkSize > _maxSize)
 	{
 		setFinished(HTTP_CONTENT_TOO_LARGE);
 		return (-1);
 	}
-	_totalSize += _chunkSize;
 	if (_chunkSize == 0)
 		_state = CHUNKED_TRAILERS;
 	else

@@ -27,7 +27,6 @@ private:
 	SizedBody&	operator=(const SizedBody& ref);
 public:
 	SizedBody(int fd, size_t size);
-	SizedBody(std::FILE* file, size_t size);
 	SizedBody(size_t size);
 	~SizedBody();
 

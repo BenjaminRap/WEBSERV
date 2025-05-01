@@ -17,15 +17,6 @@ SizedBody::SizedBody(int fd, size_t size) :
 		setFinished(HTTP_OK);
 }
 
-SizedBody::SizedBody(std::FILE* file, size_t size) :
-	ABody(file),
-	_size(size),
-	_numCharsWritten(0)
-{
-	if (_size == 0)
-		setFinished(HTTP_OK);
-}
-
 SizedBody::SizedBody(size_t size) :
 	ABody(),
 	_size(size),

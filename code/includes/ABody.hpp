@@ -1,7 +1,6 @@
 #ifndef A_BODY_HPP
 # define A_BODY_HPP
 
-# include <cstdio>		// for FILE
 # include <stdint.h>	// for uint16_t
 # include <sys/types.h>	// for ssize_t
 
@@ -26,12 +25,6 @@ private:
 	 */
 	int			_fd;
 	/**
-	 * @brief the FILE in which the body will write.
-	 * If this value is NULL, then the body will not write but will
-	 * check for the body end.
-	 */
-	std::FILE*	_file;
-	/**
 	 * @brief True if this body has been entirely written.
 	 */
 	bool		_finished;
@@ -41,6 +34,11 @@ private:
 	 * a -1, this value should not be set to HTTP_OK.
 	 */
 	uint16_t	_status;
+	/**
+	 * @brief The number of character written in the fd.
+	 * if the fd is invalid, this attribute is always 0.
+	 */
+	size_t		_written;
 
 	ABody(const ABody& ref);
 	
@@ -66,12 +64,12 @@ protected:
 	virtual ssize_t		writeToFd(const void *buffer, size_t bufferCapacity) = 0;
 public:
 	ABody(int fd);
-	ABody(std::FILE* file);
 	ABody();
 	virtual ~ABody();
 	
 	bool		getFinished() const;
 	uint16_t	getStatus() const;
+	size_t		getWritten(void) const;
 	/**
 	 * @brief Write bufferSize bytes from the buffer to the _fd.
 	 * If the _fd is set to -1, it justs ignores them.
