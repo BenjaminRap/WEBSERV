@@ -40,8 +40,7 @@ static int	createServerSocket
 
 	if (checkError(fd, -1, "socket() : "))
 		return (-1);
-	if (addFlagsToFd(fd, O_NONBLOCK | FD_CLOEXEC) == -1 // set the non blocking and closing on fork flags
-		|| setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
+	if (setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
 		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1) // set the IPV6 sockets to only listen to IPV6
 		|| ePollHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
 		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ")) // set the socket to listening

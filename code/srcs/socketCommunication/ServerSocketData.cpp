@@ -50,11 +50,6 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 
 	if (checkError(newConnectionFd, -1, "accept() : "))
 		return ;
-	if (addFlagsToFd(newConnectionFd, O_NONBLOCK | FD_CLOEXEC) == -1)
-	{
-		closeFdAndPrintError(newConnectionFd);
-		return ;
-	}
 	try
 	{
 		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newConnectionFd, *_ePollHandler, _serverConfigurations));
