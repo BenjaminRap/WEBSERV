@@ -14,8 +14,6 @@
 #include "SharedResource.hpp"       // for SharedResource
 #include "SizedBody.hpp"            // for SizedBody
 #include "Status.hpp"               // for Status, StatusType
-#include "exception.hpp"            // for CustomException
-#include "protocol.hpp"             // for PROTOCOL
 #include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
 
 class ABody;
@@ -52,13 +50,21 @@ void	Response::addDefaultHeaders(void)
 
 std::string	sizeTToString(size_t value);
 
-void	Response::setBody(ARequestType* requestResult, int socketFd)
+void	Response::setBody(int socketFd)
 {
 	size_t	bodySize = 0;
 
-	if (requestResult != NULL && _fdData.isManagingValue())
+	if (_fdData.isManagingValue())
 	{
-		bodySize = requestResult->getOutSize();
+		AFdData*	fdData = _fdData.getValue();
+
+		if (fdData->getType() == FILEFD)
+			bodySize = static_cast<FileFd*>(fdData)->getSize();
+		else
+		{
+			_fdData.stopManagingResource();
+			throw std::logic_error("The AFdData is not a FileFd !");
+		}
 		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
 	}
 	else if (_status->getErrorPage().size() != 0)
@@ -103,14 +109,14 @@ uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& server
 	return (code);
 }
 
-void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd)
+void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, int socketFd)
 {
 	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
 	_status = Status::getStatus(code);
 	if (_status == NULL)
 		throw std::logic_error("Response setResponse called with an invalid status code !");
 	addDefaultHeaders();
-	setBody(requestResult, socketFd);
+	setBody(socketFd);
 }
 
 /*********************************Public Methods********************************************/
@@ -118,7 +124,7 @@ void	Response::initValues(int code, const ServerConfiguration& serverConfigurati
 void	Response::setResponse(int code)
 {
 	reset();
-	initValues(code, _defaultConfig, NULL, -1);
+	initValues(code, _defaultConfig, -1);
 }
 
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
@@ -126,7 +132,7 @@ void	Response::setResponse(ARequestType& requestResult, int socketFd)
 	reset();
 	_fdData = requestResult.getOutFd();
 	_autoIndexPage = requestResult.getAutoIndexPage();
-	initValues(requestResult.getCode(), requestResult.getConfig(), &requestResult, socketFd);
+	initValues(requestResult.getCode(), requestResult.getConfig(), socketFd);
 	if (requestResult.getRedirection().empty() == false
 		&& _status->isOfType(STATUS_REDIRECTION))
 	{

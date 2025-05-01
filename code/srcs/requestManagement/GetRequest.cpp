@@ -58,13 +58,6 @@ void	GetRequest::openFileAndSetSize(void)
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		return ;
 	}
-	const ssize_t fileSize = getFileSize(this->_url.c_str());
-	if (fileSize == -1)
-	{
-		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		return ;
-	}
-	this->_outSize = fileSize;
 }
 
 void	GetRequest::setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage)

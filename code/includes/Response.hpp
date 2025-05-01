@@ -73,7 +73,7 @@ private:
 	 * @param requestResult The result of the request. If an error occured
 	 * before the request execution, this variable should be set to NULL.
 	 */
-	void					setBody(ARequestType* requestResult, int socketFd);
+	void					setBody(int socketFd);
 	/**
 	 * @brief If there is an error, stop the managment of the body and replace
 	 * it with the custom error page (if there is one).
@@ -97,7 +97,6 @@ private:
 	(
 		int code,
 		const ServerConfiguration& serverConfiguration,
-		ARequestType *requestResult,
 		int socketFd
 	);
 

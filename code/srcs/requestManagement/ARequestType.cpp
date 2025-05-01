@@ -35,8 +35,7 @@ ARequestType::ARequestType
 	_redirection(),
 	_autoIndexPage(),
 	_inFd(),
-	_outFd(),
-	_outSize(0)
+	_outFd()
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -112,11 +111,6 @@ SharedResource<AFdData*>	ARequestType::getInFd() const
 SharedResource<AFdData*>	ARequestType::getOutFd() const
 {
 	return (_outFd);
-}
-
-size_t	ARequestType::getOutSize() const
-{
-	return (_outSize);
 }
 
 bool	ARequestType::getAutoIndex(void) const
