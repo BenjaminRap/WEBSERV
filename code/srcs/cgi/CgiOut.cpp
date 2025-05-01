@@ -11,22 +11,26 @@ CgiOut::CgiOut
 (
 	int fd,
 	EPollHandler& ePollHandler,
-	FlowBuffer&	responseFlowBuffer
+	FlowBuffer&	responseFlowBuffer,
+	const ServerConfiguration& serverConfiguration
 ) :
 	AFdData(fd, ePollHandler),
 	_flowBuf(responseFlowBuffer),
 	_firstPart(),
 	_charsWritten(0),
 	_headers(),
-	_tempFile(NULL),
+	_srcFile(NULL),
 	_state(READ_HEADER),
-	_code(0)
+	_code(0),
+	_error(false),
+	_serverConf(serverConfiguration)
 {
 }
 
 CgiOut::~CgiOut()
 {
-
+	if (_srcFile != NULL)
+		fclose(_srcFile);
 }
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
@@ -50,10 +54,10 @@ uint16_t	CgiOut::checkHeaders(void)
 		_state = CGI_TO_BUFFER;
 	else
 	{
-		_tempFile = std::tmpfile();
-		if (_tempFile == NULL)
+		_srcFile = std::tmpfile();
+		if (_srcFile == NULL)
 			return (HTTP_INTERNAL_SERVER_ERROR);
-		_state = CGI_TO_TEMP;
+		_state = CGI_TO_FILE;
 	}
 	return (HTTP_OK);
 }
@@ -85,18 +89,37 @@ void	setFirstPart
 	bool hasBody
 );
 
+uint16_t	getStatusCodeFromErrno(int errnoValue);
+
 void	CgiOut::generateFirstPart(void)
 {
-	try
+	const Status*	status;
+
+	status = Status::getStatus(_code);
+	if (_error)
 	{
-		const Status&	status = Status::getStatus(_code);
-		setFirstPart(_firstPart, status, "", _headers, true);
+		if (_srcFile != NULL)
+			fclose(_srcFile);
+		const std::string* errorPage = _serverConf.getErrorPage(_code);
+
+		if (errorPage != NULL)
+		{
+			_srcFile = fopen(errorPage->c_str(), "r");
+			if (_srcFile == NULL)
+			{
+				_code = getStatusCodeFromErrno(errno);
+				status = Status::getStatus(_code);
+			}
+		}
 	}
-	catch (std::logic_error& err)
+	if (status == NULL)
 	{
-		const Status&	status = Status::getStatus(HTTP_BAD_GATEWAY);
-		setFirstPart(_firstPart, status, "", _headers, false);
+		status = Status::getStatus(HTTP_BAD_GATEWAY);
+		_error = true;
 	}
+	const bool	hasBody = (_srcFile != NULL || _error == false);
+
+	setFirstPart(_firstPart, *status, "", _headers, hasBody);
 }
 
 ssize_t		CgiOut::readHeader(void)
@@ -113,16 +136,13 @@ ssize_t		CgiOut::readHeader(void)
 		if (_code != HTTP_OK)
 			return (-1);
 		_code = getStatusCode();
-		if (_state != CGI_TO_TEMP || _code == (uint16_t)-1)
+		if (_state != CGI_TO_FILE || _code == (uint16_t)-1)
 			generateFirstPart();
 		return (1);
 	}
-	const uint16_t	code = _headers.parseHeader(begin, end);
-	if (code != HTTP_OK)
-	{
-		_code = code;
+	_code = _headers.parseHeader(begin, end);
+	if (_code != HTTP_OK)
 		return (-1);
-	}
 	return (1);
 }
 
@@ -134,19 +154,24 @@ void	CgiOut::callback(uint32_t events)
 	{
 		if (_state == READ_HEADER)
 			_code = HTTP_BAD_GATEWAY;
-		else if (_state == CGI_TO_TEMP)
-			_state = TEMP_TO_BUFFER;
+		else if (_state == CGI_TO_FILE)
+			_state = FILE_TO_BUFFER;
 		else
 			_isActive = false;
 		return ;
 	}
-	const FlowState flowState = _flowBuf.srcToBuff<int>(getFd());
-
-	if (flowState == FLOW_ERROR || flowState == FLOW_DONE)
+	if (events & EPOLLIN)
 	{
-		_isActive = false;
-		return ;
+		const FlowState flowState = _flowBuf.srcToBuff<int>(getFd());
+
+		if (flowState == FLOW_ERROR || flowState == FLOW_DONE)
+		{
+			_isActive = false;
+			return ;
+		}
 	}
+	if (_flowBuf.isBufferEmpty())
+		return ;
 	while (_state == READ_HEADER)
 	{
 		readHeader();
