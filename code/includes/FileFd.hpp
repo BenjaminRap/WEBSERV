@@ -2,6 +2,7 @@
 # define FILE_FD_HPP
 
 # include <cerrno>		// for errno
+# include <cstdio>		// for L_tmpnam
 # include <stdint.h>	// for uint32_t
 # include <string>		// for std::string
 # include <fcntl.h>		// for mode_t
@@ -36,9 +37,10 @@ public:
 	 * as the non blocking fds will be treated the same as blocking fds.
 	 *
 	 */
-	void	callback(uint32_t events);
+	void			callback(uint32_t events);
 
-	size_t	getSize(void) const;
+	size_t			getSize(void) const;
+	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam]);
 
 	class FileOpeningError : public std::exception
 	{

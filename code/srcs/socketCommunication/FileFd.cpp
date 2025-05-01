@@ -61,3 +61,16 @@ size_t	FileFd::getSize(void) const
 {
 	return (_fileSize);
 }
+
+
+FileFd*	getTemporaryFile(char (&name)[L_tmpnam], int rights)
+{
+	if (rights != O_RDONLY || rights != O_WRONLY)
+		return (NULL);
+	if (*name == '\0')
+	{
+		if (!std::tmpnam(name))
+			return (NULL);
+	}
+	return (new (std::nothrow) FileFd(name, rights));
+}
