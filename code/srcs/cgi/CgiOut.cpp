@@ -81,30 +81,27 @@ uint16_t	CgiOut::getStatusCode(void)
 
 uint16_t	getStatusCodeFromErrno(int errnoValue);
 
-const Status*	CgiOut::setErrorPage(const Status* status)
+const Status*	CgiOut::setErrorPage(const Status* currentStatus)
 {
-	if (_error == false)
-		return (status);
 	if (_srcFile != NULL)
 	{
 		fclose(_srcFile);
 		_srcFile = NULL;
 	}
 	const std::string* errorPage = _serverConf.getErrorPage(_code);
+	if (errorPage == NULL)
+		return (currentStatus);
 
-	if (errorPage != NULL)
+	_srcFile = fopen(errorPage->c_str(), "r");
+	if (_srcFile == NULL)
 	{
-		_srcFile = fopen(errorPage->c_str(), "r");
-		if (_srcFile == NULL)
-		{
-			_code = getStatusCodeFromErrno(errno);
-			const Status*	status = Status::getStatus(_code);
-			if (status == NULL)
-				throw std::logic_error("Unkown status !");
-			return (status);
-		}
+		_code = getStatusCodeFromErrno(errno);
+		const Status*	status = Status::getStatus(_code);
+		if (status == NULL)
+			throw std::logic_error("Unkown status !");
+		return (status);
 	}
-	return (status);
+	return (currentStatus);
 }
 
 void	setFirstPart
@@ -126,6 +123,8 @@ void	CgiOut::generateFirstPart(void)
 		status = Status::getStatus(HTTP_BAD_GATEWAY);
 		_error = true;
 	}
+	if (_error)
+		status = setErrorPage(status);
 	status = setErrorPage(status);
 	const bool	hasBody = (_srcFile != NULL);
 

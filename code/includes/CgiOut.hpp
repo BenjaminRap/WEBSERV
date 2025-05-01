@@ -39,7 +39,7 @@ private:
 	uint16_t		getStatusCode(void);
 	ssize_t			readHeader(void);
 	void			generateFirstPart(void);
-	const Status*	setErrorPage(const Status* status);
+	const Status*	setErrorPage(const Status* currentStatus);
 
 public:
 	CgiOut
