@@ -24,12 +24,16 @@ CgiOut::CgiOut
 	_error(false),
 	_serverConf(serverConfiguration)
 {
+	_tempName[0] = '\0';
 }
 
 CgiOut::~CgiOut()
 {
 	if (_srcFile != NULL)
+	{
+		std::remove(_tempName);
 		delete _srcFile;
+	}
 }
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
@@ -53,17 +57,9 @@ uint16_t	CgiOut::checkHeaders(void)
 		_state = CGI_TO_BUFFER;
 	else
 	{
-		if (!std::tmpnam(_tempName))
+		_srcFile = FileFd::getTemporaryFile(_tempName);
+		if (_srcFile == NULL)
 			return (HTTP_INTERNAL_SERVER_ERROR);
-		try
-		{
-			_srcFile = new FileFd(_tempName, O_RDONLY);
-		}
-		catch (std::exception& exception)
-		{
-			if (_srcFile == NULL)
-				return (HTTP_INTERNAL_SERVER_ERROR);
-		}
 		_state = CGI_TO_FILE;
 	}
 	return (HTTP_OK);

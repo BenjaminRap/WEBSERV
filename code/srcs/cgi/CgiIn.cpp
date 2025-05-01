@@ -26,19 +26,22 @@ CgiIn::CgiIn
 	_tempFile(NULL),
 	_state(BUF_TO_CGI)
 {
-	_tempName[0] = '\0';
 	if (dynamic_cast<ChunkedBody*>(&_body) == NULL)
 		return ;
-	if (!std::tmpnam(_tempName))
+	_tempName[0] = '\0';
+	_tempFile = FileFd::getTemporaryFile(_tempName);
+	if (_tempFile == NULL)
 		throw std::runtime_error("error creating a temporary file !");
-	_tempFile = new FileFd(_tempName, O_RDONLY | O_CREAT | O_EXCL);
 	_state =  BUF_TO_TEMP;
 }
 
 CgiIn::~CgiIn()
 {
 	if (_tempFile != NULL)
+	{
+		std::remove(_tempName);
 		delete(_tempFile);
+	}
 }
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
@@ -61,7 +64,7 @@ void	CgiIn::redirectToTemp(void)
 	if (code == HTTP_OK)
 	{
 		delete _tempFile;
-		_tempFile = new FileFd(_tempName, O_WRONLY);
+		_tempFile = FileFd::getTemporaryFile(_tempName);
 		_state = TEMP_TO_CGI;
 	}
 	else
