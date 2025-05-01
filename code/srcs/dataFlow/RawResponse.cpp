@@ -25,6 +25,13 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
+	if (_fdData.isManagingValue())
+	{
+		AFdData* fdData = _fdData.getValue();
+
+		if (fdData->getType() == CGIOUT)
+			return ;
+	}
 	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders(), _fdData.isManagingValue());
 	_firstPartBuffer.setBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity());
 }
@@ -85,7 +92,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	const bool	hasBody = _body.isManagingValue() && _fdData.isManagingValue();
 
-	if (_firstPartBuffer.getContentLength() != 0)
+	if (_firstPartBuffer.getContentLength() != _firstPartBuffer.getNumCharsWritten())
 	{
 		const FlowState flowState = _firstPartBuffer.buffToDest(socketFd);
 

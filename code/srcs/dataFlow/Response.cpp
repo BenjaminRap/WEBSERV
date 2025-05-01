@@ -130,7 +130,16 @@ void	Response::setResponse(int code)
 void	Response::setResponse(ARequestType& requestResult, int socketFd)
 {
 	reset();
+
 	_fdData = requestResult.getOutFd();
+	if (_fdData.isManagingValue())
+	{
+		AFdData* fdData = _fdData.getValue();
+
+		if (fdData->getType() == CGIOUT)
+			return ;
+	}
+
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig(), socketFd);
 	if (requestResult.getRedirection().empty() == false
