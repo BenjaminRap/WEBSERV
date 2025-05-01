@@ -79,6 +79,34 @@ uint16_t	CgiOut::getStatusCode(void)
 	return (HTTP_OK);
 }
 
+uint16_t	getStatusCodeFromErrno(int errnoValue);
+
+const Status*	CgiOut::setErrorPage(const Status* status)
+{
+	if (_error == false)
+		return (status);
+	if (_srcFile != NULL)
+	{
+		fclose(_srcFile);
+		_srcFile = NULL;
+	}
+	const std::string* errorPage = _serverConf.getErrorPage(_code);
+
+	if (errorPage != NULL)
+	{
+		_srcFile = fopen(errorPage->c_str(), "r");
+		if (_srcFile == NULL)
+		{
+			_code = getStatusCodeFromErrno(errno);
+			const Status*	status = Status::getStatus(_code);
+			if (status == NULL)
+				throw std::logic_error("Unkown status !");
+			return (status);
+		}
+	}
+	return (status);
+}
+
 void	setFirstPart
 (
 	std::string& result,
@@ -88,35 +116,18 @@ void	setFirstPart
 	bool hasBody
 );
 
-uint16_t	getStatusCodeFromErrno(int errnoValue);
-
 void	CgiOut::generateFirstPart(void)
 {
 	const Status*	status;
 
 	status = Status::getStatus(_code);
-	if (_error)
-	{
-		if (_srcFile != NULL)
-			fclose(_srcFile);
-		const std::string* errorPage = _serverConf.getErrorPage(_code);
-
-		if (errorPage != NULL)
-		{
-			_srcFile = fopen(errorPage->c_str(), "r");
-			if (_srcFile == NULL)
-			{
-				_code = getStatusCodeFromErrno(errno);
-				status = Status::getStatus(_code);
-			}
-		}
-	}
 	if (status == NULL)
 	{
 		status = Status::getStatus(HTTP_BAD_GATEWAY);
 		_error = true;
 	}
-	const bool	hasBody = (_srcFile != NULL || _error == false);
+	status = setErrorPage(status);
+	const bool	hasBody = (_srcFile != NULL);
 
 	setFirstPart(_firstPart, *status, "", _headers, hasBody);
 }
@@ -137,12 +148,12 @@ ssize_t		CgiOut::readHeader(void)
 		_code = getStatusCode();
 		if (_state != CGI_TO_FILE || _code == (uint16_t)-1)
 			generateFirstPart();
-		return (1);
+		return (2);
 	}
 	_code = _headers.parseHeader(begin, end);
 	if (_code != HTTP_OK)
 		return (-1);
-	return (1);
+	return (std::distance(begin, end));
 }
 
 void	CgiOut::callback(uint32_t events)

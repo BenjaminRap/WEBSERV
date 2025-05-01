@@ -7,6 +7,7 @@
 # include <cstdio>					// for std::FILE
 
 class	FlowBuffer;
+class	Status;
 
 enum	CgiOutState
 {
@@ -32,12 +33,13 @@ private:
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
 
-	CgiOut&		operator=(const CgiOut &ref);
+	CgiOut&			operator=(const CgiOut &ref);
 
-	uint16_t	checkHeaders(void);
-	uint16_t	getStatusCode(void);
-	ssize_t		readHeader(void);
-	void		generateFirstPart(void);
+	uint16_t		checkHeaders(void);
+	uint16_t		getStatusCode(void);
+	ssize_t			readHeader(void);
+	void			generateFirstPart(void);
+	const Status*	setErrorPage(const Status* status);
 
 public:
 	CgiOut
