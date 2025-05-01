@@ -89,34 +89,36 @@ uint16_t	getStatusCodeFromErrno(int errnoValue)
 	}
 }
 
-uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration)
+const Status*	Response::setErrorPage(const Status* currentStatus, const ServerConfiguration& serverConfiguration)
 {
-	if (Status::isCodeOfType(code, STATUS_ERROR) == false)
-		return (code);
 	_fdData.stopManagingResource();
 	try
 	{
-		const std::string* errorPage = serverConfiguration.getErrorPage(code);
+		const std::string* errorPage = serverConfiguration.getErrorPage(currentStatus->getCode());
 		if (errorPage == NULL)
-			return (code);
+			return (currentStatus);
 
 		FileFd*				fileFd = new FileFd(*errorPage, O_RDONLY);
 		_fdData.setManagedResource(fileFd, freePointer);
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{
-		return (getStatusCodeFromErrno(openError.getErrno()));
+		const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
+
+		return (Status::getStatus(code));
 	}
-	return (code);
+	return (currentStatus);
 }
 
 void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, int socketFd)
 {
-	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
 	_status = Status::getStatus(code);
 	if (_status == NULL)
-		throw std::logic_error("Response setResponse called with an invalid status code !");
-	addDefaultHeaders();
+		throw std::logic_error("initValues called with an invalid code !");
+
+	if (Status::isCodeOfType(code, STATUS_ERROR))
+		_status = setErrorPage(_status, serverConfiguration);
+	addDefaultHeaders(_headers, _status);
 	setBody(socketFd);
 }
 

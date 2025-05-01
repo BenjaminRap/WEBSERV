@@ -76,9 +76,9 @@ private:
 	 * It could be different if an error occured while opening the custom error
 	 * page.
 	 */
-	uint16_t				setErrorPage
+	const Status*			setErrorPage
 	(
-		uint16_t code,
+		const Status* status,
 		const ServerConfiguration& serverConfiguration
 	);
 	/**
