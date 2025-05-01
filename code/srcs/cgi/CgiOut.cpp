@@ -80,9 +80,14 @@ uint16_t	CgiOut::getStatusCode(void)
 }
 
 uint16_t	getStatusCodeFromErrno(int errnoValue);
+void		addDefaultHeaders(Headers& headers, const Status* status);
 
 const Status*	CgiOut::setErrorPage(const Status* currentStatus)
 {
+	if (_error == false)
+		return (currentStatus);
+	_headers.clear();
+	addDefaultHeaders(_headers, currentStatus);
 	if (_srcFile != NULL)
 	{
 		fclose(_srcFile);
@@ -123,8 +128,7 @@ void	CgiOut::generateFirstPart(void)
 		status = Status::getStatus(HTTP_BAD_GATEWAY);
 		_error = true;
 	}
-	if (_error)
-		status = setErrorPage(status);
+	status = setErrorPage(status);
 	status = setErrorPage(status);
 	const bool	hasBody = (_srcFile != NULL);
 

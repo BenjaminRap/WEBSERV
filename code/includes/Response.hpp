@@ -61,12 +61,6 @@ private:
 	Response&	operator=(const Response& response);
 
 	/**
-	 * @brief Add some headers that doesn't depend of the setResponse
-	 * arguments.
-	 * It sets the Date, Server and Connection headers.
-	 */
-	void					addDefaultHeaders(void);
-	/**
 	 * @brief Set the body and the content-length header depending on
 	 * the requestResult.
 	 *

@@ -37,15 +37,16 @@ Response::~Response(void)
 
 /*********************************Privates Methods******************************************/
 
-void	Response::addDefaultHeaders(void)
+void	addDefaultHeaders(Headers& headers, const Status* status)
 {
 	char				timeBuffer[100];
 	const std::time_t	now = std::time(NULL);
 
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
-	_headers["date"] = timeBuffer;
-	_headers["server"] = "WebServ de bg";
-	_headers["connection"] = (_status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+	headers["date"] = timeBuffer;
+	headers["server"] = "WebServ de bg";
+	headers["connection"] = (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+
 }
 
 std::string	sizeTToString(size_t value);
