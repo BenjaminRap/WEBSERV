@@ -45,6 +45,8 @@ public:
 	);
 	~CgiIn();
 
+	void	setFinished(uint16_t code);
+	void	redirectToTemp(void);
 	void	callback(uint32_t events);
 };
 

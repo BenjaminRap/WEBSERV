@@ -51,35 +51,44 @@ ssize_t	fwriteChar(FILE* file, void* buffer, size_t length)
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
 
+
+void	CgiIn::setFinished(uint16_t code)
+{
+	_response.setResponse(code);
+	_connectedSocketData.readNextRequests(_response, REQUEST_DONE);
+	_isActive = false;
+}
+
+void	CgiIn::redirectToTemp(void)
+{
+	const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+	const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+
+	if (code == 0)
+		return ;
+	if (code == HTTP_OK)
+	{
+		_tempFileSize = std::ftell(_tempFile);
+		std::rewind(_tempFile);
+		_state = TEMP_TO_CGI;
+	}
+	else
+		setFinished(code);
+}
+
 void	CgiIn::callback(uint32_t events)
 {
 	if (!_isActive)
 		return ;
 	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
 	{
-		_response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
-		_isActive = false;
+		setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		return ;
 	}
 	if (_state == BUF_TO_TEMP)
 	{
-		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
-		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
-
-		if (code == 0)
-			return ;
-		if (code == HTTP_OK)
-		{
-			_tempFileSize = std::ftell(_tempFile);
-			std::rewind(_tempFile);
-			_state = TEMP_TO_CGI;
-		}
-		else
-		{
-			_response.setResponse(code);
-			_isActive = false;
-			return ;
-		}
+		redirectToTemp();
+		return ;
 	}
 	if (!(events & EPOLLIN))
 		return ;
@@ -91,7 +100,5 @@ void	CgiIn::callback(uint32_t events)
 	const uint16_t	code = getCodeIfFinished(true, flowState, _body);
 	if (code == 0)
 		return ;
-	_isActive = false;
-	_response.setResponse(code);
-	_connectedSocketData.readNextRequests(_response, REQUEST_DONE); // this will destroy this instance
+	setFinished(code);
 }
