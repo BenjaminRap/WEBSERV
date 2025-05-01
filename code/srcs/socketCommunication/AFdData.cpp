@@ -36,6 +36,8 @@ AFdData::~AFdData(void)
 {
 	if (_ePollHandler != NULL)
 		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
+	else if (_fd > 0)
+		closeFdAndPrintError(_fd);
 }
 
 int	AFdData::getFd() const
