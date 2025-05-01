@@ -19,6 +19,8 @@ class EPollHandler;
 class FileFd : public AFdData
 {
 private:
+	size_t	_fileSize;
+
 	FileFd(void);
 	FileFd(const FileFd &ref);
 
@@ -35,6 +37,8 @@ public:
 	 *
 	 */
 	void	callback(uint32_t events);
+
+	size_t	getSize(void) const;
 
 	class FileOpeningError : public std::exception
 	{
