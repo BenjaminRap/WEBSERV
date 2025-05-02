@@ -183,6 +183,7 @@ public:
 	 * written exceeds MAX_CHARS_WRITTEN * _bufferCapacity.
 	 */
 	void		moveBufferContentToStart(void);
+	size_t		addContent(char* buffer, size_t bufferSize);
 };
 
 

@@ -70,6 +70,25 @@ void	FlowBuffer::setBuffer(char* buffer, size_t contentLength, size_t bufferCapa
 	_numCharsWritten = 0;
 }
 
+size_t	FlowBuffer::addContent(char* buffer, size_t bufferSize)
+{
+
+	const size_t	remainingCapacity = _bufferCapacity - _contentLength;
+	if (bufferSize > remainingCapacity
+		&&_numCharsWritten > MAX_CHARS_WRITTEN * _bufferCapacity)
+	{
+		moveBufferContentToStart();
+	}
+	const size_t	numCharsToCopy = std::min(remainingCapacity, bufferSize);
+
+	if (numCharsToCopy == 0)
+		return (0);
+	std::memcpy(_buffer + _contentLength, buffer, numCharsToCopy);
+
+	_contentLength += numCharsToCopy;
+	return (numCharsToCopy);
+}
+
 /**********************************Getters******************************************/
 
 size_t		FlowBuffer::getContentLength(void) const
