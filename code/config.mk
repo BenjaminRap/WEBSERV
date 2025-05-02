@@ -60,7 +60,9 @@ REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
 
 CGI_DIR					:=	cgi/
 CGI_FILES				:=	CgiIn.cpp				\
-							CgiOut.cpp
+							CgiOut.cpp				\
+							CgiOutRedirection.cpp	\
+							CgiOutParsing.cpp
 CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 
 UTILS_DIR				:=	utils/
