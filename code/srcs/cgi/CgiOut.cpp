@@ -99,13 +99,15 @@ std::string	sizeTToString(size_t value);
 void	CgiOut::setErrorPage(const Status** currentStatus)
 {
 	_headers.clear();
-	addDefaultHeaders(_headers, *currentStatus);
 	if (_srcFile != NULL)
 		delete _srcFile;
 	_srcFile = getErrorPage(currentStatus, _serverConf);
+	addDefaultHeaders(_headers, *currentStatus);
+
 	const size_t	size = (_srcFile)
 		? _srcFile->getSize() :
 		(*currentStatus)->getErrorPage().size();
+
 	_headers["content-length"] = sizeTToString(size);
 }
 
@@ -214,6 +216,23 @@ void	CgiOut::writeToTemp(void)
 	generateFirstPart();
 }
 
+void	CgiOut::writeFirstPart(void)
+{
+	char* const	buffer = &_firstPart[_charsWritten];
+	size_t		bufferSize = _firstPart.size() - _charsWritten;
+
+	_charsWritten += _flowBuf.addContent(buffer, bufferSize);
+
+	if (_charsWritten != _firstPart.size())
+		return ;
+	if (_srcFile != NULL)
+		_state = FILE_TO_BUFFER;
+	else if (_error)
+		setFinished();
+	else
+		_state = CGI_TO_BUFFER;
+}
+
 void	CgiOut::writeToBuff(void)
 {
 	const int		fd = _srcFile ? _srcFile->getFd() : getFd();
@@ -236,6 +255,8 @@ void	CgiOut::callback(uint32_t events)
 		readHeaders();
 	if (_state == CGI_TO_TEMP)
 		writeToTemp();
+	if (_state == WRITE_FIRST_PART)
+		writeFirstPart();
 	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
 		writeToBuff();
 }
