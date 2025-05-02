@@ -55,14 +55,12 @@ FlowState	FlowBuffer::srcToBuff
 	ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity)
 )
 {
-	size_t	remainingCapacity;
-
 	if (_numCharsWritten > MAX_CHARS_WRITTEN * _bufferCapacity)
 		moveBufferContentToStart();
 	else if (isBufferFull())
 		return (FLOW_BUFFER_FULL);
-	remainingCapacity = _bufferCapacity - _contentLength;
-	const ssize_t rd = customRead(readData, _buffer + _contentLength, remainingCapacity);
+	const size_t	remainingCapacity = _bufferCapacity - _contentLength;
+	const ssize_t	rd = customRead(readData, _buffer + _contentLength, remainingCapacity);
 	if (rd == -1)
 		return (FLOW_ERROR);
 	if (rd == 0)
