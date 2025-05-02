@@ -50,6 +50,7 @@ private:
 	void		writeToTemp(void);
 	void		writeFirstPart(void);
 	void		writeToBuff(void);
+	void		setFinished(void);
 
 public:
 	CgiOut

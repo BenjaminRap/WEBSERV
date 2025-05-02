@@ -36,6 +36,12 @@ CgiOut::~CgiOut()
 	}
 }
 
+void	CgiOut::setFinished(void)
+{
+	_isActive = false;
+	_state = DONE;
+}
+
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
 uint16_t	CgiOut::checkHeaders(void)
@@ -183,10 +189,7 @@ void	CgiOut::handleClosingCgi()
 		generateFirstPart();
 	}
 	else
-	{
-		_isActive = false;
-		_state = DONE;
-	}
+		setFinished();
 }
 
 void	CgiOut::readFromCgi()
@@ -197,8 +200,7 @@ void	CgiOut::readFromCgi()
 
 	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
 		return ;
-	_isActive = false;
-	_state = DONE;
+	setFinished();
 }
 
 void	CgiOut::writeToTemp(void)
@@ -219,8 +221,7 @@ void	CgiOut::writeToBuff(void)
 
 	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
 		return ;
-	_isActive = false;
-	_state = DONE;
+	setFinished();
 }
 
 void	CgiOut::callback(uint32_t events)
