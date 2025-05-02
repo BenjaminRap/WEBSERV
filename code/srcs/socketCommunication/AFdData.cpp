@@ -7,7 +7,7 @@
 
 class ServerConfiguration;  // lines 11-11
 
-AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type) :
+AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events) :
 	_fd(fd),
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
@@ -18,6 +18,9 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type) :
 
 	if (addFlagsToFd(_fd, O_NONBLOCK | FD_CLOEXEC) == -1)
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
+	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
+		throw std::runtime_error("Can't add the fd to epoll !");
+
 }
 
 AFdData::AFdData(int fd, AFdDataChilds type) :

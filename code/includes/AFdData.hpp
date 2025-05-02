@@ -41,7 +41,7 @@ protected:
 	bool			_isActive;
 	AFdDataChilds	_type;
 
-	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type);
+	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);
 	AFdData(int fd, AFdDataChilds type);
 private:
 	AFdData(void);

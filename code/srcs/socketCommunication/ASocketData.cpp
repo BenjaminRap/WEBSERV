@@ -9,8 +9,15 @@
 
 class ServerConfiguration;  // lines 11-11
 
-ASocketData::ASocketData(int fd, EPollHandler& ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations, AFdDataChilds type) :
-	AFdData(fd, ePollHandler, type),
+ASocketData::ASocketData
+(
+	int fd, 
+	EPollHandler& ePollHandler,
+	const std::vector<ServerConfiguration> &serverConfigurations,
+	AFdDataChilds type,
+	uint32_t events
+) :
+	AFdData(fd, ePollHandler, type, events),
 	_iterator(),
 	_isIteratorSet(false),
 	_serverConfigurations(serverConfigurations)

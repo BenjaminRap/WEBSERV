@@ -119,7 +119,7 @@ int	EPollHandler::bindFdToHost(int fd, const Host& host)
 }
 
 
-int	EPollHandler::addFdToEpoll(ASocketData& FdData, uint32_t events)
+int	EPollHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
 {
 	epoll_event	event;
 
@@ -135,8 +135,7 @@ int	EPollHandler::addFdToEpoll(ASocketData& FdData, uint32_t events)
 
 int	EPollHandler::addFdToList
 (
-	ASocketData &fdData,
-	uint32_t events
+	ASocketData &fdData
 )
 {
 	try
@@ -149,11 +148,6 @@ int	EPollHandler::addFdToList
 		return (-1);
 	}
 	fdData.setIterator(_socketsData.begin());
-	if (addFdToEpoll(fdData, events) == -1)
-	{
-		_socketsData.pop_front();
-		return (-1);
-	}
 	return (0);
 }
 

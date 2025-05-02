@@ -18,7 +18,8 @@ class Response;  // lines 11-11
 /*************************Constructors / Destructors***************************/
 
 ConnectedSocketData::ConnectedSocketData(int fd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	ASocketData(fd, ePollHandler, serverConfiguration, CONNECTED_SOCKET_DATA),
+	ASocketData(fd, ePollHandler, serverConfiguration, CONNECTED_SOCKET_DATA,
+			 EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP),
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false)

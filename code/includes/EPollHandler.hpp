@@ -8,9 +8,10 @@
 
 # include "socketCommunication.hpp"
 
-class Configuration;
-class Host;
-class ASocketData;
+class	Configuration;
+class	Host;
+class	ASocketData;
+class	AFdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
@@ -87,7 +88,7 @@ public:
 	 * @param events The events for which the epoll will notify with this fd
 	 * @return -1 on error, otherwise 0.
 	 */
-	int		addFdToList(ASocketData &fdData, uint32_t events);
+	int		addFdToList(ASocketData &fdData);
 	/**
 	 * @brief Adds the fddData to the epoll interest list, but not in the EPollHandler
 	 * list.
@@ -95,7 +96,7 @@ public:
 	 *
 	 * @return -1 on error, 0 otherwise
 	 */
-	int		addFdToEpoll(ASocketData& fdData, uint32_t events);
+	int		addFdToEpoll(AFdData& fdData, uint32_t events);
 	/**
 	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 

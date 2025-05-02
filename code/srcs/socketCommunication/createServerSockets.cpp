@@ -57,8 +57,6 @@ const Configuration &conf,
 	EPollHandler &ePollHandler
 )
 {
-	const uint32_t	events = EPOLLIN | EPOLLERR | EPOLLHUP;
-
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
 		const Host								&host = ci->first;
@@ -70,7 +68,7 @@ const Configuration &conf,
 		try
 		{
 			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations));
-			if (ePollHandler.addFdToList(serverSocketData, events) == -1)
+			if (ePollHandler.addFdToList(serverSocketData) == -1)
 			{
 				delete &serverSocketData;
 	  			closeFdAndPrintError(fd);

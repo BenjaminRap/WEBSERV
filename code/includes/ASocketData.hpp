@@ -31,7 +31,8 @@ protected:
 		int fd,
 		EPollHandler &ePollHandler,
 		const std::vector<ServerConfiguration> &serverConfigurations,
-		AFdDataChilds type
+		AFdDataChilds type,
+		uint32_t events
 	);
 private:
 	ASocketData(void);

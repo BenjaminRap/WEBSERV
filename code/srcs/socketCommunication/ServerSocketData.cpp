@@ -24,7 +24,8 @@ ServerSocketData::ServerSocketData
 	EPollHandler &ePollHandler,
 	const std::vector<ServerConfiguration> &serverConfiguration
 ) :
-	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA)
+	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA,
+			 EPOLLIN | EPOLLERR)
 {
 
 }
@@ -45,33 +46,32 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	if (!(events & EPOLLIN))
 		return ;
 	addrLength = sizeof(addr);
-	const uint32_t	newConnectionEvents = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLHUP | EPOLLERR;
-	const int 		newConnectionFd = accept(_fd, (sockaddr *)&addr, &addrLength);
+	const int 		newFd = accept(_fd, (sockaddr *)&addr, &addrLength);
 
-	if (checkError(newConnectionFd, -1, "accept() : "))
+	if (checkError(newFd, -1, "accept() : "))
 		return ;
 	try
 	{
-		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newConnectionFd, *_ePollHandler, _serverConfigurations));
-		if (_ePollHandler->addFdToList(connectedSocketData, newConnectionEvents) == -1)
+		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations));
+		if (_ePollHandler->addFdToList(connectedSocketData) == -1)
 		{
 			std::cerr << "Can't accept new connection" << std::endl;
 			delete &connectedSocketData;
-			closeFdAndPrintError(newConnectionFd);
+			closeFdAndPrintError(newFd);
 		}
 		else
-			std::cout << "Accepted a new connection, fd : " << newConnectionFd << std::endl;
+			std::cout << "Accepted a new connection, fd : " << newFd << std::endl;
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		closeFdAndPrintError(newConnectionFd);
+		closeFdAndPrintError(newFd);
 	}
 }
 
 void	ServerSocketData::callback(uint32_t events)
 {
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+	if (events & EPOLLERR)
 		removeFromEPollHandler();
 	else
 		acceptConnection(events);
