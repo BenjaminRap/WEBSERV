@@ -29,7 +29,7 @@ CgiIn::CgiIn
 	if (dynamic_cast<ChunkedBody*>(&_body) == NULL)
 		return ;
 	_tempName[0] = '\0';
-	_tempFile = FileFd::getTemporaryFile(_tempName);
+	_tempFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
 	if (_tempFile == NULL)
 		throw std::runtime_error("error creating a temporary file !");
 	_state =  BUF_TO_TEMP;
@@ -65,7 +65,7 @@ void	CgiIn::redirectToTemp(void)
 	{
 		_state = TEMP_TO_CGI;
 		delete _tempFile;
-		_tempFile = FileFd::getTemporaryFile(_tempName);
+		_tempFile = FileFd::getTemporaryFile(_tempName, O_RDONLY);
 		if (_tempFile == NULL)
 			setFinished(HTTP_INTERNAL_SERVER_ERROR);
 

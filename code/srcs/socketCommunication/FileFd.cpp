@@ -63,7 +63,7 @@ size_t	FileFd::getSize(void) const
 }
 
 
-FileFd*	getTemporaryFile(char (&name)[L_tmpnam], int rights)
+FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam], int rights)
 {
 	if (rights != O_RDONLY || rights != O_WRONLY)
 		return (NULL);

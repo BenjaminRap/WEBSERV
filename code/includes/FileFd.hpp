@@ -40,7 +40,7 @@ public:
 	void			callback(uint32_t events);
 
 	size_t			getSize(void) const;
-	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam]);
+	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam], int rights);
 
 	class FileOpeningError : public std::exception
 	{
