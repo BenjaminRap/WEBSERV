@@ -57,10 +57,10 @@ uint16_t	CgiOut::checkHeaders(void)
 		_state = CGI_TO_BUFFER;
 	else
 	{
-		_srcFile = FileFd::getTemporaryFile(_tempName);
+		_srcFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
 		if (_srcFile == NULL)
 			return (HTTP_INTERNAL_SERVER_ERROR);
-		_state = CGI_TO_FILE;
+		_state = CGI_TO_TEMP;
 	}
 	return (HTTP_OK);
 }
@@ -75,7 +75,10 @@ uint16_t	CgiOut::getStatusCode(void)
 
 		_headers.erase("status");
 		if (end != status->c_str() + 2 || code < 100 || code >= 600)
-			return (-1);
+		{
+			_error = true;
+			return (HTTP_BAD_GATEWAY);
+		}
 		return (code);
 	}
 	if (_headers.getHeader("Location") != NULL)
@@ -85,16 +88,19 @@ uint16_t	CgiOut::getStatusCode(void)
 
 void		addDefaultHeaders(Headers& headers, const Status* status);
 FileFd*		getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration);
+std::string	sizeTToString(size_t value);
 
 void	CgiOut::setErrorPage(const Status** currentStatus)
 {
-	if (_error == false)
-		return ;
 	_headers.clear();
 	addDefaultHeaders(_headers, *currentStatus);
 	if (_srcFile != NULL)
 		delete _srcFile;
 	_srcFile = getErrorPage(currentStatus, _serverConf);
+	const size_t	size = (_srcFile)
+		? _srcFile->getSize() :
+		(*currentStatus)->getErrorPage().size();
+	_headers["content-length"] = sizeTToString(size);
 }
 
 void	setFirstPart
@@ -116,64 +122,119 @@ void	CgiOut::generateFirstPart(void)
 		status = Status::getStatus(HTTP_BAD_GATEWAY);
 		_error = true;
 	}
-	setErrorPage(&status);
-	const bool	hasBody = (_srcFile != NULL);
+	if (_error)
+		setErrorPage(&status);
+	const bool	hasBody = (_srcFile != NULL || _error == false);
 
 	setFirstPart(_firstPart, *status, "", _headers, hasBody);
+	_state = WRITE_FIRST_PART;
 }
 
-ssize_t		CgiOut::readHeader(void)
+void		CgiOut::readHeaders(void)
 {
 	char	*begin;
 	char	*end;
 
-	if (!_flowBuf.getLine(&begin, &end))
-		return (0);
-
-	if (begin == end - 1 && *begin == '\r')
+	while (_flowBuf.getLine(&begin, &end))
 	{
-		_code = checkHeaders();
+		if (end == begin + 1 && *begin == '\r')
+		{
+			_code = checkHeaders();
+			if (_code != HTTP_OK)
+			{
+				_error = true;
+				generateFirstPart();
+				return ;
+			}
+			_code = getStatusCode();
+			if (_state != CGI_TO_TEMP || _error)
+				generateFirstPart();
+			return ;
+		}
+		_code = _headers.parseHeader(begin, end);
 		if (_code != HTTP_OK)
-			return (-1);
-		_code = getStatusCode();
-		if (_state != CGI_TO_FILE || _code == (uint16_t)-1)
+		{
+			_error = true;
 			generateFirstPart();
-		return (2);
+			return ;
+		}
 	}
-	_code = _headers.parseHeader(begin, end);
-	if (_code != HTTP_OK)
-		return (-1);
-	return (std::distance(begin, end));
+}
+
+void	CgiOut::handleClosingCgi()
+{
+	if (_state == READ_HEADER)
+	{
+		_code = HTTP_BAD_GATEWAY;
+		_error = true;
+		generateFirstPart();
+	}
+	else if (_state == CGI_TO_TEMP)
+	{
+		delete _srcFile;
+		_srcFile = FileFd::getTemporaryFile(_tempName, O_RDONLY);
+		if (_srcFile == NULL)
+		{
+			_code = HTTP_INTERNAL_SERVER_ERROR;
+			_error = true;
+		}
+		else
+			_headers["content-length"] = sizeTToString(_srcFile->getSize());
+		generateFirstPart();
+	}
+	else
+	{
+		_isActive = false;
+		_state = DONE;
+	}
+}
+
+void	CgiOut::readFromCgi()
+{
+	if (_error || _state == FILE_TO_BUFFER || !_isActive || _state == DONE)
+		return ;
+	const FlowState flowState = _flowBuf.srcToBuff(getFd());
+
+	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
+		return ;
+	_isActive = false;
+	_state = DONE;
+}
+
+void	CgiOut::writeToTemp(void)
+{
+	if (_flowBuf.buffToDest(_srcFile->getFd()) == FLOW_DONE)
+		return ;
+	delete _srcFile;
+	_srcFile = NULL;
+	_code = HTTP_INTERNAL_SERVER_ERROR;
+	_error = true;
+	generateFirstPart();
+}
+
+void	CgiOut::writeToBuff(void)
+{
+	const int		fd = _srcFile ? _srcFile->getFd() : getFd();
+	const FlowState	flowState = _flowBuf.srcToBuff(fd);
+
+	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
+		return ;
+	_isActive = false;
+	_state = DONE;
 }
 
 void	CgiOut::callback(uint32_t events)
 {
-	if (!_isActive)
+	if (!_isActive || _state == DONE)
 		return ;
 	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-	{
-		if (_state == READ_HEADER)
-			_code = HTTP_BAD_GATEWAY;
-		else if (_state == CGI_TO_FILE)
-			_state = FILE_TO_BUFFER;
-		else
-			_isActive = false;
-		return ;
-	}
+		handleClosingCgi();
 	if (events & EPOLLIN)
-	{
-		const FlowState flowState = _flowBuf.srcToBuff<int>(getFd());
-
-		if (flowState == FLOW_ERROR || flowState == FLOW_DONE)
-		{
-			_isActive = false;
-			return ;
-		}
-	}
-	if (_flowBuf.isBufferEmpty())
-		return ;
-	while (_state == READ_HEADER)
-	{
-		readHeader();
-	}
+		readFromCgi();
+	if (_state == READ_HEADER)
+		readHeaders();
+	if (_state == CGI_TO_TEMP)
+		writeToTemp();
+	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
+		writeToBuff();
 }

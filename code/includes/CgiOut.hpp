@@ -1,11 +1,12 @@
 #ifndef CGI_OUT_HPP
 # define CGI_OUT_HPP
 
+# include <cstdio>					// for L_tmpnam
+
 # include "AFdData.hpp"				// for ASocketData
 # include "FileFd.hpp"
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
-# include <cstdio>					// for L_tmpnam
 
 class	FlowBuffer;
 class	Status;
@@ -13,9 +14,11 @@ class	Status;
 enum	CgiOutState
 {
 	READ_HEADER,
-	CGI_TO_FILE,
+	CGI_TO_TEMP,
+	WRITE_FIRST_PART,
 	FILE_TO_BUFFER,
-	CGI_TO_BUFFER
+	CGI_TO_BUFFER,
+	DONE
 };
 
 class CgiOut : public AFdData
@@ -39,9 +42,14 @@ private:
 
 	uint16_t	checkHeaders(void);
 	uint16_t	getStatusCode(void);
-	ssize_t		readHeader(void);
+	void		readHeaders(void);
 	void		generateFirstPart(void);
 	void		setErrorPage(const Status** currentStatus);
+	void		handleClosingCgi(void);
+	void		readFromCgi(void);
+	void		writeToTemp(void);
+	void		writeFirstPart(void);
+	void		writeToBuff(void);
 
 public:
 	CgiOut
