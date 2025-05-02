@@ -23,11 +23,8 @@ uint16_t	CgiOut::checkHeaders(void)
 		const unsigned long	size = stringToULongBase(*contentLength, std::isdigit, 10);
 		if (size == (unsigned long)-1)
 			return (HTTP_BAD_GATEWAY);
-		_state = CGI_TO_BUFFER;
 	}
-	else if (transferEncoding == NULL || *transferEncoding != "chunked")
-		_state = CGI_TO_BUFFER;
-	else
+	else if (transferEncoding == NULL)
 	{
 		_srcFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
 		if (_srcFile == NULL)
