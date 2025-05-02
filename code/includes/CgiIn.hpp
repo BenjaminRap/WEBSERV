@@ -5,6 +5,8 @@
 # include "FileFd.hpp"	// for FileFd
 # include <cstdio>		// for L_tmpnam
 
+# define CGI_IN_EVENTS (EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
+
 class	ConnectedSocketData;
 class	Response;
 

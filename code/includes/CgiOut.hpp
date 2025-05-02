@@ -8,6 +8,8 @@
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 
+# define CGI_OUT_EVENTS (EPOLLIN | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
+
 class	FlowBuffer;
 class	Status;
 
