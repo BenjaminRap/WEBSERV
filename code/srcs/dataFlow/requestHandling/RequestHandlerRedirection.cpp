@@ -34,12 +34,15 @@ static FlowState	redirect
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
 {
 
-	if (canWrite && body.getFinished())
-		return (body.getStatus());
-	else if (flowResult == FLOW_ERROR)
+	if (canWrite)
+	{
+		if (body.getFinished())
+			return (body.getStatus());
+		if (flowResult == FLOW_BUFFER_FULL)
+			return (HTTP_BAD_REQUEST);
+	}
+	if (flowResult == FLOW_ERROR)
 		return (HTTP_INTERNAL_SERVER_ERROR);
-	else if (canWrite && flowResult == FLOW_BUFFER_FULL)
-		return (HTTP_BAD_REQUEST);
 	return (0);
 }
 
