@@ -63,9 +63,12 @@ void	CgiIn::redirectToTemp(void)
 		return ;
 	if (code == HTTP_OK)
 	{
+		_state = TEMP_TO_CGI;
 		delete _tempFile;
 		_tempFile = FileFd::getTemporaryFile(_tempName);
-		_state = TEMP_TO_CGI;
+		if (_tempFile == NULL)
+			setFinished(HTTP_INTERNAL_SERVER_ERROR);
+
 	}
 	else
 		setFinished(code);
