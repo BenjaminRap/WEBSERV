@@ -17,13 +17,18 @@ static FlowState	redirect
 	FlowBuffer &flowBuf
 )
 {
+	FlowState	flowState;
+
 	if (canRead && !canWrite)
-		return (flowBuf.srcToBuff<int>(srcFd));
+		flowState = flowBuf.srcToBuff<int>(srcFd);
 	else if (!canRead && canWrite)
-		return (flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd));
+		flowState = flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd);
+	else if (canRead && canWrite)
+		flowState = flowBuf.redirect<int, ABody&>(srcFd, destBody, ABody::writeToFd);
 	else
-		return (flowBuf.redirect<int, ABody&>(srcFd, destBody, ABody::writeToFd));
+		flowState = FLOW_MORE;
 	fdData.callback(0);
+	return (flowState);
 }
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
