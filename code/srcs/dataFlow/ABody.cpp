@@ -4,6 +4,8 @@
 #include <unistd.h>					// for write
 
 #include "ABody.hpp"    			// for ABody
+#include "SizedBody.hpp"			// for SizedBody
+#include "ChunkedBody.hpp"			// for ChunkedBody
 #include "requestStatusCode.hpp"	// for HTTP_OK
 
 ABody::ABody(int fd, ABodyChilds type) :
@@ -77,5 +79,22 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 
 ssize_t	ABody::writeToFd(ABody &body, const void *buffer, size_t bufferCapacity)
 {
-	return (body.writeToFd(buffer, bufferCapacity));
+	switch (body.getType()) {
+		case SIZED_BODY:
+		{
+			SizedBody*	sizedBody = static_cast<SizedBody*>(&body);
+
+			return (sizedBody->writeToFd(buffer, bufferCapacity));
+		}
+		case CHUNKED_REQUEST:
+		{
+			ChunkedBody*	chunkedBody = static_cast<ChunkedBody*>(&body);
+
+			return (chunkedBody->writeToFd(buffer, bufferCapacity));
+		}
+		default:
+		{
+			throw std::logic_error("A ABody type isn't take into account in the writeToFd static method !");
+		}
+	}
 }
