@@ -9,7 +9,7 @@
 #include "SizedBody.hpp"  			// for SizedBody
 
 SizedBody::SizedBody(int fd, size_t size) :
-	ABody(fd),
+	ABody(fd, SIZED_BODY),
 	_size(size),
 	_numCharsWritten(0)
 {
@@ -18,7 +18,7 @@ SizedBody::SizedBody(int fd, size_t size) :
 }
 
 SizedBody::SizedBody(size_t size) :
-	ABody(),
+	ABody(SIZED_BODY),
 	_size(size),
 	_numCharsWritten(0)
 {

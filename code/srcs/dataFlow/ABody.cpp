@@ -6,17 +6,19 @@
 #include "ABody.hpp"    			// for ABody
 #include "requestStatusCode.hpp"	// for HTTP_OK
 
-ABody::ABody(int fd) :
+ABody::ABody(int fd, ABodyChilds type) :
 	_fd(fd),
 	_finished(false),
-	_status(HTTP_OK)
+	_status(HTTP_OK),
+	_type(type)
 {
 }
 
-ABody::ABody() :
+ABody::ABody(ABodyChilds type) :
 	_fd(-1),
 	_finished(false),
-	_status(HTTP_OK)
+	_status(HTTP_OK),
+	_type(type)
 {
 }
 
