@@ -1,4 +1,5 @@
 #include <stddef.h>     			// for size_t
+#include <stdexcept>				// for std::logic_error
 #include <sys/types.h>  			// for ssize_t
 #include <unistd.h>					// for write
 
@@ -42,6 +43,16 @@ uint16_t	ABody::getStatus() const
 size_t	ABody::getWritten(void) const
 {
 	return (_written);
+}
+
+void	ABody::setFd(int fd)
+{
+	if (!_finished && _written != 0)
+		throw std::logic_error("Tried to change the fd of a body that has began to write data but not finished !");
+
+	_finished = false;
+	_written = 0;
+	_fd = fd;
 }
 
 ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
