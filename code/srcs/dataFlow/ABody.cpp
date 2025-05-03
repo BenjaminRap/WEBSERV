@@ -47,6 +47,11 @@ size_t	ABody::getWritten(void) const
 	return (_written);
 }
 
+ABodyChilds	ABody::getType(void) const
+{
+	return (_type);
+}
+
 void	ABody::setFd(int fd)
 {
 	if (!_finished && _written != 0)

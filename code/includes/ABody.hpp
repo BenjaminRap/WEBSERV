@@ -77,6 +77,7 @@ public:
 	bool		getFinished() const;
 	uint16_t	getStatus() const;
 	size_t		getWritten(void) const;
+	ABodyChilds	getType(void) const;
 	void		setFd(int fd);
 	/**
 	 * @brief Write bufferSize bytes from the buffer to the _fd.
