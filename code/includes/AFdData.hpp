@@ -7,9 +7,9 @@ class EPollHandler;
 
 enum	AFdDataChilds
 {
-	FILEFD,
-	CGIOUT,
-	CGIIN,
+	FILE_FD,
+	CGI_OUT,
+	CGI_IN,
 	SERVER_SOCKET_DATA,
 	CONNECTED_SOCKET_DATA
 };

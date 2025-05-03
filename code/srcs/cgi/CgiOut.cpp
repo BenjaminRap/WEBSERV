@@ -12,7 +12,7 @@ CgiOut::CgiOut
 	FlowBuffer&	responseFlowBuffer,
 	const ServerConfiguration& serverConfiguration
 ) :
-	AFdData(fd, ePollHandler, CGIOUT, CGI_OUT_EVENTS),
+	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
 	_flowBuf(responseFlowBuffer),
 	_firstPart(),
 	_charsWritten(0),

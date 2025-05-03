@@ -57,7 +57,7 @@ void	Response::setBody()
 	{
 		AFdData*	fdData = _fdData.getValue();
 
-		if (fdData->getType() == FILEFD)
+		if (fdData->getType() == FILE_FD)
 			bodySize = static_cast<FileFd*>(fdData)->getSize();
 		else
 		{
@@ -147,7 +147,7 @@ void	Response::setResponse(ARequestType& requestResult)
 	{
 		AFdData* fdData = _fdData.getValue();
 
-		if (fdData->getType() == CGIOUT)
+		if (fdData->getType() == CGI_OUT)
 			return ;
 	}
 

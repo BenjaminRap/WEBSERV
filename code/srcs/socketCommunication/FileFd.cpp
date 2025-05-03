@@ -23,7 +23,7 @@ static int	openFile(const std::string& path, int flags)
 ssize_t		getFileSize(const std::string &filePath);
 
 FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
-	AFdData(openFile(path, flags, mode), FILEFD),
+	AFdData(openFile(path, flags, mode), FILE_FD),
 	_fileSize(0)
 {
 	if (flags & O_CREAT & O_EXCL)
@@ -36,7 +36,7 @@ FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
 }
 
 FileFd::FileFd(const std::string& path, int flags) :
-	AFdData(openFile(path, flags), FILEFD),
+	AFdData(openFile(path, flags), FILE_FD),
 	_fileSize(0)
 {
 	if (flags & O_CREAT & O_EXCL)

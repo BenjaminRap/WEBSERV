@@ -17,7 +17,7 @@ CgiIn::CgiIn
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
-	AFdData(fd, ePollHandler, CGIIN, CGI_IN_EVENTS),
+	AFdData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
 	_flowBuf(requestFlowBuffer),
 	_body(body),
 	_connectedSocketData(connectedSocketData),

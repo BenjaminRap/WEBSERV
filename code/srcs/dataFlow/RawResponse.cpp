@@ -28,7 +28,7 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	{
 		AFdData* fdData = _fdData.getValue();
 
-		if (fdData->getType() == CGIOUT)
+		if (fdData->getType() == CGI_OUT)
 			return ;
 	}
 	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders(), _fdData.isManagingValue());
