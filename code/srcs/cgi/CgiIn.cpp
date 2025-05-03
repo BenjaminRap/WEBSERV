@@ -26,7 +26,7 @@ CgiIn::CgiIn
 	_tempFile(NULL),
 	_state(BUF_TO_CGI)
 {
-	if (dynamic_cast<ChunkedBody*>(&_body) == NULL)
+	if (_body.getType() != CHUNKED_REQUEST)
 		return ;
 	_tempName[0] = '\0';
 	_tempFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
