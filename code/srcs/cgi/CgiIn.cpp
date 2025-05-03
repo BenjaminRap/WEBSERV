@@ -32,6 +32,7 @@ CgiIn::CgiIn
 	_tempFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
 	if (_tempFile == NULL)
 		throw std::runtime_error("error creating a temporary file !");
+	_body.setFd(_tempFile->getFd());
 	_state =  BUF_TO_TEMP;
 }
 
