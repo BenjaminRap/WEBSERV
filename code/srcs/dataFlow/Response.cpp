@@ -12,7 +12,6 @@
 #include "FileFd.hpp"				// for FileFd
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
-#include "SizedBody.hpp"            // for SizedBody
 #include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
 
@@ -24,7 +23,6 @@ Response::Response(const ServerConfiguration& defaultConfig) :
 	_status(NULL),
 	_headers(),
 	_fdData(),
-	_body(),
 	_defaultConfig(defaultConfig),
 	_autoIndexPage()
 {
@@ -51,7 +49,7 @@ void	addDefaultHeaders(Headers& headers, const Status* status)
 
 std::string	sizeTToString(size_t value);
 
-void	Response::setBody(int socketFd)
+void	Response::setBody()
 {
 	size_t	bodySize = 0;
 
@@ -66,7 +64,6 @@ void	Response::setBody(int socketFd)
 			_fdData.stopManagingResource();
 			throw std::logic_error("The AFdData is not a FileFd !");
 		}
-		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
 	}
 	else if (_status->getErrorPage().size() != 0)
 		bodySize = _status->getErrorPage().size();
@@ -121,7 +118,7 @@ void	Response::setErrorPage(const ServerConfiguration& serverConfiguration)
 		_fdData.setManagedResource(errorPage, freePointer);
 }
 
-void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, int socketFd)
+void	Response::initValues(int code, const ServerConfiguration& serverConfiguration)
 {
 	_status = Status::getStatus(code);
 	if (_status == NULL)
@@ -130,18 +127,18 @@ void	Response::initValues(int code, const ServerConfiguration& serverConfigurati
 	if (Status::isCodeOfType(code, STATUS_ERROR))
 		setErrorPage(serverConfiguration);
 	addDefaultHeaders(_headers, _status);
-	setBody(socketFd);
+	setBody();
 }
 
 /*********************************Public Methods********************************************/
 
-void	Response::setResponse(int code)
+void	Response::setResponse(uint16_t code)
 {
 	reset();
-	initValues(code, _defaultConfig, -1);
+	initValues(code, _defaultConfig);
 }
 
-void	Response::setResponse(ARequestType& requestResult, int socketFd)
+void	Response::setResponse(ARequestType& requestResult)
 {
 	reset();
 
@@ -155,7 +152,7 @@ void	Response::setResponse(ARequestType& requestResult, int socketFd)
 	}
 
 	_autoIndexPage = requestResult.getAutoIndexPage();
-	initValues(requestResult.getCode(), requestResult.getConfig(), socketFd);
+	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
 		&& _status->isOfType(STATUS_REDIRECTION))
 	{
@@ -168,7 +165,6 @@ void	Response::reset()
 	this->_status = NULL;
 	this->_headers.clear();
 	this->_fdData.stopManagingResource();
-	this->_body.stopManagingResource();
 	this->_autoIndexPage = "";
 }
 
@@ -187,11 +183,6 @@ Headers&	Response::getHeaders(void)
 SharedResource<AFdData*>	Response::getFdData(void) const
 {
 	return (_fdData);
-}
-
-SharedResource<ABody*>	Response::getBody(void) const
-{
-	return (_body);
 }
 
 const Status*	Response::getStatus(void) const

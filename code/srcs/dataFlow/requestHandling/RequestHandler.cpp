@@ -32,7 +32,7 @@ RequestState			RequestHandler::readRequest(Response &response, int socketFd, EPo
 	{
 		readStatusLine(response);
 		readHeaders(response);
-		executeRequest(response, socketFd, ePollHandler);
+		executeRequest(response, ePollHandler);
 		redirectBody(socketFd, response, false);
 	}
 	catch (const std::exception& exception)

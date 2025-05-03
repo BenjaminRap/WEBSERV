@@ -37,12 +37,6 @@ private:
 	 */
 	SharedResource<AFdData*>	_fdData;
 	/**
-	 * @brief The body of the response, it could be a sized body, a
-	 * chunked body ...
-	 * @note It could also be NULL.
-	 */
-	SharedResource<ABody *>		_body;
-	/**
 	 * @brief A reference on the ResponsesHandler FlowBuffer. It allows this class
 	 * to redirect the content from _bodyFd to the client socket Fd.
 	 */

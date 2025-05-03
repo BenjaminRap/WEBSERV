@@ -39,12 +39,6 @@ private:
 	 */
 	SharedResource<AFdData*>	_fdData;
 	/**
-	 * @brief The body of the response, it could be a sized body, a
-	 * chunked body ...
-	 * @note It could also be NULL.
-	 */
-	SharedResource<ABody*>		_body;
-	/**
 	 * @brief The default ServerConfiguration, used when
 	 * an error occured before the request execution.
 	 */
@@ -67,7 +61,7 @@ private:
 	 * @param requestResult The result of the request. If an error occured
 	 * before the request execution, this variable should be set to NULL.
 	 */
-	void					setBody(int socketFd);
+	void					setBody(void);
 	/**
 	 * @brief If there is an error, stop the managment of the body and replace
 	 * it with the custom error page (if there is one).
@@ -86,16 +80,15 @@ private:
 	void					initValues
 	(
 		int code,
-		const ServerConfiguration& serverConfiguration,
-		int socketFd
+		const ServerConfiguration& serverConfiguration
 	);
 
 public:
 	Response(const ServerConfiguration &defaultConfig);
 	~Response(void);
 
-	void							setResponse(int code);
-	void							setResponse(ARequestType& ARequestType, int socketFd);
+	void							setResponse(uint16_t code);
+	void							setResponse(ARequestType& ARequestType);
 	/**
 	 * @brief Reset this instance as it was after construction.
 	 */
@@ -105,7 +98,6 @@ public:
 	const Headers&					getHeaders(void) const;
 	Headers&						getHeaders(void);
 	SharedResource<AFdData*>		getFdData(void) const;
-	SharedResource<ABody*>			getBody(void) const;
 	const std::string&				getAutoIndexPage(void) const;
 };
 

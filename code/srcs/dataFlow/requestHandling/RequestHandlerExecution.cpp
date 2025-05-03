@@ -1,6 +1,5 @@
 #include <algorithm>                // for find
 #include <cstdio>                   // for NULL
-#include <iostream>                 // for basic_ostream, operator<<, basic_ios
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, string, operator==
 #include <vector>                   // for vector
@@ -35,8 +34,7 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::str
 void	RequestHandler::processRequestResult
 (
 	ARequestType &requestResult,
-	Response &response,
-	int socketFd
+	Response &response
 )
 {
 	{
@@ -49,12 +47,12 @@ void	RequestHandler::processRequestResult
 		}
 	}
 
-	response.setResponse(requestResult, socketFd);
+	response.setResponse(requestResult);
 	_state = REQUEST_BODY;
 }
 
 
-void	RequestHandler::executeRequest(Response &response, int socketFd, EPollHandler& ePollHandler)
+void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandler)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
@@ -71,17 +69,17 @@ void	RequestHandler::executeRequest(Response &response, int socketFd, EPollHandl
 	{
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
-			processRequestResult(getRequest, response, socketFd);
+			processRequestResult(getRequest, response);
 			break;
 		}
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
-			processRequestResult(putRequest, response, socketFd);
+			processRequestResult(putRequest, response);
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
-			processRequestResult(deleteRequest, response, socketFd);
+			processRequestResult(deleteRequest, response);
 			break;
 		}
 		default:
