@@ -81,17 +81,14 @@ public:
 	 */
 	int		epollWaitForEvent();
 	/**
-	 * @brief Add the FdData the the _socketsdata list, and add its fd into
-	 * the epoll interest list.
+	 * @brief Add the FdData the the _socketsdata list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
-	 * @param events The events for which the epoll will notify with this fd
 	 * @return -1 on error, otherwise 0.
 	 */
 	int		addFdToList(ASocketData &fdData);
 	/**
-	 * @brief Adds the fddData to the epoll interest list, but not in the EPollHandler
-	 * list.
+	 * @brief Adds the fdData to the epoll interest list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
 	 * @return -1 on error, 0 otherwise
@@ -103,14 +100,6 @@ public:
 	 * is the result of epoll_wait or epollWaitForEvent function.
 	 */
 	void	callSocketCallback(size_t eventIndex) const;
-	/**
-	 * @brief If the socket at eventIndex has an EPOLLHUP or EPOLLRDHUP event, close it
-	 * and remove it from the _socketsData list.
-	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
-	 * is the result of epoll_wait or epollWaitForEvent function.
-	 * @return true if the connection is closed, false otherwise.
-	 */
-	bool	closeIfConnectionStopped(size_t eventIndex);
 	/**
 	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
 	 * delete the socket at the host.sun_path, recreate a socket and add the socket

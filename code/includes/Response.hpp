@@ -57,9 +57,6 @@ private:
 	/**
 	 * @brief Set the body and the content-length header depending on
 	 * the requestResult.
-	 *
-	 * @param requestResult The result of the request. If an error occured
-	 * before the request execution, this variable should be set to NULL.
 	 */
 	void					setBody(void);
 	/**

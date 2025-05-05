@@ -75,6 +75,13 @@ void	Response::setBody()
 }
 
 
+/**
+ * @brief get the HTTP status code corresponding to the value of errno
+ * set when opening a file fail.
+ *
+ * @param errnoValue The value of errno set after an opening failed
+ * @return a HTTP status code.
+ */
 uint16_t	getStatusCodeFromErrno(int errnoValue)
 {
 	switch (errnoValue)
@@ -88,6 +95,12 @@ uint16_t	getStatusCodeFromErrno(int errnoValue)
 	}
 }
 
+/**
+ * @brief Return a FileFd opened on the error page corresponding to
+ * the status error. If an error occured, it can change the currentStatus.
+ * If there is no error page corresponding to the status, returns NULL.
+ *
+ */
 FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration)
 {
 	try

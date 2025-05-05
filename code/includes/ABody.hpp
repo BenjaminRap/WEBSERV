@@ -15,7 +15,7 @@ enum	ABodyChilds
  * @brief A purely abtrasct class representing a Body.
  * A body is the content of a request or response.
  * This class can write the content of that body into
- * another fd or FILE
+ * another fd.
  * Depending on the Body type, the writing process
  * can be different (from a chunked body to a sized body).
  *

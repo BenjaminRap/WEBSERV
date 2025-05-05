@@ -91,7 +91,7 @@ public:
 	static bool				isCodeOfType(uint16_t code, StatusType type);
 	/**
 	 * @brief A static method that returns the corresponding Status in the _statuses
-	 * map
+	 * map. If no status si found, returns NULL.
 	 *
 	 */
 	static const Status*	getStatus(int code);

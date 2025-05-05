@@ -154,6 +154,12 @@ public:
 		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
 	);
 
+	/**
+	 * @brief Set this flowBuffer internal buffer.
+	 * this method takes teh same arguments as the constructor.
+	 * @ref FlowBuffer
+	 *
+	 */
 	void		setBuffer(char* buffer, size_t contentLength, size_t bufferCapacity);
 
 	size_t		getContentLength(void) const;
@@ -165,12 +171,10 @@ public:
 
 	/**
 	 * @brief Get a line from this bufferFlow internal buffer.
-	 * @note The \n isn't taken into account in the length and there may not have a \0
-	 * after the \n. The internal buffer isn't changed.
 	 *
 	 * @param lineStart If the buffer contains a line, set this variable to the start
 	 * of the line, otherwise, this variable isn't changed.
-	 * @param length If the buffer contains a line, set this variable to the length
+	 * @param lineEndd If the buffer contains a line, set this variable to the end
 	 * of the line, otherwise, this variable isn't changed.
 	 * @return True if there is a line, false otherwise.,
 	 */
@@ -183,6 +187,12 @@ public:
 	 * written exceeds MAX_CHARS_WRITTEN * _bufferCapacity.
 	 */
 	void		moveBufferContentToStart(void);
+	/**
+	 * @brief Add the buffer content into the FlowBuffer internal
+	 * buffer.
+	 *
+	 * @return The number of characters written from the buffer passed as argument. 
+	 */
 	size_t		addContent(char* buffer, size_t bufferSize);
 };
 
