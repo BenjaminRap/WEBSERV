@@ -1,14 +1,13 @@
 #include <stddef.h>                 // for size_t, NULL
 #include <stdint.h>                 // for uint16_t
 #include <map>                      // for map, _Rb_tree_const_iterator, ope...
-#include <ostream>                  // for basic_ostream, operator<<, endl
-#include <string>                   // for char_traits, string, basic_string
+#include <ostream>                  // for basic_ostream, operator<<, ostream
+#include <string>                   // for string, char_traits, basic_string
 #include <utility>                  // for pair
 #include <vector>                   // for vector
 
 #include "Route.hpp"                // for Route, operator<<
 #include "ServerConfiguration.hpp"  // for ServerConfiguration, operator<<
-#include "exception.hpp"            // for CustomException
 
 ServerConfiguration::ServerConfiguration
 (

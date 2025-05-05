@@ -1,9 +1,19 @@
-#include <cstdlib>					// for std::strtoul
-#include <sys/epoll.h>				// for EPOLLIN
+#include <fcntl.h>                // for O_RDONLY
+#include <stdint.h>               // for uint32_t
+#include <sys/epoll.h>            // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOLLR...
+#include <cstdio>                 // for NULL, remove, size_t
+#include <map>                    // for map
+#include <string>                 // for basic_string, string
 
-#include "CgiOut.hpp"				// for CgiOut
-#include "FlowBuffer.hpp"			// for FlowBUffer
-#include "requestStatusCode.hpp"	// for HTTP_...
+#include "AFdData.hpp"            // for AFdData, AFdDataChilds
+#include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
+#include "FileFd.hpp"             // for FileFd
+#include "Headers.hpp"            // for Headers
+#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_SER...
+
+class EPollHandler;
+class FlowBuffer;
+class ServerConfiguration;
 
 CgiOut::CgiOut
 (

@@ -1,12 +1,11 @@
-#include <stddef.h>       			// for size_t
-#include <sys/types.h>    			// for ssize_t
-#include <unistd.h>       			// for write
-#include <algorithm>      			// for min
+#include <stddef.h>                 // for size_t
+#include <sys/types.h>              // for ssize_t
+#include <algorithm>                // for min
 
-#include "ABody.hpp"      			// for ABody
-#include "requestStatusCode.hpp"	// for HTTP_...
-#include "socketCommunication.hpp"	// for checkError
-#include "SizedBody.hpp"  			// for SizedBody
+#include "ABody.hpp"                // for ABody, ABodyChilds
+#include "SizedBody.hpp"            // for SizedBody
+#include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
+#include "socketCommunication.hpp"  // for checkError
 
 SizedBody::SizedBody(int fd, size_t size) :
 	ABody(fd, SIZED_BODY),

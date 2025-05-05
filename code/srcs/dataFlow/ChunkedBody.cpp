@@ -1,10 +1,15 @@
-#include <algorithm>				// for std::find, std::min, std::distance
-#include <cerrno>					// for errno
-#include <cctype>					// for std::isxdigit
+#include <stdint.h>                 // for uint16_t
+#include <sys/types.h>              // for ssize_t
+#include <algorithm>                // for search, min
+#include <cctype>                   // for isxdigit
+#include <cstring>                  // for size_t, memcmp
+#include <iterator>                 // for distance
+#include <string>                   // for basic_string, string
 
-#include "ChunkedBody.hpp"			// for ChunkedBody
-#include "requestStatusCode.hpp"	// for HTTP_...
-#include "socketCommunication.hpp"	// for checkError
+#include "ABody.hpp"                // for ABody, ABodyChilds
+#include "ChunkedBody.hpp"          // for ChunkedBody, ChunkedBodyState
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
+#include "socketCommunication.hpp"  // for checkError
 
 unsigned long	strToULongBase(const char* begin, const char* end, int (&isInBase)(int character), int base);
 

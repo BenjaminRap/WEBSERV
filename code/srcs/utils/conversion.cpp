@@ -1,8 +1,7 @@
-#include <cerrno>	// for errno
-#include <cstdlib>	// for std::strtoul
-#include <string>	// for std::string
-#include <climits>	// for ULONG_MAX
-#include <sstream>	// for std::ostringstream
+#include <cerrno>   // for errno, ERANGE
+#include <cstdlib>  // for strtoul, size_t
+#include <sstream>  // for basic_ostringstream, basic_ostream, ostringstream
+#include <string>   // for allocator, basic_string, string, char_traits
 
 std::string	sizeTToString(size_t value)
 {

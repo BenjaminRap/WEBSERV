@@ -1,6 +1,12 @@
-#include "FileFd.hpp"	// for FILEFD
-#include <cstdio>		// for tmpnam
-#include <sys/types.h>	// for ssize_t
+#include <fcntl.h>      // for open, O_CREAT, O_EXCL, O_RDONLY, O_WRONLY
+#include <stdint.h>     // for uint32_t
+#include <sys/types.h>  // for ssize_t, mode_t
+#include <cstdio>       // for tmpnam, NULL, L_tmpnam, size_t
+#include <new>          // for nothrow
+#include <string>       // for string, basic_string
+
+#include "AFdData.hpp"  // for AFdData, AFdDataChilds
+#include "FileFd.hpp"   // for FileFd
 
 static int	openFile(const std::string& path, int flags, mode_t mode)
 {

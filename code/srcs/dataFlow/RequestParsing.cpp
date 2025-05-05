@@ -1,11 +1,14 @@
-#include <cctype>					// for std::tolower
-#include <algorithm>				// for std::find
-#include <cerrno>					// for errno
-#include <string>					// for std::string
+#include <algorithm>              // for find
+#include <cctype>                 // for isdigit
+#include <cstring>                // for memcmp
+#include <exception>              // for exception
+#include <iterator>               // for distance
+#include <string>                 // for basic_string, string
 
-#include "Request.hpp"				// for Request
-#include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
-#include "requestStatusCode.hpp"	// fpr HTTP_...
+#include "EMethods.hpp"           // for getMethodFromBuffer
+#include "Request.hpp"            // for Request
+#include "protocol.hpp"           // for PROTOCOL_MAJOR, PROTOCOL_MINOR
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
 
 unsigned long	strToULongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
 

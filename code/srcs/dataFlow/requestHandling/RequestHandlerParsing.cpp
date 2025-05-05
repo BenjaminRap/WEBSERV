@@ -1,10 +1,9 @@
-#include <stddef.h>            		// for size_t
-
-#include "FlowBuffer.hpp"			// for FlowBuffer
-#include "Request.hpp"				// for Request
-#include "RequestHandler.hpp"  		// for RequestHandler, RequestState
-#include "Response.hpp"				// for Response
-#include "requestStatusCode.hpp"	// for HTTP_...
+#include "FlowBuffer.hpp"         // for FlowBuffer
+#include "Headers.hpp"            // for Headers
+#include "Request.hpp"            // for Request
+#include "RequestHandler.hpp"     // for RequestHandler, RequestState
+#include "Response.hpp"           // for Response
+#include "requestStatusCode.hpp"  // for HTTP_OK
 
 void	RequestHandler::readStatusLine(Response &response)
 {

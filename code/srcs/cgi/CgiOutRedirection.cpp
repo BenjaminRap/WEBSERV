@@ -1,6 +1,10 @@
-#include "CgiOut.hpp"
-#include "FlowBuffer.hpp"
-#include "requestStatusCode.hpp"
+#include <stddef.h>               // for NULL, size_t
+#include <string>                 // for basic_string
+
+#include "CgiOut.hpp"             // for CgiOut, CgiOutState
+#include "FileFd.hpp"             // for FileFd
+#include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
 
 void	CgiOut::readFromCgi()
 {

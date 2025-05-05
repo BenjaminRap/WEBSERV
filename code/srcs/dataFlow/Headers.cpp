@@ -1,8 +1,14 @@
-#include <algorithm>				// for std::find
-#include <iostream>					// for operator<<
+#include <stddef.h>               // for size_t, NULL
+#include <algorithm>              // for find, transform
+#include <cctype>                 // for tolower
+#include <iostream>               // for ostream, basic_ostream
+#include <iterator>               // for distance
+#include <map>                    // for operator!=, _Rb_tree_const_iterator
+#include <string>                 // for basic_string, string, operator<<
+#include <utility>                // for pair
 
-#include "Headers.hpp"				// for Headers
-#include "requestStatusCode.hpp"	// for HTTP_...
+#include "Headers.hpp"            // for Headers, LINE_END, LINE_END_LENGTH
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK
 
 /*******************************Constructors / Destructors**********************/
 

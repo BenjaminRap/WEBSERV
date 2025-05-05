@@ -1,12 +1,14 @@
-#include <stddef.h>     			// for size_t
-#include <stdexcept>				// for std::logic_error
-#include <sys/types.h>  			// for ssize_t
-#include <unistd.h>					// for write
+#include <stddef.h>               // for size_t
+#include <stdint.h>               // for uint16_t
+#include <sys/types.h>            // for ssize_t
+#include <unistd.h>               // for write
+#include <stdexcept>              // for logic_error
+#include <string>                 // for basic_string
 
-#include "ABody.hpp"    			// for ABody
-#include "SizedBody.hpp"			// for SizedBody
-#include "ChunkedBody.hpp"			// for ChunkedBody
-#include "requestStatusCode.hpp"	// for HTTP_OK
+#include "ABody.hpp"              // for ABody, ABodyChilds
+#include "ChunkedBody.hpp"        // for ChunkedBody
+#include "SizedBody.hpp"          // for SizedBody
+#include "requestStatusCode.hpp"  // for HTTP_OK
 
 ABody::ABody(int fd, ABodyChilds type) :
 	_fd(fd),

@@ -1,21 +1,23 @@
-#include <errno.h>                  // for errno, EACCES, ENOENT
-#include <fcntl.h>                  // for open, O_RDONLY
+#include <errno.h>                  // for EACCES, ENOENT
+#include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
-#include <iostream>                 // for basic_ostream, operator<<, cout
-#include <map>                      // for map, operator!=, _Rb_tree_const_i...
-#include <string>                   // for basic_string, char_traits, string
-#include <utility>                  // for make_pair, pair
+#include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, ostream
+#include <map>                      // for map
+#include <stdexcept>                // for logic_error
+#include <string>                   // for basic_string, operator<<, string
+#include <utility>                  // for make_pair
 
+#include "AFdData.hpp"              // for AFdData, AFdDataChilds
 #include "ARequestType.hpp"         // for ARequestType
+#include "FileFd.hpp"               // for FileFd
+#include "Headers.hpp"              // for Headers, operator<<
 #include "Response.hpp"             // for Response, operator<<
-#include "FileFd.hpp"				// for FileFd
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource
+#include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
-#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
-
-class ABody;
+#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
 
 /*********************************Constructors/Destructors*************************************/
 

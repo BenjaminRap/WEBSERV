@@ -2,9 +2,10 @@
 #include <stdexcept>           // for logic_error
 #include <string>              // for basic_string, string
 
-#include "ABody.hpp"           // for ABody
+#include "AFdData.hpp"         // for AFdData, AFdDataChilds
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
-#include "RawResponse.hpp"     // for RawResponse, LINE_END, LINE_END_LENGTH
+#include "Headers.hpp"         // for operator+=, Headers, LINE_END, LINE_EN...
+#include "RawResponse.hpp"     // for RawResponse
 #include "Response.hpp"        // for Response
 #include "SharedResource.hpp"  // for SharedResource
 #include "Status.hpp"          // for Status, StatusType

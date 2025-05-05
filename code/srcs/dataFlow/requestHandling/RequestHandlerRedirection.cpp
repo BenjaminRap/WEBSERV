@@ -1,11 +1,13 @@
 #include <stddef.h>               // for NULL
+#include <stdint.h>               // for uint16_t
 
 #include "ABody.hpp"              // for ABody
+#include "AFdData.hpp"            // for AFdData
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
 #include "Request.hpp"            // for Request
 #include "RequestHandler.hpp"     // for RequestHandler, RequestState
 #include "Response.hpp"           // for Response
-#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_INTERNAL_SER...
 
 static FlowState	redirect
 (

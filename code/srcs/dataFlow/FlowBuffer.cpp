@@ -1,11 +1,10 @@
-#include <cstring>			// for std::memmove
-#include <stddef.h>        // for size_t, NULL
-#include <algorithm>       // for find
+#include <algorithm>       // for find, min
+#include <cstring>         // for size_t, memcpy, memmove, NULL
 #include <iterator>        // for distance
 #include <stdexcept>       // for logic_error
 #include <string>          // for basic_string
 
-#include "FlowBuffer.hpp"  // for FlowBuffer
+#include "FlowBuffer.hpp"  // for FlowBuffer, MAX_CHARS_WRITTEN
 
 /************************Constructors / Destructors****************************/
 

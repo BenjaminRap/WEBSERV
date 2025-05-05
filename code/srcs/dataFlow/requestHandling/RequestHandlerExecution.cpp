@@ -8,12 +8,16 @@
 #include "DeleteRequest.hpp"        // for DeleteRequest
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
+#include "Headers.hpp"              // for Headers
 #include "PutRequest.hpp"           // for PutRequest
-#include "Request.hpp"              // for Request, operator<<
+#include "Request.hpp"              // for Request
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"    // for HTTP_OK
+#include "SharedResource.hpp"       // for SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
+
+class EPollHandler;
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::string& host) const
 {

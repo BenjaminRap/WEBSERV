@@ -1,8 +1,18 @@
-#include "CgiOut.hpp"
-#include "FlowBuffer.hpp"
-#include "Status.hpp"
-#include "requestStatusCode.hpp"
-#include <cstdlib>
+#include <fcntl.h>                // for O_WRONLY
+#include <stdint.h>               // for uint16_t
+#include <cctype>                 // for isdigit
+#include <cstdlib>                // for NULL, strtoul, size_t
+#include <map>                    // for map
+#include <string>                 // for basic_string, string
+
+#include "CgiOut.hpp"             // for CgiOut, CgiOutState
+#include "FileFd.hpp"             // for FileFd
+#include "FlowBuffer.hpp"         // for FlowBuffer
+#include "Headers.hpp"            // for Headers
+#include "Status.hpp"             // for Status
+#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_OK, HTTP_FOUND
+
+class ServerConfiguration;
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 void			setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers, bool hasBody);

@@ -1,19 +1,21 @@
+#include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
-#include <sys/epoll.h>              // for EPOLLIN, EPOLLOUT
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
 #include <vector>                   // for vector
 
+#include "AFdData.hpp"              // for AFdDataChilds
 #include "ASocketData.hpp"          // for ASocketData
-#include "ConnectedSocketData.hpp"  // for ConnectedSocketData
+#include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
-#include "RequestHandler.hpp"       // for RequestHandler, RequestState
+#include "RequestHandler.hpp"       // for RequestState, RequestHandler
+#include "Response.hpp"             // for Response
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "EPollHandler.hpp"         // for EPollHandler
-#include "Status.hpp"				// for Status, STATUS_ERROR
+#include "Status.hpp"               // for Status, StatusType
 
-class Response;  // lines 11-11
+class EPollHandler;
 
 /*************************Constructors / Destructors***************************/
 

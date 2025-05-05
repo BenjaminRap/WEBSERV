@@ -1,20 +1,19 @@
-#include <fcntl.h>                  // for fcntl, FD_CLOEXEC, F_SETFL, O_NON...
 #include <netinet/in.h>             // for sockaddr_in
 #include <stdint.h>                 // for uint32_t
-#include <sys/epoll.h>              // for EPOLLIN, EPOLLERR, EPOLLET, EPOLLHUP
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLIN
 #include <sys/socket.h>             // for accept, sockaddr, socklen_t
-#include <unistd.h>                 // for close
 #include <exception>                // for exception
-#include <iostream>                 // for basic_ostream, operator<<, basic_...
+#include <iostream>                 // for basic_ostream, char_traits, opera...
 #include <vector>                   // for vector
 
+#include "AFdData.hpp"              // for AFdDataChilds
 #include "ASocketData.hpp"          // for ASocketData
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
-#include "ServerSocketData.hpp"     // for ServerSocketData
 #include "EPollHandler.hpp"         // for EPollHandler
-#include "socketCommunication.hpp"  // for checkError
+#include "ServerSocketData.hpp"     // for ServerSocketData, SERVER_EVENTS
+#include "socketCommunication.hpp"  // for closeFdAndPrintError, checkError
 
-class ServerConfiguration;
+class ServerConfiguration;  // lines 17-17
 
 //***********************Cosntructors / Destructors****************************/
 

@@ -1,11 +1,12 @@
-#include <fcntl.h>			   // for O_NONBLOCK, FD_CLOEXEC
-#include <stdexcept>           // for invalid_argument, logic_error
-#include <string>              // for char_traits, basic_string
+#include <fcntl.h>                  // for FD_CLOEXEC, O_NONBLOCK
+#include <stddef.h>                 // for NULL
+#include <stdint.h>                 // for uint32_t
+#include <stdexcept>                // for runtime_error, invalid_argument
+#include <string>                   // for basic_string
 
-#include "AFdData.hpp"         // for AFdData
-#include "EPollHandler.hpp"	   // for EPollHandler
-
-class ServerConfiguration;  // lines 11-11
+#include "AFdData.hpp"              // for AFdData, AFdDataChilds
+#include "EPollHandler.hpp"         // for EPollHandler
+#include "socketCommunication.hpp"  // for addFlagsToFd, closeFdAndPrintError
 
 AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events) :
 	_fd(fd),

@@ -12,11 +12,13 @@
 #include <utility>                  // for pair
 #include <vector>                   // for vector
 
+#include "AFdData.hpp"              // for AFdData
 #include "ASocketData.hpp"          // for ASocketData
 #include "Configuration.hpp"        // for Configuration
-#include "Host.hpp"                 // for Host
 #include "EPollHandler.hpp"         // for EPollHandler
+#include "Host.hpp"                 // for Host
 #include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
+
 
 bool	EPollHandler::_instanciated = false;
 

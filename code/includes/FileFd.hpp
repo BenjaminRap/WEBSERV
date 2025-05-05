@@ -1,16 +1,14 @@
 #ifndef FILE_FD_HPP
 # define FILE_FD_HPP
 
-# include <cerrno>		// for errno
-# include <cstdio>		// for L_tmpnam
-# include <stdint.h>	// for uint32_t
-# include <string>		// for std::string
-# include <fcntl.h>		// for mode_t
+# include <stdint.h>     // for uint32_t
+# include <sys/types.h>  // for mode_t
+# include <cerrno>       // for errno
+# include <cstdio>       // for size_t, L_tmpnam
+# include <exception>    // for exception
+# include <string>       // for string
 
-# include "AFdData.hpp"	// for AFdData
-
-
-class EPollHandler;
+# include "AFdData.hpp"  // for AFdData
 
 /**
  * @class FileFd
