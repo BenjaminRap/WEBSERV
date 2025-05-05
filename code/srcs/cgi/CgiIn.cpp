@@ -81,7 +81,7 @@ void	CgiIn::callback(uint32_t events)
 		return ;
 	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
 	{
-		setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		setFinished(HTTP_BAD_GATEWAY);
 		return ;
 	}
 	if (_state == BUF_TO_TEMP)
