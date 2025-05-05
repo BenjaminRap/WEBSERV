@@ -50,9 +50,9 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiIn::setFinished(uint16_t code)
 {
+	_isActive = false;
 	_response.setResponse(code);
 	_connectedSocketData.readNextRequests(_response, REQUEST_DONE);
-	_isActive = false;
 }
 
 void	CgiIn::redirectToTemp(void)
