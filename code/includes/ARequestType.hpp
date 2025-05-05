@@ -67,6 +67,8 @@ class ARequestType
 		SharedResource<AFdData*>				getInFd(void) const;
 		SharedResource<AFdData*>				getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
+
+		int							execCGI(const char *path, char **argv, char **env, int fd[2]);
 };
 
 #endif //!A_REQUEST_HPP

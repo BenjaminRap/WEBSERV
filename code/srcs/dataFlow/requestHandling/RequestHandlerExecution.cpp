@@ -68,7 +68,8 @@ void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandl
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const ServerConfiguration	serverConfiguration = getServerConfiguration(*host);
+	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
+	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {
