@@ -30,7 +30,8 @@ CgiOut::~CgiOut()
 {
 	if (_srcFile != NULL)
 	{
-		std::remove(_tempName);
+		if (_tempName[0] != '\0')
+			std::remove(_tempName);
 		delete _srcFile;
 	}
 }
