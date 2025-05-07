@@ -1,9 +1,9 @@
-#include <stddef.h>                 // for NULL, size_t
+#include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint16_t
 #include <map>                      // for map
 #include <string>                   // for string, basic_string
 #include <vector>                   // for vector
-#include <cstring>
+#include <unistd.h>					// for pipe()
 
 #include "ARequestType.hpp"         // for ARequestType
 #include "EMethods.hpp"             // for EMethods
@@ -12,17 +12,28 @@
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
 
+class AFdData;
+class EPollHandler;
+
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);
 void	buildNewURl(std::string root, std::string &url);
 void	replaceUrl(const std::string &location, const std::string &root, std::string &url);
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
-void	addRoot(ARequestType &get, const ServerConfiguration &config);
+void	addRoot(ARequestType &req, const ServerConfiguration &config);
 
-ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain) :
+ARequestType::ARequestType
+(
+	std::string &url,
+	const ServerConfiguration& config,
+	EPollHandler& ePollHandler,
+	EMethods method,
+	const std::string& domain
+) :
 	_method(method),
 	_config(config),
+	_ePollHandler(ePollHandler),
 	_route(NULL),
 	_url(url),
 	_domain(domain),
@@ -30,9 +41,7 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	_redirection(),
 	_autoIndexPage(),
 	_inFd(),
-	_outFd(),
-	_outSize(0),
-	_isCGI(false)
+	_outFd()
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -42,28 +51,29 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 		return;
 	if (this->_url[0] != '.')
 		this->_url.insert(0, ".");
-
-	if (_route != NULL)
+	if (this->_route != NULL)
 	{
-		std::string ext = config.getRouteFromPath(_url)->getCgiFileExtension();
-		if (ext.empty())
+		const std::string	CGIextention = this->_route->getCgiFileExtension();
+		if (!CGIextention.empty())
 		{
-			std::cout
-					<< "-------------------------------------------------------------------------------------------------- NOOOOOOOO CGI FILE EXTENSION"
-					<< std::endl;
-			// Add les bonnes parties
-		}			
-		else
-		{
-			this->_isCGI = true;
-			std::cout
-					<< "-------------------------------------------------------------------------------------------------- CGI FILE EXTENSION : "
-					<< ext << std::endl;
-			// Add les bonnes parties
+			// char		**env = getEnv();
+			// int			fd[2];
+			// char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
+			// const char *path = this->_url.c_str();
+			//
+			// if (pipe(fd))
+			// {
+			// 	this->_code = HTTP_INTERNAL_SERVER_ERROR;
+			// }
+			// this->_inFd = SharedResource(fd[1], close);
+			// this->_outFd = SharedResource(fd[0], close);
+			// pid_t	pid = execCGI(path, argv, env, fd);
+			// if (pid == -1)
+			// {
+			// 	this->_code = HTTP_INTERNAL_SERVER_ERROR;
+			// }
 		}
 	}
-	else
-		std::cout << "-------------------------------------------------------------------------------------------------- NO ROUTE" << std::endl;
 }
 
 
@@ -141,19 +151,14 @@ EMethods	ARequestType::getMethod() const
 	return (this->_method);
 }
 
-SharedResource<int>	ARequestType::getInFd() const
+SharedResource<AFdData*>	ARequestType::getInFd() const
 {
 	return (_inFd);
 }
 
-SharedResource<int>	ARequestType::getOutFd() const
+SharedResource<AFdData*>	ARequestType::getOutFd() const
 {
 	return (_outFd);
-}
-
-size_t	ARequestType::getOutSize() const
-{
-	return (_outSize);
 }
 
 bool	ARequestType::getAutoIndex(void) const

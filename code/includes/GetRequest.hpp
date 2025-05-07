@@ -15,11 +15,17 @@ class GetRequest : public ARequestType
 		GetRequest& operator=(const GetRequest& src);
 
 	public :
-		explicit GetRequest(std::string url, const std::string &domain, const ServerConfiguration &config);
+		explicit GetRequest
+		(
+			std::string url,
+			const ServerConfiguration &config,
+			EPollHandler& ePollHandler,
+			const std::string& domain
+		);
 		~GetRequest();
 
 		void	setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage);
-		void	openFileAndSetSize(void);
+		void	openFile(void);
 };
 
 #endif //!GET_REQUEST_HPP

@@ -1,7 +1,8 @@
-#include <cstring>		// for std::memcmp
-#include <stdexcept>	// for std::logic_error
+#include <cstring>       // for memcmp, size_t
+#include <stdexcept>     // for invalid_argument, logic_error
+#include <string>        // for basic_string, string
 
-#include "EMethods.hpp"	// for EMethods
+#include "EMethods.hpp"  // for EMethods, METHOD_COUNT, getMethodFromBuffer
 
 const std::string	methods[METHOD_COUNT] = { "GET", "POST", "DELETE", "PUT" };
 

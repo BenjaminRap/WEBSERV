@@ -3,17 +3,19 @@
 
 # include <stdint.h>              // for uint32_t
 	
-# include "AFdData.hpp"            // for FdData
+# include "ASocketData.hpp"       // for ASocketData
 # include "RequestHandler.hpp"    // for RequestHandler
 # include "ResponsesHandler.hpp"  // for ResponsesHandler
 
-class SocketsHandler;
+# define CONNECTED_EVENTS (EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
+
+class EPollHandler;
 
 /**
  * @brief This class stores all the data needed by a connected Socket. This fd
  * process the request of a single client.
  */
-class ConnectedSocketData : public AFdData
+class ConnectedSocketData : public ASocketData
 {
 private:
 	/**
@@ -35,9 +37,9 @@ private:
 	bool				_closing;
 
 	ConnectedSocketData(void);
-	ConnectedSocketData(const AFdData &ref);
+	ConnectedSocketData(const ASocketData &ref);
 
-	ConnectedSocketData&	operator=(const AFdData& ref);
+	ConnectedSocketData&	operator=(const ASocketData& ref);
 	
 	/**
 	 * @brief It redirect the data into the first part or the body, then call
@@ -50,7 +52,12 @@ private:
 	 */
 	RequestState			processRequest(void);
 public:
-	ConnectedSocketData(int fd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> &serverConfiguration);
+	ConnectedSocketData
+	(
+		int fd,
+		EPollHandler &ePollHandler,
+		const std::vector<ServerConfiguration> &serverConfiguration
+	);
 	~ConnectedSocketData(void);
 
 	/**
@@ -59,7 +66,12 @@ public:
 	 *
 	 * @param events 
 	 */
-	void	callback(uint32_t events);
+	void			callback(uint32_t events);
+	RequestState	readNextRequests
+	(
+		Response& currentResponse,
+		RequestState requestState
+	);
 };
 
 #endif // !CONNECTED_SOCKET_DATA_HPP

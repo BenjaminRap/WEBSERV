@@ -1,69 +1,83 @@
 #include <stddef.h>               // for NULL
+#include <stdint.h>               // for uint16_t
 
 #include "ABody.hpp"              // for ABody
+#include "AFdData.hpp"            // for AFdData
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
 #include "Request.hpp"            // for Request
 #include "RequestHandler.hpp"     // for RequestHandler, RequestState
 #include "Response.hpp"           // for Response
-#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_INTERNAL_SER...
 
-void	RequestHandler::writeBodyFromBuffer(Response &response)
+static FlowState	redirect
+(
+	int srcFd,
+	ABody& destBody,
+	AFdData& fdData,
+	bool canRead,
+	bool canWrite,
+	FlowBuffer &flowBuf
+)
 {
-	if (_state != REQUEST_BODY)
-		return ;
-	ABody * const	body = _request.getBody();
+	FlowState	flowState;
 
-	if (body == NULL)
-	{
-		_state = REQUEST_DONE;
-		return ;
-	}
-	if (_request.getIsBlocking())
-		return ;
-	const FlowState flowState = _flowBuffer.redirectBufferContentToFd<ABody&>(*body, ABody::callInstanceWriteToFd);
-	
-	if (flowState == FLOW_ERROR)
-	{
-		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		_state = REQUEST_DONE;
-	}
-	else if (flowState == FLOW_DONE && body->getFinished())
-		_state = REQUEST_DONE;
+	if (canRead && !canWrite)
+		flowState = flowBuf.srcToBuff<int>(srcFd);
+	else if (!canRead && canWrite)
+		flowState = flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd);
+	else if (canRead && canWrite)
+		flowState = flowBuf.redirect<int, ABody&>(srcFd, destBody, ABody::writeToFd);
+	else
+		flowState = FLOW_MORE;
+	fdData.callback(0);
+	return (flowState);
 }
 
-/*************************public Member function*******************************/
+uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body)
+{
 
-RequestState			RequestHandler::redirectBody(int socketFd, Response &response)
+	if (canWrite)
+	{
+		if (body.getFinished())
+			return (body.getStatus());
+		if (flowResult == FLOW_BUFFER_FULL)
+			return (HTTP_BAD_REQUEST);
+	}
+	if (flowResult == FLOW_ERROR)
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	return (0);
+}
+
+RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool canRead)
 {
 	if (_state != REQUEST_BODY)
 		return (_state);
 	ABody * const	body = _request.getBody();
+	AFdData * const	fdData = _request.getFdData();
 	
-	if (body == NULL)
-		return (REQUEST_DONE);
-	const FlowState flowState = _request.getIsBlocking() ?
-		_flowBuffer.redirectFdContentToBuffer<int>(socketFd)
-		: _flowBuffer.redirectContent<int, ABody&>(socketFd, *body, ABody::callInstanceWriteToFd);
-
-	if (flowState == FLOW_DONE)
-		_state = CONNECTION_CLOSED;
-	else if (flowState == FLOW_ERROR)
+	if (body == NULL || fdData == NULL)
 	{
-		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
+		return (REQUEST_DONE);
 	}
-	else if (body->getFinished())
-		_state = REQUEST_DONE;
-	return (_state);
+
+	const bool		canWrite = fdData->getIsBlocking() == false;
+	const FlowState	flowState = redirect(socketFd, *body, *fdData, canRead, canWrite, _flowBuf);
+	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
+
+	if (code == 0)
+		return (REQUEST_BODY);
+	if (code != HTTP_OK)
+		response.setResponse(code);
+	_state = REQUEST_DONE;
+	return (REQUEST_DONE);
 }
 
 RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
-	const FlowState flowState = _flowBuffer.redirectFdContentToBuffer<int>(socketFd);
+	const FlowState flowState = _flowBuf.srcToBuff<int>(socketFd);
 
-	if (flowState == FLOW_DONE)
-		_state = CONNECTION_CLOSED;
-	else if (flowState == FLOW_ERROR)
+	if (flowState == FLOW_ERROR)
 	{
 		response.setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		_state = REQUEST_DONE;
@@ -78,5 +92,3 @@ RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 	}
 	return (_state);
 }
-
-

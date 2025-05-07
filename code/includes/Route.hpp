@@ -36,8 +36,7 @@ public:
 		const std::vector<std::string> &index,
 		const bool &auto_index,
 		const std::string &root,
-		const std::string &cgiFileExtension,
-		const bool	&acceptUploads
+		const std::string &cgiFileExtension
 	);
 	Route(Route const &src);
 	~Route(void);
@@ -48,7 +47,6 @@ public:
 	bool							getAutoIndex(void) const;
 	const std::string&				getRoot(void) const;
 	const std::string&				getCgiFileExtension(void) const;
-	bool							getAcceptUploads(void) const;
 	void							setIndex(const std::vector<std::string> &v);
 
 private:
