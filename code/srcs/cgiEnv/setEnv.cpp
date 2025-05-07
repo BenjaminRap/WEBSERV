@@ -29,18 +29,13 @@ char *duplicateString(const std::string &str)
 
 bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *value)
 {
-	std::string newElement;
-	std::string temp;
-
 	if (value == NULL)
-		temp = "";
-	else
-		temp = *value;
-	newElement = title + temp;
+		return (true);
+
 	int i = 0;
 	while (env[i] != NULL)
 		i++;
-	env[i] = duplicateString(newElement);
+	env[i] = duplicateString(title + *value);
 	if (env[i] == NULL)
 		return (false);
 	env[i + 1] = NULL;
