@@ -24,7 +24,9 @@ CgiIn::CgiIn
 	FlowBuffer& requestFlowBuffer,
 	ABody& body,
 	ConnectedSocketData& connectedSocketData,
-	Response& currentResponse
+	Response& currentResponse,
+	const std::string& cgiFile,
+	const int (&redirectFds)[2]
 ) :
 	AFdData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
 	_flowBuf(requestFlowBuffer),
@@ -33,8 +35,12 @@ CgiIn::CgiIn
 	_response(currentResponse),
 	_tempName(),
 	_tempFile(NULL),
-	_state(BUF_TO_CGI)
+	_state(BUF_TO_CGI),
+	_cgiFile(cgiFile),
+	_redirectFds()
 {
+	_redirectFds[0] = redirectFds[0];
+	_redirectFds[1] = redirectFds[1];
 	if (_body.getType() != CHUNKED_REQUEST)
 		return ;
 	_tempName[0] = '\0';
