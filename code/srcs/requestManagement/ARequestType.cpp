@@ -47,15 +47,19 @@ ARequestType::ARequestType(std::string &url, const ServerConfiguration& config, 
 	{
 		std::string ext = config.getRouteFromPath(_url)->getCgiFileExtension();
 		if (ext.empty())
+		{
 			std::cout
 					<< "-------------------------------------------------------------------------------------------------- NOOOOOOOO CGI FILE EXTENSION"
 					<< std::endl;
+			// Add les bonnes parties
+		}			
 		else
 		{
 			this->_isCGI = true;
 			std::cout
 					<< "-------------------------------------------------------------------------------------------------- CGI FILE EXTENSION : "
 					<< ext << std::endl;
+			// Add les bonnes parties
 		}
 	}
 	else
