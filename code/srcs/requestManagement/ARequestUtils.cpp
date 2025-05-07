@@ -11,6 +11,25 @@
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
 #include "socketCommunication.hpp"  // for checkError
 
+bool	checkExtension(const std::string& file, const std::string& extension)
+{
+	if (extension.size() == 0)
+		return (false);
+	if (extension.size() > file.size())
+		return (false);
+	std::string::const_reverse_iterator	extRIt = extension.rbegin();
+	std::string::const_reverse_iterator	fileRIt = extension.rbegin();
+
+	while (extRIt != extension.rend())
+	{
+		if (*extRIt != *fileRIt)
+			return (false);
+		extRIt++;
+		fileRIt++;
+	}
+	return (true);
+}
+
 bool	checkAllowMeth(const Route *route, EMethods meth)
 {
 	if (route == NULL)
