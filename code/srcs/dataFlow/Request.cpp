@@ -1,21 +1,22 @@
-#include <cstring>                // for memcmp, size_t, NULL
-#include <iostream>               // for basic_ostream, operator<<, endl, cout
-#include <string>                 // for basic_string, char_traits, string
+#include <cctype>                   // for isdigit
+#include <cstring>                  // for NULL, size_t
+#include <iostream>                 // for operator<<, basic_ostream, ostream
+#include <string>                   // for char_traits, basic_string, operat...
 
-#include "CgiIn.hpp"			  // for CgiIn
-#include "ChunkedBody.hpp"		  // for ChunkedBody
-#include "EMethods.hpp"           // for EMethods, getStringRepresentation
-#include "Request.hpp"            // for Request, operator<<
-#include "ServerConfiguration.hpp"
-#include "SharedResource.hpp"     // for SharedResource
-#include "SizedBody.hpp"          // for SizedBody
-#include "protocol.hpp"           // for PROTOCOL, PROTOCOL_LENGTH
-#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
+#include "AFdData.hpp"              // for AFdData
+#include "ChunkedBody.hpp"          // for ChunkedBody
+#include "EMethods.hpp"             // for EMethods, getStringRepresentation
+#include "Headers.hpp"              // for Headers, operator<<
+#include "Request.hpp"              // for Request, operator<<
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "SharedResource.hpp"       // for SharedResource, freePointer
+#include "SizedBody.hpp"            // for SizedBody
+#include "protocol.hpp"             // for PROTOCOL
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
 
-class ABody;
+class ABody;  // lines 16-16
 
-long	getLongMax();
-long	stringToLongBase(const std::string& str, int (&isInBase)(int character), int base);
+unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
 /*****************************Constructors/Destructors*********************************/
 
@@ -44,8 +45,6 @@ void	Request::reset()
 	_body.stopManagingResource();
 }
 
-bool	stringToSizeT(const  std::string &str, size_t &outValue);
-
 int	Request::setBodyFromHeaders
 (
 	SharedResource<AFdData*> fdData,
@@ -64,8 +63,8 @@ int	Request::setBodyFromHeaders
 		return (HTTP_BAD_REQUEST);
 	if (contentLengthString != NULL)
 	{
-		long	contentLength = stringToLongBase(*contentLengthString, std::isdigit, 10);
-		if (contentLength == getLongMax())
+		const unsigned long	contentLength = stringToULongBase(*contentLengthString, std::isdigit, 10);
+		if (contentLength == (unsigned long)-1)
 			return (HTTP_BAD_REQUEST);
 		if ((size_t)contentLength > maxSize)
 			return (HTTP_CONTENT_TOO_LARGE);
@@ -89,6 +88,13 @@ ABody	*Request::getBody() const
 }
 
 
+AFdData*	Request::getFdData()
+{
+	if (_fdData.isManagingValue() == false)
+		return (NULL);
+	return (_fdData.getValue());
+}
+
 EMethods	Request::getMethod(void) const
 {
 	return (this->_statusLine.method);
@@ -107,16 +113,6 @@ Headers&	Request::getHeaders()
 const Headers&	Request::getHeaders() const
 {
 	return (_headers);
-}
-
-
-bool	Request::isBodyBlocking() const
-{
-	if (_fdData.isManagingValue() == false)
-		return (false);
-
-	const AFdData * const	fdData = _fdData.getValue();
-	return (fdData->getIsBlocking());
 }
 
 /******************************Operator Overload*****************************************/

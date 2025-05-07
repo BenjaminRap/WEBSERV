@@ -39,12 +39,6 @@ private:
 	 */
 	SharedResource<AFdData*>	_fdData;
 	/**
-	 * @brief The body of the response, it could be a sized body, a
-	 * chunked body ...
-	 * @note It could also be NULL.
-	 */
-	SharedResource<ABody*>		_body;
-	/**
 	 * @brief The default ServerConfiguration, used when
 	 * an error occured before the request execution.
 	 */
@@ -61,19 +55,10 @@ private:
 	Response&	operator=(const Response& response);
 
 	/**
-	 * @brief Add some headers that doesn't depend of the setResponse
-	 * arguments.
-	 * It sets the Date, Server and Connection headers.
-	 */
-	void					addDefaultHeaders(void);
-	/**
 	 * @brief Set the body and the content-length header depending on
 	 * the requestResult.
-	 *
-	 * @param requestResult The result of the request. If an error occured
-	 * before the request execution, this variable should be set to NULL.
 	 */
-	void					setBody(ARequestType* requestResult, int socketFd);
+	void					setBody(void);
 	/**
 	 * @brief If there is an error, stop the managment of the body and replace
 	 * it with the custom error page (if there is one).
@@ -82,11 +67,7 @@ private:
 	 * It could be different if an error occured while opening the custom error
 	 * page.
 	 */
-	uint16_t				setErrorPage
-	(
-		uint16_t code,
-		const ServerConfiguration& serverConfiguration
-	);
+	void					setErrorPage(const ServerConfiguration& serverConfiguration);
 	/**
 	 * @brief Initialise the values of the response : code, text, headers, body
 	 *
@@ -96,17 +77,15 @@ private:
 	void					initValues
 	(
 		int code,
-		const ServerConfiguration& serverConfiguration,
-		ARequestType *requestResult,
-		int socketFd
+		const ServerConfiguration& serverConfiguration
 	);
 
 public:
 	Response(const ServerConfiguration &defaultConfig);
 	~Response(void);
 
-	void							setResponse(int code);
-	void							setResponse(ARequestType& ARequestType, int socketFd);
+	void							setResponse(uint16_t code);
+	void							setResponse(ARequestType& ARequestType);
 	/**
 	 * @brief Reset this instance as it was after construction.
 	 */
@@ -116,7 +95,6 @@ public:
 	const Headers&					getHeaders(void) const;
 	Headers&						getHeaders(void);
 	SharedResource<AFdData*>		getFdData(void) const;
-	SharedResource<ABody*>			getBody(void) const;
 	const std::string&				getAutoIndexPage(void) const;
 };
 

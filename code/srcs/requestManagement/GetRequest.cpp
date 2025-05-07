@@ -1,17 +1,18 @@
-#include <fcntl.h>                  // for open, O_RDONLY
-#include <stdint.h>                 // for uint16_t
-#include <sys/types.h>              // for ssize_t
-#include <string>                   // for basic_string, string
+#include <fcntl.h>                // for O_RDONLY
+#include <stdint.h>               // for uint16_t
+#include <sys/types.h>            // for ssize_t
+#include <exception>              // for exception
+#include <string>                 // for string, basic_string
 
-#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
-#include "EMethods.hpp"             // for EMethods
-#include "GetRequest.hpp"           // for GetRequest
-#include "FileFd.hpp"				// for FileFd
-#include "SharedResource.hpp"       // for SharedResource
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
-#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
+#include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
+#include "EMethods.hpp"           // for EMethods
+#include "FileFd.hpp"             // for FileFd
+#include "GetRequest.hpp"         // for GetRequest
+#include "SharedResource.hpp"     // for freePointer, SharedResource
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
 
-class ServerConfiguration;
+class EPollHandler;
+class ServerConfiguration;  // lines 14-14
 
 uint16_t	isDirOrFile(const std::string& path);
 void		directoryCase(GetRequest& get);
@@ -58,13 +59,6 @@ void	GetRequest::openFileAndSetSize(void)
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		return ;
 	}
-	const ssize_t fileSize = getFileSize(this->_url.c_str());
-	if (fileSize == -1)
-	{
-		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		return ;
-	}
-	this->_outSize = fileSize;
 }
 
 void	GetRequest::setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage)

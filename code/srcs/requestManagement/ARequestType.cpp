@@ -1,4 +1,4 @@
-#include <stddef.h>                 // for NULL, size_t
+#include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint16_t
 #include <map>                      // for map
 #include <string>                   // for string, basic_string
@@ -11,6 +11,9 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+
+class AFdData;
+class EPollHandler;
 
 bool	checkAllowMeth(const Route &root, EMethods meth);
 void	delString(const std::string &toDel, std::string &str);
@@ -36,8 +39,7 @@ ARequestType::ARequestType
 	_redirection(),
 	_autoIndexPage(),
 	_inFd(),
-	_outFd(),
-	_outSize(0)
+	_outFd()
 {
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
@@ -136,11 +138,6 @@ SharedResource<AFdData*>	ARequestType::getInFd() const
 SharedResource<AFdData*>	ARequestType::getOutFd() const
 {
 	return (_outFd);
-}
-
-size_t	ARequestType::getOutSize() const
-{
-	return (_outSize);
 }
 
 bool	ARequestType::getAutoIndex(void) const

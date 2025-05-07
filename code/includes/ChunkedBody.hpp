@@ -10,6 +10,7 @@
  * ChunkedBody. As this class could parse the messsage in
  * mutliple calls, it has to remember where it was the previous
  * time. 
+ * @note This ABody SHOULD NOT be used with blocking fd !!
  *
  */
 enum ChunkedBodyState
@@ -41,18 +42,11 @@ private:
 	 * trailers, endLine ...
 	 */
 	const	size_t				_maxSize;
-
-	/**
-	 * @brief The total size of this chunkedRequest, it is
-	 * incremented through the process. If it is greater than maxSize,
-	 * HTTP_CONTENT_TOO_LARGE is set.
-	 */
-	size_t						_totalSize;
 	/**
 	 * @brief The size of the current chunk.
 	 * When no chunk has been read, it is set to -1.
 	 */
-	ssize_t						_chunkSize;
+	unsigned long				_chunkSize;
 	/**
 	 * @brief The state of this request
 	 * @ref ChunkedBodyState
@@ -125,6 +119,7 @@ private:
 	void	setFinished(uint16_t status);
 public:
 	ChunkedBody(int fd, size_t maxSize);
+	ChunkedBody(size_t maxSize);
 	~ChunkedBody();
 	
 	/**

@@ -5,6 +5,15 @@
 
 class EPollHandler;
 
+enum	AFdDataChilds
+{
+	FILE_FD,
+	CGI_OUT,
+	CGI_IN,
+	SERVER_SOCKET_DATA,
+	CONNECTED_SOCKET_DATA
+};
+
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
  * instance. This class store everything that the programs needs when the fd
@@ -30,9 +39,10 @@ protected:
 	 * this variable is set to false.
 	 */
 	bool			_isActive;
+	AFdDataChilds	_type;
 
-	AFdData(int fd, EPollHandler& ePollHandler);
-	AFdData(int fd);
+	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);
+	AFdData(int fd, AFdDataChilds type);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);
@@ -53,6 +63,7 @@ public:
 	int				getFd(void) const;
 	bool			getIsBlocking(void) const;
 	bool			getIsActive(void) const;
+	AFdDataChilds	getType(void) const;
 };
 
 #endif // !A_FD_DATA_HPP

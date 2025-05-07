@@ -55,7 +55,7 @@ private:
 	/**
 	 * @brief The FlowBuffer managing the read of the request into the _buffer.
 	 */
-	FlowBuffer								_flowBuffer;
+	FlowBuffer								_flowBuf;
 	/**
 	 * @brief It keeps track of where the request is. (reading the status line, a header ...)
 	 */
@@ -102,7 +102,7 @@ private:
 	 *
 	 * @param socketFd the socket fd of the client.
 	 */
-	void						executeRequest(Response &response, int socketFd, EPollHandler& ePollHandler);
+	void						executeRequest(Response &response, EPollHandler& ePollHandler);
 	/**
 	 * @brief Write the request body from the _buffer to the body fd.
 	 * If there is an error, it sets the response values.
@@ -124,8 +124,7 @@ private:
 	void						processRequestResult
 	(
 		ARequestType& request,
-		Response &response,
-		int socketFd
+		Response &response
 	);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);

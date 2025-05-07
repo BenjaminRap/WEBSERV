@@ -1,24 +1,23 @@
-#include <errno.h>                  // for errno, EACCES, ENOENT
-#include <fcntl.h>                  // for open, O_RDONLY
+#include <errno.h>                  // for EACCES, ENOENT
+#include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
-#include <iostream>                 // for basic_ostream, operator<<, cout
-#include <map>                      // for map, operator!=, _Rb_tree_const_i...
-#include <string>                   // for basic_string, char_traits, string
-#include <utility>                  // for make_pair, pair
+#include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, ostream
+#include <map>                      // for map
+#include <stdexcept>                // for logic_error
+#include <string>                   // for basic_string, operator<<, string
+#include <utility>                  // for make_pair
 
+#include "AFdData.hpp"              // for AFdData, AFdDataChilds
 #include "ARequestType.hpp"         // for ARequestType
+#include "FileFd.hpp"               // for FileFd
+#include "Headers.hpp"              // for Headers, operator<<
 #include "Response.hpp"             // for Response, operator<<
-#include "FileFd.hpp"				// for FileFd
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource
-#include "SizedBody.hpp"            // for SizedBody
+#include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
-#include "exception.hpp"            // for CustomException
-#include "protocol.hpp"             // for PROTOCOL
-#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
-
-class ABody;
+#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
 
 /*********************************Constructors/Destructors*************************************/
 
@@ -26,7 +25,6 @@ Response::Response(const ServerConfiguration& defaultConfig) :
 	_status(NULL),
 	_headers(),
 	_fdData(),
-	_body(),
 	_defaultConfig(defaultConfig),
 	_autoIndexPage()
 {
@@ -39,27 +37,35 @@ Response::~Response(void)
 
 /*********************************Privates Methods******************************************/
 
-void	Response::addDefaultHeaders(void)
+void	addDefaultHeaders(Headers& headers, const Status* status)
 {
 	char				timeBuffer[100];
 	const std::time_t	now = std::time(NULL);
 
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
-	_headers["date"] = timeBuffer;
-	_headers["server"] = "WebServ de bg";
-	_headers["connection"] = (_status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+	headers["date"] = timeBuffer;
+	headers["server"] = "WebServ de bg";
+	headers["connection"] = (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+
 }
 
 std::string	sizeTToString(size_t value);
 
-void	Response::setBody(ARequestType* requestResult, int socketFd)
+void	Response::setBody()
 {
 	size_t	bodySize = 0;
 
-	if (requestResult != NULL && _fdData.isManagingValue())
+	if (_fdData.isManagingValue())
 	{
-		bodySize = requestResult->getOutSize();
-		_body.setManagedResource(new SizedBody(socketFd, bodySize), freePointer);
+		AFdData*	fdData = _fdData.getValue();
+
+		if (fdData->getType() == FILE_FD)
+			bodySize = static_cast<FileFd*>(fdData)->getSize();
+		else
+		{
+			_fdData.stopManagingResource();
+			throw std::logic_error("The AFdData is not a FileFd !");
+		}
 	}
 	else if (_status->getErrorPage().size() != 0)
 		bodySize = _status->getErrorPage().size();
@@ -68,59 +74,100 @@ void	Response::setBody(ARequestType* requestResult, int socketFd)
 	this->_headers.insert(std::make_pair("content-length", sizeTToString(bodySize)));
 }
 
-uint16_t	Response::setErrorPage(uint16_t code, const ServerConfiguration& serverConfiguration)
+
+/**
+ * @brief get the HTTP status code corresponding to the value of errno
+ * set when opening a file fail.
+ *
+ * @param errnoValue The value of errno set after an opening failed
+ * @return a HTTP status code.
+ */
+uint16_t	getStatusCodeFromErrno(int errnoValue)
 {
-	if (Status::isCodeOfType(code, STATUS_ERROR) == false)
-		return (code);
-	_fdData.stopManagingResource();
+	switch (errnoValue)
+	{
+	case ENOENT:
+		return (HTTP_NOT_FOUND);
+	case EACCES:
+		return (HTTP_FORBIDDEN);
+	default:
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	}
+}
+
+/**
+ * @brief Return a FileFd opened on the error page corresponding to
+ * the status error. If an error occured, it can change the currentStatus.
+ * If there is no error page corresponding to the status, returns NULL.
+ *
+ */
+FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration)
+{
 	try
 	{
-		const std::string& errorPage = serverConfiguration.getErrorPage(code);
+		const std::string* errorPage = serverConfiguration.getErrorPage((*currentStatus)->getCode());
 
-		FileFd*				fileFd = new FileFd(errorPage, O_RDONLY);
-		_fdData.setManagedResource(fileFd, freePointer);
+		if (errorPage == NULL)
+			return (NULL);
+
+		return (new FileFd(*errorPage, O_RDONLY));
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{
-		switch (openError.getErrno())
-		{
-		case ENOENT:
-			return (HTTP_NOT_FOUND);
-		case EACCES:
-			return (HTTP_FORBIDDEN);
-		default:
-			return (HTTP_INTERNAL_SERVER_ERROR);
-		}
+		const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
+
+		*currentStatus = Status::getStatus(code);
 	}
-	catch (const CustomException& exception)
+	catch (const std::exception& exception)
 	{
-		return (code);
+		*currentStatus = Status::getStatus(HTTP_INTERNAL_SERVER_ERROR);
 	}
-	return (code);
+			return (NULL);
 }
 
-void	Response::initValues(int code, const ServerConfiguration& serverConfiguration, ARequestType *requestResult, int socketFd)
+void	Response::setErrorPage(const ServerConfiguration& serverConfiguration)
 {
-	code = setErrorPage(code, serverConfiguration); // the order is important because it changes the code
-	_status = &Status::getStatus(code);
-	addDefaultHeaders();
-	setBody(requestResult, socketFd);
+	_fdData.stopManagingResource();
+	FileFd * errorPage = getErrorPage(&_status, serverConfiguration);
+	if (errorPage != NULL)
+		_fdData.setManagedResource(errorPage, freePointer);
+}
+
+void	Response::initValues(int code, const ServerConfiguration& serverConfiguration)
+{
+	_status = Status::getStatus(code);
+	if (_status == NULL)
+		throw std::logic_error("initValues called with an invalid code !");
+
+	if (Status::isCodeOfType(code, STATUS_ERROR))
+		setErrorPage(serverConfiguration);
+	addDefaultHeaders(_headers, _status);
+	setBody();
 }
 
 /*********************************Public Methods********************************************/
 
-void	Response::setResponse(int code)
+void	Response::setResponse(uint16_t code)
 {
 	reset();
-	initValues(code, _defaultConfig, NULL, -1);
+	initValues(code, _defaultConfig);
 }
 
-void	Response::setResponse(ARequestType& requestResult, int socketFd)
+void	Response::setResponse(ARequestType& requestResult)
 {
 	reset();
+
 	_fdData = requestResult.getOutFd();
+	if (_fdData.isManagingValue())
+	{
+		AFdData* fdData = _fdData.getValue();
+
+		if (fdData->getType() == CGI_OUT)
+			return ;
+	}
+
 	_autoIndexPage = requestResult.getAutoIndexPage();
-	initValues(requestResult.getCode(), requestResult.getConfig(), &requestResult, socketFd);
+	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
 		&& _status->isOfType(STATUS_REDIRECTION))
 	{
@@ -133,7 +180,6 @@ void	Response::reset()
 	this->_status = NULL;
 	this->_headers.clear();
 	this->_fdData.stopManagingResource();
-	this->_body.stopManagingResource();
 	this->_autoIndexPage = "";
 }
 
@@ -154,11 +200,6 @@ SharedResource<AFdData*>	Response::getFdData(void) const
 	return (_fdData);
 }
 
-SharedResource<ABody*>	Response::getBody(void) const
-{
-	return (_body);
-}
-
 const Status*	Response::getStatus(void) const
 {
 	return (_status);
@@ -175,11 +216,10 @@ std::ostream & operator<<(std::ostream & o, Response const & response)
 {
 	const Status * const						status = response.getStatus();
 
-	o << PROTOCOL << " ";
 	if (status == NULL)
-		o << "unset unset\n";
+		o << "unset unset unset\n";
 	else
-		o << status->getCode() << " " << status->getText() << '\n';
+		o << status->getRepresentation();
 
 	o << response.getHeaders();
 	if (status != NULL)

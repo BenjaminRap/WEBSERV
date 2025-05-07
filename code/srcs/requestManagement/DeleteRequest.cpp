@@ -5,7 +5,8 @@
 #include "DeleteRequest.hpp"  // for DeleteRequest
 #include "EMethods.hpp"       // for EMethods
 
-class ServerConfiguration;  // lines 6-6
+class EPollHandler;
+class ServerConfiguration;  // lines 8-8
 
 uint16_t	isDirOrFile(const std::string& path);
 uint16_t	directoryCase(const std::string &path, DeleteRequest &del);

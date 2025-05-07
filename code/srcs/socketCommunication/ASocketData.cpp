@@ -1,16 +1,25 @@
-#include <iostream>            // for basic_ostream, operator<<, cerr, endl
-#include <list>                // for list
-#include <stdexcept>           // for invalid_argument, logic_error
-#include <string>              // for char_traits, basic_string
-#include <vector>              // for vector
+#include <stdint.h>          // for uint32_t
+#include <iostream>          // for basic_ostream, operator<<, cerr, endl
+#include <list>              // for list
+#include <stdexcept>         // for logic_error
+#include <string>            // for char_traits, basic_string
+#include <vector>            // for vector
 
-#include "ASocketData.hpp"     // for ASocketData
-#include "EPollHandler.hpp"    // for EPollHandler
+#include "AFdData.hpp"       // for AFdData, AFdDataChilds
+#include "ASocketData.hpp"   // for ASocketData
+#include "EPollHandler.hpp"  // for EPollHandler
 
-class ServerConfiguration;  // lines 11-11
+class ServerConfiguration;  // lines 10-10
 
-ASocketData::ASocketData(int fd, EPollHandler& ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
-	AFdData(fd, ePollHandler),
+ASocketData::ASocketData
+(
+	int fd, 
+	EPollHandler& ePollHandler,
+	const std::vector<ServerConfiguration> &serverConfigurations,
+	AFdDataChilds type,
+	uint32_t events
+) :
+	AFdData(fd, ePollHandler, type, events),
 	_iterator(),
 	_isIteratorSet(false),
 	_serverConfigurations(serverConfigurations)

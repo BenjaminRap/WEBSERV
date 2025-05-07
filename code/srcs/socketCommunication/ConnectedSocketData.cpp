@@ -1,24 +1,26 @@
+#include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
-#include <sys/epoll.h>              // for EPOLLIN, EPOLLOUT
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
 #include <vector>                   // for vector
 
+#include "AFdData.hpp"              // for AFdDataChilds
 #include "ASocketData.hpp"          // for ASocketData
-#include "ConnectedSocketData.hpp"  // for ConnectedSocketData
+#include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
-#include "RequestHandler.hpp"       // for RequestHandler, RequestState
+#include "RequestHandler.hpp"       // for RequestState, RequestHandler
+#include "Response.hpp"             // for Response
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "EPollHandler.hpp"         // for EPollHandler
-#include "Status.hpp"				// for Status, STATUS_ERROR
+#include "Status.hpp"               // for Status, StatusType
 
-class Response;  // lines 11-11
+class EPollHandler;
 
 /*************************Constructors / Destructors***************************/
 
 ConnectedSocketData::ConnectedSocketData(int fd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	ASocketData(fd, ePollHandler, serverConfiguration),
+	ASocketData(fd, ePollHandler, serverConfiguration, CONNECTED_SOCKET_DATA, CONNECTED_EVENTS),
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false)
@@ -78,14 +80,16 @@ RequestState	ConnectedSocketData::readNextRequests
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
+	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+		_isActive = false;
 	try
 	{
-		if (_closing == false && events & EPOLLIN)
+		if (_isActive && !_closing && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
 				_isActive = false;
 		}
-		if (_isActive == true && events & EPOLLOUT)
+		if (_isActive && events & EPOLLOUT)
 		{
 			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))

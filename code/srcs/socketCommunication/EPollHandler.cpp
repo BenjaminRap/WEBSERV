@@ -12,11 +12,13 @@
 #include <utility>                  // for pair
 #include <vector>                   // for vector
 
+#include "AFdData.hpp"              // for AFdData
 #include "ASocketData.hpp"          // for ASocketData
 #include "Configuration.hpp"        // for Configuration
-#include "Host.hpp"                 // for Host
 #include "EPollHandler.hpp"         // for EPollHandler
+#include "Host.hpp"                 // for Host
 #include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
+
 
 bool	EPollHandler::_instanciated = false;
 
@@ -92,24 +94,9 @@ void	EPollHandler::callSocketCallback(size_t eventIndex) const
 		std::cerr << "EPollHandler callSocketCallback method was called with a wrong index" << std::endl;
 		return ;
 	}
-	if (!(_events[eventIndex].events & (EPOLLIN | EPOLLOUT)))
-		return ;
-	ASocketData	*fdData = static_cast<ASocketData *>(_events[eventIndex].data.ptr);
+	AFdData	*fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
 
 	fdData->callback(_events[eventIndex].events);
-}
-
-bool	EPollHandler::closeIfConnectionStopped(size_t eventIndex)
-{
-	if (eventIndex >= _eventsCount)
-		throw std::logic_error("closeIfConnectionStopped was called with wrong index");
-	if ((_events[eventIndex].events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR)) == false)
-		return (false);
-	const ASocketData * const	fdData = static_cast<ASocketData *>(_events[eventIndex].data.ptr);
-
-	_socketsData.erase(fdData->getIterator());
-	delete fdData;
-	return (true);
 }
 
 int	EPollHandler::bindFdToHost(int fd, const Host& host)
@@ -134,7 +121,7 @@ int	EPollHandler::bindFdToHost(int fd, const Host& host)
 }
 
 
-int	EPollHandler::addFdToEpoll(ASocketData& FdData, uint32_t events)
+int	EPollHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
 {
 	epoll_event	event;
 
@@ -150,8 +137,7 @@ int	EPollHandler::addFdToEpoll(ASocketData& FdData, uint32_t events)
 
 int	EPollHandler::addFdToList
 (
-	ASocketData &fdData,
-	uint32_t events
+	ASocketData &fdData
 )
 {
 	try
@@ -164,11 +150,6 @@ int	EPollHandler::addFdToList
 		return (-1);
 	}
 	fdData.setIterator(_socketsData.begin());
-	if (addFdToEpoll(fdData, events) == -1)
-	{
-		_socketsData.pop_front();
-		return (-1);
-	}
 	return (0);
 }
 

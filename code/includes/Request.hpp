@@ -108,10 +108,10 @@ public:
 
 	ABody*				getBody() const;
 	Headers&			getHeaders();
+	AFdData*			getFdData();
 	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;
-	bool				isBodyBlocking() const;
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);

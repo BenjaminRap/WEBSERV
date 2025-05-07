@@ -1,15 +1,14 @@
 #ifndef FILE_FD_HPP
 # define FILE_FD_HPP
 
-# include <cerrno>		// for errno
-# include <stdint.h>	// for uint32_t
-# include <string>		// for std::string
-# include <fcntl.h>		// for mode_t
+# include <stdint.h>     // for uint32_t
+# include <sys/types.h>  // for mode_t
+# include <cerrno>       // for errno
+# include <cstdio>       // for size_t, L_tmpnam
+# include <exception>    // for exception
+# include <string>       // for string
 
-# include "AFdData.hpp"	// for AFdData
-
-
-class EPollHandler;
+# include "AFdData.hpp"  // for AFdData
 
 /**
  * @class FileFd
@@ -19,6 +18,8 @@ class EPollHandler;
 class FileFd : public AFdData
 {
 private:
+	size_t	_fileSize;
+
 	FileFd(void);
 	FileFd(const FileFd &ref);
 
@@ -34,7 +35,10 @@ public:
 	 * as the non blocking fds will be treated the same as blocking fds.
 	 *
 	 */
-	void	callback(uint32_t events);
+	void			callback(uint32_t events);
+
+	size_t			getSize(void) const;
+	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam], int rights);
 
 	class FileOpeningError : public std::exception
 	{

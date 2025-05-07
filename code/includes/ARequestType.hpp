@@ -38,7 +38,6 @@ class ARequestType
 		std::string					_autoIndexPage;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
-		size_t						_outSize;
 
 	public :
 		explicit ARequestType
@@ -67,7 +66,6 @@ class ARequestType
 		EMethods								getMethod(void) const;
 		SharedResource<AFdData*>				getInFd(void) const;
 		SharedResource<AFdData*>				getOutFd(void) const;
-		size_t									getOutSize(void) const;
 		const ServerConfiguration&				getConfig(void) const;
 
 		int							execCGI(const char *path, char **argv, char **env, int fd[2]);

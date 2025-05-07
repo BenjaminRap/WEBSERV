@@ -1,14 +1,16 @@
-#include <cctype>					// for std::tolower
-#include <algorithm>				// for std::find
-#include <cerrno>					// for errno
-#include <string>					// for std::string
+#include <algorithm>              // for find
+#include <cctype>                 // for isdigit
+#include <cstring>                // for memcmp
+#include <exception>              // for exception
+#include <iterator>               // for distance
+#include <string>                 // for basic_string, string
 
-#include "Request.hpp"				// for Request
-#include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
-#include "requestStatusCode.hpp"	// fpr HTTP_...
+#include "EMethods.hpp"           // for getMethodFromBuffer
+#include "Request.hpp"            // for Request
+#include "protocol.hpp"           // for PROTOCOL_MAJOR, PROTOCOL_MINOR
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
 
-long	strToLongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
-long	getLongMax();
+unsigned long	strToULongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
 
 int	Request::parseMethod(const char *begin, const char *end)
 {
@@ -41,11 +43,11 @@ int	Request::parseProtocol(const char *begin, const char *end)
 	const char*	delimiter = std::find(index, end, '.');
 	if (delimiter == end)
 		return (HTTP_BAD_REQUEST);
-	const long	major = strToLongBase(index, delimiter, std::isdigit, 10);
-	if (major == getLongMax())
+	const unsigned long	major = strToULongBase(index, delimiter, std::isdigit, 10);
+	if (major == (unsigned long)-1)
 		return (HTTP_BAD_REQUEST);
-	const long	minor = strToLongBase(delimiter + 1, end, std::isdigit, 10);
-	if (minor == getLongMax())
+	const unsigned long	minor = strToULongBase(delimiter + 1, end, std::isdigit, 10);
+	if (minor == (unsigned long)-1)
 		return (HTTP_BAD_REQUEST);
 	if (major != PROTOCOL_MAJOR || minor != PROTOCOL_MINOR)
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);

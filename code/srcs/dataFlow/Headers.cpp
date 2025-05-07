@@ -1,8 +1,14 @@
-#include <algorithm>				// for std::find
-#include <iostream>					// for operator<<
+#include <stddef.h>               // for size_t, NULL
+#include <algorithm>              // for find, transform
+#include <cctype>                 // for tolower
+#include <iostream>               // for ostream, basic_ostream
+#include <iterator>               // for distance
+#include <map>                    // for operator!=, _Rb_tree_const_iterator
+#include <string>                 // for basic_string, string, operator<<
+#include <utility>                // for pair
 
-#include "Headers.hpp"				// for Headers
-#include "requestStatusCode.hpp"	// for HTTP_...
+#include "Headers.hpp"            // for Headers, LINE_END, LINE_END_LENGTH
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK
 
 /*******************************Constructors / Destructors**********************/
 
@@ -32,6 +38,8 @@ static char toLowerCase(char& c)
 
 int	Headers::parseHeader(const char *line, const char *end)
 {
+	if (this->size() >= MAX_HEADER_COUNT)
+		return (HTTP_BAD_REQUEST);
 	if (std::distance(line, end) < 5)
 		return (HTTP_BAD_REQUEST);
 	const char * const keyEnd = std::find(line, end, ':');
@@ -51,16 +59,42 @@ int	Headers::parseHeader(const char *line, const char *end)
 	return (HTTP_OK);
 }
 
+
+size_t	Headers::getTotalSize(void) const
+{
+	size_t	length = 0;
+
+	for (Headers::const_iterator it = begin(); it != end(); it++)
+	{
+		length += it->first.size() + it->second.size();
+		length += 2; // for the ": "
+		length += LINE_END_LENGTH;
+	}
+	return (length);
+}
+
 /**************************Operator Overload*************************************/
 
+std::string&	operator+=(std::string& dest, const Headers& headers)
+{
+	const size_t	length = headers.getTotalSize();
+
+	dest.reserve(dest.length() + length + 1);
+	for (Headers::const_iterator it = headers.begin(); it != headers.end(); it++)
+	{
+		dest.append(it->first);
+		dest.append(": ");
+		dest.append(it->second);
+		dest.append(LINE_END);
+	}
+	return (dest);
+}
 
 std::ostream& operator<<(std::ostream& o, const Headers& headers)
 {
-	Headers::const_iterator	it;
+	std::string	representation;
 
-	for (it = headers.begin(); it != headers.end(); it++)
-	{
-		o << it->first << ": " << it->second << '\n';
-	}
+	representation += headers;
+	o << representation;
 	return (o);
 }

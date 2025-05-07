@@ -4,6 +4,12 @@
 # include <stdint.h>	// for uint16_t
 # include <sys/types.h>	// for ssize_t
 
+enum	ABodyChilds
+{
+	SIZED_BODY,
+	CHUNKED_REQUEST
+};
+
 /**
  * @class ABody
  * @brief A purely abtrasct class representing a Body.
@@ -34,12 +40,20 @@ private:
 	 * a -1, this value should not be set to HTTP_OK.
 	 */
 	uint16_t	_status;
+	/**
+	 * @brief The number of character written in the fd.
+	 * if the fd is invalid, this attribute is always 0.
+	 */
+	size_t		_written;
+	ABodyChilds	_type;
 
 	ABody(const ABody& ref);
 	
 	ABody&	operator=(const ABody& ref);
 	
 protected:
+	ABody(int fd, ABodyChilds type);
+	ABody(ABodyChilds type);
 	/**
 	 * @brief Tag this instance has finished.
 	 * @note It isn't reversible !
@@ -58,11 +72,13 @@ protected:
 	 */
 	virtual ssize_t		writeToFd(const void *buffer, size_t bufferCapacity) = 0;
 public:
-	ABody(int fd);
 	virtual ~ABody();
 	
 	bool		getFinished() const;
 	uint16_t	getStatus() const;
+	size_t		getWritten(void) const;
+	ABodyChilds	getType(void) const;
+	void		setFd(int fd);
 	/**
 	 * @brief Write bufferSize bytes from the buffer to the _fd.
 	 * If the _fd is set to -1, it justs ignores them.

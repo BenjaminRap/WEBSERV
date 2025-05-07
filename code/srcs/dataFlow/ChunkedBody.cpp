@@ -1,23 +1,33 @@
-#include <algorithm>				// for std::find, std::min, std::distance
-#include <cerrno>					// for errno
-#include <cctype>					// for std::isxdigit
+#include <stdint.h>                 // for uint16_t
+#include <sys/types.h>              // for ssize_t
+#include <algorithm>                // for search, min
+#include <cctype>                   // for isxdigit
+#include <cstring>                  // for size_t, memcmp
+#include <iterator>                 // for distance
+#include <string>                   // for basic_string, string
 
-#include "ChunkedBody.hpp"			// for ChunkedBody
-#include "requestStatusCode.hpp"	// for HTTP_...
-#include "socketCommunication.hpp"	// for checkError
+#include "ABody.hpp"                // for ABody, ABodyChilds
+#include "ChunkedBody.hpp"          // for ChunkedBody, ChunkedBodyState
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
+#include "socketCommunication.hpp"  // for checkError
 
-
-long	getLongMax();
-long	strToLongBase(const char* begin, const char* end, int (&isInBase)(int character), int base);
+unsigned long	strToULongBase(const char* begin, const char* end, int (&isInBase)(int character), int base);
 
 const std::string	ChunkedBody::_lineEnd("\r\n");
 
 /**********************Constructors/Destructors********************************/
 
 ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
-	ABody(fd),
+	ABody(fd, CHUNKED_REQUEST),
 	_maxSize(maxSize),
-	_totalSize(0),
+	_chunkSize(-1),
+	_state(CHUNKED_SIZE)
+{
+}
+
+ChunkedBody::ChunkedBody(size_t maxSize) :
+	ABody(CHUNKED_REQUEST),
+	_maxSize(maxSize),
 	_chunkSize(-1),
 	_state(CHUNKED_SIZE)
 {
@@ -47,19 +57,18 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 	
 	if (lineBreak == end)
 		return (0);
-	_chunkSize = strToLongBase(begin, lineBreak, std::isxdigit, 16);
-	if (_chunkSize == getLongMax())
+	_chunkSize = strToULongBase(begin, lineBreak, std::isxdigit, 16);
+	if (_chunkSize == (unsigned long)-1)
 	{
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
-	if (doesAdditionOverflow(_totalSize, _chunkSize)
-		|| _totalSize + _chunkSize > _maxSize)
+	if (doesAdditionOverflow(getWritten(), _chunkSize)
+		|| getWritten() + _chunkSize > _maxSize)
 	{
 		setFinished(HTTP_CONTENT_TOO_LARGE);
 		return (-1);
 	}
-	_totalSize += _chunkSize;
 	if (_chunkSize == 0)
 		_state = CHUNKED_TRAILERS;
 	else

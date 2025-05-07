@@ -3,6 +3,8 @@
 
 # include "ASocketData.hpp"	// for ASocketData
 
+# define SERVER_EVENTS (EPOLLIN | EPOLLERR)
+
 /**
  * @brief This class stores all the data needed by a server socket. A server socket
  * is a socket that listens on a specific host, and when it receives a request, 

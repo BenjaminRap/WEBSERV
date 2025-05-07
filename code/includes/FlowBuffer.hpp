@@ -101,7 +101,7 @@ public:
 	 * FLOW_BUFFER_FULL if the buffer is full and the customWrite return 0.
 	 */
 	template <typename ReadData, typename WriteData>
-	FlowState	redirectContent
+	FlowState	redirect
 	(
 		ReadData readData,
 		WriteData writeData,
@@ -126,7 +126,7 @@ public:
 	 * customWrite can't write, and we can't read.
 	 */
 	template <typename WriteData>
-	FlowState	redirectBufferContentToFd
+	FlowState	buffToDest
 	(
 		WriteData writeData,
 		ssize_t (&customWrite)(WriteData writeData, const void *buffer, size_t bufferCapacity) = write
@@ -148,30 +148,37 @@ public:
 	 * FLOW_MORE otherwise.
 	 */
 	template <typename ReadData>
-	FlowState	redirectFdContentToBuffer
+	FlowState	srcToBuff
 	(
 		ReadData readData,
 		ssize_t (&customRead)(ReadData readData, void *buffer, size_t bufferCapacity) = read
 	);
+
+	/**
+	 * @brief Set this flowBuffer internal buffer.
+	 * this method takes teh same arguments as the constructor.
+	 * @ref FlowBuffer
+	 *
+	 */
+	void		setBuffer(char* buffer, size_t contentLength, size_t bufferCapacity);
 
 	size_t		getContentLength(void) const;
 	size_t		getBufferCapacity(void) const;
 	size_t		getNumCharsWritten(void) const;
 	const char	*getBuffer() const;
 	bool		isBufferFull() const;
+	bool		isBufferEmpty() const;
 
 	/**
 	 * @brief Get a line from this bufferFlow internal buffer.
-	 * @note The \n isn't taken into account in the length and there may not have a \0
-	 * after the \n. The internal buffer isn't changed.
 	 *
 	 * @param lineStart If the buffer contains a line, set this variable to the start
 	 * of the line, otherwise, this variable isn't changed.
-	 * @param length If the buffer contains a line, set this variable to the length
+	 * @param lineEndd If the buffer contains a line, set this variable to the end
 	 * of the line, otherwise, this variable isn't changed.
 	 * @return True if there is a line, false otherwise.,
 	 */
-	bool		getLine(char **lineStart, size_t *length);
+	bool		getLine(char **lineBegin, char **lineEnd);
 	/**
 	 * @brief Move the content of the FlowBuffer to the start of the buffer,
 	 * setting the number of characters written to 0. It can be useful if we don't
@@ -180,6 +187,13 @@ public:
 	 * written exceeds MAX_CHARS_WRITTEN * _bufferCapacity.
 	 */
 	void		moveBufferContentToStart(void);
+	/**
+	 * @brief Add the buffer content into the FlowBuffer internal
+	 * buffer.
+	 *
+	 * @return The number of characters written from the buffer passed as argument. 
+	 */
+	size_t		addContent(char* buffer, size_t bufferSize);
 };
 
 
