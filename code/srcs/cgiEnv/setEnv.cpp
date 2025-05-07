@@ -36,8 +36,6 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 	if (i == 19)
 		throw std::logic_error("Too much environment variable !");
 	env[i] = duplicateString(title + *value);
-	if (env[i] == NULL)
-		return (false);
 	env[i + 1] = NULL;
 	return (true);
 }
