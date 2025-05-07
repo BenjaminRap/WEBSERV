@@ -47,7 +47,8 @@ GetRequest::~GetRequest()
 {
 }
 
-void	GetRequest::openFileAndSetSize(void)
+uint16_t	getStatusCodeFromErrno(int errnoValue);
+
 void	GetRequest::openFile(void)
 {
 	try
@@ -56,9 +57,11 @@ void	GetRequest::openFile(void)
 
 		this->_outFd.setManagedResource(fileFd, freePointer);
 	}
-	catch(std::exception& exception)
+	catch(const FileFd::FileOpeningError& openError)
 	{
-		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+		const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
+
+		this->setResponse(code);
 		return ;
 	}
 }

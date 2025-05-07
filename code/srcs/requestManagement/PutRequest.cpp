@@ -37,6 +37,8 @@ void	removeFileName(std::string &url)
 	url.erase(pos + 1);
 }
 
+uint16_t	getStatusCodeFromErrno(int errnoValue);
+
 PutRequest::PutRequest
 (
 	std::string url,
@@ -70,9 +72,11 @@ PutRequest::PutRequest
 			this->_inFd.setManagedResource(fileFd, freePointer);
 			this->setResponse(HTTP_CREATED);
 		}
-		catch(std::exception& exception)
+		catch(const FileFd::FileOpeningError& openError)
 		{
-			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
+
+			this->setResponse(code);
 		}
 	}
 }
