@@ -6,11 +6,14 @@
 #include <unistd.h>					// for pipe()
 
 #include "ARequestType.hpp"         // for ARequestType
+#include "CgiIn.hpp"				// for CgiIn
+#include "CgiOut.hpp"				// for CgiOut
 #include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "socketCommunication.hpp"	// for closeFdAndPrintError
 
 class AFdData;
 class EPollHandler;
@@ -67,22 +70,26 @@ ARequestType::ARequestType
 
 uint16_t	ARequestType::setCgiAFdData(void)
 {
-	char		**env = getEnv();
-	int			fd[2];
-	char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
-	const char *path = this->_url.c_str();
+	int	intFds[2];
+	int	outFds[2];
 
-	if (pipe(fd) == -1)
+	if (pipe(intFds) == -1)
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	if (pipe(outFds) == -1)
 	{
-		return (HTTP_INTERNAL_SERVER_ERROR);
+		closeFdAndPrintError(intFds[0]);
+		closeFdAndPrintError(intFds[1]);
 	}
-	this->_inFd = SharedResource(fd[1], close);
-	this->_outFd = SharedResource(fd[0], close);
-	pid_t	pid = execCGI(path, argv, env, fd);
-	if (pid == -1)
-		return (HTTP_INTERNAL_SERVER_ERROR);
+
+	const int	redirectFds[2] = {
+		intFds[0],
+		outFds[1]
+	};
+	this->_inFd.setManagedResource(new CgiIn(intFds[1]));
+	this->_outFd.setManagedResource(new CgiOut(intFds[0]));
+
 	return (HTTP_OK);
-}
+};
 
 ARequestType::~ARequestType()
 {
