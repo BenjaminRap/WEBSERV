@@ -37,14 +37,16 @@ void	removeFileName(std::string &url)
 	url.erase(pos + 1);
 }
 
+uint16_t	getStatusCodeFromErrno(int errnoValue);
 
 PutRequest::PutRequest
 (
 	std::string url,
 	const ServerConfiguration &config,
-	EPollHandler& ePollHandler
+	EPollHandler& ePollHandler,
+	const std::string& domain
 ) :
-	ARequestType(url, config, ePollHandler, PUT)
+	ARequestType(url, config, ePollHandler, PUT, domain)
 {
 	std::string path;
 	uint16_t	fileType;
@@ -55,13 +57,12 @@ PutRequest::PutRequest
 	path = this->_url;
 	removeFileName(this->_url);
 	fileType = isDirOrFile(path);
-	if ((fileType == DIRE || fileType == LS_FILE)
-		|| (this->_fileName.empty() && fileType == HTTP_NOT_FOUND))
-	{
+	if (fileType == DIRE)
 		this->setResponse(HTTP_CONFLICT);
-	}
+	else if (this->_fileName.empty() && fileType == HTTP_NOT_FOUND)
+		this->setResponse(HTTP_CONFLICT);
 	else if (!canWrite(this->_url) && fileType != HTTP_FORBIDDEN)
-		this->setResponse(HTTP_FORBIDDEN);
+		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
 	{
 		try
@@ -71,9 +72,11 @@ PutRequest::PutRequest
 			this->_inFd.setManagedResource(fileFd, freePointer);
 			this->setResponse(HTTP_CREATED);
 		}
-		catch(std::exception& exception)
+		catch(const FileFd::FileOpeningError& openError)
 		{
-			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+			const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
+
+			this->setResponse(code);
 		}
 	}
 }

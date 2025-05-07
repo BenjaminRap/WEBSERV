@@ -28,13 +28,15 @@ ARequestType::ARequestType
 	std::string &url,
 	const ServerConfiguration& config,
 	EPollHandler& ePollHandler,
-	EMethods method
+	EMethods method,
+	const std::string& domain
 ) :
 	_method(method),
 	_config(config),
 	_ePollHandler(ePollHandler),
 	_route(NULL),
 	_url(url),
+	_domain(domain),
 	_code(0),
 	_redirection(),
 	_autoIndexPage(),
@@ -54,22 +56,22 @@ ARequestType::ARequestType
 		const std::string	CGIextention = this->_route->getCgiFileExtension();
 		if (!CGIextention.empty())
 		{
-			char		**env = getEnv();
-			int			fd[2];
-			char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
-			const char *path = this->_url.c_str();
-
-			if (pipe(fd))
-			{
-				this->_code = HTTP_INTERNAL_SERVER_ERROR;
-			}
-			this->_inFd = SharedResource(fd[1], close);
-			this->_outFd = SharedResource(fd[0], close);
-			pid_t	pid = execCGI(path, argv, env, fd);
-			if (pid == -1)
-			{
-				this->_code = HTTP_INTERNAL_SERVER_ERROR;
-			}
+			// char		**env = getEnv();
+			// int			fd[2];
+			// char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
+			// const char *path = this->_url.c_str();
+			//
+			// if (pipe(fd))
+			// {
+			// 	this->_code = HTTP_INTERNAL_SERVER_ERROR;
+			// }
+			// this->_inFd = SharedResource(fd[1], close);
+			// this->_outFd = SharedResource(fd[0], close);
+			// pid_t	pid = execCGI(path, argv, env, fd);
+			// if (pid == -1)
+			// {
+			// 	this->_code = HTTP_INTERNAL_SERVER_ERROR;
+			// }
 		}
 	}
 }
@@ -78,12 +80,30 @@ ARequestType::~ARequestType()
 {
 }
 
-void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection)
+void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect)
 {
 	this->_code = code;
 	this->_redirection = redirection;
+	if (isReelRedirect)
+		return ;
+	if (this->_route != NULL)
+	{
+		if (redirection.find(this->_route->getRoot()))
+		{
+			this->_redirection = this->getBackupUrl();
+		}
+	}
+	else if (this->_config.getRoot() != "")
+	{
+		if (redirection.find(this->_config.getRoot()))
+		{
+			this->_redirection = this->getBackupUrl();
+		}
+	}
+	if (this->_redirection[0] == '.' || this->_redirection[0] == '/')
+		this->_redirection.erase(0, 1);
+	this->_redirection = this->_domain + this->_redirection;
 }
-
 
 void	ARequestType::setResponse(uint16_t code)
 {
@@ -169,4 +189,14 @@ const ServerConfiguration&	ARequestType::getConfig() const
 const std::string&	ARequestType::getAutoIndexPage(void) const
 {
 	return (_autoIndexPage);
+}
+
+void	ARequestType::setBackupUrl(const std::string &url)
+{
+	this->_backupUrl = url;
+}
+
+std::string&	ARequestType::getBackupUrl(void)
+{
+	return (_backupUrl);
 }

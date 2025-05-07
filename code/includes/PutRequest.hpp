@@ -21,7 +21,8 @@ class PutRequest : public ARequestType
 		(
 			std::string url,
 			const ServerConfiguration &config,
-			EPollHandler& ePollHandler
+			EPollHandler& ePollHandler,
+			const std::string& domain
 		);
 		~PutRequest();
 };

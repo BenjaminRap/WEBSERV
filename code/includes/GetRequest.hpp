@@ -19,12 +19,13 @@ class GetRequest : public ARequestType
 		(
 			std::string url,
 			const ServerConfiguration &config,
-			EPollHandler& ePollHandler
+			EPollHandler& ePollHandler,
+			const std::string& domain
 		);
 		~GetRequest();
 
 		void	setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage);
-		void	openFileAndSetSize(void);
+		void	openFile(void);
 };
 
 #endif //!GET_REQUEST_HPP

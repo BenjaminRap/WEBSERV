@@ -22,9 +22,10 @@ GetRequest::GetRequest
 (
 	std::string url,
 	const ServerConfiguration &config,
-	EPollHandler& ePollHandler
+	EPollHandler& ePollHandler,
+	const std::string& domain
 ) :
-	ARequestType(url, config, ePollHandler, GET)
+	ARequestType(url, config, ePollHandler, GET, domain)
 {
 	uint16_t	targetType;
 
@@ -36,7 +37,7 @@ GetRequest::GetRequest
 	else if (targetType == LS_FILE)
 	{
 		setResponse(HTTP_OK);
-		openFileAndSetSize();
+		openFile();
 	}
 	else
 		setResponse(targetType);
@@ -46,7 +47,9 @@ GetRequest::~GetRequest()
 {
 }
 
-void	GetRequest::openFileAndSetSize(void)
+uint16_t	getStatusCodeFromErrno(int errnoValue);
+
+void	GetRequest::openFile(void)
 {
 	try
 	{
@@ -54,9 +57,11 @@ void	GetRequest::openFileAndSetSize(void)
 
 		this->_outFd.setManagedResource(fileFd, freePointer);
 	}
-	catch(std::exception& exception)
+	catch(const FileFd::FileOpeningError& openError)
 	{
-		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+		const uint16_t	code = getStatusCodeFromErrno(openError.getErrno());
+
+		this->setResponse(code);
 		return ;
 	}
 }

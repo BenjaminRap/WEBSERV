@@ -73,17 +73,17 @@ void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandl
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
 			processRequestResult(getRequest, response);
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
 			processRequestResult(putRequest, response);
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
 			processRequestResult(deleteRequest, response);
 			break;
 		}

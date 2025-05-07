@@ -19,7 +19,8 @@ class DeleteRequest : public ARequestType
 		(
 			std::string url,
 			const ServerConfiguration &config,
-			EPollHandler& ePollHandler
+			EPollHandler& ePollHandler,
+			const std::string& domain
 		);
 		~DeleteRequest();
 };

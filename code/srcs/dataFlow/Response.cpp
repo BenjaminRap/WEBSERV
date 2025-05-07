@@ -118,11 +118,7 @@ FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& se
 
 		*currentStatus = Status::getStatus(code);
 	}
-	catch (const std::exception& exception)
-	{
-		*currentStatus = Status::getStatus(HTTP_INTERNAL_SERVER_ERROR);
-	}
-			return (NULL);
+	return (NULL);
 }
 
 void	Response::setErrorPage(const ServerConfiguration& serverConfiguration)

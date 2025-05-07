@@ -32,10 +32,12 @@ class ARequestType
 		EPollHandler&				_ePollHandler;
 		const Route*				_route;
 		std::string					_url;
+		std::string					_domain;
 
 		int							_code;
 		std::string					_redirection;
 		std::string					_autoIndexPage;
+		std::string					_backupUrl;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
 
@@ -45,15 +47,17 @@ class ARequestType
 			std::string &url,
 			const ServerConfiguration& config,
 			EPollHandler& ePollHandler,
-			EMethods method
+			EMethods method,
+			const std::string& domain
 		);
 		virtual ~ARequestType() = 0;
 
-		void									setRedirectionResponse(uint16_t code, const std::string &redirection);
+		void									setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect);
 		void									setResponse(uint16_t code);
 		void									setUrl(const std::string &src);
 		void									setRoute(const Route *root);
 		void									setMethod(EMethods method);
+		void									setBackupUrl(const std::string &url);
 
 		const std::string&						getAutoIndexPage(void) const;
 		bool									getAutoIndex(void) const;
@@ -67,8 +71,8 @@ class ARequestType
 		SharedResource<AFdData*>				getInFd(void) const;
 		SharedResource<AFdData*>				getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
-
-		int							execCGI(const char *path, char **argv, char **env, int fd[2]);
+		std::string&							getBackupUrl(void);
+		int										execCGI(const char *path, char **argv, char **env, int fd[2]);
 };
 
 #endif //!A_REQUEST_HPP
