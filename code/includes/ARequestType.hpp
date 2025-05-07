@@ -10,6 +10,8 @@
 # define DIRE 1
 # define LS_FILE 2
 
+class	AFdData;
+class	EPollHandler;
 
 /**
  * @class ARequestType
@@ -26,21 +28,28 @@ class ARequestType
 
 	protected :
 		EMethods					_method;
-		const ServerConfiguration	&_config;
-		const Route					*_route;
+		const ServerConfiguration&	_config;
+		EPollHandler&				_ePollHandler;
+		const Route*				_route;
 		std::string					_url;
 		std::string					_domain;
 
 		int							_code;
 		std::string					_redirection;
 		std::string					_autoIndexPage;
-		SharedResource<int>			_inFd;
-		SharedResource<int>			_outFd;
-		size_t						_outSize;
 		std::string					_backupUrl;
+		SharedResource<AFdData*>	_inFd;
+		SharedResource<AFdData*>	_outFd;
 
 	public :
-		explicit ARequestType(std::string &url, const ServerConfiguration& config, EMethods method, const std::string &domain);
+		explicit ARequestType
+		(
+			std::string &url,
+			const ServerConfiguration& config,
+			EPollHandler& ePollHandler,
+			EMethods method,
+			const std::string& domain
+		);
 		virtual ~ARequestType() = 0;
 
 		void									setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect);
@@ -59,11 +68,11 @@ class ARequestType
 		const Route*							getRoute(void) const;
 		int										getCode(void) const;
 		EMethods								getMethod(void) const;
-		SharedResource<int>						getInFd(void) const;
-		SharedResource<int>						getOutFd(void) const;
-		size_t									getOutSize(void) const;
+		SharedResource<AFdData*>				getInFd(void) const;
+		SharedResource<AFdData*>				getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
 		std::string&							getBackupUrl(void);
+		int										execCGI(const char *path, char **argv, char **env, int fd[2]);
 };
 
 #endif //!A_REQUEST_HPP

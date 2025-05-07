@@ -1,22 +1,31 @@
-#include <fcntl.h>                  // for open, O_RDONLY
-#include <stdint.h>                 // for uint16_t
-#include <sys/types.h>              // for ssize_t
-#include <string>                   // for basic_string, string
+#include <fcntl.h>                // for O_RDONLY
+#include <stdint.h>               // for uint16_t
+#include <sys/types.h>            // for ssize_t
+#include <exception>              // for exception
+#include <string>                 // for string, basic_string
 
-#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
-#include "EMethods.hpp"             // for EMethods
-#include "GetRequest.hpp"           // for GetRequest
-#include "SharedResource.hpp"       // for SharedResource
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
-#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
+#include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
+#include "EMethods.hpp"           // for EMethods
+#include "FileFd.hpp"             // for FileFd
+#include "GetRequest.hpp"         // for GetRequest
+#include "SharedResource.hpp"     // for freePointer, SharedResource
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
 
-class ServerConfiguration;
+class EPollHandler;
+class ServerConfiguration;  // lines 14-14
 
 uint16_t	isDirOrFile(const std::string& path);
 void		directoryCase(GetRequest& get);
 ssize_t		getFileSize(const std::string &filePath);
 
-GetRequest::GetRequest(std::string url, const std::string &domain, const ServerConfiguration &config) : ARequestType(url, config, GET, domain)
+GetRequest::GetRequest
+(
+	std::string url,
+	const ServerConfiguration &config,
+	EPollHandler& ePollHandler,
+	const std::string& domain
+) :
+	ARequestType(url, config, ePollHandler, GET, domain)
 {
 	uint16_t	targetType;
 
@@ -40,20 +49,17 @@ GetRequest::~GetRequest()
 
 void	GetRequest::openFileAndSetSize(void)
 {
-	const int fd = open(this->_url.c_str(), O_RDONLY);
-	if (checkError(fd, -1, "open() : "))
+	try
+	{
+		FileFd*	fileFd = new FileFd(_url, O_RDONLY);
+
+		this->_outFd.setManagedResource(fileFd, freePointer);
+	}
+	catch(std::exception& exception)
 	{
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 		return ;
 	}
-	this->_outFd.setManagedResource(fd, closeFdAndPrintError);
-	const ssize_t fileSize = getFileSize(this->_url.c_str());
-	if (fileSize == -1)
-	{
-		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-		return ;
-	}
-	this->_outSize = fileSize;
 }
 
 void	GetRequest::setResponseWithAutoIndex(uint16_t code, const std::string &autoIndexPage)

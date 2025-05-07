@@ -5,13 +5,21 @@
 #include "DeleteRequest.hpp"  // for DeleteRequest
 #include "EMethods.hpp"       // for EMethods
 
-class ServerConfiguration;  // lines 6-6
+class EPollHandler;
+class ServerConfiguration;  // lines 8-8
 
 uint16_t	isDirOrFile(const std::string& path);
 uint16_t	directoryCase(const std::string &path, DeleteRequest &del);
 uint16_t	fileCase(const std::string &path, DeleteRequest &del);
 
-DeleteRequest::DeleteRequest(std::string url, const std::string &domain, const ServerConfiguration &config) : ARequestType(url, config, DELETE, domain)
+DeleteRequest::DeleteRequest
+(
+	std::string url,
+	const ServerConfiguration &config,
+	EPollHandler& ePollHandler,
+	const std::string& domain
+) :
+	ARequestType(url, config, ePollHandler, DELETE, domain)
 {
 	uint16_t	fileType;
 

@@ -15,7 +15,13 @@ class DeleteRequest : public ARequestType
 		DeleteRequest& operator=(const DeleteRequest& src);
 
 	public :
-		explicit DeleteRequest(std::string url, const std::string &domain, const ServerConfiguration &config);
+		explicit DeleteRequest
+		(
+			std::string url,
+			const ServerConfiguration &config,
+			EPollHandler& ePollHandler,
+			const std::string& domain
+		);
 		~DeleteRequest();
 };
 

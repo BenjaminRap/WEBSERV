@@ -5,13 +5,13 @@
 #include <cstdlib>
 
 #include "ServerSocketData.hpp"
-#include "SocketsHandler.hpp"
+#include "EPollHandler.hpp"
 #include "Configuration.hpp"
 #include "parsing.hpp"
 
 #include "utils.cpp"
 
-void	checkInvalidArgument(int minFd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> serverConfs)
+void	checkInvalidArgument(int minFd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> serverConfs)
 {
 	printInfo("Try creating ServerSocketData with invalid socket");
 
@@ -19,7 +19,7 @@ void	checkInvalidArgument(int minFd, SocketsHandler &socketsHandler, const std::
 	{
 		try
 		{
-			ServerSocketData	serverSocketData(i, socketsHandler, serverConfs);
+			ServerSocketData	serverSocketData(i, ePollHandler, serverConfs);
 			verify(false);
 		}
 		catch(const std::exception& e)
@@ -30,10 +30,10 @@ void	checkInvalidArgument(int minFd, SocketsHandler &socketsHandler, const std::
 	}
 }
 
-void	tryGettingUnsetIterator(SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> serverConfs)
+void	tryGettingUnsetIterator(EPollHandler &ePollHandler, const std::vector<ServerConfiguration> serverConfs)
 {
 
-	ServerSocketData	serverSocketData(100, socketsHandler, serverConfs);
+	ServerSocketData	serverSocketData(100, ePollHandler, serverConfs);
 
 	printInfo("Try getting an unset iterator");
 	try
@@ -47,13 +47,13 @@ void	tryGettingUnsetIterator(SocketsHandler &socketsHandler, const std::vector<S
 	}
 }
 
-void	TrySettingWrongIterator(int errorFd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> serverConfs)
+void	TrySettingWrongIterator(int errorFd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> serverConfs)
 {
 	std::list<AFdData *>	socketsData;
 
 	printInfo("Try setting the wrong iterator");
-	socketsData.push_front(new ServerSocketData(100, socketsHandler, serverConfs));
-	socketsData.push_front(new ServerSocketData(200, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(100, ePollHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(200, ePollHandler, serverConfs));
 	printInfo("Should output an error message :");
 	ignoreSTDERR(errorFd);
 	socketsData.back()->setIterator(socketsData.begin());
@@ -62,12 +62,12 @@ void	TrySettingWrongIterator(int errorFd, SocketsHandler &socketsHandler, const 
 		delete *it;
 }
 
-void	trySettingIteratorTwice(int errorFd, SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> serverConfs)
+void	trySettingIteratorTwice(int errorFd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> serverConfs)
 {
-	std::list<AFdData *>	socketsData;
+	std::list<ASocketData *>	socketsData;
 
 	printInfo("try setting an iterator twice");
-	socketsData.push_front(new ServerSocketData(100, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(100, ePollHandler, serverConfs));
 	printInfo("Should output an error message :");
 	ignoreSTDERR(errorFd);
 	socketsData.front()->setIterator(socketsData.begin());
@@ -77,16 +77,16 @@ void	trySettingIteratorTwice(int errorFd, SocketsHandler &socketsHandler, const 
 		delete *it;
 }
 
-void	tryUsingIterator(SocketsHandler &socketsHandler, const std::vector<ServerConfiguration> serverConfs)
+void	tryUsingIterator(EPollHandler &ePollHandler, const std::vector<ServerConfiguration> serverConfs)
 {
-	std::list<AFdData *>	socketsData;
+	std::list<ASocketData *>	socketsData;
 
 	printInfo("try using an iterator");
-	socketsData.push_front(new ServerSocketData(100, socketsHandler, serverConfs));
+	socketsData.push_front(new ServerSocketData(100, ePollHandler, serverConfs));
 	socketsData.front()->setIterator(socketsData.begin());
-	for (std::list<AFdData *>::iterator it = socketsData.begin(); it != socketsData.end(); )
+	for (std::list<ASocketData *>::iterator it = socketsData.begin(); it != socketsData.end(); )
 	{
-		std::list<AFdData *>::iterator storedIt = (*it)->getIterator();
+		std::list<ASocketData *>::iterator storedIt = (*it)->getIterator();
 		delete *it;
 		it++;
 		socketsData.erase(storedIt);
@@ -97,15 +97,15 @@ void	tryUsingIterator(SocketsHandler &socketsHandler, const std::vector<ServerCo
 void	runTests(const Configuration& conf)
 {
 	int										tube[2];
-	SocketsHandler							socketsHandler(conf);
+	EPollHandler							ePollHandler(conf);
 	const std::vector<ServerConfiguration>&	serverConfs = conf.begin()->second;
 
 	if (redirectSTDERR(tube) == false)
 		return ;
-	tryGettingUnsetIterator(socketsHandler, serverConfs);
-	TrySettingWrongIterator(tube[0], socketsHandler, serverConfs);
-	trySettingIteratorTwice(tube[0], socketsHandler, serverConfs);
-	tryUsingIterator(socketsHandler, serverConfs);
+	tryGettingUnsetIterator(ePollHandler, serverConfs);
+	TrySettingWrongIterator(tube[0], ePollHandler, serverConfs);
+	trySettingIteratorTwice(tube[0], ePollHandler, serverConfs);
+	tryUsingIterator(ePollHandler, serverConfs);
 	close(tube[0]);
 	close(tube[1]);
 }

@@ -35,7 +35,7 @@ void	fdToBuffer(int fd, char *buffer, size_t bufferCapacity, char *expectedBuffe
 
 	if (flowState == FLOW_ERROR)
 		std::cout << strerror(errno) << '\n';
-	verify(flowBuffer.getBufferLength() == expectedLength && !std::memcmp(buffer, expectedBuffer, expectedLength));
+	verify(flowBuffer.getContentLength() == expectedLength && !std::memcmp(buffer, expectedBuffer, expectedLength));
 	verifyFlowState(flowState, flowResult);
 }
 

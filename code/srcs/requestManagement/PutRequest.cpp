@@ -1,16 +1,18 @@
-#include <fcntl.h>                  // for open, FD_CLOEXEC, O_CREAT, O_EXCL
-#include <stdint.h>                 // for uint16_t
-#include <cstring>                  // for size_t
-#include <string>                   // for basic_string, string
+#include <fcntl.h>                // for O_CREAT, O_EXCL, O_WRONLY
+#include <stdint.h>               // for uint16_t
+#include <cstring>                // for size_t
+#include <exception>              // for exception
+#include <string>                 // for basic_string, string
 
-#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
-#include "EMethods.hpp"             // for EMethods
-#include "PutRequest.hpp"           // for PutRequest
-#include "SharedResource.hpp"       // for SharedResource
-#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_INTERNAL_SER...
-#include "socketCommunication.hpp"  // for addFlagsToFd, checkError, closeFd...
+#include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
+#include "EMethods.hpp"           // for EMethods
+#include "FileFd.hpp"             // for FileFd
+#include "PutRequest.hpp"         // for PutRequest
+#include "SharedResource.hpp"     // for freePointer, SharedResource
+#include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_CONFLICT, HTTP...
 
-class ServerConfiguration;  // lines 11-11
+class EPollHandler;
+class ServerConfiguration;  // lines 14-14
 
 uint16_t	isDirOrFile(const std::string& path);
 bool		canWrite(const std::string &path);
@@ -35,7 +37,14 @@ void	removeFileName(std::string &url)
 	url.erase(pos + 1);
 }
 
-PutRequest::PutRequest(std::string url, const std::string &domain, const ServerConfiguration &config) : ARequestType(url, config, PUT, domain)
+PutRequest::PutRequest
+(
+	std::string url,
+	const ServerConfiguration &config,
+	EPollHandler& ePollHandler,
+	const std::string& domain
+) :
+	ARequestType(url, config, ePollHandler, PUT, domain)
 {
 	std::string path;
 	uint16_t	fileType;
@@ -54,26 +63,17 @@ PutRequest::PutRequest(std::string url, const std::string &domain, const ServerC
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
 	{
-		int fd;
-		if (fileType == LS_FILE)
-			fd = open(path.c_str(), O_WRONLY | O_TRUNC);
-		else
-			fd = open(path.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
-		if (checkError(fd, -1, "open() : "))
+		try
 		{
-			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-			return ;
-		}
-		this->_inFd.setManagedResource(fd, closeFdAndPrintError);
-		if (addFlagsToFd(this->_inFd.getValue(), FD_CLOEXEC) == -1)
-		{
-			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
-			return ;
-		}
-		if (fileType == LS_FILE)
-			this->setResponse(HTTP_NO_CONTENT);
-		else
+			FileFd*	fileFd = new FileFd(path, O_CREAT | O_EXCL | O_WRONLY, 0666);
+
+			this->_inFd.setManagedResource(fileFd, freePointer);
 			this->setResponse(HTTP_CREATED);
+		}
+		catch(std::exception& exception)
+		{
+			this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
+		}
 	}
 }
 

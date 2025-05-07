@@ -1,31 +1,16 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
-import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
+import { verifyServersAreRunning, exec, printHeader, generateString, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-const charactersLength = characters.length;
+const	printOK = false;
 
-function	randomInt(min, max)
-{
-	return (Math.floor(Math.random() * (max - min) + min));
-}
-
-function	generateString(min, max)
-{
-    let result = ' ';
-	const length = randomInt(min, max);
-
-    for (let i = 0; i < length; i++)
-	{
-		const randomIndex = randomInt(0, charactersLength);
-        result += characters[randomIndex];
-    }
-    return result;
-}
-
-function	runGoodPutTest(header, target)
+async function	runGoodPutTest(header, target)
 {
 	printHeader(header);
-	return (compareGoodRequests(target, "PUT", generateString(10, 100), {}));
+	const	result = await compareGoodRequests(target, "PUT", generateString(10, 100), {}, printOK);
+	if (result == true)
+		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function runTests()
@@ -42,6 +27,7 @@ async function runTests()
 	await runGoodPutTest("Creating directory that already exists, with no right and not empty Case", "/put/alreadyExistingDirNoRight/");
 	await runGoodPutTest("Existing File", "/put/allowed/main.html");
 	// await runGoodPutTest("Existing File", "/put/allowed/main.html");
+	await runGoodPutTest("Folder Not Existing", "/put/allowed/whereAmI/test.txt");
 }
 
 async function	run()
