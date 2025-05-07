@@ -44,7 +44,8 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 
 std::string findScriptName(const std::string &target, size_t &pos)
 {
-	size_t end = target.find(".cgi");
+	const size_t end = target.find(".cgi");
+
 	if (end == std::string::npos)
 		return ("");
 	std::string result = target.substr(0, end + 4);
