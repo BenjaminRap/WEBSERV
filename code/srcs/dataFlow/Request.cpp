@@ -1,27 +1,29 @@
-#include <cstring>                // for memcmp, size_t, NULL
-#include <exception>              // for exception
-#include <iostream>               // for basic_ostream, operator<<, endl, cout
-#include <map>                    // for map, operator!=, _Rb_tree_const_ite...
-#include <string>                 // for basic_string, char_traits, string
-#include <utility>                // for pair, make_pair
+#include <cctype>                   // for isdigit
+#include <cstring>                  // for NULL, size_t
+#include <iostream>                 // for operator<<, basic_ostream, ostream
+#include <string>                   // for char_traits, basic_string, operat...
 
-#include "EMethods.hpp"           // for EMethods, getStringRepresentation
-#include "Request.hpp"            // for Request, operator<<
-#include "ServerConfiguration.hpp"
-#include "SharedResource.hpp"     // for SharedResource
-#include "SizedBody.hpp"          // for SizedBody
-#include "protocol.hpp"           // for PROTOCOL, PROTOCOL_LENGTH
-#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
+#include "AFdData.hpp"              // for AFdData
+#include "ChunkedBody.hpp"          // for ChunkedBody
+#include "EMethods.hpp"             // for EMethods, getStringRepresentation
+#include "Headers.hpp"              // for Headers, operator<<
+#include "Request.hpp"              // for Request, operator<<
+#include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "SharedResource.hpp"       // for SharedResource, freePointer
+#include "SizedBody.hpp"            // for SizedBody
+#include "protocol.hpp"             // for PROTOCOL
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
 
-class ABody;
+class ABody;  // lines 16-16
+
+unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
 /*****************************Constructors/Destructors*********************************/
 
 Request::Request(void) :
 	_statusLine(),
 	_headers(),
-	_bodyDestFd(),
-	_isBlocking(false),
+	_fdData(),
 	_body()
 {
 	_statusLine.method = (EMethods)-1;
@@ -39,37 +41,40 @@ void	Request::reset()
 	this->_statusLine.method = (EMethods)-1;
 	this->_statusLine.requestTarget.clear();
 	this->_headers.clear();
-	_bodyDestFd.stopManagingResource();
-	_isBlocking = false;
+	_fdData.stopManagingResource();
 	_body.stopManagingResource();
 }
 
-bool	stringToSizeT(const  std::string &str, size_t &outValue);
-
-int	Request::setBodyFromHeaders(SharedResource<int> destFd, const ServerConfiguration& serverConfiguration)
+int	Request::setBodyFromHeaders
+(
+	SharedResource<AFdData*> fdData,
+	const ServerConfiguration& serverConfiguration
+)
 {
-	_bodyDestFd = destFd;
-	const std::string * const	contentLengthString = getHeader("content-length");
+	_fdData = fdData;
+	const std::string * const	contentLengthString = _headers.getHeader("content-length");
+	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
+	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
+	const int 					fd = fdData.isManagingValue() ? fdData.getValue()->getFd() : -1;
+
+	ABody*						body = NULL;
+
+	if (contentLengthString != NULL && transferEncoding != NULL)
+		return (HTTP_BAD_REQUEST);
 	if (contentLengthString != NULL)
 	{
-		size_t contentLength = 0;
-		if (stringToSizeT(*contentLengthString, contentLength) == false)
+		const unsigned long	contentLength = stringToULongBase(*contentLengthString, std::isdigit, 10);
+		if (contentLength == (unsigned long)-1)
 			return (HTTP_BAD_REQUEST);
-		if (contentLength > serverConfiguration.getMaxClientBodySize())
+		if ((size_t)contentLength > maxSize)
 			return (HTTP_CONTENT_TOO_LARGE);
-		try
-		{
-			const int fd = _bodyDestFd.isManagingValue() ? _bodyDestFd.getValue() : -1;
-			_body.setManagedResource(new SizedBody(fd, contentLength), freePointer);
-		}
-		catch (const std::exception&)
-		{
-			return (HTTP_INTERNAL_SERVER_ERROR);
-		}
-		return (HTTP_OK);
+		body = new SizedBody(fd, contentLength);
 	}
+	else if (transferEncoding != NULL && *transferEncoding == "chunked")
+		body = new ChunkedBody(fd, maxSize);
 	else if (_statusLine.method == PUT || _statusLine.method == POST)
 		return (HTTP_LENGTH_REQUIRED);
+	_body.setManagedResource(body, freePointer);
 	return (HTTP_OK);
 }
 
@@ -83,6 +88,13 @@ ABody	*Request::getBody() const
 }
 
 
+AFdData*	Request::getFdData()
+{
+	if (_fdData.isManagingValue() == false)
+		return (NULL);
+	return (_fdData.getValue());
+}
+
 EMethods	Request::getMethod(void) const
 {
 	return (this->_statusLine.method);
@@ -93,39 +105,28 @@ const std::string	&Request::getRequestTarget(void) const
 	return (this->_statusLine.requestTarget);
 }
 
-const std::string	*Request::getHeader(const std::string &key) const
+Headers&	Request::getHeaders()
 {
-	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-
-	if (it != this->_headers.end())
-		return (&it->second);
-	return (NULL);
+	return (_headers);
 }
 
-const std::map<std::string, std::string>	&Request::getHeaderMap(void) const
+const Headers&	Request::getHeaders() const
 {
-	return (this->_headers);
-}
-
-
-bool	Request::getIsBlocking(void) const
-{
-	return (_isBlocking);
+	return (_headers);
 }
 
 /******************************Operator Overload*****************************************/
 
-std::ostream & operator<<(std::ostream & o, Request const & rhs)
+std::ostream & operator<<(std::ostream & o, Request const & request)
 {
-	const std::map<std::string, std::string>	&header = rhs.getHeaderMap();
+	o << "Method:";
+	if (request.getMethod() == (EMethods)-1)
+		o << "unkown\n";
+	else
+		o << getStringRepresentation(request.getMethod()) << '\n';
+	o << "Target :" << request.getRequestTarget() << '\n';
+	o << "Protocol :" << PROTOCOL << "\n\n";
 
-	std::cout << "Method :" << getStringRepresentation(rhs.getMethod()) << std::endl;
-	std::cout << "Target :" << rhs.getRequestTarget() << std::endl;
-	std::cout << "Protocol :" << PROTOCOL << std::endl << std::endl;
-
-	for (std::map<std::string ,std::string>::const_iterator it = header.begin(); it != header.end(); ++it)
-	{
-		std::cout << it->first << ": " << it->second << std::endl;
-	}
+	o << request.getHeaders() << "\n";
 	return (o);
 }

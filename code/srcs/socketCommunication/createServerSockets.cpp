@@ -1,22 +1,18 @@
-#include <fcntl.h>					// for fcntl, F_SETFL, O_NONBLOCK ...
-#include <stdint.h>                 // for uint32_t
-#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN
 #include <sys/socket.h>             // for listen, socket, AF_INET6, SOCK_ST...
 #include <sys/un.h>                 // for sa_family_t
-#include <unistd.h>                 // for close
 #include <exception>                // for exception
-#include <iostream>                 // for operator<<, basic_ostream, cerr
+#include <iostream>                 // for char_traits, operator<<, basic_os...
 #include <map>                      // for _Rb_tree_const_iterator, operator!=
 #include <utility>                  // for pair
 #include <vector>                   // for vector
 
 #include "Configuration.hpp"        // for Configuration
+#include "EPollHandler.hpp"         // for EPollHandler
 #include "Host.hpp"                 // for Host
 #include "ServerSocketData.hpp"     // for ServerSocketData
-#include "SocketsHandler.hpp"       // for SocketsHandler
-#include "socketCommunication.hpp"  // for checkError, setIPV6Only, setReusa...
-//
-class ServerConfiguration;
+#include "socketCommunication.hpp"  // for closeFdAndPrintError, checkError
+
+class ServerConfiguration;  // lines 19-19
 
 /**
  * @brief Create a server socket, a socket used only to listen to connection creation request.
@@ -32,7 +28,7 @@ static int	createServerSocket
 (
 	const Host &host,
 	const Configuration	&conf,
-	SocketsHandler &socketsHandler
+	EPollHandler &ePollHandler
 )
 {
 	const sa_family_t	family = host.getFamily();
@@ -40,10 +36,9 @@ static int	createServerSocket
 
 	if (checkError(fd, -1, "socket() : "))
 		return (-1);
-	if (addFlagsToFd(fd, O_NONBLOCK | FD_CLOEXEC) == -1 // set the non blocking and closing on fork flags
-		|| setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
+	if (setReusableAddr(fd, conf.getReuseAddr()) == -1 // set the address reusable without delay
 		|| (family == AF_INET6 && setIPV6Only(fd, true) == -1) // set the IPV6 sockets to only listen to IPV6
-		|| socketsHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
+		|| ePollHandler.bindFdToHost(fd, host) == -1 // bind the socket to the address
 		|| checkError(listen(fd, conf.getMaxConnectionBySocket()), -1, "listen() : ")) // set the socket to listening
 	{
 			closeFdAndPrintError(fd);
@@ -55,23 +50,21 @@ static int	createServerSocket
 void	createAllServerSockets
 (
 const Configuration &conf,
-	SocketsHandler &socketsHandler
+	EPollHandler &ePollHandler
 )
 {
-	const uint32_t	events = EPOLLIN | EPOLLERR | EPOLLHUP;
-
 	for (Configuration::const_iterator ci = conf.begin(); ci != conf.end(); ci++)
 	{
 		const Host								&host = ci->first;
 		const std::vector<ServerConfiguration>	&serverConfigurations = ci->second;
-		const int								fd = createServerSocket(host, conf, socketsHandler);
+		const int								fd = createServerSocket(host, conf, ePollHandler);
 
 		if (fd == -1)
 			continue ;
 		try
 		{
-			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, socketsHandler, serverConfigurations));
-			if (socketsHandler.addFdToListeners(serverSocketData, events) == -1)
+			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations));
+			if (ePollHandler.addFdToList(serverSocketData) == -1)
 			{
 				delete &serverSocketData;
 	  			closeFdAndPrintError(fd);

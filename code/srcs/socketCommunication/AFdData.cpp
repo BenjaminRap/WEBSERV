@@ -1,28 +1,47 @@
-#include <iostream>            // for basic_ostream, operator<<, cerr, endl
-#include <list>                // for list
-#include <stdexcept>           // for invalid_argument, logic_error
-#include <string>              // for char_traits, basic_string
-#include <vector>              // for vector
+#include <fcntl.h>                  // for FD_CLOEXEC, O_NONBLOCK
+#include <stddef.h>                 // for NULL
+#include <stdint.h>                 // for uint32_t
+#include <stdexcept>                // for runtime_error, invalid_argument
+#include <string>                   // for basic_string
 
-#include "AFdData.hpp"         // for AFdData
-#include "SocketsHandler.hpp"  // for SocketsHandler
+#include "AFdData.hpp"              // for AFdData, AFdDataChilds
+#include "EPollHandler.hpp"         // for EPollHandler
+#include "socketCommunication.hpp"  // for addFlagsToFd, closeFdAndPrintError
 
-class ServerConfiguration;  // lines 11-11
-
-AFdData::AFdData(int fd, SocketsHandler& socketsHandler, const std::vector<ServerConfiguration> &serverConfigurations) :
+AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events) :
 	_fd(fd),
-	_iterator(),
-	_isIteratorSet(false),
-	_socketsHandler(socketsHandler),
-	_serverConfigurations(serverConfigurations)
+	_ePollHandler(&ePollHandler),
+	_isActive(true),
+	_type(type)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+
+	if (addFlagsToFd(_fd, O_NONBLOCK | FD_CLOEXEC) == -1)
+		throw std::runtime_error("AFdData: Can't apply flags to fd");
+	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
+		throw std::runtime_error("Can't add the fd to epoll !");
+
+}
+
+AFdData::AFdData(int fd, AFdDataChilds type) :
+	_fd(fd),
+	_ePollHandler(NULL),
+	_type(type)
+{
+	if (fd <= 3)
+		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+
+	if (addFlagsToFd(_fd, FD_CLOEXEC) == -1)
+		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
 
 AFdData::~AFdData(void)
 {
-	_socketsHandler.closeFdAndRemoveFromEpoll(_fd);
+	if (_ePollHandler != NULL)
+		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
+	else if (_fd > 0)
+		closeFdAndPrintError(_fd);
 }
 
 int	AFdData::getFd() const
@@ -30,26 +49,17 @@ int	AFdData::getFd() const
 	return (this->_fd);
 }
 
-const std::list<AFdData *>::iterator	&AFdData::getIterator() const
+bool	AFdData::getIsBlocking(void) const
 {
-	if (_isIteratorSet)
-		return (this->_iterator);
-	else
-		throw std::logic_error("FdData getIterator() function with a unitialized iterator");
+	return (_ePollHandler != NULL);
 }
 
-void	AFdData::setIterator(const std::list<AFdData *>::iterator &iterator)
+bool	AFdData::getIsActive(void) const
 {
-	if (_isIteratorSet)
-	{
-		std::cerr << "Error : trying to set an iterator twice" << std::endl;
-		return ;
-	}
-	if (*iterator != this)
-	{
-		std::cerr << "Error : trying to set the iterator with an iterator pointing to the wrong FdData" << std::endl;
-		return ;
-	}
-	_isIteratorSet = true;
-	this->_iterator = iterator;
+	return (_isActive);
+}
+
+AFdDataChilds	AFdData::getType(void) const
+{
+	return (_type);
 }

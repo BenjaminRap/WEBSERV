@@ -14,7 +14,7 @@ volatile std::sig_atomic_t	signalStatus = NO_SIGNAL;
  */
 void	signalHandler(int signal)
 {
-	if (signalStatus == NO_SIGNAL && signal == SIGINT)
+	if (signalStatus == NO_SIGNAL)
 		signalStatus = signal;
 }
 

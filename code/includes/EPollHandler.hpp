@@ -1,5 +1,5 @@
-#ifndef SOCKETS_HANDLER_HPP
-# define SOCKETS_HANDLER_HPP
+#ifndef EPOLL_HANDLER_HPP
+# define EPOLL_HANDLER_HPP
 
 # include <list>
 # include <sys/epoll.h>
@@ -8,15 +8,16 @@
 
 # include "socketCommunication.hpp"
 
-class Configuration;
-class Host;
-class AFdData;
+class	Configuration;
+class	Host;
+class	ASocketData;
+class	AFdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
  * execute the socket callback on events.
  */
-class SocketsHandler
+class EPollHandler
 {
 private:
 	/**
@@ -27,7 +28,7 @@ private:
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<AFdData*>			_socketsData;
+	std::list<ASocketData*>		_socketsData;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -53,10 +54,10 @@ private:
 	 */
 	std::vector<std::string>	_unixSocketsToRemove;
 
-	SocketsHandler(const SocketsHandler& ref);
-	SocketsHandler(void);
+	EPollHandler(const EPollHandler& ref);
+	EPollHandler(void);
 
-	SocketsHandler&	operator=(const SocketsHandler &ref);
+	EPollHandler&	operator=(const EPollHandler &ref);
 
 public:
 	/**
@@ -64,15 +65,15 @@ public:
 	 * It also create a vector of sockets path to destroy, its size is the number of
 	 * unix socket hosts in the Configuration class.
 	 * This class can only has one instance.
-	 * @param conf The SocketsHandler use the configuration to initialize its variables.
+	 * @param conf The EPollHandler use the configuration to initialize its variables.
 	 * @throw Throw an error if the allocation failed (std::bad_alloc), epoll_create
 	 * failed (std::exception) or this class already has an instance (std::logic_error).
 	 */
-	SocketsHandler(const Configuration &conf);
+	EPollHandler(const Configuration &conf);
 	/**
 	 * @brief Free the events array, close the sockets and close the epoll fd.
 	 */
-	~SocketsHandler();
+	~EPollHandler();
 
 	/**
 	 * @brief Call epoll_wait with the SocketHandler variables and return its result;
@@ -80,14 +81,19 @@ public:
 	 */
 	int		epollWaitForEvent();
 	/**
-	 * @brief Add the FdData the the _socketsdata list, and add its fd into
-	 * the epoll interest list.
+	 * @brief Add the FdData the the _socketsdata list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
-	 * @param events The events for which the epoll will notify with this fd
 	 * @return -1 on error, otherwise 0.
 	 */
-	int		addFdToListeners(AFdData &FdData, uint32_t events);
+	int		addFdToList(ASocketData &fdData);
+	/**
+	 * @brief Adds the fdData to the epoll interest list.
+	 * If the function fails, the FdData won't be destroyed.
+	 *
+	 * @return -1 on error, 0 otherwise
+	 */
+	int		addFdToEpoll(AFdData& fdData, uint32_t events);
 	/**
 	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
@@ -95,17 +101,9 @@ public:
 	 */
 	void	callSocketCallback(size_t eventIndex) const;
 	/**
-	 * @brief If the socket at eventIndex has an EPOLLHUP or EPOLLRDHUP event, close it
-	 * and remove it from the _socketsData list.
-	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
-	 * is the result of epoll_wait or epollWaitForEvent function.
-	 * @return true if the connection is closed, false otherwise.
-	 */
-	bool	closeIfConnectionStopped(size_t eventIndex);
-	/**
 	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
 	 * delete the socket at the host.sun_path, recreate a socket and add the socket
-	 * path to the SocketsHandler _unixSocketsToRemove vector.
+	 * path to the EPollHandler _unixSocketsToRemove vector.
 	 * @param The fd to bind, should be a socket fd.
 	 * @param host The host whose address will be used to bind the socket.
 	 * @return 0 on success, -1 on error with an error message printed in the terminal.
@@ -124,7 +122,7 @@ public:
 	 *
 	 * @param pos 
 	 */
-	void	removeFdDataFromList(std::list<AFdData*>::iterator pos);
+	void	removeFdDataFromList(std::list<ASocketData*>::iterator pos);
 };
 
-#endif // !SOCKETS_HANDLER_HPP
+#endif // !EPOLL_HANDLER_HPP

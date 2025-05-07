@@ -4,11 +4,9 @@
 # include <string>				// for std::string
 
 # include "ABody.hpp"			// for ABdoy
+# include "AFdData.hpp"			// for AFdData
 # include "FlowBuffer.hpp"		// for FlowBuffer
 # include "SharedResource.hpp"	// for SharedResource
-
-# define LINE_END "\r\n"
-# define LINE_END_LENGTH 2;
 
 class Response;
 
@@ -32,29 +30,17 @@ private:
 	 */
 	FlowBuffer					_firstPartBuffer;
 	/**
-	 * @brief True if the _srcBodyFd is a blocking fd (a socket or a pipe).
-	 * This flag should be set to true even if the O_NONBLOCK flag has been
-	 * applied to the fd.
-	 */
-	bool						_isBlocking;
-	/**
 	 * @brief A SharedResource on the body source fd.
 	 * It isn't the fd stored in the _body, but the fd
 	 * whose content will be written into the buffer.
 	 * The body will then write the buffer into the client socket.
 	 */
-	SharedResource<int>			_srcBodyFd;
-	/**
-	 * @brief The body of the response, it could be a sized body, a
-	 * chunked body ...
-	 * @note It could also be NULL.
-	 */
-	SharedResource<ABody *>		_body;
+	SharedResource<AFdData*>	_fdData;
 	/**
 	 * @brief A reference on the ResponsesHandler FlowBuffer. It allows this class
 	 * to redirect the content from _bodyFd to the client socket Fd.
 	 */
-	FlowBuffer&	_bodyBuffer;
+	FlowBuffer&					_flowBuf;
 
 	RawResponse();
 	RawResponse(const RawResponse& ref);

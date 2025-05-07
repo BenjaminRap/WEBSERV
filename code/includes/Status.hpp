@@ -49,39 +49,32 @@ private:
 	 */
 	const uint16_t		_code;
 	/**
-	 * @brief The representation of the _code int value as
-	 * a string.
-	 */
-	const std::string	_codeStrRepresentation;
-	/**
 	 * @brief The http text corresponding to the _code int.
 	 */
 	const std::string	_text;
 	/**
+	 * @brief The representation of the _code int value as
+	 * a string.
+	 */
+	const std::string	_representation;
+	/**
 	 * @brief The errorPage builded from the _code and _text values.
 	 */
 	std::string			_errorPage;
-	/**
-	 * @brief The size of _errorPage.
-	 */
-	ssize_t				_errorPageSize;
 
 	Status(void);
 
 	Status&					operator=(const Status &);
 
 	/**
-	 * @brief Returns the size of the _errorPage variable,
-	 * if the page hasn't been builded yet, calculate
-	 * the size.
-	 * This allow for the page building to only cost one allocation.
-	 */
-	size_t					getErrorPageSize(void) const;
-	/**
 	 * @brief Build the error page if the _code is an error.
 	 * Otherwise, does nothing
 	 */
 	void					buildErrorPage(void);
+	/**
+	 * @brief Build the string representation of the status code + text.
+	 */
+	std::string				buildRepresentation(void);
 public:
 	Status(uint16_t code, const std::string &text);
 	Status(const Status &ref);
@@ -98,15 +91,20 @@ public:
 	static bool				isCodeOfType(uint16_t code, StatusType type);
 	/**
 	 * @brief A static method that returns the corresponding Status in the _statuses
-	 * map
+	 * map. If no status si found, returns NULL.
 	 *
 	 */
-	static const Status&	getStatus(int code);
+	static const Status*	getStatus(int code);
 
 	bool					operator<(const Status& other);
 
 	uint16_t				getCode(void) const;
-	const std::string&		getCodeStringRepresentation(void) const;
+	/**
+	 * @brief The representation is the complete status line,
+	 * containing the endLine.
+	 */
+	const std::string&		getRepresentation(void) const;
+	size_t					getRepresentationSize(void) const;
 	const std::string&		getText(void) const;
 	const std::string&		getErrorPage(void) const;
 	/**
