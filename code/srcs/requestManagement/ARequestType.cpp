@@ -23,6 +23,7 @@ void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
 int		execCGI(const char *path, char **argv, char **env, int fd[2]);
+bool	checkExtension(const std::string& file, const std::string& extension);
 
 ARequestType::ARequestType
 (
@@ -55,26 +56,32 @@ ARequestType::ARequestType
 	if (this->_route != NULL)
 	{
 		const std::string	CGIextention = this->_route->getCgiFileExtension();
-		if (!CGIextention.empty())
-		{
-			// char		**env = getEnv();
-			// int			fd[2];
-			// char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
-			// const char *path = this->_url.c_str();
-			//
-			// if (pipe(fd))
-			// {
-			// 	this->_code = HTTP_INTERNAL_SERVER_ERROR;
-			// }
-			// this->_inFd = SharedResource(fd[1], close);
-			// this->_outFd = SharedResource(fd[0], close);
-			// pid_t	pid = execCGI(path, argv, env, fd);
-			// if (pid == -1)
-			// {
-			// 	this->_code = HTTP_INTERNAL_SERVER_ERROR;
-			// }
-		}
+		if (checkExtension(this->_url, CGIextention))
+			return ;
+		const uint16_t	code = setCgiAFdData();
+
+		if (code != HTTP_OK)
+			this->_code = code;
 	}
+}
+
+uint16_t	ARequestType::setCgiAFdData(void)
+{
+	char		**env = getEnv();
+	int			fd[2];
+	char		*argv[] = {const_cast<char *>(this->_url.c_str()), NULL};
+	const char *path = this->_url.c_str();
+
+	if (pipe(fd) == -1)
+	{
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	}
+	this->_inFd = SharedResource(fd[1], close);
+	this->_outFd = SharedResource(fd[0], close);
+	pid_t	pid = execCGI(path, argv, env, fd);
+	if (pid == -1)
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	return (HTTP_OK);
 }
 
 ARequestType::~ARequestType()
