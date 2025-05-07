@@ -47,16 +47,6 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 	return (true);
 }
 
-const std::string *checkHeader(const std::string &name, const Headers& headers)
-{
-	const std::string *temp = headers.getHeader(name);
-
-	if (temp == NULL || temp->empty())
-		return (NULL);
-	else
-		return (temp);
-}
-
 std::string findScriptName(const std::string &target, size_t &pos)
 {
 	size_t end = target.find(".cgi");
@@ -115,17 +105,17 @@ char	**setEnv(Request &request, size_t length, char *(&env)[20])
 
 	env[0] = NULL;
 	addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE, NULL);
-	addToEnv(env, "SERVER_NAME=", checkHeader("Host", headers));
+	addToEnv(env, "SERVER_NAME=", headers.getHeader("Host"));
 	addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE, NULL);
 	addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL, NULL);
 	addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()), NULL);
-	addToEnv(env, "HTTP_ACCEPT=", checkHeader("Accept", headers));
-	addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", checkHeader("Accept-Language", headers));
-	addToEnv(env, "HTTP_USER_AGENT=", checkHeader("User-Agent", headers));
-	addToEnv(env, "HTTP_COOKIE=", checkHeader("Cookie", headers));
-	addToEnv(env, "CONTENT_TYPE=", checkHeader("content-type", headers));
+	addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("Accept"));
+	addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("Accept-Language"));
+	addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("User-Agent"));
+	addToEnv(env, "HTTP_COOKIE=", headers.getHeader("Cookie"));
+	addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
 	addToEnv(env, "CONTENT_LENGTH=" + sizeTToString(length), NULL);
-	addToEnv(env, "REFERER=", checkHeader("Referer", headers));
+	addToEnv(env, "REFERER=", headers.getHeader("Referer"));
 	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos), NULL);
 	addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos), NULL);
 	addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos), NULL);
