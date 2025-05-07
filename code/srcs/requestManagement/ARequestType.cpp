@@ -22,6 +22,7 @@ void	replaceUrl(const std::string &location, const std::string &root, std::strin
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
+int		execCGI(const char *path, char **argv, char **env, int fd[2]);
 
 ARequestType::ARequestType
 (
