@@ -21,8 +21,6 @@ char *duplicateString(const std::string &str)
 {
 	char *dup = new char[str.length() + 1];
 
-	if (dup == NULL)
-		return (NULL);
 	std::strcpy(dup, str.c_str());
 	return (dup);
 }
