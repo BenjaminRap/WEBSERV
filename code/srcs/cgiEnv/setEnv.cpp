@@ -57,23 +57,6 @@ const std::string *checkHeader(const std::string &name, const Headers& headers)
 		return (temp);
 }
 
-std::string getStringFromMethod(EMethods method)
-{
-	switch (method)
-	{
-		case GET:
-			return ("GET");
-		case POST:
-			return ("POST");
-		case PUT:
-			return ("PUT");
-		case DELETE:
-			return ("DELETE");
-		default:
-			return ("");
-	}
-}
-
 std::string findScriptName(const std::string &target, size_t &pos)
 {
 	size_t end = target.find(".cgi");
@@ -135,7 +118,7 @@ char	**setEnv(Request &request, size_t length, char *(&env)[20])
 	addToEnv(env, "SERVER_NAME=", checkHeader("Host", headers));
 	addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE, NULL);
 	addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL, NULL);
-	addToEnv(env, "REQUEST_METHOD=" + getStringFromMethod(request.getMethod()), NULL);
+	addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()), NULL);
 	addToEnv(env, "HTTP_ACCEPT=", checkHeader("Accept", headers));
 	addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", checkHeader("Accept-Language", headers));
 	addToEnv(env, "HTTP_USER_AGENT=", checkHeader("User-Agent", headers));
