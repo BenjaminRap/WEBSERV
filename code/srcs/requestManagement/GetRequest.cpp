@@ -37,7 +37,7 @@ GetRequest::GetRequest
 	else if (targetType == LS_FILE)
 	{
 		setResponse(HTTP_OK);
-		openFileAndSetSize();
+		openFile();
 	}
 	else
 		setResponse(targetType);
@@ -48,6 +48,7 @@ GetRequest::~GetRequest()
 }
 
 void	GetRequest::openFileAndSetSize(void)
+void	GetRequest::openFile(void)
 {
 	try
 	{
