@@ -42,9 +42,9 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 	return (true);
 }
 
-std::string findScriptName(const std::string &target, size_t &pos)
+std::string findScriptName(const std::string &target, size_t &pos, const std::string& extension)
 {
-	const size_t end = target.find(".cgi");
+	const size_t end = target.find(extension);
 
 	if (end == std::string::npos)
 		return ("");
@@ -92,7 +92,7 @@ std::string findQueryString(const std::string &target, size_t &pos)
 	}
 }
 
-char	**setEnv(Request &request, size_t length, char *(&env)[20])
+char	**setEnv(Request &request, size_t length, char *(&env)[20], const std::string& extension)
 {
 	const std::string&	target = request.getRequestTarget();
 	const Headers&		headers = request.getHeaders();
@@ -112,7 +112,7 @@ char	**setEnv(Request &request, size_t length, char *(&env)[20])
 	addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
 	addToEnv(env, "CONTENT_LENGTH=" + sizeTToString(length), NULL);
 	addToEnv(env, "REFERER=", headers.getHeader("Referer"));
-	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos), NULL);
+	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension), NULL);
 	addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos), NULL);
 	addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos), NULL);
 	return (env);
