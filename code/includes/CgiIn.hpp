@@ -12,14 +12,6 @@ class	Response;
 
 class	FlowBuffer;
 class	ABody;
-
-enum	CgiInState
-{
-	BUF_TO_TEMP,
-	TEMP_TO_CGI,
-	BUF_TO_CGI
-};
-
 class CgiIn : public AFdData
 {
 private:
@@ -43,22 +35,6 @@ private:
 	 * @brief The response that will be sent to the client.
 	 */
 	Response&				_response;
-	/**
-	 * @brief The name of the temporary file needed to unchunk the request.
-	 * If it isn't needed, it is set to '\0'.
-	 */
-	char					_tempName[L_tmpnam];
-	/**
-	 * @brief The temporary file, or NULL if there is not.
-	 */
-	FileFd*					_tempFile;
-	CgiInState				_state;
-	/**
-	 * @brief The fds that are piped to the cgiIn and cgiOut fds.
-	 * _redirectFds[0] is piped to the CgiIn and _redirectFds[1]
-	 * is piped to the CgiOut.
-	 */
-	int						_redirectFds[2];
 
 	CgiIn(void);
 	CgiIn(const CgiIn &ref);
@@ -73,8 +49,7 @@ public:
 		FlowBuffer& requestFlowBuffer,
 		ABody&		body,
 		ConnectedSocketData& connectedSocketData,
-		Response& currentResponse,
-		const int (&_redirectFd)[2]
+		Response& currentResponse
 	);
 	~CgiIn();
 
@@ -85,12 +60,6 @@ public:
 	 * @param code The code passed to the setResponse method.
 	 */
 	void	setFinished(uint16_t code);
-	/**
-	 * @brief Redirect the client body into the temporary file,
-	 * using the _body to unchunk. This method is called only if
-	 * the _body is a ChunkedRequest.
-	 */
-	void	redirectToTemp(void);
 	/**
 	 * @brief The method called when a events occured.
 	 * It manages the differents events and redirect the body, either
