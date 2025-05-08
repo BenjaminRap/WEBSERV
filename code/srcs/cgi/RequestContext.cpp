@@ -13,12 +13,12 @@ RequestContext::RequestContext
 		FlowBuffer& responseBuffer,
 		ConnectedSocketData& connectedSocketData
 ) :
-	_request(request),
-	_response(response),
-	_ePollHandler(ePollHandler),
-	_requestBuff(requestBuffer),
-	_responseBuff(responseBuffer),
-	_connectedSocketData(connectedSocketData)
+	request(request),
+	response(response),
+	ePollHandler(ePollHandler),
+	requestBuff(requestBuffer),
+	responseBuff(responseBuffer),
+	connectedSocketData(connectedSocketData)
 {
 
 }

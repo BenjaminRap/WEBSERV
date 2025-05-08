@@ -9,18 +9,18 @@ class	ConnectedSocketData;
 
 class RequestContext {
 private:
-	const Request&			_request;
-	Response&				_response;
-	EPollHandler&			_ePollHandler;
-	FlowBuffer&				_requestBuff;
-	FlowBuffer&				_responseBuff;
-	ConnectedSocketData&	_connectedSocketData;
-
 	RequestContext(void);
 	RequestContext(const RequestContext &ref);
 	RequestContext &operator=(const RequestContext &ref);
 	
 public:
+	const Request&			request;
+	Response&				response;
+	EPollHandler&			ePollHandler;
+	FlowBuffer&				requestBuff;
+	FlowBuffer&				responseBuff;
+	ConnectedSocketData&	connectedSocketData;
+
 	~RequestContext(void);
 	RequestContext
 	(
