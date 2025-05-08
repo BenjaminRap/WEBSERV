@@ -56,7 +56,7 @@ void	RequestHandler::processRequestResult
 }
 
 
-void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandler)
+void	RequestHandler::executeRequest(Response &response, RequestContext& requestContext)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
@@ -73,17 +73,17 @@ void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandl
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, *host, requestContext);
 			processRequestResult(getRequest, response);
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, *host, requestContext);
 			processRequestResult(putRequest, response);
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, *host, requestContext);
 			processRequestResult(deleteRequest, response);
 			break;
 		}

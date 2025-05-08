@@ -84,9 +84,21 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 		intFds[0],
 		outFds[1]
 	};
-	(void)requestContext;
-	this->_inFd.setManagedResource(new CgiIn(intFds[1]));
-	this->_outFd.setManagedResource(new CgiOut(intFds[0]));
+	this->_inFd.setManagedResource(new CgiIn(
+		intFds[1],
+		requestContext.ePollHandler,
+		requestContext.requestBuff,
+		(ABody&)NULL,
+		requestContext.connectedSocketData,
+		requestContext.response,
+		redirectFds
+	), freePointer);
+	this->_outFd.setManagedResource(new CgiOut(
+		intFds[0],
+		requestContext.ePollHandler,
+		requestContext.responseBuff,
+		_config
+	), freePointer);
 
 	return (HTTP_OK);
 };

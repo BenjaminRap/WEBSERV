@@ -4,6 +4,7 @@
 
 #include "Request.hpp"            // for operator<<, Request
 #include "RequestHandler.hpp"     // for RequestHandler, RequestState, REQUE...
+#include "RequestContext.hpp"
 #include "Response.hpp"           // for Response
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
 
@@ -27,13 +28,15 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(Response &response, int socketFd, EPollHandler& ePollHandler)
+RequestState			RequestHandler::readRequest(int socketFd, RequestContext& requestContext)
 {
+	Response&	response = requestContext.response;
+
 	try
 	{
 		readStatusLine(response);
 		readHeaders(response);
-		executeRequest(response, ePollHandler);
+		executeRequest(response, requestContext);
 		redirectBody(socketFd, response, false);
 	}
 	catch (const std::exception& exception)

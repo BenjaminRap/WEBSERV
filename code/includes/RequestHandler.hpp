@@ -32,7 +32,8 @@ enum	RequestState
 	CONNECTION_CLOSED
 };
 
-class ARequestType;
+class	RequestContext;
+class	ARequestType;
 
 /**
  * @class RequestHandler
@@ -102,7 +103,7 @@ private:
 	 *
 	 * @param socketFd the socket fd of the client.
 	 */
-	void						executeRequest(Response &response, EPollHandler& ePollHandler);
+	void						executeRequest(Response &response, RequestContext& requestContext);
 	/**
 	 * @brief Write the request body from the _buffer to the body fd.
 	 * If there is an error, it sets the response values.
@@ -151,7 +152,7 @@ public:
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(Response &response, int socketFd, EPollHandler& ePollHandler);
+	RequestState				readRequest(int socketFd, RequestContext& requestContext);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *

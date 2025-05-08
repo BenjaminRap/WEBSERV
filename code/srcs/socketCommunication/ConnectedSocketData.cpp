@@ -24,7 +24,7 @@ ConnectedSocketData::ConnectedSocketData(int fd, EPollHandler &ePollHandler, con
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false),
-	_requestVars
+	_requestContext
 	(
 		_requestHandler.getRequest(),
 		_responsesHandler.getCurrentResponse(),
@@ -58,7 +58,7 @@ RequestState	ConnectedSocketData::processRequest(void)
 		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
-			requestState = _requestHandler.readRequest(currentResponse, _fd, *_ePollHandler);
+			requestState = _requestHandler.readRequest(_fd, _requestContext);
 	}
 	requestState = readNextRequests(currentResponse, requestState);
 	return (requestState);
@@ -82,7 +82,7 @@ RequestState	ConnectedSocketData::readNextRequests
 			_closing = true;
 			return (requestState);
 		}
-		requestState = _requestHandler.readRequest(currentResponse, _fd, *_ePollHandler);
+		requestState = _requestHandler.readRequest(_fd, _requestContext);
 	}
 	return (requestState);
 }
