@@ -1,7 +1,6 @@
 #include <fcntl.h>                // for O_CREAT, O_EXCL, O_WRONLY
 #include <stdint.h>               // for uint16_t
 #include <cstring>                // for size_t
-#include <exception>              // for exception
 #include <string>                 // for basic_string, string
 
 #include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
@@ -43,10 +42,10 @@ PutRequest::PutRequest
 (
 	std::string url,
 	const ServerConfiguration &config,
-	EPollHandler& ePollHandler,
-	const std::string& domain
+	const std::string& domain,
+	RequestContext& requestContext
 ) :
-	ARequestType(url, config, ePollHandler, PUT, domain)
+	ARequestType(url, config, PUT, domain, requestContext)
 {
 	std::string path;
 	uint16_t	fileType;

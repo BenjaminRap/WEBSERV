@@ -16,10 +16,10 @@ DeleteRequest::DeleteRequest
 (
 	std::string url,
 	const ServerConfiguration &config,
-	EPollHandler& ePollHandler,
-	const std::string& domain
+	const std::string& domain,
+	RequestContext& requestContext
 ) :
-	ARequestType(url, config, ePollHandler, DELETE, domain)
+	ARequestType(url, config, DELETE, domain, requestContext)
 {
 	uint16_t	fileType;
 

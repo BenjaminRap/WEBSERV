@@ -32,13 +32,12 @@ ARequestType::ARequestType
 (
 	std::string &url,
 	const ServerConfiguration& config,
-	EPollHandler& ePollHandler,
 	EMethods method,
-	const std::string& domain
+	const std::string& domain,
+	RequestContext& requestContext
 ) :
 	_method(method),
 	_config(config),
-	_ePollHandler(ePollHandler),
 	_route(NULL),
 	_url(url),
 	_domain(domain),
@@ -61,14 +60,14 @@ ARequestType::ARequestType
 		const std::string	CGIextention = this->_route->getCgiFileExtension();
 		if (checkExtension(this->_url, CGIextention))
 			return ;
-		const uint16_t	code = setCgiAFdData();
+		const uint16_t	code = setCgiAFdData(requestContext);
 
 		if (code != HTTP_OK)
 			this->_code = code;
 	}
 }
 
-uint16_t	ARequestType::setCgiAFdData(void)
+uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 {
 	int	intFds[2];
 	int	outFds[2];
@@ -85,6 +84,7 @@ uint16_t	ARequestType::setCgiAFdData(void)
 		intFds[0],
 		outFds[1]
 	};
+	(void)requestContext;
 	this->_inFd.setManagedResource(new CgiIn(intFds[1]));
 	this->_outFd.setManagedResource(new CgiOut(intFds[0]));
 

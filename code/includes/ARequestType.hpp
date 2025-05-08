@@ -4,6 +4,7 @@
 # include <sys/types.h>				// for size_t
 # include <stdint.h>				// for uint16_t
 
+# include "RequestContext.hpp"		// for RequestContext
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 # include "SharedResource.hpp"		// for SharedResource
 
@@ -29,7 +30,6 @@ class ARequestType
 	protected :
 		EMethods					_method;
 		const ServerConfiguration&	_config;
-		EPollHandler&				_ePollHandler;
 		const Route*				_route;
 		std::string					_url;
 		std::string					_domain;
@@ -46,9 +46,9 @@ class ARequestType
 		(
 			std::string &url,
 			const ServerConfiguration& config,
-			EPollHandler& ePollHandler,
 			EMethods method,
-			const std::string& domain
+			const std::string& domain,
+			RequestContext& requestContext
 		);
 		virtual ~ARequestType() = 0;
 
@@ -72,7 +72,7 @@ class ARequestType
 		SharedResource<AFdData*>				getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
 		std::string&							getBackupUrl(void);
-		uint16_t								setCgiAFdData(void);
+		uint16_t								setCgiAFdData(RequestContext& requestContext);
 };
 
 #endif //!A_REQUEST_HPP
