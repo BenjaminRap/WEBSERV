@@ -40,6 +40,18 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 	return (true);
 }
 
+bool	addToEnv(char *(&env)[20], const std::string &title)
+{
+	int i = 0;
+	while (env[i] != NULL && i < 18)
+		i++;
+	if (i == 19)
+		throw std::logic_error("Too much environment variable !");
+	env[i] = duplicateString(title);
+	env[i + 1] = NULL;
+	return (true);
+}
+
 std::string findScriptName(const std::string &target, size_t &pos, const std::string& extension)
 {
 	const size_t end = target.find(extension);
@@ -75,22 +87,10 @@ std::string findQueryString(const std::string &target, size_t &pos)
 	if (target[pos] != '?')
 		return ("");
 
-	std::string result;
-	size_t end = target.find("#", pos + 1);
-	if (end == std::string::npos)
-	{
-		result = target.substr(pos);
-		return (result);
-	}
-	else
-	{
-		result = target.substr(pos, end - pos);
-		pos = end;
-		return (result);
-	}
+	return (target.substr(pos));
 }
 
-char	**setEnv(Request &request, size_t length, char *(&env)[20], const std::string& extension)
+char	**setEnv(Request &request, char *(&env)[20], const std::string& extension)
 {
 	const std::string&	target = request.getRequestTarget();
 	const Headers&		headers = request.getHeaders();
@@ -98,20 +98,20 @@ char	**setEnv(Request &request, size_t length, char *(&env)[20], const std::stri
 	size_t pos = 0;
 
 	env[0] = NULL;
-	addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE, NULL);
+	addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
 	addToEnv(env, "SERVER_NAME=", headers.getHeader("Host"));
-	addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE, NULL);
-	addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL, NULL);
-	addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()), NULL);
+	addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
+	addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL);
+	addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()));
 	addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("Accept"));
 	addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("Accept-Language"));
 	addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("User-Agent"));
 	addToEnv(env, "HTTP_COOKIE=", headers.getHeader("Cookie"));
 	addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
-	addToEnv(env, "CONTENT_LENGTH=" + sizeTToString(length), NULL);
+	addToEnv(env, "CONTENT_LENGTH=", headers.getHeader("content-length"));
 	addToEnv(env, "REFERER=", headers.getHeader("Referer"));
-	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension), NULL);
-	addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos), NULL);
-	addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos), NULL);
+	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension));
+	addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos));
+	addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos));
 	return (env);
 }
