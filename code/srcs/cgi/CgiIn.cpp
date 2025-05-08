@@ -25,7 +25,6 @@ CgiIn::CgiIn
 	ABody& body,
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse,
-	const std::string& cgiFile,
 	const int (&redirectFds)[2]
 ) :
 	AFdData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
@@ -36,7 +35,6 @@ CgiIn::CgiIn
 	_tempName(),
 	_tempFile(NULL),
 	_state(BUF_TO_CGI),
-	_cgiFile(cgiFile),
 	_redirectFds()
 {
 	_redirectFds[0] = redirectFds[0];

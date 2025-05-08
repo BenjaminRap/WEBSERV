@@ -54,10 +54,6 @@ private:
 	FileFd*					_tempFile;
 	CgiInState				_state;
 	/**
-	 * @brief The name of the cgi file to execute.
-	 */
-	const std::string		_cgiFile;
-	/**
 	 * @brief The fds that are piped to the cgiIn and cgiOut fds.
 	 * _redirectFds[0] is piped to the CgiIn and _redirectFds[1]
 	 * is piped to the CgiOut.
@@ -78,7 +74,6 @@ public:
 		ABody&		body,
 		ConnectedSocketData& connectedSocketData,
 		Response& currentResponse,
-		const std::string& cgiFile,
 		const int (&_redirectFd)[2]
 	);
 	~CgiIn();
