@@ -62,3 +62,8 @@ Response&	ResponsesHandler::getCurrentResponse()
 {
 	return (_currentResponse);
 }
+
+FlowBuffer&	ResponsesHandler::getFlowBuffer(void)
+{
+	return (_responseBuffer);
+}

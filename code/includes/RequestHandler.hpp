@@ -55,7 +55,7 @@ private:
 	/**
 	 * @brief The FlowBuffer managing the read of the request into the _buffer.
 	 */
-	FlowBuffer								_flowBuf;
+	FlowBuffer								_requestBuf;
 	/**
 	 * @brief It keeps track of where the request is. (reading the status line, a header ...)
 	 */
@@ -158,10 +158,12 @@ public:
 	 */
 	bool						isStateRequestBody(void);
 	/**
-	 * @brief reset the response and set teh _state to READ_STATUS_LINE
+	 * @brief reset the response and set the _state to READ_STATUS_LINE
 	 *
 	 */
 	void						setNewRequest(void);
+	const Request&				getRequest(void) const;
+	FlowBuffer&					getFlowBuffer(void);
 };
 
 #endif // !REQUEST_HANDLER_HPP

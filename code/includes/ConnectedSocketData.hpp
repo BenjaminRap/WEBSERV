@@ -6,6 +6,7 @@
 # include "ASocketData.hpp"       // for ASocketData
 # include "RequestHandler.hpp"    // for RequestHandler
 # include "ResponsesHandler.hpp"  // for ResponsesHandler
+# include "RequestVars.hpp"		  // for RequestVars
 
 # define CONNECTED_EVENTS (EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
 
@@ -35,6 +36,11 @@ private:
 	 * list.
 	 */
 	bool				_closing;
+	/**
+	 * @brief A class containing all the variables necessary for the
+	 * ARequestType.
+	 */
+	RequestVars			_requestVars;
 
 	ConnectedSocketData(void);
 	ConnectedSocketData(const ASocketData &ref);

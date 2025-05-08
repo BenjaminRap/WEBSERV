@@ -62,7 +62,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	}
 
 	const bool		canWrite = fdData->getIsBlocking() == false;
-	const FlowState	flowState = redirect(socketFd, *body, *fdData, canRead, canWrite, _flowBuf);
+	const FlowState	flowState = redirect(socketFd, *body, *fdData, canRead, canWrite, _requestBuf);
 	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
 
 	if (code == 0)
@@ -75,7 +75,7 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 
 RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
-	const FlowState flowState = _flowBuf.srcToBuff<int>(socketFd);
+	const FlowState flowState = _requestBuf.srcToBuff<int>(socketFd);
 
 	if (flowState == FLOW_ERROR)
 	{

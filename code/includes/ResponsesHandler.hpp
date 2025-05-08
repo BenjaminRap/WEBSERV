@@ -60,6 +60,7 @@ public:
 	 */
 	void		addCurrentResponseToQueue();
 	Response&	getCurrentResponse();
+	FlowBuffer&	getFlowBuffer(void);
 };
 
 #endif // !RESPONSES_HANDLER_HPP

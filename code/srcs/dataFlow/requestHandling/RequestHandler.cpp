@@ -14,7 +14,7 @@ class ServerConfiguration;  // lines 10-10
 
 RequestHandler::RequestHandler(const std::vector<ServerConfiguration>	&serverConfs) :
 	_buffer(),
-	_flowBuf(_buffer, REQUEST_BUFFER_SIZE, 0),
+	_requestBuf(_buffer, REQUEST_BUFFER_SIZE, 0),
 	_state(REQUEST_STATUS_LINE),
 	_request(),
 	_serverConfs(serverConfs)
@@ -57,4 +57,14 @@ void			RequestHandler::setNewRequest()
 bool		RequestHandler::isStateRequestBody(void)
 {
 	return (_state == REQUEST_BODY);
+}
+
+const Request&	RequestHandler::getRequest(void) const
+{
+	return (_request);
+}
+
+FlowBuffer&	RequestHandler::getFlowBuffer(void)
+{
+	return (_requestBuf);
 }

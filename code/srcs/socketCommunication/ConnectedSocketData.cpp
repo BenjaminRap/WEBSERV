@@ -23,7 +23,16 @@ ConnectedSocketData::ConnectedSocketData(int fd, EPollHandler &ePollHandler, con
 	ASocketData(fd, ePollHandler, serverConfiguration, CONNECTED_SOCKET_DATA, CONNECTED_EVENTS),
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
-	_closing(false)
+	_closing(false),
+	_requestVars
+	(
+		_requestHandler.getRequest(),
+		_responsesHandler.getCurrentResponse(),
+		ePollHandler,
+		_requestHandler.getFlowBuffer(),
+		_responsesHandler.getFlowBuffer(),
+		*this
+	)
 {
 
 }
