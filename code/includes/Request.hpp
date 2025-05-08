@@ -100,11 +100,7 @@ public:
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int					setBodyFromHeaders
-	(
-		SharedResource<AFdData*> fdData,
-		const ServerConfiguration& serverConfiguration
-	);
+	int					setBodyFromHeaders(const ServerConfiguration& serverConf);
 
 	ABody*				getBody() const;
 	Headers&			getHeaders();

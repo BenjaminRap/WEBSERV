@@ -45,19 +45,11 @@ void	Request::reset()
 	_body.stopManagingResource();
 }
 
-int	Request::setBodyFromHeaders
-(
-	SharedResource<AFdData*> fdData,
-	const ServerConfiguration& serverConfiguration
-)
+int	Request::setBodyFromHeaders(const ServerConfiguration& serverConf)
 {
-	_fdData = fdData;
 	const std::string * const	contentLengthString = _headers.getHeader("content-length");
 	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
-	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
-	const int 					fd = fdData.isManagingValue() ? fdData.getValue()->getFd() : -1;
-
-	ABody*						body = NULL;
+	const size_t				maxSize = serverConf.getMaxClientBodySize();
 
 	if (contentLengthString != NULL && transferEncoding != NULL)
 		return (HTTP_BAD_REQUEST);
@@ -68,13 +60,12 @@ int	Request::setBodyFromHeaders
 			return (HTTP_BAD_REQUEST);
 		if ((size_t)contentLength > maxSize)
 			return (HTTP_CONTENT_TOO_LARGE);
-		body = new SizedBody(fd, contentLength);
+		_body.setManagedResource(new SizedBody(contentLength), freePointer);
 	}
 	else if (transferEncoding != NULL && *transferEncoding == "chunked")
-		body = new ChunkedBody(fd, maxSize);
+		_body.setManagedResource(new ChunkedBody(maxSize), freePointer);
 	else if (_statusLine.method == PUT || _statusLine.method == POST)
 		return (HTTP_LENGTH_REQUIRED);
-	_body.setManagedResource(body, freePointer);
 	return (HTTP_OK);
 }
 
