@@ -105,28 +105,12 @@ private:
 	 */
 	void						executeRequest(Response &response, RequestContext& requestContext);
 	/**
-	 * @brief Write the request body from the _buffer to the body fd.
-	 * If there is an error, it sets the response values.
-	 *
-	 */
-	void						writeBodyFromBuffer(Response &response);
-	/**
 	 * @brief Returns the ServerConfiguration corresponding to the Host header.
 	 * If no ServerConfiguration corresponds or if there is no Host header,
 	 * it returns the first ServerConfiguration of the vector.
 	 *
 	 */
 	const ServerConfiguration	&getServerConfiguration(const std::string& host) const;
-	/**
-	 * @brief Set  the response values depending on the results of the
-	 * request.
-	 *
-	 */
-	void						processRequestResult
-	(
-		ARequestType& request,
-		Response &response
-	);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();

@@ -35,27 +35,6 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::str
 	return (_serverConfs[0]);
 }
 
-void	RequestHandler::processRequestResult
-(
-	ARequestType &requestResult,
-	Response &response
-)
-{
-	{
-		const int status = _request.setBodyFromHeaders(requestResult.getInFd(), requestResult.getConfig());
-		if (status != HTTP_OK)
-		{
-			response.setResponse(status);
-			_state = REQUEST_DONE;
-			return ;
-		}
-	}
-
-	response.setResponse(requestResult);
-	_state = REQUEST_BODY;
-}
-
-
 void	RequestHandler::executeRequest(Response &response, RequestContext& requestContext)
 {
 	if (_state != REQUEST_EMPTY_LINE)
@@ -68,26 +47,34 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
+	const ServerConfiguration	&serverConf = getServerConfiguration(*host);
+	const int status = _request.setBodyFromHeaders(serverConf);
+	if (status != HTTP_OK)
+	{
+		response.setResponse(status);
+		_state = REQUEST_DONE;
+		return ;
+	}
 	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, *host, requestContext);
-			processRequestResult(getRequest, response);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(getRequest);
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, *host, requestContext);
-			processRequestResult(putRequest, response);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(putRequest);
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, *host, requestContext);
-			processRequestResult(deleteRequest, response);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(deleteRequest);
 			break;
 		}
 		default:
 			throw std::logic_error("executeRequest called with a request method invalid !");
 	}
+	_state = REQUEST_BODY;
 }
