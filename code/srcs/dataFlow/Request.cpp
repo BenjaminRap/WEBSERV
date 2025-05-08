@@ -106,6 +106,19 @@ const Headers&	Request::getHeaders() const
 	return (_headers);
 }
 
+void	Request::setFdData(const SharedResource<AFdData*>& fdData)
+{
+	if (!fdData.isManagingValue()
+		|| !_body.isManagingValue())
+	{
+		return ;
+	}
+	const int fd =  _fdData.getValue()->getFd();
+
+	_fdData = fdData;
+	_body.getValue()->setFd(fd);
+}
+
 /******************************Operator Overload*****************************************/
 
 std::ostream & operator<<(std::ostream & o, Request const & request)
