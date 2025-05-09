@@ -78,6 +78,10 @@ PutRequest::PutRequest
 
 			this->setResponse(code);
 		}
+		if (fileType == LS_FILE)
+			this->setResponse(HTTP_NO_CONTENT);
+		else
+			this->setResponse(HTTP_CREATED);
 	}
 }
 

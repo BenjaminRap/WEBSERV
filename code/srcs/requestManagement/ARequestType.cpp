@@ -76,6 +76,7 @@ ARequestType::ARequestType
 	}
 }
 
+
 ARequestType::~ARequestType()
 {
 }
