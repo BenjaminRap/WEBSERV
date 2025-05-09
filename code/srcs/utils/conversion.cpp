@@ -74,21 +74,28 @@ std::string ipV6toString(const struct in6_addr &ip)
 	int i = 0;
 	int j = 0;
 	bool onStart = true;
+	bool alreadyCut = false;
 	while (i < 16)
 	{
-		u_int16_t group = (ip.__in6_u.__u6_addr8[i] << 8) | ip.__in6_u.__u6_addr8[i + 1];
-		if (group == 0)
+		uint16_t group = (ip.__in6_u.__u6_addr8[i] << 8) | ip.__in6_u.__u6_addr8[i + 1];
+		if (group == 0 && !alreadyCut)
 		{
 			j++;
 			if (j == 8)
+			{
 				ipStream << "::";
+				alreadyCut = true;
+			}
 		}
 		else
 		{
 			if (j != 0)
 			{
 				if (j > 1 && onStart)
+				{
 					ipStream << "::";
+					alreadyCut = true;
+				}
 				else if (j > 1 && !onStart)
 					ipStream << ":";
 				else
