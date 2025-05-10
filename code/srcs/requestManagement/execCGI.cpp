@@ -46,7 +46,7 @@ int	replaceByProgram(const char *path, char *const * argv, char *const * env, in
 	return (-1);
 }
 
-int	execCGI(const char *path, char **argv, char **env, int& inFd, int& outFd)
+int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd)
 {
 	int	tubeIn[2];
 	int	tubeOut[2];
@@ -64,14 +64,14 @@ int	execCGI(const char *path, char **argv, char **env, int& inFd, int& outFd)
 	{
 		closeFds(tubeIn);
 		closeFds(tubeOut);
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 
 	if (pid == 0)
 	{
 		closeFds(tubeIn[0], tubeOut[1]);
 		replaceByProgram(path, argv, env, tubeIn[1], tubeOut[0]);
-		std::exit(127);
+		std::exit(EXIT_FAILURE);
 	}
 	else
 	{
