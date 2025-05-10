@@ -6,7 +6,7 @@ RequestContext::~RequestContext(void)
 
 RequestContext::RequestContext
 (
-		const Request& request,
+		Request& request,
 		Response& response,
 		EPollHandler& ePollHandler,
 		FlowBuffer& requestBuffer,

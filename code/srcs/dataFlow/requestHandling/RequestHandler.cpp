@@ -62,7 +62,7 @@ bool		RequestHandler::isStateRequestBody(void)
 	return (_state == REQUEST_BODY);
 }
 
-const Request&	RequestHandler::getRequest(void) const
+const Request&	RequestHandler::getRequest(void)
 {
 	return (_request);
 }

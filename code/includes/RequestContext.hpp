@@ -14,7 +14,7 @@ private:
 	RequestContext &operator=(const RequestContext &ref);
 	
 public:
-	const Request&			request;
+	Request&				request;
 	Response&				response;
 	EPollHandler&			ePollHandler;
 	FlowBuffer&				requestBuff;
@@ -24,7 +24,7 @@ public:
 	~RequestContext(void);
 	RequestContext
 	(
-		const Request& request,
+		Request& request,
 		Response& response,
 		EPollHandler& ePollHandler,
 		FlowBuffer& requestBuffer,
