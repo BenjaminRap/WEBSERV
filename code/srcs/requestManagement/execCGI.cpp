@@ -17,6 +17,35 @@ void	closeFds(int fdA, int fdB)
 	closeFdAndPrintError(fdB);
 }
 
+int	replaceByProgram(const char *path, char *const * argv, char *const * env, int inFd, int outFd)
+{
+	if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
+		|| checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
+	{
+		closeFds(inFd, outFd);
+		return (-1);
+	}
+
+		//redirecting cgi result to the pipe
+	if (checkError(dup2(outFd, STDOUT_FILENO), -1, "dup2() :"))
+	{
+		closeFds(inFd, outFd);
+		return (-1);
+	}
+	closeFdAndPrintError(outFd);
+		//redirecting the other pipe for fun #pipex
+	if (checkError(dup2(inFd, STDIN_FILENO), -1, "dup2() :"))
+	{
+		closeFdAndPrintError(inFd);
+		return (-1);
+	}
+	closeFdAndPrintError(inFd);
+
+	//execute cgi
+	checkError(execve(path, argv, env), -1, "execve() :");
+	return (-1);
+}
+
 int	execCGI(const char *path, char **argv, char **env, int& inFd, int& outFd)
 {
 	int	tubeIn[2];
@@ -41,33 +70,8 @@ int	execCGI(const char *path, char **argv, char **env, int& inFd, int& outFd)
 	if (pid == 0)
 	{
 		closeFds(tubeIn[0], tubeOut[1]);
-		//set signals to default for the child process
-		if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
-			|| checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
-		{
-			closeFds(tubeIn[0], tubeOut[1]);
-			std::exit(EXIT_FAILURE);
-		}
-
-			//redirecting cgi result to the pipe
-		if (checkError(dup2(tubeOut[0], STDOUT_FILENO), -1, "dup2() :"))
-		{
-			closeFds(tubeIn[0], tubeOut[1]);
-			std::exit(EXIT_FAILURE);
-		}
-		closeFdAndPrintError(tubeOut[0]);
-			//redirecting the other pipe for fun #pipex
-		if (checkError(dup2(tubeIn[1], STDIN_FILENO), -1, "dup2() :"))
-		{
-			closeFdAndPrintError(tubeIn[1]);
-			std::exit(EXIT_FAILURE);
-		}
-		closeFdAndPrintError(tubeIn[1]);
-
-		//execute cgi
-		if (checkError(execve(path, argv, env), -1, "execve() :"))
-			std::exit(EXIT_FAILURE);
-		std::exit(HTTP_INTERNAL_SERVER_ERROR);
+		replaceByProgram(path, argv, env, tubeIn[1], tubeOut[0]);
+		std::exit(127);
 	}
 	else
 	{
