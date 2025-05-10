@@ -5,44 +5,75 @@
 #include <sys/wait.h>				// for waitpid()
 #include "requestStatusCode.hpp"	// for error code
 
-void	close_on_err(int fd1, int fd2)
+void	closeFds(int (&tube)[2])
 {
-	close(fd1);
-	close(fd2);
+	closeFdAndPrintError(tube[0]);
+	closeFdAndPrintError(tube[1]);
 }
 
-int	execCGI(const char *path, char **argv, char **env, int fd[2])
+void	closeFds(int fdA, int fdB)
 {
+	closeFdAndPrintError(fdA);
+	closeFdAndPrintError(fdB);
+}
+
+int	execCGI(const char *path, char **argv, char **env, int& inFd, int& outFd)
+{
+	int	tubeIn[2];
+	int	tubeOut[2];
+
+	if (pipe(tubeIn) == -1)
+		return (-1);
+	if (pipe(tubeOut) == -1)
+	{
+		closeFds(tubeIn);
+		return (-1);
+	}
 	//fork process
 	pid_t	pid = fork();
 	if (checkError(pid, -1, "fork() :"))
-		return (close_on_err(fd[0], fd[1]), EXIT_FAILURE);
+	{
+		closeFds(tubeIn);
+		closeFds(tubeOut);
+		return (EXIT_FAILURE);
+	}
 
 	if (pid == 0)
 	{
+		closeFds(tubeIn[0], tubeOut[1]);
 		//set signals to default for the child process
-		if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : "))
-			return (close_on_err(fd[0], fd[1]), EXIT_FAILURE);
-		if (checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
-			return (close_on_err(fd[0], fd[1]), EXIT_FAILURE);
-		close(fd[1]);
+		if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
+			|| checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
+		{
+			closeFds(tubeIn[0], tubeOut[1]);
+			std::exit(EXIT_FAILURE);
+		}
 
 			//redirecting cgi result to the pipe
-		if (checkError(dup2(fd[1], STDOUT_FILENO), -1, "dup2() :"))
-			return (close_on_err(fd[0], fd[1]), EXIT_FAILURE);
-		close (fd[1]);
+		if (checkError(dup2(tubeOut[0], STDOUT_FILENO), -1, "dup2() :"))
+		{
+			closeFds(tubeIn[0], tubeOut[1]);
+			std::exit(EXIT_FAILURE);
+		}
+		closeFdAndPrintError(tubeOut[0]);
 			//redirecting the other pipe for fun #pipex
-		if (checkError(dup2(fd[0], STDIN_FILENO), -1, "dup2() :"))
-			return (close_on_err(fd[0], STDOUT_FILENO), EXIT_FAILURE);
-		close(fd[0]);
+		if (checkError(dup2(tubeIn[1], STDIN_FILENO), -1, "dup2() :"))
+		{
+			closeFdAndPrintError(tubeIn[1]);
+			std::exit(EXIT_FAILURE);
+		}
+		closeFdAndPrintError(tubeIn[1]);
 
 		//execute cgi
 		if (checkError(execve(path, argv, env), -1, "execve() :"))
-			return (close_on_err(STDIN_FILENO, STDOUT_FILENO), EXIT_FAILURE);
+			std::exit(EXIT_FAILURE);
 		std::exit(HTTP_INTERNAL_SERVER_ERROR);
 	}
 	else
 	{
+		closeFds(tubeIn[1], tubeOut[0]);
+		inFd = tubeIn[0];
+		outFd = tubeOut[1];
 		return (pid);
 	}
 }
