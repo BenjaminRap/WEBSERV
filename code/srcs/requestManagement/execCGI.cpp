@@ -3,6 +3,7 @@
 #include <cstdlib>                  // for EXIT_FAILURE
 #include "socketCommunication.hpp"	// for checkError
 #include <sys/wait.h>				// for waitpid()
+#include "exception.hpp"
 
 void	closeFds(int (&tube)[2])
 {
@@ -18,6 +19,7 @@ void	closeFds(int fdA, int fdB)
 
 int	replaceByProgram(const char *path, char *const * argv, char *const * env, int inFd, int outFd)
 {
+	// Reset the signals handler.
 	if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
 		|| checkError(std::signal(SIGTERM, SIG_DFL), SIG_ERR, "signal() : ")
 		|| checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
@@ -26,14 +28,15 @@ int	replaceByProgram(const char *path, char *const * argv, char *const * env, in
 		return (-1);
 	}
 
-		//redirecting cgi result to the pipe
+	//redirecting cgi output to the pipe
 	if (checkError(dup2(outFd, STDOUT_FILENO), -1, "dup2() :"))
 	{
 		closeFds(inFd, outFd);
 		return (-1);
 	}
 	closeFdAndPrintError(outFd);
-		//redirecting the other pipe for fun #pipex
+
+	//redirecting the cgi input to the pipe.
 	if (checkError(dup2(inFd, STDIN_FILENO), -1, "dup2() :"))
 	{
 		closeFdAndPrintError(inFd);
@@ -71,7 +74,7 @@ int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd
 	{
 		closeFds(tubeIn[0], tubeOut[1]);
 		replaceByProgram(path, argv, env, tubeIn[1], tubeOut[0]);
-		std::exit(EXIT_FAILURE);
+		throw ProgramQuit(EXIT_FAILURE);
 	}
 	else
 	{

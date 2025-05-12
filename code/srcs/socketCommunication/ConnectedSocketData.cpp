@@ -14,6 +14,7 @@
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
+#include "exception.hpp"
 
 class EPollHandler;
 
@@ -104,6 +105,10 @@ void	ConnectedSocketData::callback(uint32_t events)
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
 				_isActive = false;
 		}
+	}
+	catch(const ProgramQuit& e)
+	{
+		throw;
 	}
 	catch (const std::exception& exception)
 	{
