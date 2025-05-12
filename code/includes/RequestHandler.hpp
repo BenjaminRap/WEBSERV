@@ -147,7 +147,7 @@ public:
 	 *
 	 */
 	void						setNewRequest(void);
-	const Request&				getRequest(void);
+	Request&					getRequest(void);
 	FlowBuffer&					getFlowBuffer(void);
 };
 
