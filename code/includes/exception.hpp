@@ -76,20 +76,4 @@ private:
 	const std::string	_error;
 };
 
-class	ProgramQuit : public std::exception
-{
-private:
-	const int			_code;
-
-public:
-	ProgramQuit(int code) : _code(code)
-	{
-	}
-
-	int	getCode(void) const throw()
-	{
-		return (_code);
-	}
-};
-
 #endif

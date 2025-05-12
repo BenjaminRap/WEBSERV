@@ -3,7 +3,6 @@
 #include <iostream>                 // for basic_ostream, operator<<, cerr
 
 #include "Configuration.hpp"        // for Configuration, DEFAULT_CONFIG_PATH
-#include "exception.hpp"			// for ProgramQuit
 #include "parsing.hpp"              // for ft_readfile, parse_file
 #include "socketCommunication.hpp"  // for checkError, getReturnCodeWithSignal
 
@@ -32,10 +31,6 @@ int	main(int argc, char **argv)
 			handleIOEvents(conf);
 		}
 		return (getReturnCodeWithSignal());
-	}
-	catch (const ProgramQuit& e)
-	{
-		return (e.getCode());
 	}
 	catch (std::exception& exception)
 	{

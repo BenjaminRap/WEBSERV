@@ -73,7 +73,7 @@ int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd
 	{
 		closeFds(tubeIn[0], tubeOut[1]);
 		replaceByProgram(path, argv, env, tubeIn[1], tubeOut[0]);
-		throw ProgramQuit(EXIT_FAILURE);
+		std::exit(EXIT_FAILURE);
 	}
 	else
 	{

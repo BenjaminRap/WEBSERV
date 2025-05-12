@@ -106,10 +106,6 @@ void	ConnectedSocketData::callback(uint32_t events)
 				_isActive = false;
 		}
 	}
-	catch(const ProgramQuit& e)
-	{
-		throw;
-	}
 	catch (const std::exception& exception)
 	{
 		std::cerr << exception.what() << std::endl;
