@@ -47,6 +47,7 @@ public:
 	bool							getAutoIndex(void) const;
 	const std::string&				getRoot(void) const;
 	const std::string&				getCgiFileExtension(void) const;
+	const std::string&				getCgiInterpreter(void) const;
 	void							setIndex(const std::vector<std::string> &v);
 
 private:
@@ -55,39 +56,40 @@ private:
 	 * if this route acceptedMethods are GET and POST, and the request
 	 * is a delete request, we will send a 405.
 	 */
-	std::vector<EMethods>		acceptedMethods;
+	std::vector<EMethods>		_acceptedMethods;
 	/**
 	 * @brief A structure containing an url and a status code.
 	 * If a request, ask for this route, we redirect it to the url
 	 * and returns the response status code.
 	 */
-	SRedirection				redirection;
+	SRedirection				_redirection;
 	/**
 	 * @brief A vector of all the index names. That means the default
 	 * page that will be shown if the user ask for a folder.
 	 */
-	std::vector<std::string>	index;
+	std::vector<std::string>	_index;
 	/**
 	 * @brief If a get method ask for a directory nad this variable is set
 	 * to true, return a page created from the list of all elements in this directory.
 	 */
-	bool						autoIndex;
+	bool						_autoIndex;
 	/**
 	 * @brief Define a directory or a file from where the file should be searched,
 	 * (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
 	 * /tmp/www/pouic/toto/pouet).
 	 */
-	std::string					root;
+	std::string					_root;
 	/**
 	 * @brief if a file, at this route has this file extension, it will execute it
 	 * and returns the results of the cgi, instead of returning the file.
 	 */
-	std::string					cgiFileExtension;
+	std::string					_cgiFileExtension;
+	std::string					_cgiInterpreter;
 	/**
 	 * @brief if a file, at this route accept uploads through the POST or PUT
 	 * requests.
 	 */
-	bool						acceptUploads;
+	bool						_acceptUploads;
 
 	Route(void);
 	Route    &operator=(Route const &src);

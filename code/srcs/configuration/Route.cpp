@@ -15,23 +15,23 @@ Route::Route
 	const std::string &root,
 	const std::string &cgiFileExtension
 ) :
-	acceptedMethods(acceptedMethods),
-	redirection(redirection),
-	index(index),
-	autoIndex(auto_index),
-	root(root),
-	cgiFileExtension(cgiFileExtension)
+	_acceptedMethods(acceptedMethods),
+	_redirection(redirection),
+	_index(index),
+	_autoIndex(auto_index),
+	_root(root),
+	_cgiFileExtension(cgiFileExtension)
 {
 }
 
 Route::Route(Route const &src)
 {
-	this->acceptedMethods = src.acceptedMethods;
-	this->redirection = src.redirection;
-	this->index = src.index;
-	this->autoIndex = src.autoIndex;
-	this->root = src.root;
-	this->cgiFileExtension = src.cgiFileExtension;
+	this->_acceptedMethods = src._acceptedMethods;
+	this->_redirection = src._redirection;
+	this->_index = src._index;
+	this->_autoIndex = src._autoIndex;
+	this->_root = src._root;
+	this->_cgiFileExtension = src._cgiFileExtension;
 }
 
 Route::~Route(void)
@@ -41,37 +41,42 @@ Route::~Route(void)
 
 const std::vector<EMethods>		&Route::getAcceptedMethods(void) const
 {
-	return (acceptedMethods);
+	return (_acceptedMethods);
 }
 
 const SRedirection				&Route::getRedirection(void) const
 {
-	return (redirection);
+	return (_redirection);
 }
 
 const std::vector<std::string>	&Route::getIndex(void) const
 {
-	return (index);
+	return (_index);
 }
 
 bool	Route::getAutoIndex(void) const
 {
-	return (autoIndex);
+	return (_autoIndex);
 }
 
 const std::string				&Route::getRoot(void) const
 {
-	return (root);
+	return (_root);
 }
 
 const std::string				&Route::getCgiFileExtension(void) const
 {
-	return (cgiFileExtension);
+	return (_cgiFileExtension);
+}
+
+const std::string&				Route::getCgiInterpreter(void) const
+{
+	return (_cgiInterpreter);
 }
 
 void							Route::setIndex(const std::vector<std::string> &v)
 {
-	this->index = v;
+	this->_index = v;
 }
 
 std::ostream & operator<<(std::ostream & o, Route const & rhs)
