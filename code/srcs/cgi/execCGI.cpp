@@ -17,7 +17,7 @@ void	closeFds(int fdA, int fdB)
 	closeFdAndPrintError(fdB);
 }
 
-int	replaceByProgram(const char *path, char *const * argv, char *const * env, int inFd, int outFd)
+void	replaceByProgram(const char *path, char *const * argv, char *const * env, int inFd, int outFd)
 {
 	// Reset the signals handler.
 	if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
@@ -25,14 +25,14 @@ int	replaceByProgram(const char *path, char *const * argv, char *const * env, in
 		|| checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
 	{
 		closeFds(inFd, outFd);
-		return (-1);
+		return ;
 	}
 
 	//redirecting cgi output to the pipe
 	if (checkError(dup2(outFd, STDOUT_FILENO), -1, "dup2() :"))
 	{
 		closeFds(inFd, outFd);
-		return (-1);
+		return ;
 	}
 	closeFdAndPrintError(outFd);
 
@@ -40,13 +40,12 @@ int	replaceByProgram(const char *path, char *const * argv, char *const * env, in
 	if (checkError(dup2(inFd, STDIN_FILENO), -1, "dup2() :"))
 	{
 		closeFdAndPrintError(inFd);
-		return (-1);
+		return ;
 	}
 	closeFdAndPrintError(inFd);
 
 	//execute cgi
 	checkError(execve(path, argv, env), -1, "execve() :");
-	return (-1);
 }
 
 int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd)
