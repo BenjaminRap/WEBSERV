@@ -45,6 +45,7 @@ ARequestType::ARequestType
 	_code(0),
 	_redirection(),
 	_autoIndexPage(),
+	_backupUrl(url),
 	_inFd(),
 	_outFd()
 {
