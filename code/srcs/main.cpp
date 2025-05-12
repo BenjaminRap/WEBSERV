@@ -23,10 +23,17 @@ int	main(int argc, char **argv)
 	if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : "))
 		return (EXIT_FAILURE);
 
-	Configuration	conf((argc == 2) ? argv[1] : DEFAULT_CONFIG_PATH);
-	while(getSignalStatus() == NO_SIGNAL)
+	try
 	{
-		handleIOEvents(conf);
+		Configuration	conf((argc == 2) ? argv[1] : DEFAULT_CONFIG_PATH);
+		while(getSignalStatus() == NO_SIGNAL)
+		{
+			handleIOEvents(conf);
+		}
+		return (getReturnCodeWithSignal());
 	}
-	return (getReturnCodeWithSignal());
+	catch (std::exception& exception)
+	{
+		return (EXIT_FAILURE);
+	}
 }
