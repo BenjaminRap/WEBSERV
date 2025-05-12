@@ -3,7 +3,6 @@
 #include <cstdlib>                  // for EXIT_FAILURE
 #include "socketCommunication.hpp"	// for checkError
 #include <sys/wait.h>				// for waitpid()
-#include "requestStatusCode.hpp"	// for error code
 
 void	closeFds(int (&tube)[2])
 {
@@ -20,6 +19,7 @@ void	closeFds(int fdA, int fdB)
 int	replaceByProgram(const char *path, char *const * argv, char *const * env, int inFd, int outFd)
 {
 	if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
+		|| checkError(std::signal(SIGTERM, SIG_DFL), SIG_ERR, "signal() : ")
 		|| checkError(std::signal(SIGPIPE, SIG_DFL), SIG_ERR, "signal() : "))
 	{
 		closeFds(inFd, outFd);
