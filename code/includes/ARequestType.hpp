@@ -38,6 +38,7 @@ class ARequestType
 		std::string					_redirection;
 		std::string					_autoIndexPage;
 		std::string					_backupUrl;
+		std::string					_queryString;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
 

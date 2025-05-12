@@ -28,6 +28,7 @@ void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
 bool	checkExtension(const std::string& file, const std::string& extension);
 int		execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
+void	splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
 
 ARequestType::ARequestType
 (
@@ -40,15 +41,17 @@ ARequestType::ARequestType
 	_method(method),
 	_config(config),
 	_route(NULL),
-	_url(url),
+	_url(),
 	_domain(domain),
 	_code(0),
 	_redirection(),
 	_autoIndexPage(),
 	_backupUrl(url),
+	_queryString(),
 	_inFd(),
 	_outFd()
 {
+	splitInTwo(url, '?', _url, _queryString);
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
 		return ;
@@ -122,7 +125,10 @@ void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redi
 	this->_code = code;
 	this->_redirection = redirection;
 	if (isReelRedirect)
+	{
+		this->_redirection += "?" + _queryString;
 		return ;
+	}
 	if (this->_route != NULL)
 	{
 		if (redirection.find(this->_route->getRoot()))
@@ -139,7 +145,7 @@ void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redi
 	}
 	if (this->_redirection[0] == '.' || this->_redirection[0] == '/')
 		this->_redirection.erase(0, 1);
-	this->_redirection = this->_domain + this->_redirection;
+	this->_redirection = this->_domain + this->_redirection + "?" + this->_queryString;
 }
 
 void	ARequestType::setResponse(uint16_t code)
