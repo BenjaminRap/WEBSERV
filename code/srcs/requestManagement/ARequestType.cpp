@@ -74,10 +74,10 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 {
 	Request&	request = requestContext.request;
 	ABody*		body = request.getBody();
-	int		inFd;
-	int		outFd;
-	char*	env[20];
-	char*	argv[3];
+	int			inFd;
+	int			outFd;
+	char*		env[20];
+	char*		argv[3];
 
 	setEnv(env, request, extension);
 	setArgv(argv, _url, _route->getCgiInterpreter());
