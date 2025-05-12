@@ -90,27 +90,38 @@ std::string findQueryString(const std::string &target, size_t &pos)
 	return (target.substr(pos));
 }
 
-void	setEnv(char *(&env)[20], const Request &request, const std::string& extension)
+void	deleteArray(const char** array);
+
+bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension)
 {
-	const std::string&	target = request.getRequestTarget();
-	const Headers&		headers = request.getHeaders();
+	try
+	{
+		const std::string&	target = request.getRequestTarget();
+		const Headers&		headers = request.getHeaders();
 
-	size_t pos = 0;
+		size_t pos = 0;
 
-	env[0] = NULL;
-	addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
-	addToEnv(env, "SERVER_NAME=", headers.getHeader("Host"));
-	addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
-	addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL);
-	addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()));
-	addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("Accept"));
-	addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("Accept-Language"));
-	addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("User-Agent"));
-	addToEnv(env, "HTTP_COOKIE=", headers.getHeader("Cookie"));
-	addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
-	addToEnv(env, "CONTENT_LENGTH=", headers.getHeader("content-length"));
-	addToEnv(env, "REFERER=", headers.getHeader("Referer"));
-	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension));
-	addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos));
-	addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos));
+		env[0] = NULL;
+		addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
+		addToEnv(env, "SERVER_NAME=", headers.getHeader("Host"));
+		addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
+		addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL);
+		addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()));
+		addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("Accept"));
+		addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("Accept-Language"));
+		addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("User-Agent"));
+		addToEnv(env, "HTTP_COOKIE=", headers.getHeader("Cookie"));
+		addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
+		addToEnv(env, "CONTENT_LENGTH=", headers.getHeader("content-length"));
+		addToEnv(env, "REFERER=", headers.getHeader("Referer"));
+		addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension));
+		addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos));
+		addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos));
+		return (true);
+	}
+	catch (const std::exception& exception)
+	{
+		deleteArray((const char**)env);
+		return (false);
+	}
 }

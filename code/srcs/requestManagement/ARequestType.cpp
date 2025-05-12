@@ -67,8 +67,8 @@ ARequestType::ARequestType
 	}
 }
 
-void	setEnv(char* (&env)[20], const Request &request, const std::string& extension);
-void	setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
+bool	setEnv(char* (&env)[20], const Request &request, const std::string& extension);
+bool	setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)
 {
