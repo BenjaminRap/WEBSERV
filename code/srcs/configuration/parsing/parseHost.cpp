@@ -25,10 +25,10 @@ void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip)
 		parseIpUnix(file, i, line, ip.unix_adrr);
 	}
 	else
-		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -39,15 +39,15 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 
 	ipv4 = realAtoi(file, i, line, 255, 3) << 24;
 	if (file[i] != '.')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3) << 16;
 	if (file[i] != '.')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3) << 8;
 	if (file[i] != '.')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3);
 	parsePort(file, i, line, port);
@@ -70,12 +70,12 @@ void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_p
 		j++;
 		ipv6.ipv6[j] = hexToInt(file, i, line);
 		if (file[i] != ':' && j != 15)
-			throw (CustomLineException("Wrong IP format", line));
+			throw (ParsingLineException("Wrong IP format", line));
 		if (j != 15)
 			i++;
 	}
 	if (file[i] != ']')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	i++;
 	parsePort(file, i, line, port);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
@@ -96,7 +96,7 @@ void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::st
 void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port)
 {
 	if (file[i] != ':')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	i++;
 	port = realAtoi(file, i, line, 9999, 4);
 }
