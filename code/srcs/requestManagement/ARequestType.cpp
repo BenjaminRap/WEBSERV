@@ -14,6 +14,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "socketCommunication.hpp"
 
 class AFdData;
 class EPollHandler;
@@ -69,6 +70,7 @@ ARequestType::ARequestType
 
 bool	setEnv(char* (&env)[20], const Request &request, const std::string& extension);
 bool	setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
+void	deleteArray(const char** array);
 
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)
 {
@@ -79,9 +81,13 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	char*		env[20];
 	char*		argv[3];
 
-	setEnv(env, request, extension);
-	setArgv(argv, _url, _route->getCgiInterpreter());
-	if (execCGI(argv[0], argv, env, inFd, outFd) == -1)
+	const bool	error = (!setEnv(env, request, extension)
+		|| !setArgv(argv, _url, _route->getCgiInterpreter())
+		|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
+
+	deleteArray((const char**)env);
+	deleteArray((const char**)argv);
+	if (error)
 		return (HTTP_INTERNAL_SERVER_ERROR);
 	if (body != NULL)
 	{
@@ -94,6 +100,8 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 			requestContext.response
 		), freePointer);
 	}
+	else
+		closeFdAndPrintError(inFd);
 	this->_outFd.setManagedResource(new CgiOut(
 		outFd,
 		requestContext.ePollHandler,
