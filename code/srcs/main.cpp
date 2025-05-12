@@ -27,14 +27,7 @@ int	main(int argc, char **argv)
 		if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : "))
 			return (EXIT_FAILURE);
 
-		Configuration	conf;
-		std::string		file;
-
-		if (argc == 2)
-			readfile(argv[1], file);
-		else
-			readfile(DEFAULT_CONFIG_PATH, file);
-		parseFile(conf, file);
+		Configuration	conf((argc == 2) ? argv[1] : DEFAULT_CONFIG_PATH);
 		while(getSignalStatus() == NO_SIGNAL)
 		{
 			try
