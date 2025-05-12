@@ -72,7 +72,7 @@ class ARequestType
 		SharedResource<AFdData*>				getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
 		std::string&							getBackupUrl(void);
-		uint16_t								setCgiAFdData(RequestContext& requestContext);
+		uint16_t								setCgiAFdData(RequestContext& requestContext, const std::string& extension);
 };
 
 #endif //!A_REQUEST_HPP

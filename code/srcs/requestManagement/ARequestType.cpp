@@ -14,7 +14,6 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
-#include "socketCommunication.hpp"	// for closeFdAndPrintError
 
 class AFdData;
 class EPollHandler;
@@ -26,8 +25,8 @@ void	replaceUrl(const std::string &location, const std::string &root, std::strin
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
-int		execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 bool	checkExtension(const std::string& file, const std::string& extension);
+int		execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 
 ARequestType::ARequestType
 (
@@ -58,19 +57,19 @@ ARequestType::ARequestType
 		this->_url.insert(0, ".");
 	if (this->_route != NULL)
 	{
-		const std::string	CGIextention = this->_route->getCgiFileExtension();
+		const std::string&	CGIextention = this->_route->getCgiFileExtension();
 		if (checkExtension(this->_url, CGIextention))
 			return ;
-		const uint16_t	code = setCgiAFdData(requestContext);
+		const uint16_t	code = setCgiAFdData(requestContext, CGIextention);
 
 		if (code != HTTP_OK)
 			this->_code = code;
 	}
 }
 
-char	**setEnv(Request &request, char *(&env)[20], const std::string& extension);
+void	setEnv(Request &request, char *(&env)[20], const std::string& extension);
 
-uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
+uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)
 {
 	Request&	request = requestContext.request;
 	ABody*		body = request.getBody();
@@ -78,16 +77,20 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 	int		outFd;
 	char*	env[20];
 
+	setEnv(request, env, extension);
 	if (execCGI("", NULL, NULL, inFd, outFd) == -1)
 		return (HTTP_INTERNAL_SERVER_ERROR);
-	this->_inFd.setManagedResource(new CgiIn(
-		inFd,
-		requestContext.ePollHandler,
-		requestContext.requestBuff,
-		(ABody&)NULL,
-		requestContext.connectedSocketData,
-		requestContext.response
-	), freePointer);
+	if (body != NULL)
+	{
+		this->_inFd.setManagedResource(new CgiIn(
+			inFd,
+			requestContext.ePollHandler,
+			requestContext.requestBuff,
+			*body,
+			requestContext.connectedSocketData,
+			requestContext.response
+		), freePointer);
+	}
 	this->_outFd.setManagedResource(new CgiOut(
 		outFd,
 		requestContext.ePollHandler,
