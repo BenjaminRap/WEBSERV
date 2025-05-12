@@ -67,7 +67,8 @@ ARequestType::ARequestType
 	}
 }
 
-void	setEnv(Request &request, char *(&env)[20], const std::string& extension);
+void	setEnv(char* (&env)[20], Request &request, const std::string& extension);
+void	setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)
 {
@@ -78,7 +79,8 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	char*	env[20];
 	char*	argv[3];
 
-	setEnv(request, env, extension);
+	setEnv(env, request, extension);
+	setArgv(argv, _url, _route->getCgiInterpreter());
 	if (execCGI(argv[0], argv, env, inFd, outFd) == -1)
 		return (HTTP_INTERNAL_SERVER_ERROR);
 	if (body != NULL)

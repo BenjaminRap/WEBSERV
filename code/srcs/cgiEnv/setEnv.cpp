@@ -90,7 +90,7 @@ std::string findQueryString(const std::string &target, size_t &pos)
 	return (target.substr(pos));
 }
 
-void	setEnv(Request &request, char *(&env)[20], const std::string& extension)
+void	setEnv(char *(&env)[20], Request &request, const std::string& extension)
 {
 	const std::string&	target = request.getRequestTarget();
 	const Headers&		headers = request.getHeaders();
