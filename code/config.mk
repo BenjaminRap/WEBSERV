@@ -75,5 +75,6 @@ UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))
 
 
 CGI_ENV_DIR			:=	cgiEnv/
-CGI_ENV_FILES		:=	setEnv.cpp
+CGI_ENV_FILES		:=	setEnv.cpp	\
+						setArgv.cpp
 CGI_ENV			:=	$(addprefix $(CGI_ENV_DIR), $(CGI_ENV_FILES))
