@@ -90,7 +90,7 @@ std::string findQueryString(const std::string &target, size_t &pos)
 	return (target.substr(pos));
 }
 
-char	**setEnv(Request &request, char *(&env)[20], const std::string& extension)
+void	setEnv(Request &request, char *(&env)[20], const std::string& extension)
 {
 	const std::string&	target = request.getRequestTarget();
 	const Headers&		headers = request.getHeaders();
@@ -113,5 +113,4 @@ char	**setEnv(Request &request, char *(&env)[20], const std::string& extension)
 	addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension));
 	addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos));
 	addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos));
-	return (env);
 }
