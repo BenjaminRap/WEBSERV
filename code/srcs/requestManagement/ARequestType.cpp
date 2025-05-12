@@ -76,9 +76,10 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	int		inFd;
 	int		outFd;
 	char*	env[20];
+	char*	argv[3];
 
 	setEnv(request, env, extension);
-	if (execCGI("", NULL, NULL, inFd, outFd) == -1)
+	if (execCGI(argv[0], argv, env, inFd, outFd) == -1)
 		return (HTTP_INTERNAL_SERVER_ERROR);
 	if (body != NULL)
 	{
