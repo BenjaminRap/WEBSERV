@@ -9,6 +9,7 @@
 #include "CgiIn.hpp"				// for CgiIn
 #include "CgiOut.hpp"				// for CgiOut
 #include "EMethods.hpp"             // for EMethods
+#include "Request.hpp"
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
@@ -25,7 +26,7 @@ void	replaceUrl(const std::string &location, const std::string &root, std::strin
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
-int		execCGI(const char *path, char **argv, char **env, int fd[2]);
+int		execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 bool	checkExtension(const std::string& file, const std::string& extension);
 
 ARequestType::ARequestType
@@ -67,34 +68,28 @@ ARequestType::ARequestType
 	}
 }
 
+char	**setEnv(Request &request, char *(&env)[20], const std::string& extension);
+
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 {
-	int	intFds[2];
-	int	outFds[2];
+	Request&	request = requestContext.request;
+	ABody*		body = request.getBody();
+	int		inFd;
+	int		outFd;
+	char*	env[20];
 
-	if (pipe(intFds) == -1)
+	if (execCGI("", NULL, NULL, inFd, outFd) == -1)
 		return (HTTP_INTERNAL_SERVER_ERROR);
-	if (pipe(outFds) == -1)
-	{
-		closeFdAndPrintError(intFds[0]);
-		closeFdAndPrintError(intFds[1]);
-	}
-
-	const int	redirectFds[2] = {
-		intFds[0],
-		outFds[1]
-	};
 	this->_inFd.setManagedResource(new CgiIn(
-		intFds[1],
+		inFd,
 		requestContext.ePollHandler,
 		requestContext.requestBuff,
 		(ABody&)NULL,
 		requestContext.connectedSocketData,
-		requestContext.response,
-		redirectFds
+		requestContext.response
 	), freePointer);
 	this->_outFd.setManagedResource(new CgiOut(
-		intFds[0],
+		outFd,
 		requestContext.ePollHandler,
 		requestContext.responseBuff,
 		_config
