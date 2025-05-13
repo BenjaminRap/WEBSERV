@@ -34,6 +34,7 @@ int	main(int argc, char **argv)
 	}
 	catch (std::exception& exception)
 	{
+		std::cerr << exception.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
 }
