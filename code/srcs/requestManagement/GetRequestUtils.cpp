@@ -21,7 +21,7 @@ void	checkType(std::string &path, GetRequest &get)
 	{
 		path += "/";
 		get.setUrl(get.getUrl() + "/");
-		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, path, false);
+		get.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, path, false);
 	}
 	else
 		get.setPath(path);
@@ -137,12 +137,12 @@ bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
 			if (ret == DIRE)
 			{
 				get.setUrl(get.getUrl() + indexs[i] + "/");
-				get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, temp + "/", false);
+				get.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, temp + "/", false);
 			}
 			else
 			{
 				get.setUrl(get.getUrl() + indexs[i]);
-				get.setRedirectionResponse(HTTP_OK, temp, false);
+				get.setResponseWithLocation(HTTP_OK, temp, false);
 			}
 			return (true);
 		}

@@ -163,7 +163,7 @@ void	Response::setResponse(ARequestType& requestResult)
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
-		&& _status->isOfType(STATUS_REDIRECTION))
+		&& (_status->isOfType(STATUS_REDIRECTION) || _status->getCode() == HTTP_CREATED))
 	{
 		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
 	}

@@ -121,32 +121,21 @@ ARequestType::~ARequestType()
 {
 }
 
-void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect)
+void	ARequestType::setResponseWithLocation(uint16_t code, const std::string &redirection, bool isReelRedirect)
 {
 	this->_code = code;
 	this->_redirection = redirection;
-	if (isReelRedirect)
+	if (!isReelRedirect)
 	{
-		this->_redirection += "?" + _queryString;
-		return ;
-	}
-	if (this->_route != NULL)
-	{
-		if (redirection.find(this->_route->getRoot()))
+		if ((_route != NULL && redirection.find(_route->getRoot()))
+			|| (_config.getRoot() != "" && redirection.find(_config.getRoot())))
 		{
 			this->_redirection = this->getUrl();
 		}
+		if (this->_redirection[0] == '.')
+			this->_redirection.erase(0, 1);
+		this->_redirection = "http://" + this->_domain + this->_redirection;
 	}
-	else if (this->_config.getRoot() != "")
-	{
-		if (redirection.find(this->_config.getRoot()))
-		{
-			this->_redirection = this->getUrl();
-		}
-	}
-	if (this->_redirection[0] == '.')
-		this->_redirection.erase(0, 1);
-	this->_redirection = "http://" + this->_domain + this->_redirection;
 	if (this->_queryString != "")
 		this->_redirection += "?" + this->_queryString;
 }

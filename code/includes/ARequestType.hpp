@@ -53,7 +53,7 @@ class ARequestType
 		);
 		virtual ~ARequestType() = 0;
 
-		void									setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect);
+		void									setResponseWithLocation(uint16_t code, const std::string &redirection, bool isReelRedirect);
 		void									setResponse(uint16_t code);
 		void									setPath(const std::string &src);
 		void									setRoute(const Route *root);

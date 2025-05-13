@@ -69,7 +69,7 @@ PutRequest::PutRequest
 			FileFd*	fileFd = new FileFd(path, O_CREAT | O_EXCL | O_WRONLY, 0666);
 
 			this->_inFd.setManagedResource(fileFd, freePointer);
-			this->setResponse(HTTP_CREATED);
+			this->setResponseWithLocation(HTTP_CREATED, this->_path, false);
 		}
 		catch(const FileFd::FileOpeningError& openError)
 		{
@@ -77,10 +77,6 @@ PutRequest::PutRequest
 
 			this->setResponse(code);
 		}
-		if (fileType == LS_FILE)
-			this->setResponse(HTTP_NO_CONTENT);
-		else
-			this->setResponse(HTTP_CREATED);
 	}
 }
 
