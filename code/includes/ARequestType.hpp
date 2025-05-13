@@ -31,13 +31,13 @@ class ARequestType
 		EMethods					_method;
 		const ServerConfiguration&	_config;
 		const Route*				_route;
-		std::string					_url;
+		std::string					_path;
 		std::string					_domain;
 
 		int							_code;
 		std::string					_redirection;
 		std::string					_autoIndexPage;
-		std::string					_backupUrl;
+		std::string					_url;
 		std::string					_queryString;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
@@ -55,16 +55,16 @@ class ARequestType
 
 		void									setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect);
 		void									setResponse(uint16_t code);
-		void									setUrl(const std::string &src);
+		void									setPath(const std::string &src);
 		void									setRoute(const Route *root);
 		void									setMethod(EMethods method);
-		void									setBackupUrl(const std::string &url);
+		void									setUrl(const std::string &url);
 
 		const std::string&						getAutoIndexPage(void) const;
 		bool									getAutoIndex(void) const;
 		const std::vector<std::string>&			getIndexs(void) const;
 		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
-		std::string&							getUrl(void);
+		std::string&							getPath(void);
 		const std::string&						getRedirection(void) const;
 		const Route*							getRoute(void) const;
 		int										getCode(void) const;
@@ -72,7 +72,7 @@ class ARequestType
 		SharedResource<AFdData*>				getInFd(void) const;
 		SharedResource<AFdData*>				getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
-		std::string&							getBackupUrl(void);
+		std::string&							getUrl(void);
 		uint16_t								setCgiAFdData(RequestContext& requestContext, const std::string& extension);
 };
 

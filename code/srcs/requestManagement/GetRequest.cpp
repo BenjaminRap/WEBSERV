@@ -31,7 +31,7 @@ GetRequest::GetRequest
 
 	if (this->_code != 0)
 		return ;
-	targetType = isDirOrFile(this->_url);
+	targetType = isDirOrFile(this->_path);
 	if (targetType == DIRE)
 		directoryCase(*this);
 	else if (targetType == LS_FILE)
@@ -53,7 +53,7 @@ void	GetRequest::openFile(void)
 {
 	try
 	{
-		FileFd*	fileFd = new FileFd(_url, O_RDONLY);
+		FileFd*	fileFd = new FileFd(_path, O_RDONLY);
 
 		this->_outFd.setManagedResource(fileFd, freePointer);
 	}

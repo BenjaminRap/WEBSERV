@@ -25,11 +25,11 @@ DeleteRequest::DeleteRequest
 
 	if (this->_code != 0)
 		return ;
-	fileType = isDirOrFile(this->_url);
+	fileType = isDirOrFile(this->_path);
 	if (fileType == DIRE)
-		directoryCase(this->_url, *this);
+		directoryCase(this->_path, *this);
 	else if (fileType == LS_FILE)
-		fileCase(this->_url, *this);
+		fileCase(this->_path, *this);
 	else
 		setResponse(fileType);
 }

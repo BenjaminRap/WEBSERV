@@ -52,15 +52,15 @@ PutRequest::PutRequest
 
 	if (this->_code != 0)
 		return ;
-	this->_fileName = getName(this->_url);
-	path = this->_url;
-	removeFileName(this->_url);
+	this->_fileName = getName(this->_path);
+	path = this->_path;
+	removeFileName(this->_path);
 	fileType = isDirOrFile(path);
 	if (fileType == DIRE)
 		this->setResponse(HTTP_CONFLICT);
 	else if (this->_fileName.empty() && fileType == HTTP_NOT_FOUND)
 		this->setResponse(HTTP_CONFLICT);
-	else if (!canWrite(this->_url) && fileType != HTTP_FORBIDDEN)
+	else if (!canWrite(this->_path) && fileType != HTTP_FORBIDDEN)
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
 	{

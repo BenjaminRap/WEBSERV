@@ -41,29 +41,29 @@ ARequestType::ARequestType
 	_method(method),
 	_config(config),
 	_route(NULL),
-	_url(),
+	_path(),
 	_domain(domain),
 	_code(0),
 	_redirection(),
 	_autoIndexPage(),
-	_backupUrl(url),
+	_url(url),
 	_queryString(),
 	_inFd(),
 	_outFd()
 {
-	splitInTwo(url, '?', _url, _queryString);
+	splitInTwo(url, '?', _path, _queryString);
 	fixUrl(*this, url);
 	if (getCode() == HTTP_BAD_REQUEST)
 		return ;
 	addRoot(*this, config);
 	if (this->_code == HTTP_MOVED_PERMANENTLY || this->_code == HTTP_METHOD_NOT_ALLOWED)
 		return;
-	if (this->_url[0] != '.')
-		this->_url.insert(0, ".");
+	if (this->_path[0] != '.')
+		this->_path.insert(0, ".");
 	if (this->_route != NULL)
 	{
 		const std::string&	CGIextention = this->_route->getCgiFileExtension();
-		if (checkExtension(this->_url, CGIextention))
+		if (checkExtension(this->_path, CGIextention))
 			return ;
 		const uint16_t	code = setCgiAFdData(requestContext, CGIextention);
 
@@ -86,7 +86,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	char*		argv[3];
 
 	const bool	error = (!setEnv(env, request, extension)
-		|| !setArgv(argv, _url, _route->getCgiInterpreter())
+		|| !setArgv(argv, _path, _route->getCgiInterpreter())
 		|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
 
 	deleteArray((const char**)env);
@@ -133,14 +133,14 @@ void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redi
 	{
 		if (redirection.find(this->_route->getRoot()))
 		{
-			this->_redirection = this->getBackupUrl();
+			this->_redirection = this->getUrl();
 		}
 	}
 	else if (this->_config.getRoot() != "")
 	{
 		if (redirection.find(this->_config.getRoot()))
 		{
-			this->_redirection = this->getBackupUrl();
+			this->_redirection = this->getUrl();
 		}
 	}
 	if (this->_redirection[0] == '.' || this->_redirection[0] == '/')
@@ -153,9 +153,9 @@ void	ARequestType::setResponse(uint16_t code)
 	this->_code = code;
 }
 
-void	ARequestType::setUrl(const std::string &src)
+void	ARequestType::setPath(const std::string &src)
 {
-	this->_url = src;
+	this->_path = src;
 }
 
 void	ARequestType::setRoute(const Route *route)
@@ -168,9 +168,9 @@ void	ARequestType::setMethod(EMethods method)
 	this->_method = method;
 }
 
-std::string	&ARequestType::getUrl()
+std::string	&ARequestType::getPath()
 {
-	return (this->_url);
+	return (this->_path);
 }
 
 const std::string	&ARequestType::getRedirection() const
@@ -234,12 +234,12 @@ const std::string&	ARequestType::getAutoIndexPage(void) const
 	return (_autoIndexPage);
 }
 
-void	ARequestType::setBackupUrl(const std::string &url)
+void	ARequestType::setUrl(const std::string &url)
 {
-	this->_backupUrl = url;
+	this->_url = url;
 }
 
-std::string&	ARequestType::getBackupUrl(void)
+std::string&	ARequestType::getUrl(void)
 {
-	return (_backupUrl);
+	return (_url);
 }
