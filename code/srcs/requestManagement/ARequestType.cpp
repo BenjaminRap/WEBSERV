@@ -26,7 +26,6 @@ void	replaceUrl(const std::string &location, const std::string &root, std::strin
 void	fixPath(std::string &path);
 void	fixUrl(ARequestType &req, std::string &url);
 void	addRoot(ARequestType &req, const ServerConfiguration &config);
-bool	checkExtension(const std::string& file, const std::string& extension);
 int		execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void	splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
 
@@ -63,7 +62,7 @@ ARequestType::ARequestType
 	if (this->_route != NULL)
 	{
 		const std::string&	CGIextention = this->_route->getCgiFileExtension();
-		if (checkExtension(this->_path, CGIextention))
+		if (CGIextention == "" || _path.find(CGIextention) == std::string::npos)
 			return ;
 		const uint16_t	code = setCgiAFdData(requestContext, CGIextention);
 
@@ -85,6 +84,8 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	char*		env[20];
 	char*		argv[3];
 
+	env[0] = NULL;
+	argv[0] = NULL;
 	const bool	error = (!setEnv(env, request, extension, _path, _queryString)
 		|| !setArgv(argv, _path, _route->getCgiInterpreter())
 		|| execCGI(argv[0], argv, env, inFd, outFd) == -1);

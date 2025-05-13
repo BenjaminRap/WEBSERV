@@ -154,12 +154,10 @@ void	Response::setResponse(ARequestType& requestResult)
 	reset();
 
 	_fdData = requestResult.getOutFd();
-	if (_fdData.isManagingValue())
+	if (_fdData.isManagingValue()
+		&& _fdData.getValue()->getType() == CGI_OUT)
 	{
-		AFdData* fdData = _fdData.getValue();
-
-		if (fdData->getType() == CGI_OUT)
-			return ;
+		return ;
 	}
 
 	_autoIndexPage = requestResult.getAutoIndexPage();
