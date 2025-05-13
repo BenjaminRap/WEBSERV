@@ -113,9 +113,9 @@ void	Request::setFdData(const SharedResource<AFdData*>& fdData)
 	{
 		return ;
 	}
-	const int fd =  _fdData.getValue()->getFd();
-
 	_fdData = fdData;
+
+	const int fd =  _fdData.getValue()->getFd();
 	_body.getValue()->setFd(fd);
 }
 
