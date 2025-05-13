@@ -9,5 +9,8 @@ void	closeFdAndPrintError(int fd)
 		return ;
 	const int ret = close(fd);
 	if  (ret == -1)
+	{
 		std::cerr << "close() : " << strerror(errno) << std::endl;
+		errno = 0;
+	}
 }
