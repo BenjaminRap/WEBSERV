@@ -144,9 +144,9 @@ void	ARequestType::setRedirectionResponse(uint16_t code, const std::string &redi
 			this->_redirection = this->getUrl();
 		}
 	}
-	if (this->_redirection[0] == '.' || this->_redirection[0] == '/')
+	if (this->_redirection[0] == '.')
 		this->_redirection.erase(0, 1);
-	this->_redirection = this->_domain + this->_redirection + "?" + this->_queryString;
+	this->_redirection = "http://" + this->_domain + this->_redirection + "?" + this->_queryString;
 }
 
 void	ARequestType::setResponse(uint16_t code)
