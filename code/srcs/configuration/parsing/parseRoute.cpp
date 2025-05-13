@@ -163,7 +163,8 @@ void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirect
 void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention)
 {
 	skipWSpace(file, i, line);
-	cgiFileExtention = file.substr(i, file.find_first_of(WSPACE, i) - i);
+	cgiFileExtention = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i += cgiFileExtention.size();
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (ParsingLineException("Missing semi-colon", line));
