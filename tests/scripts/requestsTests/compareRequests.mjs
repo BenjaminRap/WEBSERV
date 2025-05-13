@@ -40,8 +40,16 @@ function	compareRedirection(nginxResponse, webservResponse, printOK)
 	const nginxRedirection = nginxResponse.headers.get("Location");
 	const webservRedirection = webservResponse.headers.get("Location");
 
-	if (nginxRedirection !== null && webservRedirection !== null)
-			return (verify("redirection : ", nginxRedirection, webservRedirection, printOK));
+	if (nginxRedirection !== null || webservRedirection !== null)
+	{
+		if (nginxRedirection.startsWith("http://nginx:8181")
+			&& webservRedirection.startsWith("http://webserv:8080"))
+		{
+			return (verify("redirection : ", nginxRedirection.replace("http://nginx:8181", ""),
+				webservRedirection.replace("http://webserv:8080", ""), printOK));
+		}
+		return (verify("redirection: ",  nginxRedirection, webservRedirection), printOK);
+	}
 	return (true);
 }
 
