@@ -72,7 +72,7 @@ ARequestType::ARequestType
 	}
 }
 
-bool	setEnv(char* (&env)[20], const Request &request, const std::string& extension);
+bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString);
 bool	setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void	deleteArray(const char** array);
 
@@ -85,7 +85,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	char*		env[20];
 	char*		argv[3];
 
-	const bool	error = (!setEnv(env, request, extension)
+	const bool	error = (!setEnv(env, request, extension, _path, _queryString)
 		|| !setArgv(argv, _path, _route->getCgiInterpreter())
 		|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
 

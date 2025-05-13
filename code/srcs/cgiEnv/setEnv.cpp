@@ -82,22 +82,14 @@ std::string findPathInfo(const std::string &target, size_t &pos)
 	}
 }
 
-std::string findQueryString(const std::string &target, size_t &pos)
-{
-	if (target[pos] != '?')
-		return ("");
-
-	return (target.substr(pos));
-}
-
 void	deleteArray(const char** array);
 
-bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension)
+bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString)
 {
 	try
 	{
-		const std::string&	target = request.getRequestTarget();
-		const Headers&		headers = request.getHeaders();
+		const Headers&	headers = request.getHeaders();
+		const EMethods	method = request.getMethod();
 
 		size_t pos = 0;
 
@@ -106,7 +98,7 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		addToEnv(env, "SERVER_NAME=", headers.getHeader("Host"));
 		addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
 		addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL);
-		addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(request.getMethod()));
+		addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(method));
 		addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("Accept"));
 		addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("Accept-Language"));
 		addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("User-Agent"));
@@ -114,9 +106,9 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
 		addToEnv(env, "CONTENT_LENGTH=", headers.getHeader("content-length"));
 		addToEnv(env, "REFERER=", headers.getHeader("Referer"));
-		addToEnv(env, "SCRIPT_NAME=" + findScriptName(target, pos, extension));
-		addToEnv(env, "PATH_INFO=" + findPathInfo(target, pos));
-		addToEnv(env, "QUERY_STRING=" + findQueryString(target, pos));
+		addToEnv(env, "SCRIPT_NAME=" + findScriptName(path, pos, extension));
+		addToEnv(env, "PATH_INFO=" + findPathInfo(path, pos));
+		addToEnv(env, "QUERY_STRING=" + queryString);
 		return (true);
 	}
 	catch (const std::exception& exception)
