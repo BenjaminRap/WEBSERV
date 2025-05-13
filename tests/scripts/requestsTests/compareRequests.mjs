@@ -42,8 +42,8 @@ function	compareRedirection(nginxResponse, webservResponse, printOK)
 
 	if (nginxRedirection !== null || webservRedirection !== null)
 	{
-		if (nginxRedirection.startsWith("http://nginx:8181")
-			&& webservRedirection.startsWith("http://webserv:8080"))
+		if (nginxRedirection?.startsWith("http://nginx:8181")
+			&& webservRedirection?.startsWith("http://webserv:8080"))
 		{
 			return (verify("redirection : ", nginxRedirection.replace("http://nginx:8181", ""),
 				webservRedirection.replace("http://webserv:8080", ""), printOK));

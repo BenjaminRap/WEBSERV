@@ -14,6 +14,7 @@ ABody::ABody(int fd, ABodyChilds type) :
 	_fd(fd),
 	_finished(false),
 	_status(HTTP_OK),
+	_written(0),
 	_type(type)
 {
 }
@@ -22,6 +23,7 @@ ABody::ABody(ABodyChilds type) :
 	_fd(-1),
 	_finished(false),
 	_status(HTTP_OK),
+	_written(0),
 	_type(type)
 {
 }
