@@ -58,7 +58,7 @@ std::string findScriptName(const std::string &target, size_t &pos, const std::st
 
 	if (end == std::string::npos)
 		throw std::logic_error("setEnv called with an invalid file extension");
-	std::string result = target.substr(0, end + 4);
+	std::string result = target.substr(0, end + extension.size());
 	pos = end + 4;
 	return (result);
 }
