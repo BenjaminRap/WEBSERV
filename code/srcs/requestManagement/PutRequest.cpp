@@ -66,10 +66,13 @@ PutRequest::PutRequest
 	{
 		try
 		{
-			FileFd*	fileFd = new FileFd(path, O_CREAT | O_EXCL | O_WRONLY, 0666);
+			FileFd*	fileFd = new FileFd(path, O_CREAT | O_WRONLY, 0666);
 
 			this->_inFd.setManagedResource(fileFd, freePointer);
-			this->setResponseWithLocation(HTTP_CREATED, this->_path, false);
+			if (fileType == LS_FILE)
+				this->setResponse(HTTP_NO_CONTENT);
+			else
+				this->setResponseWithLocation(HTTP_CREATED, this->_path, false);
 		}
 		catch(const FileFd::FileOpeningError& openError)
 		{
