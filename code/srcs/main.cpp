@@ -8,7 +8,6 @@
 
 int	main(int argc, char **argv)
 {
-	std::cout << "TODO : fix les error pages ignore en cas classique et dans le cgiResponse" << std::endl;
 	if (argc == 1)
 		std::cout << "No argument supplied, using the default path for the configuration." << std::endl;
 	else if (argc > 2)
