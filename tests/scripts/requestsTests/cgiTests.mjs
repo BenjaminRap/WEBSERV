@@ -11,20 +11,18 @@ async function	runGoodGgiTest(target, method, body, headers)
 async function runTests()
 {
 	printHeader("Classic Case");
-	await runGoodGgiTest("/cgi/cgiTest.bin", "GET", null, {});
+	await runGoodGgiTest("/cgi/cgiTest.cgi", "GET", null, {});
 }
 
 async function	run()
 {
 	verifyServersAreRunning();
 
-	exec("cd ../../webserv && ../scripts/requestsTests/initGgiTest.sh"); // setup webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/initGgiTest.sh"); // setup nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/initCgiTest.sh"); // setup webserv
 
 	await runTests();
 
-	exec("cd ../../webserv && ../scripts/requestsTests/cleanGgiTest.sh"); // clean webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/cleanGgiTest.sh"); // clean nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/cleanCgiTest.sh"); // clean webserv
 }
 
 run();
