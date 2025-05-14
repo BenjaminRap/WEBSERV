@@ -55,7 +55,7 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		_state = REQUEST_DONE;
 		return ;
 	}
-	std::cout << _request << '\n';
+	// std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {

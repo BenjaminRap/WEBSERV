@@ -50,7 +50,6 @@ RequestState			RequestHandler::readRequest(int socketFd, RequestContext& request
 
 void			RequestHandler::setNewRequest()
 {
-	std::cout << "request : " << _request << std::endl;
 	_state = REQUEST_STATUS_LINE;
 	_request.reset();
 }
