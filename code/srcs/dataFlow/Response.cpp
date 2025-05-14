@@ -110,7 +110,7 @@ FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& se
 		if (errorPage == NULL)
 			return (NULL);
 
-		return (new FileFd(*errorPage, O_RDONLY));
+		return (new FileFd(errorPage->c_str(), O_RDONLY));
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{

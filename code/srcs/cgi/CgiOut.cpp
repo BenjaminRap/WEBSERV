@@ -39,11 +39,7 @@ CgiOut::CgiOut
 CgiOut::~CgiOut()
 {
 	if (_srcFile != NULL)
-	{
-		if (_tempName[0] != '\0')
-			std::remove(_tempName);
 		delete _srcFile;
-	}
 }
 
 void	CgiOut::setFinished(void)
@@ -65,7 +61,7 @@ void	CgiOut::handleClosingCgi()
 	else if (_state == CGI_TO_TEMP)
 	{
 		delete _srcFile;
-		_srcFile = FileFd::getTemporaryFile(_tempName, O_RDONLY);
+		_srcFile = new FileFd(_tempName, O_RDONLY);
 		if (_srcFile == NULL)
 		{
 			_code = HTTP_INTERNAL_SERVER_ERROR;

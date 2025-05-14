@@ -6,7 +6,6 @@
 # include <cerrno>       // for errno
 # include <cstdio>       // for size_t, L_tmpnam
 # include <exception>    // for exception
-# include <string>       // for string
 
 # include "AFdData.hpp"  // for AFdData
 
@@ -25,8 +24,8 @@ private:
 
 	FileFd&	operator=(const FileFd& ref);
 public:
-	FileFd(const std::string& path, int flags, mode_t mode);
-	FileFd(const std::string& path, int flags);
+	FileFd(const char* path, int flags, mode_t mode);
+	FileFd(const char* path, int flags);
 	~FileFd(void);
 
 	/**
