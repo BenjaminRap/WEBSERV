@@ -8,7 +8,7 @@
 
 void	CgiOut::readFromCgi()
 {
-	if (_error || _state == FILE_TO_BUFFER || !_isActive || _state == DONE)
+	if (_error || _state == FILE_TO_BUFFER)
 		return ;
 	const FlowState flowState = _flowBuf.srcToBuff(getFd());
 
