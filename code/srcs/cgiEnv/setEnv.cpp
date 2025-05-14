@@ -33,7 +33,6 @@ bool	addToEnv(char *(&env)[20], const std::string &title)
 	if (i == 19)
 		throw std::logic_error("Too much environment variable !");
 	env[i] = duplicateString(title);
-	env[i + 1] = NULL;
 	return (true);
 }
 
@@ -80,6 +79,7 @@ void	deleteArray(const char** array);
 
 bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString)
 {
+	std::memset(env, 0, sizeof(env));
 	try
 	{
 		const Headers&	headers = request.getHeaders();
@@ -87,7 +87,6 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 
 		size_t pos = 0;
 
-		env[0] = NULL;
 		addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
 		addToEnv(env, "SERVER_NAME=", headers.getHeader("Host"));
 		addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
