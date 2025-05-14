@@ -84,8 +84,8 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	char*		env[20];
 	char*		argv[3];
 
-	env[0] = NULL;
-	argv[0] = NULL;
+	std::memset(env, 0, sizeof(env));
+	std::memset(argv, 0, sizeof(argv));
 	const bool	error = (!setEnv(env, request, extension, _path, _queryString)
 		|| !setArgv(argv, _path, _route->getCgiInterpreter())
 		|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
