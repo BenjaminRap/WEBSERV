@@ -25,25 +25,10 @@ char *duplicateString(const std::string &str)
 	return (dup);
 }
 
-bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *value)
-{
-	if (value == NULL)
-		return (true);
-
-	int i = 0;
-	while (env[i] != NULL && i < 18)
-		i++;
-	if (i == 19)
-		throw std::logic_error("Too much environment variable !");
-	env[i] = duplicateString(title + *value);
-	env[i + 1] = NULL;
-	return (true);
-}
-
 bool	addToEnv(char *(&env)[20], const std::string &title)
 {
 	int i = 0;
-	while (env[i] != NULL && i < 18)
+	while (env[i] != NULL && i < 19)
 		i++;
 	if (i == 19)
 		throw std::logic_error("Too much environment variable !");
@@ -51,6 +36,15 @@ bool	addToEnv(char *(&env)[20], const std::string &title)
 	env[i + 1] = NULL;
 	return (true);
 }
+
+bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *value)
+{
+	if (value == NULL)
+		return (true);
+
+	return (addToEnv(env, title + *value));
+}
+
 
 std::string findScriptName(const std::string &target, size_t &pos, const std::string& extension)
 {
