@@ -64,10 +64,7 @@ ARequestType::ARequestType
 		const std::string&	CGIextention = this->_route->getCgiFileExtension();
 		if (CGIextention == "" || _path.find(CGIextention) == std::string::npos)
 			return ;
-		const uint16_t	code = setCgiAFdData(requestContext, CGIextention);
-
-		if (code != HTTP_OK)
-			this->_code = code;
+		_code = setCgiAFdData(requestContext, CGIextention);
 	}
 }
 
@@ -113,7 +110,6 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 		requestContext.responseBuff,
 		_config
 	), freePointer);
-
 	return (HTTP_OK);
 };
 
