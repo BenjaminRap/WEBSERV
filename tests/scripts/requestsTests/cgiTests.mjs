@@ -11,7 +11,7 @@ async function	runGoodGgiTest(target, method, body, headers)
 async function runTests()
 {
 	printHeader("Classic Case");
-	await runGoodGgiTest("/cgi/cgiTest.bin");
+	await runGoodGgiTest("/cgi/cgiTest.bin", "GET", null, {});
 }
 
 async function	run()
