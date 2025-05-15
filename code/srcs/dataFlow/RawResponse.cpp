@@ -107,7 +107,7 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	{
 		const FlowState flowState = _flowBuf.buffToDest(socketFd);
 
-		if (!fdData->getIsActive() && flowState == FLOW_DONE)
+		if (fdData->getIsActive() && flowState == FLOW_DONE)
 			return (FLOW_MORE);
 		return (flowState);
 	}
