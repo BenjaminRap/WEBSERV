@@ -71,15 +71,15 @@ int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd
 
 	if (pid == 0)
 	{
-		closeFds(tubeIn[0], tubeOut[1]);
-		replaceByProgram(path, argv, env, tubeIn[1], tubeOut[0]);
+		closeFds(tubeIn[1], tubeOut[0]);
+		replaceByProgram(path, argv, env, tubeIn[0], tubeOut[1]);
 		std::exit(EXIT_FAILURE);
 	}
 	else
 	{
-		closeFds(tubeIn[1], tubeOut[0]);
-		inFd = tubeIn[0];
-		outFd = tubeOut[1];
+		closeFds(tubeIn[0], tubeOut[1]);
+		inFd = tubeIn[1];
+		outFd = tubeOut[0];
 		return (pid);
 	}
 }
