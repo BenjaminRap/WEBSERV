@@ -102,7 +102,7 @@ private:
 	 */
 	void		setErrorPage(const Status** currentStatus);
 	/**
-	 * @brief This method shhould be called when we can't read
+	 * @brief This method should be called when we can't read
 	 * from the cgi anymore. Depending on the state of this
 	 * instance, the behaviour changes.
 	 */
