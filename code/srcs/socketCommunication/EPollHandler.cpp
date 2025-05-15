@@ -94,9 +94,12 @@ void	EPollHandler::callSocketCallback(size_t eventIndex) const
 		std::cerr << "EPollHandler callSocketCallback method was called with a wrong index" << std::endl;
 		return ;
 	}
-	AFdData	*fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
+	const epoll_event&	fdEvent = _events[eventIndex];
+	if (fdEvent.data.ptr == NULL)
+		return ;
+	AFdData	*fdData = static_cast<AFdData *>(fdEvent.data.ptr);
 
-	fdData->callback(_events[eventIndex].events);
+	fdData->callback(fdEvent.events);
 }
 
 int	EPollHandler::bindFdToHost(int fd, const Host& host)
