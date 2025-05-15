@@ -11,9 +11,11 @@
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
 #include "socketCommunication.hpp"  // for checkError
 
-bool	checkAllowMeth(const Route &route, EMethods meth)
+bool	checkAllowMeth(const Route *route, EMethods meth)
 {
-	const std::vector<EMethods>	&meths = route.getAcceptedMethods();
+	if (route == NULL)
+		return (meth != PUT && meth != DELETE);
+	const std::vector<EMethods>	&meths = route->getAcceptedMethods();
 	size_t						len;
 
 	len = meths.size();
@@ -96,26 +98,26 @@ void	fixUrl(ARequestType &req, std::string &url)
 	}
 }
 
-void	addRoot(ARequestType &get, const ServerConfiguration &config)
+void	addRoot(ARequestType &req, const ServerConfiguration &config)
 {
-	const Route	*temp = config.getRouteFromPath(get.getUrl());
+	const Route	*route = config.getRouteFromPath(req.getUrl());
 
-	if (temp == NULL)
+	req.setRoute(route);
+	if (!checkAllowMeth(route, req.getMethod()))
 	{
-		buildNewURl(config.getRoot(), get.getUrl());
+		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
-	get.setRoute(temp);
-	if (!checkAllowMeth(*temp, get.getMethod()))
+	if (route == NULL)
 	{
-		get.setResponse(HTTP_METHOD_NOT_ALLOWED);
+		buildNewURl(config.getRoot(), req.getUrl());
 		return ;
 	}
-	const std::string &redir = temp->getRedirection().url;
+	const std::string &redir = route->getRedirection().url;
 	if (!redir.empty())
-		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir);
+		req.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir, true);
 	else
-		replaceUrl(config.getLocation(get.getUrl()), temp->getRoot(), get.getUrl());
+		replaceUrl(config.getLocation(req.getUrl()), route->getRoot(), req.getUrl());
 }
 
 ssize_t	getFileSize(const std::string &filePath)

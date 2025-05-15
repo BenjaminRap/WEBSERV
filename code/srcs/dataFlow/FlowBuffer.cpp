@@ -1,39 +1,23 @@
-#include <cstring>			// for std::memmove
-#include <stddef.h>        // for size_t, NULL
-#include <algorithm>       // for find
+#include <algorithm>       // for find, min
+#include <cstring>         // for size_t, memcpy, memmove, NULL
 #include <iterator>        // for distance
 #include <stdexcept>       // for logic_error
 #include <string>          // for basic_string
 
-#include "FlowBuffer.hpp"  // for FlowBuffer
+#include "FlowBuffer.hpp"  // for FlowBuffer, MAX_CHARS_WRITTEN
 
 /************************Constructors / Destructors****************************/
 
-/**
- * @brief Create an instance of the FlowBuffer class.
- * @throw This function throw (std::logic_error) if bufferLength is superior to
- * bufferCapacity, if the buffer is null or if the bufferCapacity is set to 0.
- * @param buffer The buffer used to redirect the data.
- * @param bufferCapacity The maximum number of chars the buffer can store without
- * segfault.
- * @param bufferLength The number of chars that has already been written in the
- * buffer. If the index of a char is superior to bufferLength, its value is 
- * unkonwn and shouldn't be used.
- * If this constructor is called with a bufferLength superior to 0, the data
- * written in it will be handled.
- */
-FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t bufferLength) :
+FlowBuffer::FlowBuffer(char *buffer, size_t bufferCapacity, size_t contentLength) :
 	_buffer(buffer),
 	_bufferCapacity(bufferCapacity),
-	_bufferLength(bufferLength),
+	_contentLength(contentLength),
 	_numCharsWritten(0)
 {
-	if (bufferLength > bufferCapacity)
-		throw std::logic_error("FlowBuffer constructor called with a bufferLength superior to the bufferCapacity");
-	if (buffer == NULL)
-		throw std::logic_error("The buffer passed as argument is NULL");
-	if (bufferCapacity == 0)
-		throw std::logic_error("The buffer capacity is 0");
+	if (contentLength > bufferCapacity)
+		throw std::logic_error("FlowBuffer constructor called with a contentLength superior to the bufferCapacity");
+	if (_buffer == NULL && _bufferCapacity != 0)
+		throw std::logic_error("FlowBuffer constructor called with a NULL buffer and a postive bufferCapacity");
 }
 
 FlowBuffer::~FlowBuffer()
@@ -43,21 +27,21 @@ FlowBuffer::~FlowBuffer()
 
 /*****************************Member Functions*********************************/
 
-bool		FlowBuffer::getLine(char **lineStart, size_t *length)
+bool		FlowBuffer::getLine(char **lineBegin, char **lineEnd)
 {
 	char * const	start = _buffer + _numCharsWritten;
-	char * const	afterEnd = _buffer + _bufferLength;
+	char * const	afterEnd = _buffer + _contentLength;
 	char * const	breakline = std::find(start, afterEnd, '\n');
 
 	if (breakline == afterEnd)
 		return (false);
-	*lineStart = start;
-	*length = std::distance(start, breakline);
+	*lineBegin = start;
+	*lineEnd = breakline;
 	_numCharsWritten += std::distance(start, breakline + 1); // +1 because we go past the /n
 	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
 	{
 		_numCharsWritten = 0;
-		_bufferLength = 0;
+		_contentLength = 0;
 	}
 	return (true);
 }
@@ -66,15 +50,49 @@ void	FlowBuffer::moveBufferContentToStart(void)
 {
 	if (_numCharsWritten == 0)
 		return ;
-	std::memmove(_buffer, _buffer + _numCharsWritten, _bufferLength);
+	std::memmove(_buffer, _buffer + _numCharsWritten, _contentLength - _numCharsWritten);
+	_contentLength -= _numCharsWritten;
 	_numCharsWritten = 0;
+}
+
+
+void	FlowBuffer::setBuffer(char* buffer, size_t contentLength, size_t bufferCapacity)
+{
+
+	if (contentLength > bufferCapacity)
+		throw std::logic_error("FlowBuffer setBuffer called with a contentLength superior to the bufferCapacity");
+	if (_buffer == NULL && _bufferCapacity != 0)
+		throw std::logic_error("FlowBuffer constructor called with a NULL buffer and a postive bufferCapacity");
+	_buffer = buffer;
+	_contentLength = contentLength;
+	_bufferCapacity = bufferCapacity;
+	_numCharsWritten = 0;
+}
+
+size_t	FlowBuffer::addContent(char* buffer, size_t bufferSize)
+{
+
+	const size_t	remainingCapacity = _bufferCapacity - _contentLength;
+	if (bufferSize > remainingCapacity
+		&&_numCharsWritten > MAX_CHARS_WRITTEN * _bufferCapacity)
+	{
+		moveBufferContentToStart();
+	}
+	const size_t	numCharsToCopy = std::min(remainingCapacity, bufferSize);
+
+	if (numCharsToCopy == 0)
+		return (0);
+	std::memcpy(_buffer + _contentLength, buffer, numCharsToCopy);
+
+	_contentLength += numCharsToCopy;
+	return (numCharsToCopy);
 }
 
 /**********************************Getters******************************************/
 
-size_t		FlowBuffer::getBufferLength(void) const
+size_t		FlowBuffer::getContentLength(void) const
 {
-	return (_bufferLength);
+	return (_contentLength);
 }
 
 size_t		FlowBuffer::getBufferCapacity(void) const
@@ -90,4 +108,15 @@ size_t		FlowBuffer::getNumCharsWritten(void) const
 const char	*FlowBuffer::getBuffer() const
 {
 	return (_buffer);
+}
+
+bool	FlowBuffer::isBufferFull() const
+{
+	return (_contentLength >= _bufferCapacity);
+}
+
+
+bool	FlowBuffer::isBufferEmpty() const
+{
+	return (_numCharsWritten == _contentLength);
 }

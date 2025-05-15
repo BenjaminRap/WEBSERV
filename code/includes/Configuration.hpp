@@ -31,7 +31,7 @@ private:
 	 */
 	int				_maxConnectionBySocket;
 	/**
-	 * @brief The size of the _events array of the SocketsHandler, it determine
+	 * @brief The size of the _events array of the EPollHandler, it determine
 	 * the max number of event the epoll_wait can put in the _events array.
 	 */
 	unsigned int	_maxEvents;

@@ -10,7 +10,7 @@
 # include <vector>
 # include <sys/socket.h>
 
-class SocketsHandler;
+class EPollHandler;
 class Configuration;
 typedef struct sockaddr sockaddr;
 
@@ -19,15 +19,15 @@ typedef struct sockaddr sockaddr;
  * It does not crash on error, instead print an error message with the function name,
  * a error message depending on errno.
  * @param conf The configuration, it will not be changed.
- * @param socketsHandler The class that will be used to add sockets to the epoll
+ * @param EPollHandler The class that will be used to add sockets to the epoll
  * interest list.
  */
-void	createAllServerSockets(const Configuration &conf, SocketsHandler &SocketsHandler);
+void	createAllServerSockets(const Configuration &conf, EPollHandler &epollHandler);
 /**
  * @brief Create a server socket for hosts, they listen for new connection requests.
  * Then use epoll to check if the fds can be written / read.
  * @throw Can throw a std::bad_alloc, std::logic_error and std::exception, all coming
- * from the SocketsHandler constructor.
+ * from the EPollHandler constructor.
  * @param conf The configuration, it won't be changed.
  */
 void	handleIOEvents(const Configuration &conf);

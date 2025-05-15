@@ -1,11 +1,16 @@
-#include <cctype>					// for std::tolower
-#include <algorithm>				// for std::find
-#include <cerrno>					// for errno
-#include <string>					// for std::string
+#include <algorithm>              // for find
+#include <cctype>                 // for isdigit
+#include <cstring>                // for memcmp
+#include <exception>              // for exception
+#include <iterator>               // for distance
+#include <string>                 // for basic_string, string
 
-#include "Request.hpp"				// for Request
-#include "protocol.hpp"				// for PROTOCOL, PROTOCOL_LENGTH
-#include "requestStatusCode.hpp"	// fpr HTTP_...
+#include "EMethods.hpp"           // for getMethodFromBuffer
+#include "Request.hpp"            // for Request
+#include "protocol.hpp"           // for PROTOCOL_MAJOR, PROTOCOL_MINOR
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK, HTTP_HTT...
+
+unsigned long	strToULongBase(const char *begin, const char* end, int (&isInBase)(int character), int base);
 
 int	Request::parseMethod(const char *begin, const char *end)
 {
@@ -25,23 +30,6 @@ int	Request::parseMethod(const char *begin, const char *end)
 	return (HTTP_OK);
 }
 
-long	Request::parseProtocolNumber(const char* begin, const char* end)
-{
-	const int	errnoSave = errno;
-
-	errno = 0;
-
-	if (!std::isdigit(*begin))
-		return (-1);
-	char	*numberEnd;
-	const long number = std::strtol(begin, &numberEnd, 10);
-	if (begin == numberEnd || errno == ERANGE || numberEnd != end)
-		return (-1);
-
-	errno = errnoSave;
-	return (number);
-}
-
 int	Request::parseProtocol(const char *begin, const char *end)
 {
 	const char*		index;
@@ -55,11 +43,11 @@ int	Request::parseProtocol(const char *begin, const char *end)
 	const char*	delimiter = std::find(index, end, '.');
 	if (delimiter == end)
 		return (HTTP_BAD_REQUEST);
-	const long	major = parseProtocolNumber(index, delimiter);
-	if (major == -1)
+	const unsigned long	major = strToULongBase(index, delimiter, std::isdigit, 10);
+	if (major == (unsigned long)-1)
 		return (HTTP_BAD_REQUEST);
-	const long	minor = parseProtocolNumber(delimiter + 1, end);
-	if (minor == -1)
+	const unsigned long	minor = strToULongBase(delimiter + 1, end, std::isdigit, 10);
+	if (minor == (unsigned long)-1)
 		return (HTTP_BAD_REQUEST);
 	if (major != PROTOCOL_MAJOR || minor != PROTOCOL_MINOR)
 		return (HTTP_HTTP_VERSION_NOT_SUPPORTED);
@@ -93,30 +81,5 @@ int		Request::parseStatusLine(const char *line, const char *end)
 		if (code != HTTP_OK)
 			return (code);
 	}
-	return (HTTP_OK);
-}
-
-static char toLowerCase(char& c)
-{
-    return (std::tolower(c));
-}
-
-int		Request::parseHeader(const char *line, const char *end)
-{
-	if (std::distance(line, end) < 5)
-		return (HTTP_BAD_REQUEST);
-	const char * const keyEnd = std::find(line, end, ':');
-
-	if (keyEnd == end || *(keyEnd + 1) != ' ')
-		return (HTTP_BAD_REQUEST);
-
-	const char * const valueEnd = end - 1;
-	if (*valueEnd != '\r')
-		return (HTTP_BAD_REQUEST);
-	const std::string key(line, keyEnd);
-	const char * valuePosition = keyEnd + 2;
-	std::string value(valuePosition, valueEnd);
-	std::transform(value.begin(), value.end(), value.begin(), toLowerCase);
-	this->_headers[key] = value;
 	return (HTTP_OK);
 }

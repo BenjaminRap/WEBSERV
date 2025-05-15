@@ -1,6 +1,5 @@
 #include <algorithm>                // for find
 #include <cstdio>                   // for NULL
-#include <iostream>                 // for basic_ostream, operator<<, basic_ios
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, string, operator==
 #include <vector>                   // for vector
@@ -9,12 +8,16 @@
 #include "DeleteRequest.hpp"        // for DeleteRequest
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
+#include "Headers.hpp"              // for Headers
 #include "PutRequest.hpp"           // for PutRequest
-#include "Request.hpp"              // for Request, operator<<
+#include "Request.hpp"              // for Request
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"    // for HTTP_OK
+#include "SharedResource.hpp"       // for SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
+
+class EPollHandler;
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::string& host) const
 {
@@ -32,7 +35,11 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::str
 	return (_serverConfs[0]);
 }
 
-void	RequestHandler::processRequestResult(ARequestType &requestResult, Response &response, int socketFd)
+void	RequestHandler::processRequestResult
+(
+	ARequestType &requestResult,
+	Response &response
+)
 {
 	{
 		const int status = _request.setBodyFromHeaders(requestResult.getInFd(), requestResult.getConfig());
@@ -44,40 +51,40 @@ void	RequestHandler::processRequestResult(ARequestType &requestResult, Response 
 		}
 	}
 
-	response.setResponse(requestResult, socketFd);
+	response.setResponse(requestResult);
 	_state = REQUEST_BODY;
 }
 
 
-void	RequestHandler::executeRequest(Response &response, int socketFd)
+void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandler)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
 
-	const std::string* host = _request.getHeader("host");
+	const std::string* host = _request.getHeaders().getHeader("host");
 	if (host == NULL)
 	{
 		response.setResponse(HTTP_BAD_REQUEST);
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const ServerConfiguration	serverConfiguration = getServerConfiguration(*host);
+	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
 	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, *host);
-			processRequestResult(getRequest, response, socketFd);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
+			processRequestResult(getRequest, response);
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, *host);
-			processRequestResult(putRequest, response, socketFd);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
+			processRequestResult(putRequest, response);
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, *host);
-			processRequestResult(deleteRequest, response, socketFd);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
+			processRequestResult(deleteRequest, response);
 			break;
 		}
 		default:
