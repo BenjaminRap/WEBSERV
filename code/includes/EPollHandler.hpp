@@ -99,7 +99,7 @@ public:
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
 	 * is the result of epoll_wait or epollWaitForEvent function.
 	 */
-	void	callSocketCallback(size_t eventIndex) const;
+	bool	callSocketsCallback(void);
 	/**
 	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
 	 * delete the socket at the host.sun_path, recreate a socket and add the socket
@@ -114,7 +114,7 @@ public:
 	 * remove it from The _socketsData list.
 	 * @param fd The fd of the socket to close.
 	 */
-	void	closeFdAndRemoveFromEpoll(int fd);
+	void	closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex);
 	/**
 	 * @brief Removes an AFdData from the _socketsData list and delete it.
 	 * @note The function doesn't have to removed it from the interest list

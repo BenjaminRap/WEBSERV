@@ -16,13 +16,7 @@ void	handleIOEvents(const Configuration &conf)
 	createAllServerSockets(conf, ePollHandler);
 	while (getSignalStatus() == NO_SIGNAL)
 	{
-		const int	nfds = ePollHandler.epollWaitForEvent(); 
-
-		if (nfds == -1)
+		if (!ePollHandler.callSocketsCallback())
 			break ;
-		for (int i = 0; i < nfds; i++)
-		{
-			ePollHandler.callSocketCallback(i);
-		}
 	}
 }

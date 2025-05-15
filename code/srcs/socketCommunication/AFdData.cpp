@@ -12,7 +12,8 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 	_fd(fd),
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
-	_type(type)
+	_type(type),
+	_eventIndex(-1)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
@@ -27,7 +28,8 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 AFdData::AFdData(int fd, AFdDataChilds type) :
 	_fd(fd),
 	_ePollHandler(NULL),
-	_type(type)
+	_type(type),
+	_eventIndex(-1)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
@@ -39,7 +41,7 @@ AFdData::AFdData(int fd, AFdDataChilds type) :
 AFdData::~AFdData(void)
 {
 	if (_ePollHandler != NULL)
-		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
+		_ePollHandler->closeFdAndRemoveFromEpoll(_fd, _eventIndex);
 	else if (_fd > 0)
 		closeFdAndPrintError(_fd);
 }
@@ -62,4 +64,9 @@ bool	AFdData::getIsActive(void) const
 AFdDataChilds	AFdData::getType(void) const
 {
 	return (_type);
+}
+
+void	AFdData::setEventIndex(ssize_t eventIndex)
+{
+	_eventIndex = eventIndex;
 }

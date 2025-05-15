@@ -2,6 +2,7 @@
 # define A_FD_DATA_HPP
 
 # include <stdint.h>	// for uint32_t
+# include <sys/types.h>	// for ssize_t
 
 class EPollHandler;
 
@@ -40,6 +41,7 @@ protected:
 	 */
 	bool			_isActive;
 	AFdDataChilds	_type;
+	ssize_t			_eventIndex;
 
 	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);
 	AFdData(int fd, AFdDataChilds type);
@@ -64,6 +66,7 @@ public:
 	bool			getIsBlocking(void) const;
 	bool			getIsActive(void) const;
 	AFdDataChilds	getType(void) const;
+	void			setEventIndex(ssize_t eventIndex);
 };
 
 #endif // !A_FD_DATA_HPP

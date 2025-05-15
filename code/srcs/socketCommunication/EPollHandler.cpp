@@ -70,10 +70,12 @@ EPollHandler::~EPollHandler()
 	}
 }
 
-void	EPollHandler::closeFdAndRemoveFromEpoll(int fd)
+void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
 {
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	closeFdAndPrintError(fd);
+	if (eventIndex != -1)
+		_events[eventIndex].data.ptr = NULL;
 }
 
 int	EPollHandler::epollWaitForEvent()
@@ -87,19 +89,32 @@ int	EPollHandler::epollWaitForEvent()
 	return (nfds);
 }
 
-void	EPollHandler::callSocketCallback(size_t eventIndex) const
+bool	EPollHandler::callSocketsCallback(void)
 {
-	if (eventIndex >= _eventsCount)
-	{
-		std::cerr << "EPollHandler callSocketCallback method was called with a wrong index" << std::endl;
-		return ;
-	}
-	const epoll_event&	fdEvent = _events[eventIndex];
-	if (fdEvent.data.ptr == NULL)
-		return ;
-	AFdData	*fdData = static_cast<AFdData *>(fdEvent.data.ptr);
+	const ssize_t	nfds = epollWaitForEvent();
 
-	fdData->callback(fdEvent.events);
+	if (nfds == -1)
+		return (false);
+
+	for (ssize_t i = 0; i < nfds; i++)
+	{
+		static_cast<AFdData *>(_events[i].data.ptr)->setEventIndex(i);
+	}
+	for (ssize_t i = 0; i < nfds; i++)
+	{
+		const epoll_event&	fdEvent = _events[i];
+		if (fdEvent.data.ptr == NULL)
+			continue ;
+		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
+	}
+	for (ssize_t i = 0; i < nfds; i++)
+	{
+		const epoll_event&	fdEvent = _events[i];
+		if (fdEvent.data.ptr == NULL)
+			continue ;
+		static_cast<AFdData *>(fdEvent.data.ptr)->setEventIndex(-1);
+	}
+	return (true);
 }
 
 int	EPollHandler::bindFdToHost(int fd, const Host& host)
