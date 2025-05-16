@@ -10,6 +10,8 @@
 
 # define REQUEST_BUFFER_SIZE 1024
 
+# define MAX_AGE_COOKIE_SEC "86400" // 86400 seconds = 24h
+
 /**
  * @enum RequestState
  * @brief As the request can be sent in multiples blocks,
@@ -121,6 +123,9 @@ private:
 	 * request.
 	 *
 	 */
+
+	void						handleCookie(Headers &headers_response, const ServerConfiguration &serverConfiguration);
+
 	void						processRequestResult
 	(
 		ARequestType& request,

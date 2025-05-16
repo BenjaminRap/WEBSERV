@@ -52,6 +52,18 @@ const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 	return (this->serverNames);
 }
 
+const std::string	&ServerConfiguration::getShortestServerName(void) const
+{
+	std::vector<std::string>::const_iterator serv = serverNames.begin();
+
+	for (std::vector<std::string>::const_iterator it = serverNames.begin() + 1; it != serverNames.end(); ++it)
+	{
+		if ((*it).size() < (*serv).size())
+			serv = it;
+	}
+	return (*serv);
+}
+
 const std::string	*ServerConfiguration::getErrorPage(uint16_t errorCode) const
 {
 	std::map<uint16_t, std::string>::const_iterator it = this->errorPages.find(errorCode);

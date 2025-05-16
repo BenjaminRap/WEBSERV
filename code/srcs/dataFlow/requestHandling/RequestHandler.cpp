@@ -1,6 +1,7 @@
 #include <exception>              // for exception
 #include <iostream>               // for basic_ostream, char_traits, operator<<
 #include <vector>                 // for vector
+#include <sstream>				  // for stringstream
 
 #include "Request.hpp"            // for operator<<, Request
 #include "RequestHandler.hpp"     // for RequestHandler, RequestState, REQUE...
@@ -57,4 +58,20 @@ void			RequestHandler::setNewRequest()
 bool		RequestHandler::isStateRequestBody(void)
 {
 	return (_state == REQUEST_BODY);
+}
+
+void						RequestHandler::handleCookie(Headers &headers_response, const ServerConfiguration &serverConfiguration)
+{
+	const std::string	*cookie = this->_request.getHeaders().getHeader("cookie");
+
+	if (cookie == NULL)
+	{
+		//generating an ID for the user
+		static unsigned int	i = 0;
+		std::ostringstream	oss;
+		oss << i;
+
+		headers_response.insert(std::make_pair("Set-Cookie", "MyBigCookie=" + oss.str() + "; Path=" + this->_request.getRequestTarget() + "; Mage-Age=" + MAX_AGE_COOKIE_SEC + "; Domain=" + serverConfiguration.getShortestServerName()));
+		i++;
+	}
 }

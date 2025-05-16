@@ -69,6 +69,7 @@ void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandl
 		return ;
 	}
 	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
+	handleCookie(response.getHeaders(), serverConfiguration);
 	std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
