@@ -103,10 +103,10 @@ private:
 	void		setErrorPage(const Status** currentStatus);
 	/**
 	 * @brief This method should be called when we can't read
-	 * from the cgi anymore. Depending on the state of this
+	 * from the cgi anymore because of an error. Depending on the state of this
 	 * instance, the behaviour changes.
 	 */
-	void		handleClosingCgi(void);
+	void		handleCgiError(void);
 	/**
 	 * @brief Read from the cgi and write it into the _flowBuf.
 	 * This method should only be called if a EPOLLIN  events has

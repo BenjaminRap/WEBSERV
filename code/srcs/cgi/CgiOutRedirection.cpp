@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stddef.h>               // for NULL, size_t
 #include <string>                 // for basic_string
 
@@ -6,15 +7,37 @@
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
 
+std::string	sizeTToString(size_t value);
+
 void	CgiOut::readFromCgi()
 {
-	if (_error || _state == FILE_TO_BUFFER)
+	if (_error || _state == FILE_TO_BUFFER || _state == DONE)
 		return ;
 	const FlowState flowState = _flowBuf.srcToBuff(getFd());
 
 	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
 		return ;
-	setFinished();
+	if (_state == READ_HEADER)
+	{
+		_code = HTTP_BAD_GATEWAY;
+		_error = true;
+		generateFirstPart();
+	}
+	else if (_state == CGI_TO_TEMP && flowState == FLOW_DONE)
+	{
+		delete _srcFile;
+		_srcFile = new FileFd(_tempName, O_RDONLY);
+		if (_srcFile == NULL)
+		{
+			_code = HTTP_INTERNAL_SERVER_ERROR;
+			_error = true;
+		}
+		else
+			_headers["content-length"] = sizeTToString(_srcFile->getSize());
+		generateFirstPart();
+	}
+	else
+		setFinished();
 }
 
 void	CgiOut::writeToTemp(void)

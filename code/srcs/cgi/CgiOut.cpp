@@ -48,27 +48,12 @@ void	CgiOut::setFinished(void)
 	_state = DONE;
 }
 
-std::string	sizeTToString(size_t value);
-
-void	CgiOut::handleClosingCgi()
+void	CgiOut::handleCgiError(void)
 {
 	if (_state == READ_HEADER)
 	{
 		_code = HTTP_BAD_GATEWAY;
 		_error = true;
-		generateFirstPart();
-	}
-	else if (_state == CGI_TO_TEMP)
-	{
-		delete _srcFile;
-		_srcFile = new FileFd(_tempName, O_RDONLY);
-		if (_srcFile == NULL)
-		{
-			_code = HTTP_INTERNAL_SERVER_ERROR;
-			_error = true;
-		}
-		else
-			_headers["content-length"] = sizeTToString(_srcFile->getSize());
 		generateFirstPart();
 	}
 	else
@@ -79,16 +64,23 @@ void	CgiOut::callback(uint32_t events)
 {
 	if (!_isActive || _state == DONE)
 		return ;
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-		handleClosingCgi();
-	if (events & EPOLLIN)
-		readFromCgi();
-	if (_state == READ_HEADER)
-		readHeaders();
-	if (_state == CGI_TO_TEMP)
-		writeToTemp();
-	if (_state == WRITE_FIRST_PART)
-		writeFirstPart();
-	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
-		writeToBuff();
+	if (events & EPOLLERR)
+	{
+		events = 0;
+		handleCgiError();
+	}
+	do
+	{
+		if (events & EPOLLIN)
+			readFromCgi();
+		if (_state == READ_HEADER)
+			readHeaders();
+		if (_state == CGI_TO_TEMP)
+			writeToTemp();
+		if (_state == WRITE_FIRST_PART)
+			writeFirstPart();
+		if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
+			writeToBuff();
+	}
+	while (_isActive && events & (EPOLLHUP | EPOLLRDHUP));
 }
