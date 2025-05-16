@@ -61,6 +61,13 @@ void	CgiOut::handleCgiError(void)
 		setFinished();
 }
 
+bool	CgiOut::isResponseReady(void) const
+{
+	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+		return (false);
+	return (true);
+}
+
 void	CgiOut::callback(uint32_t events)
 {
 	if (!_canWrite && !events)

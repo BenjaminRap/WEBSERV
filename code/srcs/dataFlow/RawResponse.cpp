@@ -3,6 +3,7 @@
 #include <string>              // for basic_string, string
 
 #include "AFdData.hpp"         // for AFdData, AFdDataChilds
+#include "CgiOut.hpp"
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
 #include "Headers.hpp"         // for operator+=, Headers, LINE_END, LINE_EN...
 #include "RawResponse.hpp"     // for RawResponse
@@ -86,6 +87,15 @@ void	setFirstPart
 		result.append(status.getErrorPage());
 }
 
+bool	canWriteFromBuffer(const AFdData* fdData)
+{
+	if (fdData->getType() != CGI_OUT)
+		return (true);
+	const CgiOut * const	cgiOut = static_cast<const CgiOut*>(fdData);
+
+	return (cgiOut->isResponseReady());
+}
+
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
 {
 	const bool	hasBody = _fdData.isManagingValue();
@@ -105,6 +115,8 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	fdData->callback(0);
 	if (fdData->getIsBlocking())
 	{
+		if (!canWriteFromBuffer(fdData))
+			return (FLOW_MORE);
 		const FlowState flowState = _flowBuf.buffToDest(socketFd);
 
 		if (fdData->getIsActive() && flowState == FLOW_DONE)

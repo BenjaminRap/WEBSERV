@@ -147,7 +147,8 @@ public:
 	);
 	~CgiOut();
 
-	void	callback(uint32_t events);
+	void		callback(uint32_t events);
+	bool		isResponseReady(void) const;
 };
 
 #endif // !CGI_OUT_HPP
