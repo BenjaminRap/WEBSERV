@@ -58,6 +58,7 @@ private:
 	uint16_t					_code;
 	bool						_error;
 	const ServerConfiguration&	_serverConf;
+	bool						_canWrite;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);

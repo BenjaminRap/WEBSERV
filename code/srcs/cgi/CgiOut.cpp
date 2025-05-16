@@ -31,7 +31,8 @@ CgiOut::CgiOut
 	_state(READ_HEADER),
 	_code(0),
 	_error(false),
-	_serverConf(serverConfiguration)
+	_serverConf(serverConfiguration),
+	_canWrite(false)
 {
 	_tempName[0] = '\0';
 }
@@ -62,25 +63,23 @@ void	CgiOut::handleCgiError(void)
 
 void	CgiOut::callback(uint32_t events)
 {
-	if (!_isActive || _state == DONE)
+	if (!_canWrite && !events)
+		_canWrite = true;
+	if (!_isActive || _state == DONE || !_canWrite)
 		return ;
 	if (events & EPOLLERR)
 	{
 		events = 0;
 		handleCgiError();
 	}
-	do
-	{
-		if (events & EPOLLIN)
-			readFromCgi();
-		if (_state == READ_HEADER)
-			readHeaders();
-		if (_state == CGI_TO_TEMP)
-			writeToTemp();
-		if (_state == WRITE_FIRST_PART)
-			writeFirstPart();
-		if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
-			writeToBuff();
-	}
-	while (_isActive && events & (EPOLLHUP | EPOLLRDHUP));
+	if (events & EPOLLIN)
+		readFromCgi();
+	if (_state == READ_HEADER)
+		readHeaders();
+	if (_state == CGI_TO_TEMP)
+		writeToTemp();
+	if (_state == WRITE_FIRST_PART)
+		writeFirstPart();
+	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
+		writeToBuff();
 }
