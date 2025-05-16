@@ -103,17 +103,14 @@ void		CgiOut::readHeaders(void)
 	char	*begin;
 	char	*end;
 
+	_code = HTTP_OK;
 	while (_flowBuf.getLine(&begin, &end))
 	{
 		if (end == begin + 1 && *begin == '\r')
 		{
 			_code = checkHeaders();
 			if (_code != HTTP_OK)
-			{
-				_error = true;
-				generateFirstPart();
-				return ;
-			}
+				break ;
 			_code = getStatusCode();
 			if (_state != CGI_TO_TEMP || _error)
 				generateFirstPart();
@@ -121,10 +118,13 @@ void		CgiOut::readHeaders(void)
 		}
 		_code = _headers.parseHeader(begin, end);
 		if (_code != HTTP_OK)
-		{
-			_error = true;
-			generateFirstPart();
-			return ;
-		}
+			break ;
+	}
+	if (_flowBuf.isBufferFull())
+		_code = HTTP_BAD_GATEWAY;
+	if (_code != HTTP_OK)
+	{
+		_error = true;
+		generateFirstPart();
 	}
 }
