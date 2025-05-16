@@ -85,7 +85,8 @@ void	insertHost
 	std::map<std::string, Route> &routes,
 	std::string &root,
 	ip_t &ip,
-	std::vector<std::string> &index
+	std::vector<std::string> &index,
+	std::string	&cookiePath
 )
 {
 	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
@@ -96,7 +97,7 @@ void	insertHost
 			{
 				if (it->first.ipv4.begin()->first == itt->first && it->first.ipv4.begin()->second == itt->second)
 				{
-					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index, cookiePath));
 					std::map<in_addr_t, in_port_t>::iterator temp = itt;
 					++itt;
 					ip.ipv4.erase(temp);
@@ -111,7 +112,7 @@ void	insertHost
 			{
 				if (it->first.ipv6.begin()->first == itt->first && it->first.ipv6.begin()->second == itt->second)
 				{
-					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index, cookiePath));
 					std::map<ipv6_t, in_port_t>::iterator temp = itt;
 					++itt;
 					ip.ipv6.erase(temp);
@@ -126,7 +127,7 @@ void	insertHost
 			{
 				if (it->first.unix_adrr[0] == *itt)
 				{
-					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index, cookiePath));
 					std::vector<std::string>::iterator temp = itt;
 					++itt;
 					ip.unix_adrr.erase(temp);
@@ -141,7 +142,7 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
-		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index, cookiePath));
 		temp.ipv4.insert(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}
@@ -150,7 +151,7 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
-		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index, cookiePath));
 		temp.ipv6.insert(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}
@@ -159,7 +160,7 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
-		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index, cookiePath));
 		temp.unix_adrr.push_back(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}

@@ -67,6 +67,7 @@ void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port);
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
 void	parseServerName(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames);
 void	parseErrorPages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages);
+void	parseCookiePath(std::string &file, size_t &i, size_t &line, std::string &cookiePath);
 void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes);
 void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root);
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index);
@@ -77,6 +78,6 @@ void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std:
 void	readfile(const char *path, std::string &buff);
 void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index);
+std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index, std::string &cookiePath);
 
 #endif

@@ -16,7 +16,8 @@ ServerConfiguration::ServerConfiguration
 	const size_t &maxClientBodySize,
 	const std::map<std::string, Route> &routes,
 	const std::string &root,
-	const std::vector<std::string> &index
+	const std::vector<std::string> &index,
+	const std::string &cookiePath
 ) :
 	serverNames(serverNames),
 	errorPages(errorPages),
@@ -115,6 +116,11 @@ const std::string	ServerConfiguration::getLocation(const std::string &path) cons
 const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 {
 	return (this->index);
+}
+
+const std::string	&ServerConfiguration::getCookiePath(void) const
+{
+	return (this->cookiePath);
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)

@@ -62,6 +62,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	std::string								root;
 	ip_t									ip;
 	std::vector<std::string>				index;
+	std::string								cookiePath;
 
 	while (i < file.size() && file[i] != '}')
 	{
@@ -103,6 +104,11 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 			i += 5;
 			parseRouteIndex(file, i, line, index);
 		}
+		else if (!file.compare(i, 11, "cookie_path"))
+		{
+			i += 11;
+			parseCookiePath(file, i, line, cookiePath);
+		}
 		else if (file[i] != '}')
 			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
@@ -114,7 +120,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (CustomException("Missing host"));
-	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
+	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index, cookiePath);
 }
 
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
@@ -189,4 +195,17 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
+}
+
+void	parseCookiePath(std::string &file, size_t &i, size_t &line, std::string &cookiePath)
+{
+	if (!cookiePath.empty())
+		throw (CustomLineException("Multiple definition of cookie_path", line));
+	skipWSpace(file, i, line);
+	cookiePath = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i = file.find_first_of(SEP_WSPACE, i);
+	skipWSpace(file, i, line);
+	if (file[i] != ';')
+		throw (CustomLineException("Missing semi-colon", line));
+	i++; 
 }

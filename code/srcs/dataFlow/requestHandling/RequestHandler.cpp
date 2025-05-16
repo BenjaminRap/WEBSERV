@@ -62,8 +62,11 @@ bool		RequestHandler::isStateRequestBody(void)
 
 void						RequestHandler::handleCookie(Headers &headers_response, const ServerConfiguration &serverConfiguration)
 {
-	const std::string	*cookie = this->_request.getHeaders().getHeader("cookie");
+	const std::string	&path = serverConfiguration.getCookiePath();
+	if (path.empty())
+		return ;
 
+	const std::string	*cookie = this->_request.getHeaders().getHeader("cookie");
 	if (cookie == NULL)
 	{
 		//generating an ID for the user
@@ -71,7 +74,9 @@ void						RequestHandler::handleCookie(Headers &headers_response, const ServerCo
 		std::ostringstream	oss;
 		oss << i;
 
-		headers_response.insert(std::make_pair("Set-Cookie", "MyBigCookie=" + oss.str() + "; Path=" + this->_request.getRequestTarget() + "; Mage-Age=" + MAX_AGE_COOKIE_SEC + "; Domain=" + serverConfiguration.getShortestServerName()));
+		headers_response.insert(std::make_pair("Set-Cookie", "MyBigCookie=" + oss.str() + "; Path=" + path + "; Mage-Age=" + MAX_AGE_COOKIE_SEC + "; Domain=" + serverConfiguration.getShortestServerName()));
 		i++;
 	}
+	else
+		return ;
 }

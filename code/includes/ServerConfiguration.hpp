@@ -26,7 +26,8 @@ public :
 		const size_t &maxClientBodySize,
 		const std::map<std::string, Route> &routes,
 		const std::string &root,
-		const std::vector<std::string> &index
+		const std::vector<std::string> &index,
+		const std::string	&cookiePath
 	);
 	ServerConfiguration(ServerConfiguration const &src);
 	~ServerConfiguration(void);
@@ -41,6 +42,7 @@ public :
 	const Route*								getRouteFromPath(const std::string &path) const;
 	const std::string							getLocation(const std::string &loc) const;
 	const std::vector<std::string>&				getIndex(void) const;
+	const std::string&							getCookiePath(void) const;
 
 private :
 	/**
@@ -75,6 +77,8 @@ private :
 	 * page that will be shown if the user ask for a folder.
 	 */
 	std::vector<std::string>				index;
+	//Specify cookiePath to activate the cookie session management on your server, giving acces cookies the path
+	std::string								cookiePath;
 
 	ServerConfiguration(void);
 	ServerConfiguration    &operator=(ServerConfiguration const &src);
