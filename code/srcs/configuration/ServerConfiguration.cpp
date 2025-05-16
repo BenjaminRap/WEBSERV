@@ -24,7 +24,8 @@ ServerConfiguration::ServerConfiguration
 	maxClientBodySize(maxClientBodySize),
 	routes(routes),
 	root(root),
-	index(index)
+	index(index),
+	cookiePath(cookiePath)
 {
 }
 
