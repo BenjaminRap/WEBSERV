@@ -62,6 +62,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	std::string								root;
 	ip_t									ip;
 	std::vector<std::string>				index;
+	std::map< std::string, std::map< std::string, std::map< bool, Route * > > >	addHeader;
 
 	while (i < file.size() && file[i] != '}')
 	{
@@ -91,7 +92,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 		else if (!file.compare(i, 8, "location"))
 		{
 			i += 8;
-			parseRoute(file, i, line, routes);
+			parseRoute(file, i, line, routes, addHeader);
 		}
 		else if (!file.compare(i, 4, "root"))
 		{
@@ -102,6 +103,11 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 		{
 			i += 5;
 			parseRouteIndex(file, i, line, index);
+		}
+		else if (!file.compare(i, 10, "add_header"))
+		{
+			i += 10;
+			parseAddHeader(file, i, line, addHeader, NULL);
 		}
 		else if (file[i] != '}')
 			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
@@ -114,7 +120,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (CustomException("Missing host"));
-	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
+	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index, addHeader);
 }
 
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
@@ -189,4 +195,27 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 	if (file[i] != ';')
 		throw (CustomLineException("Missing semi-colon", line));
 	i++;
+}
+
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::string, std::map< std::string, std::map< bool, Route * > > > addHeader, Route *route)
+{
+	std::string	title;
+	std::string	value;
+	bool		always = 0;
+
+	skipWSpace(file, i, line);
+	title = file.substr(i, file.find_first_of(WSPACE, i) - i);
+	i = file.find_first_of(WSPACE, i);
+	skipWSpace(file, i, line);
+	value = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i = file.find_first_of(SEP_WSPACE, i);
+	skipWSpace(file, i, line);
+	if (file[i] != ';')
+	{
+		if (!file.compare(i, 6, "always"))
+			always = true;
+		else
+			throw (CustomKeyWordAndLineException("Unexpected keyword", i, file.substr(i, file.find_first_of(SEP_WSPACE, i) - i)));
+	}
+	addHeader[title][value][always] = route;
 }

@@ -16,14 +16,16 @@ ServerConfiguration::ServerConfiguration
 	const size_t &maxClientBodySize,
 	const std::map<std::string, Route> &routes,
 	const std::string &root,
-	const std::vector<std::string> &index
+	const std::vector<std::string> &index,
+	const std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader
 ) :
 	serverNames(serverNames),
 	errorPages(errorPages),
 	maxClientBodySize(maxClientBodySize),
 	routes(routes),
 	root(root),
-	index(index)
+	index(index),
+	addHeader(addHeader)
 {
 }
 
@@ -103,6 +105,11 @@ const std::string	ServerConfiguration::getLocation(const std::string &path) cons
 const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 {
 	return (this->index);
+}
+
+const std::map< std::string, std::map< std::string, std::map< bool, Route * > > >&	ServerConfiguration::getAddHeader(void) const
+{
+	return (this->addHeader);
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
