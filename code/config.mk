@@ -68,5 +68,6 @@ CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 UTILS_DIR				:=	utils/
 UTILS_FILES				:=	conversion.cpp			\
 							EMethods.cpp			\
-							closeAndPrintError.cpp
+							closeAndPrintError.cpp	\
+							processAddHeader.cpp
 UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))

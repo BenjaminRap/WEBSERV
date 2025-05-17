@@ -67,16 +67,18 @@ void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port);
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
 void	parseServerName(std::string &file, size_t &i, size_t &line, std::vector<std::string> &serverNames);
 void	parseErrorPages(std::string &file, size_t &i, size_t &line, std::map<unsigned short, std::string> &errorPages);
-void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes);
+void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes, std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader);
 void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root);
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index);
 void	parseRouteIndex(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index);
 void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);
 void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
 void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention);
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::string, std::map< std::string, std::map< bool, Route * > > > addHeader, Route *route);
 void	readfile(const char *path, std::string &buff);
 void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index);
+std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index, \
+std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader);
 
 #endif

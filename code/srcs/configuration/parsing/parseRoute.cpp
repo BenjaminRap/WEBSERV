@@ -9,7 +9,7 @@
 #include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
 #include "parsing.hpp"    // for skip_wspace, WSPACE, SEP_WSPACE, SEP_WSPACE...
 
-void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
+void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes, std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader)
 {
 	std::vector<EMethods>		acceptedMethods;
 	std::vector<std::string>	index;
@@ -18,6 +18,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	std::string					root;
 	bool						auto_index = 0;
 	std::string					cgiFileExtension;
+	int							nb_header = 0;
 
 	redirection.responseStatusCode = 0;
 	skipWSpace(file, i, line);
@@ -62,6 +63,12 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 			i += 13;
 			parseRouteCgiFileExtension(file, i, line, cgiFileExtension);
 		}
+		else if (!file.compare(i, 10, "add_header"))
+		{
+			i += 10;
+			parseAddHeader(file, i, line, addHeader, NULL);
+			nb_header++;
+		}
 		else if (file[i] == '#')
 			skipLine(file, i, line);
 		else if (file[i] != '}')
@@ -79,6 +86,11 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		acceptedMethods.push_back(POST);
 	}
 	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension)));
+	for (std::map< std::string, std::map< std::string, std::map< bool, Route * > > >::reverse_iterator it = \
+	addHeader.rbegin(); nb_header != 0; nb_header--, --it)
+	{
+		it->second.begin()->second.begin()->second = &routes.rbegin()->second;
+	}
 }
 
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)
