@@ -207,15 +207,24 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::s
 	title = file.substr(i, file.find_first_of(WSPACE, i) - i);
 	i = file.find_first_of(WSPACE, i);
 	skipWSpace(file, i, line);
-	value = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
-	i = file.find_first_of(SEP_WSPACE, i);
+	if (file[i] != '"')
+		throw (CustomKeyWordAndLineException("Unexpected keyword", i, file.substr(i, file.find_first_of(SEP_WSPACE, i) - i)));
+	i++;
+	value = file.substr(i, file.find('"') - i);
+	i = file.find('"') + 1;
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
 	{
 		if (!file.compare(i, 6, "always"))
+		{
 			always = true;
+			skipWSpace(file, i, line);
+			if (file[i] != ';')
+				throw (CustomLineException("Missing semi-colon", line));
+
+		}
 		else
-			throw (CustomKeyWordAndLineException("Unexpected keyword", i, file.substr(i, file.find_first_of(SEP_WSPACE, i) - i)));
+			throw (CustomLineException("Missing semi-colon", line));
 	}
 	addHeader[title][value][always] = route;
 }
