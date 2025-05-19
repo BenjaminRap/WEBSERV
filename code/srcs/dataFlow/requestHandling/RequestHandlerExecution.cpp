@@ -15,6 +15,7 @@
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
+#include "Status.hpp"
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
 
 class EPollHandler;
@@ -79,5 +80,8 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		default:
 			throw std::logic_error("executeRequest called with a request method invalid !");
 	}
-	_state = REQUEST_BODY;
+	if (response.getStatus()->isOfType(STATUS_ERROR))
+		_state = REQUEST_DONE;
+	else
+		_state = REQUEST_BODY;
 }
