@@ -143,9 +143,11 @@ void		CgiOut::readHeaders(void)
 				generateFirstPart();
 			return ;
 		}
-		_code = _headers.parseHeader(begin, end);
-		if (_code != HTTP_OK)
+		if (_headers.parseHeader(begin, end) != HTTP_OK)
+		{
+			_code = HTTP_BAD_GATEWAY;
 			break ;
+		}
 	}
 	if (_flowBuf.isBufferFull())
 		_code = HTTP_BAD_GATEWAY;
