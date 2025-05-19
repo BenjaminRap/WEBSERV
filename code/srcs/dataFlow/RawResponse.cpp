@@ -14,7 +14,7 @@
 /*************************Constructors / Destructors***************************/
 
 
-void	setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers, bool hasBody);
+std::string&	getFirstPart(const Status& status, const Headers& headers, const char* bodyBegin, const char* bodyEnd);
 
 RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(),
@@ -31,8 +31,32 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
-	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders(), _fdData.isManagingValue());
+	const char*	bodyBegin;
+	const char*	bodyEnd;
+
+	if (_fdData.isManagingValue())
+	{
+		bodyBegin = NULL;
+		bodyEnd = NULL;
+	}
+	else if (status->isOfType(STATUS_ERROR))
+	{
+		const std::string&	errorPage = status->getErrorPage();
+
+		bodyBegin = errorPage.c_str();
+		bodyEnd = bodyBegin + errorPage.size();
+	}
+	else
+	{
+		const std::string&	autoIndexPage = response.getAutoIndexPage();
+
+		bodyBegin = autoIndexPage.c_str();
+		bodyEnd = bodyBegin + autoIndexPage.size();
+	}
+
+	_firstPart = getFirstPart(*status, response.getHeaders(), bodyBegin, bodyEnd);
 	_firstPartBuffer.setBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity());
+	std::cout << _firstPart << std::endl;
 }
 
 RawResponse::~RawResponse()
@@ -43,10 +67,10 @@ RawResponse::~RawResponse()
 
 static size_t	getFirstPartLength
 (
-	const Headers& headers,
 	const Status& status,
-	size_t autoIndexPageSize,
-	bool hasBody
+	const Headers& headers,
+	const char* bodyBegin,
+	const char* bodyEnd
 )
 {
 	size_t										length = 0;
@@ -55,36 +79,30 @@ static size_t	getFirstPartLength
 	length += headers.getTotalSize();
 	length += LINE_END_LENGTH; // for the empty line
 	length += 1; // for the /0
-	if (hasBody)
-		return (length);
-	if (status.isOfType(STATUS_SUCESSFULL))
-		length += autoIndexPageSize;
-	else if (status.isOfType(STATUS_ERROR))
-		length += status.getErrorPage().size();
+	if (bodyBegin != NULL && bodyEnd != NULL)
+		length += std::distance(bodyBegin, bodyEnd);
 	return (length);
 }
 
-void	setFirstPart
+std::string&	getFirstPart
 (
-	std::string& result,
 	const Status& status,
-	const std::string& autoIndexPage,
 	const Headers& headers,
-	bool hasBody
+	const char* bodyBegin,
+	const char* bodyEnd
 )
 {
-	const size_t								length = getFirstPartLength(headers, status, autoIndexPage.size(), hasBody);
+	static std::string	result;
+	const size_t								length = getFirstPartLength(status, headers, bodyBegin, bodyEnd);
 
+	result.clear();
 	result.reserve(length);
 	result += status.getRepresentation();
 	result += headers;
 	result.append(LINE_END);
-	if (hasBody)
-		return ;
-	if (status.isOfType(STATUS_SUCESSFULL))
-		result.append(autoIndexPage);
-	else if (status.isOfType(STATUS_ERROR))
-		result.append(status.getErrorPage());
+	if (bodyBegin != NULL && bodyEnd != NULL)
+		result.append(bodyBegin, bodyEnd);
+	return (result);
 }
 
 bool	canWriteFromBuffer(const AFdData* fdData)
