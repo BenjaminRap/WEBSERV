@@ -5,7 +5,10 @@ import { webservUrl } from "./hosts.mjs"
 async function	runGoodGgiTest(target, method, body, headers)
 {
 	const response = await makeRequest(webservUrl + target, method, body, headers);
-	console.log(response);
+	console.log(response.status);
+	console.log(response.statusText);
+	console.log(response.headers);
+	console.log(await response.text());
 }
 
 async function runTests()
