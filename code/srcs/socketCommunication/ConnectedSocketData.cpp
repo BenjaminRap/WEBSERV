@@ -52,14 +52,14 @@ RequestState	ConnectedSocketData::processRequest(void)
 
 	if (_requestHandler.isStateRequestBody())
 	{
-		requestState = _requestHandler.redirectBody(_fd, currentResponse, true);
+		requestState = _requestHandler.redirectBody(&_fd, currentResponse);
 	}
 	else
 	{
 		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
-			requestState = _requestHandler.readRequest(_fd, _requestContext);
+			requestState = _requestHandler.readRequest(_requestContext);
 	}
 	requestState = readNextRequests(currentResponse, requestState);
 	return (requestState);
@@ -83,7 +83,7 @@ RequestState	ConnectedSocketData::readNextRequests
 			_closing = true;
 			return (requestState);
 		}
-		requestState = _requestHandler.readRequest(_fd, _requestContext);
+		requestState = _requestHandler.readRequest(_requestContext);
 	}
 	return (requestState);
 }

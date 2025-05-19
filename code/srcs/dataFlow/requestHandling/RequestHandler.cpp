@@ -28,7 +28,7 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(int socketFd, RequestContext& requestContext)
+RequestState			RequestHandler::readRequest(RequestContext& requestContext)
 {
 	Response&	response = requestContext.response;
 
@@ -37,7 +37,7 @@ RequestState			RequestHandler::readRequest(int socketFd, RequestContext& request
 		readStatusLine(response);
 		readHeaders(response);
 		executeRequest(response, requestContext);
-		redirectBody(socketFd, response, false);
+		redirectBody(NULL, response);
 	}
 	catch (const std::exception& exception)
 	{

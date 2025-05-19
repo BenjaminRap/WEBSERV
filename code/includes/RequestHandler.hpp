@@ -130,13 +130,13 @@ public:
 	 * @param canRead Can this function read from the socketFd.
 	 * @return 
 	 */
-	RequestState				redirectBody(int socketFd, Response &response, bool canRead);
+	RequestState				redirectBody(const int* socketFd, Response &response);
 	/**
 	 * @brief Read and handle the execution of the request
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(int socketFd, RequestContext& requestContext);
+	RequestState				readRequest(RequestContext& requestContext);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *
