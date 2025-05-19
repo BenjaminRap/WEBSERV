@@ -1,8 +1,8 @@
+#include <cstring>
 #include <fcntl.h>      // for open, O_CREAT, O_EXCL, O_RDONLY, O_WRONLY
 #include <stdint.h>     // for uint32_t
 #include <sys/types.h>  // for ssize_t, mode_t
 #include <cstdio>       // for tmpnam, NULL, L_tmpnam, size_t
-#include <new>          // for nothrow
 #include <string>       // for string, basic_string
 
 #include "AFdData.hpp"  // for AFdData, AFdDataChilds
@@ -69,14 +69,16 @@ size_t	FileFd::getSize(void) const
 }
 
 
-FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam], int rights)
+FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam])
 {
-	if (rights != O_RDONLY || rights != O_WRONLY)
-		return (NULL);
 	if (!std::tmpnam(name))
 		return (NULL);
-	FileFd*	tempFile = new (std::nothrow) FileFd(name, rights);
-	if (tempFile != NULL)
-		std::remove((name));
-	return (tempFile);
+	try
+	{
+		return (new FileFd(name, O_WRONLY | O_CREAT | O_EXCL));
+	}
+	catch (FileFd::FileOpeningError& e)
+	{
+		return (NULL);
+	}
 }
