@@ -53,6 +53,8 @@ void	CgiIn::callback(uint32_t events)
 		setFinished(HTTP_BAD_GATEWAY);
 		return ;
 	}
+	if (!(events & EPOLLIN))
+		return ;
 	const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
 
 	const uint16_t	code = getCodeIfFinished(true, flowState, _body);
