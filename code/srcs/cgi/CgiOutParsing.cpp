@@ -56,12 +56,12 @@ uint16_t	CgiOut::getStatusCode(void)
 		char	*end;
 		const unsigned long	code = std::strtoul(status->c_str(), &end, 10);
 
-		_headers.erase("status");
-		if (end != status->c_str() + 2 || code < 100 || code >= 600)
+		if (end != status->c_str() + 3 || code < 100 || code >= 600)
 		{
 			_error = true;
 			return (HTTP_BAD_GATEWAY);
 		}
+		_headers.erase("status");
 		return (code);
 	}
 	if (_headers.getHeader("Location") != NULL)
