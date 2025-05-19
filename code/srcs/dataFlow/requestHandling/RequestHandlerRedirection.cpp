@@ -12,8 +12,7 @@
 static FlowState	redirect
 (
 	const int* srcFd,
-	ABody& destBody,
-	AFdData& fdData,
+	ABody* destBody,
 	bool canWrite,
 	FlowBuffer &flowBuf
 )
@@ -25,12 +24,11 @@ static FlowState	redirect
 	if (canRead && !canWrite)
 		flowState = flowBuf.srcToBuff<int>(*srcFd);
 	else if (!canRead && canWrite)
-		flowState = flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd);
+		flowState = flowBuf.buffToDest<ABody&>(*destBody, ABody::writeToFd);
 	else if (canRead && canWrite)
-		flowState = flowBuf.redirect<int, ABody&>(*srcFd, destBody, ABody::writeToFd);
+		flowState = flowBuf.redirect<int, ABody&>(*srcFd, *destBody, ABody::writeToFd);
 	else
 		flowState = FLOW_MORE;
-	fdData.callback(0);
 	return (flowState);
 }
 
@@ -56,14 +54,14 @@ RequestState	RequestHandler::redirectBody(const int* socketFd, Response &respons
 	ABody * const	body = _request.getBody();
 	AFdData * const	fdData = _request.getFdData();
 	
-	if (body == NULL || fdData == NULL)
+	if (body == NULL)
 	{
 		_state = REQUEST_DONE;
 		return (REQUEST_DONE);
 	}
 
-	const bool		canWrite = fdData->getIsBlocking() == false;
-	const FlowState	flowState = redirect(socketFd, *body, *fdData, canWrite, _requestBuf);
+	const bool		canWrite = (!fdData || !fdData->getIsBlocking());
+	const FlowState	flowState = redirect(socketFd, body, canWrite, _requestBuf);
 	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
 
 	if (code == 0)
