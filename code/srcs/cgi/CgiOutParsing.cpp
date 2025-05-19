@@ -64,7 +64,7 @@ uint16_t	CgiOut::getStatusCode(void)
 		_headers.erase("status");
 		return (code);
 	}
-	if (_headers.getHeader("Location") != NULL)
+	if (_headers.getHeader("location") != NULL)
 		return (HTTP_FOUND);
 	return (HTTP_OK);
 }
