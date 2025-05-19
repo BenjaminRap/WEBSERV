@@ -2,12 +2,11 @@
 #include <stdint.h>               // for uint32_t
 #include <sys/epoll.h>            // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOLLR...
 #include <cstdio>                 // for NULL, remove, size_t
-#include <map>                    // for map
 #include <string>                 // for basic_string, string
 
 #include "AFdData.hpp"            // for AFdData, AFdDataChilds
 #include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
-#include "FileFd.hpp"             // for FileFd
+#include "FlowBuffer.hpp"
 #include "Headers.hpp"            // for Headers
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_SER...
 
@@ -32,13 +31,16 @@ CgiOut::CgiOut
 	_code(0),
 	_error(false),
 	_serverConf(serverConfiguration),
-	_canWrite(false)
+	_canWrite(false),
+	_cgiReadFinished(false)
 {
 	_tempName[0] = '\0';
 }
 
 CgiOut::~CgiOut()
 {
+	if (_tempName[0] != '\0')
+		std::remove(_tempName);
 	if (_srcFile != NULL)
 		delete _srcFile;
 }
@@ -49,8 +51,9 @@ void	CgiOut::setFinished(void)
 	_state = DONE;
 }
 
-void	CgiOut::handleCgiError(void)
+void	CgiOut::handleCgiError(uint32_t& events)
 {
+	events = 0;
 	if (_state == READ_HEADER)
 	{
 		_code = HTTP_BAD_GATEWAY;
@@ -72,14 +75,13 @@ void	CgiOut::callback(uint32_t events)
 {
 	if (!_canWrite && !events)
 		_canWrite = true;
-	if (!_isActive || _state == DONE || !_canWrite)
+	if (!_isActive || !_canWrite)
 		return ;
+	if (events & (EPOLLHUP | EPOLLRDHUP))
+		_cgiReadFinished = true;
 	if (events & EPOLLERR)
-	{
-		events = 0;
-		handleCgiError();
-	}
-	if (events & EPOLLIN)
+		handleCgiError(events);
+	if (events & EPOLLIN || _cgiReadFinished)
 		readFromCgi();
 	if (_state == READ_HEADER)
 		readHeaders();

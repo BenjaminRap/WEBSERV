@@ -15,7 +15,7 @@
 class ServerConfiguration;
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
-void			setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers, bool hasBody);
+std::string&	getFirstPart(const Status& status, const Headers& headers, const char* bodyBegin, const char* bodyEnd);
 void			addDefaultHeaders(Headers& headers, const Status* status);
 FileFd*			getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration);
 std::string		sizeTToString(size_t value);
@@ -26,6 +26,7 @@ uint16_t	CgiOut::checkHeaders(void)
 		return (HTTP_BAD_GATEWAY);
 	const std::string*	contentLength = _headers.getHeader("content-length");
 	const std::string*	transferEncoding = _headers.getHeader("transfer-encoding");
+
 	if (contentLength != NULL && transferEncoding != NULL)
 		return (HTTP_BAD_GATEWAY);
 	if (contentLength != NULL)
@@ -36,9 +37,12 @@ uint16_t	CgiOut::checkHeaders(void)
 	}
 	else if (transferEncoding == NULL)
 	{
-		_srcFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
+		_srcFile = FileFd::getTemporaryFile(_tempName);
 		if (_srcFile == NULL)
+		{
+			_tempName[0] = '\0';
 			return (HTTP_INTERNAL_SERVER_ERROR);
+		}
 		_state = CGI_TO_TEMP;
 	}
 	return (HTTP_OK);
@@ -92,10 +96,33 @@ void	CgiOut::generateFirstPart(void)
 	}
 	if (_error)
 		setErrorPage(&status);
-	const bool	hasBody = (_srcFile != NULL || _error == false);
+	char*	remainingBegin;
+	char*	remainingEnd;
+	const char*	bodyBegin;
+	const char*	bodyEnd;
 
-	setFirstPart(_firstPart, *status, "", _headers, hasBody);
+	_flowBuf.getContent(&remainingBegin, &remainingEnd);
+
+	if (_srcFile != NULL)
+	{
+		bodyBegin = NULL;
+		bodyEnd = NULL;
+	}
+	else if (_error && _srcFile == NULL)
+	{
+		const std::string&	errorPage = status->getErrorPage();
+
+		bodyBegin = errorPage.c_str();
+		bodyEnd = bodyBegin + errorPage.size();
+	}
+	else
+	{
+		bodyBegin = remainingBegin;
+		bodyEnd = remainingEnd;
+	}
+	_firstPart = getFirstPart(*status, _headers, bodyBegin, bodyEnd);
 	_state = WRITE_FIRST_PART;
+	_canWrite = true;
 }
 
 void		CgiOut::readHeaders(void)

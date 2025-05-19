@@ -17,23 +17,30 @@ void	CgiOut::readFromCgi()
 
 	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
 		return ;
-	if (_state == READ_HEADER)
-	{
-		_code = HTTP_BAD_GATEWAY;
-		_error = true;
-		generateFirstPart();
-	}
-	else if (_state == CGI_TO_TEMP && flowState == FLOW_DONE)
+
+	if (_srcFile != NULL)
 	{
 		delete _srcFile;
-		_srcFile = new FileFd(_tempName, O_RDONLY);
-		if (_srcFile == NULL)
+		_srcFile = NULL;
+	}
+	if (_state == CGI_TO_TEMP && flowState == FLOW_DONE)
+	{
+		try
+		{
+			_srcFile = new FileFd(_tempName, O_RDONLY);
+			_headers["content-length"] = sizeTToString(_srcFile->getSize());
+		}
+		catch (FileFd::FileOpeningError& e)
 		{
 			_code = HTTP_INTERNAL_SERVER_ERROR;
 			_error = true;
 		}
-		else
-			_headers["content-length"] = sizeTToString(_srcFile->getSize());
+		generateFirstPart();
+	}
+	else if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+	{
+		_code = HTTP_BAD_GATEWAY;
+		_error = true;
 		generateFirstPart();
 	}
 	else

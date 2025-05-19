@@ -59,6 +59,7 @@ private:
 	bool						_error;
 	const ServerConfiguration&	_serverConf;
 	bool						_canWrite;
+	bool						_cgiReadFinished;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
@@ -107,7 +108,7 @@ private:
 	 * from the cgi anymore because of an error. Depending on the state of this
 	 * instance, the behaviour changes.
 	 */
-	void		handleCgiError(void);
+	void		handleCgiError(uint32_t& events);
 	/**
 	 * @brief Read from the cgi and write it into the _flowBuf.
 	 * This method should only be called if a EPOLLIN  events has
