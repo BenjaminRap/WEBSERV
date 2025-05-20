@@ -21,9 +21,11 @@ ServerSocketData::ServerSocketData
 (
 	int fd ,
 	EPollHandler &ePollHandler,
-	const std::vector<ServerConfiguration> &serverConfiguration
+	const std::vector<ServerConfiguration> &serverConfiguration,
+	const Host& host
 ) :
-	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA, SERVER_EVENTS)
+	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA, SERVER_EVENTS),
+	_host(host)
 {
 
 }
@@ -50,11 +52,11 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		return ;
 	try
 	{
-		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations));
-		if (_ePollHandler->addFdToList(connectedSocketData) == -1)
+		ConnectedSocketData* connectedSocketData = new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations);
+		if (_ePollHandler->addFdToList(*connectedSocketData) == -1)
 		{
 			std::cerr << "Can't accept new connection" << std::endl;
-			delete &connectedSocketData;
+			delete connectedSocketData;
 			closeFdAndPrintError(newFd);
 		}
 		else
