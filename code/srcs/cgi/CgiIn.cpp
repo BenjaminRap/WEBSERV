@@ -8,7 +8,6 @@
 #include "CgiIn.hpp"                // for CgiIn, CgiInState, CGI_IN_EVENTS
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "FlowBuffer.hpp"           // for FlowBuffer, FlowState
-#include "RequestHandler.hpp"       // for RequestState
 #include "Response.hpp"             // for Response
 #include "requestStatusCode.hpp"    // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_S...
 
@@ -39,7 +38,7 @@ void	CgiIn::setFinished(uint16_t code)
 {
 	_isActive = false;
 	_response.setResponse(code);
-	_connectedSocketData.readNextRequests(_response, REQUEST_DONE);
+	_connectedSocketData.ignoreBodyAndReadRequests(_response);
 }
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);

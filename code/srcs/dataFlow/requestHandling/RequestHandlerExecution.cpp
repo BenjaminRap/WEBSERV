@@ -62,19 +62,19 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		case GET: {
 			GetRequest	getRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
 			response.setResponse(getRequest);
-			_request.setFdData(getRequest.getInFd());
+			_request.setFdData(&getRequest.getInFd());
 			break;
 		}
 		case PUT: {
 			PutRequest	putRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
 			response.setResponse(putRequest);
-			_request.setFdData(putRequest.getInFd());
+			_request.setFdData(&putRequest.getInFd());
 			break;
 		}
 		case DELETE: {
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
 			response.setResponse(deleteRequest);
-			_request.setFdData(deleteRequest.getInFd());
+			_request.setFdData(&deleteRequest.getInFd());
 			break;
 		}
 		default:

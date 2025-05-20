@@ -103,6 +103,13 @@ RequestState	ConnectedSocketData::readNextRequests
 	return (requestState);
 }
 
+void	ConnectedSocketData::ignoreBodyAndReadRequests(Response& response)
+{
+	const RequestState state = _requestHandler.ignoreBody(response);
+
+	readNextRequests(response, state);
+}
+
 void	ConnectedSocketData::callback(uint32_t events)
 {
 	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))

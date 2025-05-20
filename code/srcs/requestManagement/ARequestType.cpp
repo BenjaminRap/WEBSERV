@@ -181,12 +181,12 @@ EMethods	ARequestType::getMethod() const
 	return (this->_method);
 }
 
-SharedResource<AFdData*>	ARequestType::getInFd() const
+const SharedResource<AFdData*>&	ARequestType::getInFd() const
 {
 	return (_inFd);
 }
 
-SharedResource<AFdData*>	ARequestType::getOutFd() const
+const SharedResource<AFdData*>&	ARequestType::getOutFd() const
 {
 	return (_outFd);
 }

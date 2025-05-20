@@ -106,14 +106,19 @@ const Headers&	Request::getHeaders() const
 	return (_headers);
 }
 
-void	Request::setFdData(const SharedResource<AFdData*>& fdData)
+void	Request::setFdData(const SharedResource<AFdData*>* fdData)
 {
-	if (!fdData.isManagingValue()
+	if (fdData == NULL)
+	{
+		_fdData.stopManagingResource();
+		return ;
+	}
+	if (!fdData->isManagingValue()
 		|| !_body.isManagingValue())
 	{
 		return ;
 	}
-	_fdData = fdData;
+	_fdData = *fdData;
 
 	const int fd =  _fdData.getValue()->getFd();
 	_body.getValue()->setFd(fd);

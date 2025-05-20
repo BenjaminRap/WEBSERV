@@ -69,8 +69,8 @@ class ARequestType
 		const Route*							getRoute(void) const;
 		int										getCode(void) const;
 		EMethods								getMethod(void) const;
-		SharedResource<AFdData*>				getInFd(void) const;
-		SharedResource<AFdData*>				getOutFd(void) const;
+		const SharedResource<AFdData*>&			getInFd(void) const;
+		const SharedResource<AFdData*>&			getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
 		std::string&							getUrl(void);
 		uint16_t								setCgiAFdData(RequestContext& requestContext, const std::string& extension);

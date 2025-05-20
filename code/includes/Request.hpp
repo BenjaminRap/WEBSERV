@@ -108,7 +108,7 @@ public:
 	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;
-	void				setFdData(const SharedResource<AFdData*>& fdData);
+	void				setFdData(const SharedResource<AFdData*>* fdData);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);

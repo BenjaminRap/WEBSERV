@@ -72,6 +72,12 @@ RequestState	RequestHandler::redirectBody(const int* socketFd, Response &respons
 	return (REQUEST_DONE);
 }
 
+RequestState	RequestHandler::ignoreBody(Response& response)
+{
+	_request.setFdData(NULL);
+	return (redirectBody(NULL, response));
+}
+
 RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
 	const FlowState flowState = _requestBuf.srcToBuff<int>(socketFd);

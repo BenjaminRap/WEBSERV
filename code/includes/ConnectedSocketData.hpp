@@ -59,6 +59,11 @@ private:
 	 * @return The state of the request. It can be any of the enum values.
 	 */
 	RequestState			processRequest(void);
+	RequestState			readNextRequests
+	(
+		Response& currentResponse,
+		RequestState requestState
+	);
 public:
 	ConnectedSocketData
 	(
@@ -77,11 +82,7 @@ public:
 	 * @param events 
 	 */
 	void			callback(uint32_t events);
-	RequestState	readNextRequests
-	(
-		Response& currentResponse,
-		RequestState requestState
-	);
+	void			ignoreBodyAndReadRequests(Response& response);
 };
 
 #endif // !CONNECTED_SOCKET_DATA_HPP

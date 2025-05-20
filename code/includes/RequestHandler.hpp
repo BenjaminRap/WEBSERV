@@ -147,6 +147,7 @@ public:
 	 *
 	 */
 	void						setNewRequest(void);
+	RequestState				ignoreBody(Response& response);
 	Request&					getRequest(void);
 	FlowBuffer&					getFlowBuffer(void);
 };
