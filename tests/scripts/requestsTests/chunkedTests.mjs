@@ -34,7 +34,7 @@ function	createChunkedRequest(target, headers, chunks, trailers)
 	return (message);
 }
 
-async function	sendRawBadRequest(header, target, message)
+async function	sendRawBadRequest(header, message)
 {
 	printHeader(header);
 	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
@@ -74,7 +74,7 @@ async function	sendBadChunkedRequest(header, target, headers, chunks, trailers)
 
 async function runTests()
 {
-	const	defaultHeaders = [ "Host: nginx", "Connection: close", "Transfer-Encoding: chunked" ];
+	const	defaultHeaders = [ "Host: host:port", "Connection: close", "Transfer-Encoding: chunked" ];
 
 	await sendGoodChunkedRequest("Simple Chunked", "/chunked/simple.txt", defaultHeaders, [ "je suis", "un test", "tu peux \n le voir" ], []);
 	await sendGoodChunkedRequest("Empty", "/chunked/empty.txt", defaultHeaders, [], []);
@@ -86,7 +86,7 @@ async function runTests()
 	await sendGoodChunkedRequest("With Single Trailer", "/chunked/singleTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe"]);
 	await sendGoodChunkedRequest("With Multiple Trailers", "/chunked/multipleTrailers.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe", "Quit: now", "Cookies: nop"]);
 	await sendGoodChunkedRequest("With Invalid Trailer", "/chunked/invalidTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), [ "test=tru" ]);
-	await sendRawBadRequest("No BreakLine On Size", "/chunked/noBreakLineOnSize", 
+	await sendRawBadRequest("No BreakLine On Size", 
 "PUT /chunked/noBreakLineOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -97,7 +97,7 @@ async function runTests()
 "0\r\n" +
 "\r\n"
 )
-	await sendRawBadRequest("No Return Carriage On Size", "/chunked/noReturnCarriageOnSize", 
+	await sendRawBadRequest("No Return Carriage On Size", 
 "PUT /chunked/noReturnCarriageOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -109,7 +109,7 @@ async function runTests()
 "\r\n"
 )
 
-	await sendRawBadRequest("No Return Carriage Nor BreakLine", "/chunked/noReturnCarriageNorBreakLineOnSize", 
+	await sendRawBadRequest("No Return Carriage Nor BreakLine",
 "PUT /chunked/noReturnCarriageNorBreakLineOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -122,7 +122,7 @@ async function runTests()
 "0\r\n" +
 "\r\n"
 )
-	await sendRawBadRequest("No BreakLine On Data", "/chunked/noBreakLineOnData", 
+	await sendRawBadRequest("No BreakLine On Data",
 "PUT /chunked/noBreakLineOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -133,7 +133,7 @@ async function runTests()
 "0\r\n" +
 "\r\n"
 )
-	await sendRawBadRequest("No Return Carriage On Data", "/chunked/noReturnCarriageOnData", 
+	await sendRawBadRequest("No Return Carriage On Data",
 "PUT /chunked/noReturnCarriageOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -145,7 +145,7 @@ async function runTests()
 "\r\n"
 )
 
-	await sendRawBadRequest("No Return Carriage Nor BreakLine", "/chunked/noReturnCarriageNorBreakLineOnData", 
+	await sendRawBadRequest("No Return Carriage Nor BreakLine",
 "PUT /chunked/noReturnCarriageNorBreakLineOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
