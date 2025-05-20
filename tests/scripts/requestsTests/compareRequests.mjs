@@ -37,18 +37,18 @@ function	compareStatus(nginxResponse, webservResponse, printOK)
 function	compareRedirection(nginxResponse, webservResponse, printOK)
 {
 	//redirection
-	const nginxRedirection = nginxResponse.headers.get("Location");
-	const webservRedirection = webservResponse.headers.get("Location");
+	let	nginxRedirection = nginxResponse.headers.get("Location")?.slice(0);
+	let	webservRedirection = webservResponse.headers.get("Location")?.slice(0);
+
+	nginxRedirection = nginxRedirection?.replace(nginxPort.toString(), "port")
+	webservRedirection = webservRedirection?.replace(webservPort.toString(), "port")
+
+	nginxRedirection = nginxRedirection?.replace(nginxHost, "host")
+	webservRedirection = webservRedirection?.replace(webservHost, "host")
 
 	if (nginxRedirection !== null || webservRedirection !== null)
 	{
-		if (nginxRedirection?.startsWith("http://nginx:8181")
-			&& webservRedirection?.startsWith("http://webserv:8080"))
-		{
-			return (verify("redirection : ", nginxRedirection.replace("http://nginx:8181", ""),
-				webservRedirection.replace("http://webserv:8080", ""), printOK));
-		}
-		return (verify("redirection: ",  nginxRedirection, webservRedirection), printOK);
+		return (verify("redirection: ",  nginxRedirection, webservRedirection, printOK));
 	}
 	return (true);
 }
