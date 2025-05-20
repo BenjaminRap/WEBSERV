@@ -52,7 +52,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		return ;
 	try
 	{
-		ConnectedSocketData* connectedSocketData = new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations);
+		ConnectedSocketData* connectedSocketData = new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations, _host, addr);
 		if (_ePollHandler->addFdToList(*connectedSocketData) == -1)
 		{
 			std::cerr << "Can't accept new connection" << std::endl;

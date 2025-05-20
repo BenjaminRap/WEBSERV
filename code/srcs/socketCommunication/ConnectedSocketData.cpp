@@ -13,20 +13,35 @@
 #include "Response.hpp"             // for Response
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "Status.hpp"               // for Status, StatusType
-#include "exception.hpp"
+#include "Status.hpp"
 
 class EPollHandler;
 
 /*************************Constructors / Destructors***************************/
 
-ConnectedSocketData::ConnectedSocketData(int fd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfiguration) :
-	ASocketData(fd, ePollHandler, serverConfiguration, CONNECTED_SOCKET_DATA, CONNECTED_EVENTS),
+ConnectedSocketData::ConnectedSocketData
+(
+	int fd,
+	EPollHandler &ePollHandler,
+	const std::vector<ServerConfiguration> &serverConfiguration,
+	const Host& host,
+	const sockaddr_in clientAddr
+) :
+	ASocketData
+	(
+		fd,
+		ePollHandler,
+		serverConfiguration,
+		CONNECTED_SOCKET_DATA,
+		CONNECTED_EVENTS
+	),
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false),
 	_requestContext
 	(
+		host,
+		clientAddr,
 		_requestHandler.getRequest(),
 		_responsesHandler.getCurrentResponse(),
 		ePollHandler,

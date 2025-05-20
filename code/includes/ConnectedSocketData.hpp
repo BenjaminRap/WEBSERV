@@ -1,6 +1,7 @@
 #ifndef CONNECTED_SOCKET_DATA_HPP
 # define CONNECTED_SOCKET_DATA_HPP
 
+# include <netinet/in.h>
 # include <stdint.h>              // for uint32_t
 	
 # include "ASocketData.hpp"       // for ASocketData
@@ -10,7 +11,8 @@
 
 # define CONNECTED_EVENTS (EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
 
-class EPollHandler;
+class	EPollHandler;
+class	Host;
 
 /**
  * @brief This class stores all the data needed by a connected Socket. This fd
@@ -62,7 +64,9 @@ public:
 	(
 		int fd,
 		EPollHandler &ePollHandler,
-		const std::vector<ServerConfiguration> &serverConfiguration
+		const std::vector<ServerConfiguration> &serverConfiguration,
+		const Host& host,
+		const sockaddr_in clientAddr
 	);
 	~ConnectedSocketData(void);
 
