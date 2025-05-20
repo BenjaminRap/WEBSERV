@@ -70,7 +70,7 @@ void	ABody::setFd(int fd)
 
 ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 {
-	if (_fd < 0)
+	if (_fd > 0)
 	{
 		const ssize_t	written = write(_fd, buffer, bufferCapacity);
 
@@ -78,6 +78,7 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 			_written += written;
 		return (written);
 	}
+	_written += bufferCapacity;
 	return (bufferCapacity);
 }
 
