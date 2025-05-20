@@ -47,7 +47,7 @@ void	CgiIn::callback(uint32_t events)
 {
 	if (!_isActive)
 		return ;
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+	if (events & (EPOLLHUP | EPOLLERR))
 	{
 		setFinished(HTTP_BAD_GATEWAY);
 		return ;
