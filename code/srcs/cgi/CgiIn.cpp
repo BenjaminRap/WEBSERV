@@ -37,7 +37,8 @@ CgiIn::~CgiIn()
 void	CgiIn::setFinished(uint16_t code)
 {
 	_isActive = false;
-	_response.setResponse(code);
+	if (code != 0)
+		_response.setResponse(code);
 	_connectedSocketData.ignoreBodyAndReadRequests(_response);
 }
 
@@ -47,9 +48,9 @@ void	CgiIn::callback(uint32_t events)
 {
 	if (!_isActive)
 		return ;
-	if (events & (EPOLLHUP | EPOLLERR))
+	if (events & (EPOLLERR | EPOLLHUP))
 	{
-		setFinished(HTTP_BAD_GATEWAY);
+		setFinished(0);
 		return ;
 	}
 	if (!(events & EPOLLIN))
