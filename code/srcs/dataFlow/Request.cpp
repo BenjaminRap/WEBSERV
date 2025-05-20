@@ -108,20 +108,22 @@ const Headers&	Request::getHeaders() const
 
 void	Request::setFdData(const SharedResource<AFdData*>* fdData)
 {
+	if (!_body.isManagingValue())
+		return ;
+	ABody*	body = _body.getValue();
 	if (fdData == NULL)
 	{
 		_fdData.stopManagingResource();
+		body->setFd(-1);
 		return ;
 	}
-	if (!fdData->isManagingValue()
-		|| !_body.isManagingValue())
-	{
+	if (!fdData->isManagingValue())
 		return ;
-	}
 	_fdData = *fdData;
 
 	const int fd =  _fdData.getValue()->getFd();
-	_body.getValue()->setFd(fd);
+
+	body->setFd(fd);
 }
 
 /******************************Operator Overload*****************************************/
