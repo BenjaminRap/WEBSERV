@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for epoll_event, epoll_ctl, epoll_create
 #include <sys/socket.h>             // for AF_UNIX, bind, sockaddr, socklen_t
@@ -47,7 +48,8 @@ EPollHandler::EPollHandler(const Configuration &conf) :
 		throw std::logic_error("Error : trying to instantiate a EPollHandler multiple times");
 	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = epoll_create(1);
-	if (checkError(_epfd, -1, "epoll_create() :"))
+	if (!addFlagsToFd(_epfd, 0, FD_CLOEXEC)
+		&& checkError(_epfd, -1, "epoll_create() :"))
 	{
 		delete [] _events;
 		throw std::exception();
