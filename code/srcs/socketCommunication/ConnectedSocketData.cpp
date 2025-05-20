@@ -112,7 +112,7 @@ void	ConnectedSocketData::ignoreBodyAndReadRequests(Response& response)
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+	if (events & (EPOLLERR))
 		_isActive = false;
 	try
 	{
