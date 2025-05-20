@@ -178,3 +178,8 @@ void	EPollHandler::removeFdDataFromList(std::list<ASocketData*>::iterator pos)
 	_socketsData.erase(pos);
 	delete socket;
 }
+
+void	EPollHandler::clearUnixSocketsList(void)
+{
+	_unixSocketsToRemove.clear();
+}

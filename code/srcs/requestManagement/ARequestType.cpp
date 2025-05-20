@@ -13,6 +13,7 @@
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource
+#include "exception.hpp"
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
 #include "socketCommunication.hpp"
 
@@ -86,14 +87,22 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 
 	std::memset(env, 0, sizeof(env));
 	std::memset(argv, 0, sizeof(argv));
-	const bool	error = (!setEnv(env, request, extension, _path, _queryString)
-		|| !setArgv(argv, _path, _route->getCgiInterpreter())
-		|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
-
-	deleteArray((const char**)env);
-	deleteArray((const char**)argv);
-	if (error)
-		return (HTTP_INTERNAL_SERVER_ERROR);
+	try
+	{
+		const bool	error = (!setEnv(env, request, extension, _path, _queryString)
+			|| !setArgv(argv, _path, _route->getCgiInterpreter())
+			|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
+		deleteArray((const char**)env);
+		deleteArray((const char**)argv);
+		if (error)
+			return (HTTP_INTERNAL_SERVER_ERROR);
+	}
+	catch (const ExecveException& e)
+	{
+		deleteArray((const char**)env);
+		deleteArray((const char**)argv);
+		throw;
+	}
 	if (body != NULL)
 	{
 		this->_inFd.setManagedResource(new CgiIn(

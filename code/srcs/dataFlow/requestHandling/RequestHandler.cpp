@@ -6,6 +6,7 @@
 #include "RequestHandler.hpp"     // for RequestHandler, RequestState, REQUE...
 #include "RequestContext.hpp"
 #include "Response.hpp"           // for Response
+#include "exception.hpp"
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
 
 class EPollHandler;
@@ -38,6 +39,10 @@ RequestState			RequestHandler::readRequest(RequestContext& requestContext)
 		readHeaders(response);
 		executeRequest(response, requestContext);
 		redirectBody(NULL, response);
+	}
+	catch (const ExecveException& e)
+	{
+		throw;
 	}
 	catch (const std::exception& exception)
 	{

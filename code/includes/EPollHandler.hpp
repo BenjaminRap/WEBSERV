@@ -123,6 +123,11 @@ public:
 	 * @param pos 
 	 */
 	void	removeFdDataFromList(std::list<ASocketData*>::iterator pos);
+	/**
+	 * @note it is usefull for  the ExecveException. Because in this case,
+	 * the destructor shouldn't remove the unix sockets.
+	 */
+	void	clearUnixSocketsList(void);
 };
 
 #endif // !EPOLL_HANDLER_HPP

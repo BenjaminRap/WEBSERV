@@ -1,6 +1,8 @@
 #ifndef	EXCEPTION_HPP
 # define EXCEPTION_HPP
 
+#include <cerrno>
+#include <cstring>
 # include <string>
 # include <sstream>
 
@@ -74,6 +76,23 @@ public:
 
 private:
 	const std::string	_error;
+};
+
+class ExecveException : public std::exception
+{
+public:
+	ExecveException (void) :
+		_error(strerror(errno))
+	{
+	}
+
+	virtual const char* what() const throw()
+	{
+		return (_error);
+	}
+	virtual ~ExecveException() throw() {}
+private:
+	const char * const	_error;
 };
 
 #endif

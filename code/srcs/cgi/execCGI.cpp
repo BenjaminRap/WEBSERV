@@ -45,7 +45,7 @@ void	replaceByProgram(const char *path, char *const * argv, char *const * env, i
 	closeFdAndPrintError(inFd);
 
 	//execute cgi
-	checkError(execve(path, argv, env), -1, "execve() :");
+	execve(path, argv, env);
 }
 
 int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd)
@@ -73,7 +73,7 @@ int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd
 	{
 		closeFds(tubeIn[1], tubeOut[0]);
 		replaceByProgram(path, argv, env, tubeIn[0], tubeOut[1]);
-		std::exit(EXIT_FAILURE);
+		throw ExecveException();
 	}
 	else
 	{
