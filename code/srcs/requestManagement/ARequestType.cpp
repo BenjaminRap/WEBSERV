@@ -19,15 +19,19 @@
 class AFdData;
 class EPollHandler;
 
-bool	checkAllowMeth(const Route &root, EMethods meth);
-void	delString(const std::string &toDel, std::string &str);
-void	buildNewURl(std::string root, std::string &url);
-void	replaceUrl(const std::string &location, const std::string &root, std::string &url);
-void	fixPath(std::string &path);
-void	fixUrl(ARequestType &req, std::string &url);
-void	addRoot(ARequestType &req, const ServerConfiguration &config);
-int		execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
-void	splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
+bool		checkAllowMeth(const Route &root, EMethods meth);
+void		delString(const std::string &toDel, std::string &str);
+void		buildNewURl(std::string root, std::string &url);
+void		replaceUrl(const std::string &location, const std::string &root, std::string &url);
+void		fixPath(std::string &path);
+void		fixUrl(ARequestType &req, std::string &url);
+void		addRoot(ARequestType &req, const ServerConfiguration &config);
+int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
+void		splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
+uint16_t	isCgiExecutable(const std::string& path);
+bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString);
+bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
+void		deleteArray(const char** array);
 
 ARequestType::ARequestType
 (
@@ -64,13 +68,12 @@ ARequestType::ARequestType
 		const std::string&	CGIextention = this->_route->getCgiFileExtension();
 		if (CGIextention == "" || _path.find(CGIextention) == std::string::npos)
 			return ;
+		_code = isCgiExecutable(_path);
+		if (_code != 0)
+			return ;
 		_code = setCgiAFdData(requestContext, CGIextention);
 	}
 }
-
-bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString);
-bool	setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
-void	deleteArray(const char** array);
 
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)
 {
