@@ -18,7 +18,7 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 
-	if (addFlagsToFd(_fd, O_NONBLOCK | FD_CLOEXEC) == -1)
+	if (!addFlagsToFd(_fd, O_NONBLOCK, FD_CLOEXEC))
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
 	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
 		throw std::runtime_error("Can't add the fd to epoll !");
@@ -34,7 +34,7 @@ AFdData::AFdData(int fd, AFdDataChilds type) :
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 
-	if (addFlagsToFd(_fd, FD_CLOEXEC) == -1)
+	if (!addFlagsToFd(_fd, 0, FD_CLOEXEC))
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
 
