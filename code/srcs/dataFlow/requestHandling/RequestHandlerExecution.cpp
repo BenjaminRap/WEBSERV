@@ -4,7 +4,6 @@
 #include <string>                   // for basic_string, string, operator==
 #include <vector>                   // for vector
 
-#include "ARequestType.hpp"         // for ARequestType
 #include "DeleteRequest.hpp"        // for DeleteRequest
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
@@ -14,7 +13,6 @@
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource
 #include "Status.hpp"
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
 
@@ -49,10 +47,10 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		return ;
 	}
 	const ServerConfiguration	&serverConf = getServerConfiguration(*host);
-	const int status = _request.setBodyFromHeaders(serverConf);
-	if (status != HTTP_OK)
+	const int code = _request.setBodyFromHeaders(serverConf);
+	if (code != HTTP_OK)
 	{
-		response.setResponse(status);
+		response.setResponse(code);
 		_state = REQUEST_DONE;
 		return ;
 	}
@@ -80,7 +78,8 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		default:
 			throw std::logic_error("executeRequest called with a request method invalid !");
 	}
-	if (response.getStatus()->isOfType(STATUS_ERROR))
+	const Status * const	status = response.getStatus();
+	if (status && status->isOfType(STATUS_ERROR))
 		_state = REQUEST_DONE;
 	else
 		_state = REQUEST_BODY;
