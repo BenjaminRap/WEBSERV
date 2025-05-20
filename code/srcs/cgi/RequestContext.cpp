@@ -6,13 +6,17 @@ RequestContext::~RequestContext(void)
 
 RequestContext::RequestContext
 (
-		Request& request,
-		Response& response,
-		EPollHandler& ePollHandler,
-		FlowBuffer& requestBuffer,
-		FlowBuffer& responseBuffer,
-		ConnectedSocketData& connectedSocketData
+	const  Host& host,
+	const sockaddr_in clientAddr,
+	Request& request,
+	Response& response,
+	EPollHandler& ePollHandler,
+	FlowBuffer& requestBuffer,
+	FlowBuffer& responseBuffer,
+	ConnectedSocketData& connectedSocketData
 ) :
+	host(host),
+	clientAddr(clientAddr),
 	request(request),
 	response(response),
 	ePollHandler(ePollHandler),
