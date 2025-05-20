@@ -1,5 +1,7 @@
 mkdir cgi/
 chmod 777 cgi/
+mkdir cgi/put/
+chmod 777 cgi/put/
 
-cd cgi
-cp ../../scripts/requestsTests/cgi/cgiTest.cgi cgiTest.cgi
+cp ../../scripts/requestsTests/cgi/*.cgi cgi/
+cp ../../scripts/requestsTests/cgi/*.cgiput cgi/put/
