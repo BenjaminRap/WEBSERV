@@ -59,9 +59,7 @@ async function	compareBody(nginxResponse, webservResponse, printOK)
 	const nginxBody = await nginxResponse.text();
 	const webservBody = await webservResponse.text();
 
-	if (!isError(nginxResponse) && !isError(webservResponse) // We don't have the same error pages
-		&& nginxBody !== "" && webservBody !== ""
-		&& !webservBody.includes("<a href=\"../\">") // We don't have the same autoIndex
+	if (!webservBody.includes("<a href=\"../\">") // We don't have the same autoIndex
 		&& !nginxBody.includes("<a href=\"../\">")) // We don't have the same autoIndex
 	{
 		return (verify("body : ", nginxBody, webservBody, printOK));
