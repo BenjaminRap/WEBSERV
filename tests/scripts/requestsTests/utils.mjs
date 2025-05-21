@@ -66,3 +66,23 @@ export function	verifyServersAreRunning()
 		}
 	}
 }
+
+export function	createChunkedRequest(target, headers, chunks, trailers)
+{
+	let message = "PUT " + target + " HTTP/1.1\r\n";
+	headers.forEach((header) => {
+		message += header + "\r\n";
+	});
+	message += "\r\n";
+	chunks.forEach((chunk) => {
+		message += chunk.length.toString(16) + "\r\n"
+		message += chunk + "\r\n"
+	});
+	message += "0\r\n";
+	trailers.forEach((trailer) => {
+		message += trailer + "\r\n";
+	});
+	message += "\r\n";
+	return (message);
+}
+
