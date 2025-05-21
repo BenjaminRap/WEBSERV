@@ -132,3 +132,10 @@ sockaddr_in6 Host::getipv6Addr(void) const
 		throw std::logic_error("Host::getipv6Addr called on a non IPV6 host");
 	return (_addr.ipv6);
 }
+
+sockaddr_un Host::getunixAddr(void) const
+{
+	if (_family != AF_UNIX)
+		throw std::logic_error("Host::getunixAddr called on a non UNIX host");
+	return (_addr.unixAddr);
+}
