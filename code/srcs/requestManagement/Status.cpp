@@ -63,6 +63,7 @@ void	Status::buildErrorPage(void)
 		<p>" << _text << "</p>\n\
 	</body>\n\
 </html>";
+	_errorPage = oss.str();
 }
 
 std::string	Status::buildRepresentation(void)
