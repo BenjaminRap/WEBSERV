@@ -13,10 +13,10 @@
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "Status.hpp"
+#include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
 
-class EPollHandler;
+class RequestContext;
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::string& host) const
 {

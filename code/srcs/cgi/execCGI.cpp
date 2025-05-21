@@ -1,9 +1,12 @@
-#include <unistd.h>					// for fork(), pipe(), dup(), execve()
-#include <csignal>                  // for signal, SIG_ERR, SIGINT, SIGPIPE
-#include <cstdlib>                  // for EXIT_FAILURE
-#include "socketCommunication.hpp"	// for checkError
-#include <sys/wait.h>				// for waitpid()
-#include "exception.hpp"
+#include <sys/types.h>              // for pid_t
+#include <sys/wait.h>               // for waitpid, WNOHANG
+#include <unistd.h>                 // for dup2, pipe, execve, fork, STDIN_F...
+#include <csignal>                  // for signal, SIG_DFL, SIG_ERR, kill
+#include <cstdlib>                  // for WEXITSTATUS
+#include <iostream>                 // for char_traits, basic_ostream, basic...
+
+#include "exception.hpp"            // for ExecveException
+#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
 
 void	closeFds(int (&tube)[2])
 {

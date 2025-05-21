@@ -1,8 +1,9 @@
-#include <cerrno>   // for errno, ERANGE
-#include <cstdlib>  // for strtoul, size_t
-#include <netinet/in.h>
-#include <sstream>  // for basic_ostringstream, basic_ostream, ostringstream
-#include <string>   // for allocator, basic_string, string, char_traits
+#include <netinet/in.h>  // for in_addr, sockaddr_in, in6_addr
+#include <sys/types.h>   // for u_int16_t
+#include <cerrno>        // for errno, ERANGE
+#include <cstdlib>       // for strtoul, size_t
+#include <sstream>       // for basic_ostream, basic_ostringstream, operator<<
+#include <string>        // for char_traits, allocator, basic_string, string
 
 std::string	sizeTToString(size_t value)
 {

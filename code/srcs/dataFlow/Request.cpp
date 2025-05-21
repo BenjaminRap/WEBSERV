@@ -3,6 +3,7 @@
 #include <iostream>                 // for operator<<, basic_ostream, ostream
 #include <string>                   // for char_traits, basic_string, operat...
 
+#include "ABody.hpp"                // for ABody
 #include "AFdData.hpp"              // for AFdData
 #include "ChunkedBody.hpp"          // for ChunkedBody
 #include "EMethods.hpp"             // for EMethods, getStringRepresentation
@@ -13,8 +14,6 @@
 #include "SizedBody.hpp"            // for SizedBody
 #include "protocol.hpp"             // for PROTOCOL
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
-
-class ABody;  // lines 16-16
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 

@@ -1,9 +1,11 @@
-#include <stddef.h>            // for size_t, NULL
+#include <stddef.h>            // for NULL, size_t
+#include <iostream>            // for basic_ostream, basic_ios, cout, endl
+#include <iterator>            // for distance
 #include <stdexcept>           // for logic_error
-#include <string>              // for basic_string, string
+#include <string>              // for basic_string, char_traits, string, ope...
 
 #include "AFdData.hpp"         // for AFdData, AFdDataChilds
-#include "CgiOut.hpp"
+#include "CgiOut.hpp"          // for CgiOut
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
 #include "Headers.hpp"         // for operator+=, Headers, LINE_END, LINE_EN...
 #include "RawResponse.hpp"     // for RawResponse

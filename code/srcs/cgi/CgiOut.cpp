@@ -1,20 +1,17 @@
-#include <fcntl.h>                // for O_RDONLY
 #include <stdint.h>               // for uint32_t
 #include <sys/epoll.h>            // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOLLR...
-#include <cstdio>                 // for NULL, remove, size_t
-#include <string>                 // for basic_string, string
+#include <sys/types.h>            // for pid_t
+#include <cstdio>                 // for remove, NULL
 
 #include "AFdData.hpp"            // for AFdData, AFdDataChilds
 #include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
-#include "FlowBuffer.hpp"
-#include "Headers.hpp"            // for Headers
-#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_SER...
+#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
+
+class EPollHandler;  // lines 15-15
+class FlowBuffer;  // lines 16-16
+class ServerConfiguration;  // lines 17-17
 
 int	getCGIStatus(pid_t pid);
-
-class EPollHandler;
-class FlowBuffer;
-class ServerConfiguration;
 
 CgiOut::CgiOut
 (

@@ -13,7 +13,8 @@
 #include "ServerSocketData.hpp"     // for ServerSocketData, SERVER_EVENTS
 #include "socketCommunication.hpp"  // for closeFdAndPrintError, checkError
 
-class ServerConfiguration;  // lines 17-17
+class Host;
+class ServerConfiguration;  // lines 16-16
 
 //***********************Cosntructors / Destructors****************************/
 

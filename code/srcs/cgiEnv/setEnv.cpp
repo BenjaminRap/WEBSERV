@@ -1,19 +1,15 @@
-#include <string.h>
-#include "Request.hpp"
-#include "protocol.hpp"
+#include <cstring>       // for size_t, memset, strcpy, NULL
+#include <exception>     // for exception
+#include <stdexcept>     // for logic_error
+#include <string>        // for basic_string, string, operator+
+
+#include "EMethods.hpp"  // for getStringRepresentation, EMethods
+#include "Headers.hpp"   // for Headers
+#include "Request.hpp"   // for Request
+#include "protocol.hpp"  // for PROTOCOL
 
 #define SERVER_SOFTWARE "webserv/1.0"
 #define GATEWAY_INTERFACE "CGI/1.1"
-
-#define RESET   "\033[0m"
-#define RED     "\033[1;31m"
-#define GREEN   "\033[1;32m"
-#define YELLOW  "\033[1;33m"
-#define BLUE    "\033[1;34m"
-#define MAGENTA "\033[1;35m"
-#define CYAN    "\033[1;36m"
-#define WHITE   "\033[1;37m"
-
 
 std::string	sizeTToString(size_t value);
 

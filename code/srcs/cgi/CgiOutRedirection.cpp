@@ -1,11 +1,12 @@
-#include <fcntl.h>
+#include <fcntl.h>                // for O_RDONLY
 #include <stddef.h>               // for NULL, size_t
-#include <string>                 // for basic_string
+#include <map>                    // for map
+#include <string>                 // for basic_string, string
 
 #include "CgiOut.hpp"             // for CgiOut, CgiOutState
 #include "FileFd.hpp"             // for FileFd
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
-#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
 
 std::string	sizeTToString(size_t value);
 

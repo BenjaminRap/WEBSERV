@@ -1,17 +1,14 @@
-#include <fcntl.h>                  // for O_RDONLY, O_WRONLY
 #include <stdint.h>                 // for uint16_t, uint32_t
-#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
-#include <cstdio>                   // for NULL, remove
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN
 
-#include "ABody.hpp"                // for ABody, ABodyChilds
+#include "ABody.hpp"                // for ABody
 #include "AFdData.hpp"              // for AFdData, AFdDataChilds
-#include "CgiIn.hpp"                // for CgiIn, CgiInState, CGI_IN_EVENTS
+#include "CgiIn.hpp"                // for CgiIn, CGI_IN_EVENTS
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
-#include "FlowBuffer.hpp"           // for FlowBuffer, FlowState
+#include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
-#include "requestStatusCode.hpp"    // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_S...
 
-class EPollHandler;
+class EPollHandler;  // lines 14-14
 
 CgiIn::CgiIn
 (

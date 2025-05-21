@@ -1,24 +1,25 @@
-#include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint16_t
+#include <sys/types.h>              // for pid_t
+#include <cstring>                  // for NULL, memset
+#include <exception>                // for exception
 #include <map>                      // for map
-#include <string>                   // for string, basic_string
+#include <string>                   // for allocator, string, basic_string
 #include <vector>                   // for vector
-#include <unistd.h>					// for pipe()
 
 #include "ARequestType.hpp"         // for ARequestType
-#include "CgiIn.hpp"				// for CgiIn
-#include "CgiOut.hpp"				// for CgiOut
+#include "CgiIn.hpp"                // for CgiIn
+#include "CgiOut.hpp"               // for CgiOut
 #include "EMethods.hpp"             // for EMethods
-#include "Request.hpp"
+#include "Request.hpp"              // for Request
+#include "RequestContext.hpp"       // for RequestContext
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource
-#include "exception.hpp"
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
-#include "socketCommunication.hpp"
+#include "SharedResource.hpp"       // for freePointer, SharedResource
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_INTERNAL_S...
+#include "socketCommunication.hpp"  // for closeFdAndPrintError
 
-class AFdData;
-class EPollHandler;
+class ABody;
+class AFdData;  // lines 20-20
 
 bool		checkAllowMeth(const Route &root, EMethods meth);
 void		delString(const std::string &toDel, std::string &str);

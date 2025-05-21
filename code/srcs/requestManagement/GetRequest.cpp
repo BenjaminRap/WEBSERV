@@ -1,7 +1,6 @@
 #include <fcntl.h>                // for O_RDONLY
 #include <stdint.h>               // for uint16_t
 #include <sys/types.h>            // for ssize_t
-#include <exception>              // for exception
 #include <string>                 // for string, basic_string
 
 #include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
@@ -9,10 +8,10 @@
 #include "FileFd.hpp"             // for FileFd
 #include "GetRequest.hpp"         // for GetRequest
 #include "SharedResource.hpp"     // for freePointer, SharedResource
-#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
+#include "requestStatusCode.hpp"  // for HTTP_OK
 
-class EPollHandler;
-class ServerConfiguration;  // lines 14-14
+class RequestContext;
+class ServerConfiguration;  // lines 15-15
 
 uint16_t	isDirOrFile(const std::string& path);
 void		directoryCase(GetRequest& get);

@@ -1,6 +1,7 @@
 #include <fcntl.h>                  // for FD_CLOEXEC, O_NONBLOCK
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
+#include <sys/types.h>              // for ssize_t
 #include <stdexcept>                // for runtime_error, invalid_argument
 #include <string>                   // for basic_string
 

@@ -2,7 +2,6 @@
 #include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
-#include <exception>                // for exception
 #include <iostream>                 // for basic_ostream, operator<<, ostream
 #include <map>                      // for map
 #include <stdexcept>                // for logic_error
@@ -17,7 +16,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
+#include "requestStatusCode.hpp"    // for HTTP_CREATED, HTTP_FORBIDDEN, HTT...
 
 /*********************************Constructors/Destructors*************************************/
 

@@ -1,4 +1,3 @@
-#include <fcntl.h>                // for O_WRONLY
 #include <stdint.h>               // for uint16_t
 #include <cctype>                 // for isdigit
 #include <cstdlib>                // for NULL, strtoul, size_t
@@ -12,7 +11,7 @@
 #include "Status.hpp"             // for Status
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_OK, HTTP_FOUND
 
-class ServerConfiguration;
+class ServerConfiguration;  // lines 15-15
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 std::string&	getFirstPart(const Status& status, const Headers& headers, const char* bodyBegin, const char* bodyEnd);

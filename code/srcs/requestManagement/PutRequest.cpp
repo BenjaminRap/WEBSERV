@@ -1,4 +1,4 @@
-#include <fcntl.h>                // for O_CREAT, O_EXCL, O_WRONLY
+#include <fcntl.h>                // for O_CREAT, O_WRONLY
 #include <stdint.h>               // for uint16_t
 #include <cstring>                // for size_t
 #include <string>                 // for basic_string, string
@@ -8,9 +8,9 @@
 #include "FileFd.hpp"             // for FileFd
 #include "PutRequest.hpp"         // for PutRequest
 #include "SharedResource.hpp"     // for freePointer, SharedResource
-#include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_CONFLICT, HTTP...
+#include "requestStatusCode.hpp"  // for HTTP_CONFLICT, HTTP_CREATED, HTTP_F...
 
-class EPollHandler;
+class RequestContext;
 class ServerConfiguration;  // lines 14-14
 
 uint16_t	isDirOrFile(const std::string& path);

@@ -1,4 +1,5 @@
-#include <string>	// for std::string
+#include <stddef.h>  // for size_t
+#include <string>    // for basic_string, string
 
 void	splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart)
 {

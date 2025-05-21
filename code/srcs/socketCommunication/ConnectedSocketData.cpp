@@ -1,3 +1,4 @@
+#include <netinet/in.h>             // for sockaddr_in
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
@@ -9,14 +10,15 @@
 #include "ASocketData.hpp"          // for ASocketData
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
-#include "RequestHandler.hpp"       // for RequestState, RequestHandler
+#include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "Status.hpp"
-#include "exception.hpp"
+#include "Status.hpp"               // for Status, StatusType
+#include "exception.hpp"            // for ExecveException
 
-class EPollHandler;
+class EPollHandler;  // lines 19-19
+class Host;
 
 /*************************Constructors / Destructors***************************/
 

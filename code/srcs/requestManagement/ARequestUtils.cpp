@@ -1,15 +1,18 @@
+#include <errno.h>                  // for errno, EACCES, EROFS
 #include <stddef.h>                 // for size_t, NULL
+#include <stdint.h>                 // for uint16_t
 #include <sys/stat.h>               // for stat
 #include <sys/types.h>              // for ssize_t
+#include <unistd.h>                 // for access, X_OK
 #include <string>                   // for basic_string, string
-#include <unistd.h>
+#include <utility>                  // for pair
 #include <vector>                   // for vector
 
-#include "ARequestType.hpp"         // for ARequestType
+#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route, SRedirection
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_BAD_REQUEST
 #include "socketCommunication.hpp"  // for checkError
 
 uint16_t	isDirOrFile(const std::string& path);
