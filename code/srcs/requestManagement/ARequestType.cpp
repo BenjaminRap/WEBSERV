@@ -84,6 +84,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	int			outFd;
 	char*		env[20];
 	char*		argv[3];
+	pid_t		pid;
 
 	std::memset(env, 0, sizeof(env));
 	std::memset(argv, 0, sizeof(argv));
@@ -91,13 +92,13 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	{
 		const bool	error = (!setEnv(env, request, extension, _path, _queryString)
 			|| !setArgv(argv, _path, _route->getCgiInterpreter())
-			|| execCGI(argv[0], argv, env, inFd, outFd) == -1);
+			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
 		deleteArray((const char**)env);
 		deleteArray((const char**)argv);
 		if (error)
 			return (HTTP_INTERNAL_SERVER_ERROR);
 	}
-	catch (const ExecveException& e)
+	catch (const std::exception& e)
 	{
 		deleteArray((const char**)env);
 		deleteArray((const char**)argv);
@@ -120,7 +121,8 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 		outFd,
 		requestContext.ePollHandler,
 		requestContext.responseBuff,
-		_config
+		_config,
+		pid
 	), freePointer);
 	return (HTTP_OK);
 };

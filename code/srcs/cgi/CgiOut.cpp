@@ -10,6 +10,8 @@
 #include "Headers.hpp"            // for Headers
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_SER...
 
+int	getCGIStatus(pid_t pid);
+
 class EPollHandler;
 class FlowBuffer;
 class ServerConfiguration;
@@ -19,7 +21,8 @@ CgiOut::CgiOut
 	int fd,
 	EPollHandler& ePollHandler,
 	FlowBuffer&	responseFlowBuffer,
-	const ServerConfiguration& serverConfiguration
+	const ServerConfiguration& serverConfiguration,
+	pid_t pid
 ) :
 	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
 	_flowBuf(responseFlowBuffer),
@@ -32,7 +35,8 @@ CgiOut::CgiOut
 	_error(false),
 	_serverConf(serverConfiguration),
 	_canWrite(false),
-	_cgiReadFinished(false)
+	_cgiReadFinished(false),
+	_pid(pid)
 {
 	_tempName[0] = '\0';
 }
@@ -43,6 +47,7 @@ CgiOut::~CgiOut()
 		std::remove(_tempName);
 	if (_srcFile != NULL)
 		delete _srcFile;
+	getCGIStatus(_pid);
 }
 
 void	CgiOut::setFinished(void)

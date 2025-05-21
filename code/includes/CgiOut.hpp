@@ -60,6 +60,7 @@ private:
 	const ServerConfiguration&	_serverConf;
 	bool						_canWrite;
 	bool						_cgiReadFinished;
+	pid_t						_pid;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
@@ -144,7 +145,8 @@ public:
 		int fd,
 		EPollHandler& ePollHandler,
 		FlowBuffer& responseFlowBuffer,
-		const ServerConfiguration& serverConfiguration
+		const ServerConfiguration& serverConfiguration,
+		pid_t pid
 	);
 	~CgiOut();
 
