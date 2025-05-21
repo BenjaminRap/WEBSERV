@@ -104,6 +104,9 @@ async function runTests()
 	printHeader("Cgi Check Chunked Body With Trailers");
 	succeed = await sendCgiChunkedRequest("/cgi/put/cgiCheckBody.cgiput", defaultHeaders, [ "je ", "suis ", "le ", "body"], ["test: truc", "machin: bidule"]) && succeed;
 
+	printHeader("Cgi Test Sleep");
+	succeed = await runGoodCgiTest("/cgi/cgiTestSleep.cgi", "GET", null, {}, 200, "OK") && succeed;
+
 	// printHeader("Cgi Python");
 	// succeed = await runGoodCgiTest("/cgi/python/cgiPythonTest.py", "GET", null, {}, 200, "OK") && succeed;
 	//
