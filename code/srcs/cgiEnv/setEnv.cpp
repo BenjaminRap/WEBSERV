@@ -16,6 +16,7 @@
 std::string	sizeTToString(size_t value);
 std::string uint16toString(u_int16_t nb);
 std::string ipV4toString(const struct sockaddr_in &addr);
+std::string ipV6toString(const struct in6_addr &ip);
 
 char *duplicateString(const std::string &str)
 {
@@ -104,11 +105,14 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		addToEnv(env, "QUERY_STRING=" + queryString);
 		addToEnv(env, "PATH_TRANSLATED=" + path);
 		sa_family_t family = requestContext.host.getFamily();
-		if (family == AF_INET)
+		if (family == AF_INET) {
 			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv4Addr().sin_port));
-		else if (family == AF_INET6)
+			addToEnv(env, "REMOTE_ADDR=" + ipV4toString(requestContext.clientAddr.ipv4));
+		}
+		else if (family == AF_INET6) {
 			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv6Addr().sin6_port));
-		// REMOTE ADDR missing
+			addToEnv(env, "REMOTE_ADDR=" + ipV6toString(requestContext.clientAddr.ipv6.sin6_addr));
+		}
 		return (true);
 	}
 	catch (const std::exception& exception)
