@@ -7,7 +7,7 @@ function	verify(prefix, nginxValue, webservValue, printOK)
 {
 	if (nginxValue !== webservValue)
 	{
-		console.log(prefix + COLOR_RED + "[KO] nginx|webserv " + nginxValue + " | " + webservValue + COLOR_RESET);
+		console.log(prefix + COLOR_RED + "[KO] nginx|webserv '" + nginxValue + "' | '" + webservValue + "'" + COLOR_RESET);
 		return (false);
 	}
 	if (printOK)
@@ -18,11 +18,6 @@ function	verify(prefix, nginxValue, webservValue, printOK)
 function	getStatus(response)
 {
 	return (response.status + "|" + response.statusText);
-}
-
-function	isError(response)
-{
-	return (response.status >= 400);
 }
 
 function	compareStatus(nginxResponse, webservResponse, printOK)
@@ -59,12 +54,9 @@ async function	compareBody(nginxResponse, webservResponse, printOK)
 	const nginxBody = await nginxResponse.text();
 	const webservBody = await webservResponse.text();
 
-	if (!webservBody.includes("<a href=\"../\">") // We don't have the same autoIndex
-		&& !nginxBody.includes("<a href=\"../\">")) // We don't have the same autoIndex
-	{
-		return (verify("body : ", nginxBody, webservBody, printOK));
-	}
-	return (true);
+	console.log("nginx body length" + nginxBody.length);
+	console.log("webserv body length" + webservBody.length);
+	return (verify("body : ", nginxBody, webservBody, printOK));
 }
 
 function	compareRequestEffect(target, nginxResponse, webservResponse, printOK)
