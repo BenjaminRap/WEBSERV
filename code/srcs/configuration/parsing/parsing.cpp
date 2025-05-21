@@ -28,12 +28,12 @@ void	parseFile(Configuration &config, std::string &file)
 			i += 6;
 			skipWSpace(file, i , line);
 			if (file[i] != '{')
-				throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+				throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 			i++;
 			parseServer(conf, file, i, line);
 		}
 		else if (i == std::string::npos)
-			throw (CustomLineException("Unexpected error", line));
+			throw (ParsingLineException("Unexpected error", line));
 		skipWSpace(file, i, line);
 	}
 	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
@@ -104,29 +104,29 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 			parseRouteIndex(file, i, line, index);
 		}
 		else if (file[i] != '}')
-			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+			throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
-			throw (CustomLineException("Unexpected error", line));
+			throw (ParsingLineException("Unexpected error", line));
 		skipWSpace(file, i, line);
 	}
 	if (file[i] != '}')
-		throw (CustomLineException("Unclosed brace", line));
+		throw (ParsingLineException("Unclosed brace", line));
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
-		throw (CustomException("Missing host"));
+		throw (ParsingException("Missing host"));
 	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
 }
 
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
 {
 	if (maxClientBodySize != (size_t)-1)
-		throw (CustomKeyWordAndLineException("Multiple definition of", line, "maxClientBodySize"));
+		throw (ParsingKeyWordAndLineException("Multiple definition of", line, "maxClientBodySize"));
 	skipWSpace(file, i , line);
 	maxClientBodySize = std::atol(file.substr(i, file.find_first_not_of(DIGITS, i) - i).c_str());
 	i = file.find_first_not_of(DIGITS, i);
 	skipWSpace(file, i , line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -139,17 +139,17 @@ void	parseServerName(std::string &file, size_t &i, size_t &line, std::vector<std
 		{
 			std::string	name = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 			if (name.find('.', 0) == std::string::npos)
-				throw (CustomKeyWordAndLineException("Wrong server name", line, name));
+				throw (ParsingKeyWordAndLineException("Wrong server name", line, name));
 			serverNames.push_back(name);
 		}
 		else
 			break ;
 		i = file.find_first_of(SEP_WSPACE, i);
 		if (i == std::string::npos)
-			throw (CustomLineException("Missing semi-colon", line));
+			throw (ParsingLineException("Missing semi-colon", line));
 	}
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -165,12 +165,12 @@ void	parseErrorPages(std::string &file, size_t &i, size_t &line, std::map<unsign
 		skipWSpace(file, i, line);
 	}
 	if (file[i] != '/')
-		throw (CustomLineException("Missing error pages", line));
+		throw (ParsingLineException("Missing error pages", line));
 	error_page = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 	for (std::vector<unsigned short>::iterator it = errors.begin(); it != errors.end(); it++)
 	{
@@ -181,12 +181,12 @@ void	parseErrorPages(std::string &file, size_t &i, size_t &line, std::map<unsign
 void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 {
 	if (!root.empty())
-		throw (CustomLineException("Multiple definition of root", line));
+		throw (ParsingLineException("Multiple definition of root", line));
 	skipWSpace(file, i, line);
 	root = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }

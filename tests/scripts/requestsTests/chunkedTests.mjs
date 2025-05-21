@@ -1,5 +1,5 @@
 import { compareBadRequests, compareBadRequestWithValues } from "./compareRequests.mjs"
-import { verifyServersAreRunning, exec, printHeader, generateString, randomInt, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
+import { verifyServersAreRunning, exec, printHeader, generateString, randomInt, COLOR_GREEN, COLOR_RED, COLOR_RESET, createChunkedRequest } from "./utils.mjs"
 
 const	printOK = false;
 
@@ -15,40 +15,19 @@ function	randomStringArray(minArray, maxArray, minString, maxString)
     return (result);
 }
 
-function	createChunkedRequest(target, headers, chunks, trailers)
+async function	sendRawBadRequest(message)
 {
-	let message = "PUT " + target + " HTTP/1.1\r\n";
-	headers.forEach((header) => {
-		message += header + "\r\n";
-	});
-	message += "\r\n";
-	chunks.forEach((chunk) => {
-		message += chunk.length.toString(16) + "\r\n"
-		message += chunk + "\r\n"
-	});
-	message += "0\r\n";
-	trailers.forEach((trailer) => {
-		message += trailer + "\r\n";
-	});
-	message += "\r\n";
-	return (message);
-}
-
-async function	sendRawBadRequest(header, target, message)
-{
-	printHeader(header);
 	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+	return (result);
 }
 
-async function	sendGoodChunkedRequest(header, target, headers, chunks, trailers)
+async function	sendGoodChunkedRequest(target, headers, chunks, trailers)
 {
-	printHeader(header);
-
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
 	const	result = await compareBadRequests(message, target, printOK);
 
@@ -56,13 +35,12 @@ async function	sendGoodChunkedRequest(header, target, headers, chunks, trailers)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+	return (result);
 }
 
 
-async function	sendBadChunkedRequest(header, target, headers, chunks, trailers)
+async function	sendBadChunkedRequest(target, headers, chunks, trailers)
 {
-	printHeader(header);
-
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
 	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
 
@@ -70,23 +48,47 @@ async function	sendBadChunkedRequest(header, target, headers, chunks, trailers)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+	return (result);
 }
 
 async function runTests()
 {
-	const	defaultHeaders = [ "Host: nginx", "Connection: close", "Transfer-Encoding: chunked" ];
+	let	succeed = true;
 
-	await sendGoodChunkedRequest("Simple Chunked", "/chunked/simple.txt", defaultHeaders, [ "je suis", "un test", "tu peux \n le voir" ], []);
-	await sendGoodChunkedRequest("Empty", "/chunked/empty.txt", defaultHeaders, [], []);
-	await sendBadChunkedRequest("One Chunk Empty", "/chunked/oneEmpty.txt", defaultHeaders, ["testestets\r\r\n\r\n  ", "", "autre test"], []);
-	await sendGoodChunkedRequest("Random Small", "/chunked/small.txt", defaultHeaders, randomStringArray(1, 5, 50, 100), []);
-	await sendGoodChunkedRequest("Random Medium", "/chunked/medium.txt", defaultHeaders, randomStringArray(5, 20, 50, 100), []);
-	await sendGoodChunkedRequest("Random Big", "/chunked/big.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), []);
-	await sendGoodChunkedRequest("Random Huge", "/chunked/huge.txt", defaultHeaders, randomStringArray(100000, 200000, 50, 100), []);
-	await sendGoodChunkedRequest("With Single Trailer", "/chunked/singleTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe"]);
-	await sendGoodChunkedRequest("With Multiple Trailers", "/chunked/multipleTrailers.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe", "Quit: now", "Cookies: nop"]);
-	await sendGoodChunkedRequest("With Invalid Trailer", "/chunked/invalidTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), [ "test=tru" ]);
-	await sendRawBadRequest("No BreakLine On Size", "/chunked/noBreakLineOnSize", 
+	const	defaultHeaders = [ "Host: host:port", "Connection: close", "Transfer-Encoding: chunked" ];
+
+	printHeader("Simple Chunked");
+	succeed = await sendGoodChunkedRequest("/chunked/simple.txt", defaultHeaders, [ "je suis", "un test", "tu peux \n le voir" ], []) && succeed;
+
+	printHeader("Empty");
+	succeed = await sendGoodChunkedRequest("/chunked/empty.txt", defaultHeaders, [], []) && succeed;
+
+	printHeader("One Chunk Empty");
+	succeed = await sendBadChunkedRequest("/chunked/oneEmpty.txt", defaultHeaders, ["testestets\r\r\n\r\n  ", "", "autre test"], []) && succeed;
+
+	printHeader("Random Small");
+	succeed = await sendGoodChunkedRequest("/chunked/small.txt", defaultHeaders, randomStringArray(1, 5, 50, 100), []) && succeed;
+
+	printHeader("Random Medium");
+	succeed = await sendGoodChunkedRequest("/chunked/medium.txt", defaultHeaders, randomStringArray(5, 20, 50, 100), []) && succeed;
+
+	printHeader("Random Big");
+	succeed = await sendGoodChunkedRequest("/chunked/big.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), []) && succeed;
+
+	printHeader("Random Huge");
+	succeed = await sendGoodChunkedRequest("/chunked/huge.txt", defaultHeaders, randomStringArray(100000, 200000, 50, 100), []) && succeed;
+
+	printHeader("With Single Trailer");
+	succeed = await sendGoodChunkedRequest("/chunked/singleTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe"]) && succeed;
+
+	printHeader("With Multiple Trailers");
+	succeed = await sendGoodChunkedRequest("/chunked/multipleTrailers.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), ["Hello: mehe", "Quit: now", "Cookies: nop"]) && succeed;
+
+	printHeader("With Invalid Trailer");
+	succeed = await sendGoodChunkedRequest("/chunked/invalidTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), [ "test=tru" ]) && succeed;
+
+	printHeader("No BreakLine On Size");
+	succeed = await sendRawBadRequest(
 "PUT /chunked/noBreakLineOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -96,8 +98,10 @@ async function runTests()
 "je su\r\n" +
 "0\r\n" +
 "\r\n"
-)
-	await sendRawBadRequest("No Return Carriage On Size", "/chunked/noReturnCarriageOnSize", 
+) && succeed;
+
+	printHeader("No Return Carriage On Size");
+	succeed = await sendRawBadRequest(
 "PUT /chunked/noReturnCarriageOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -107,9 +111,10 @@ async function runTests()
 "je su\r\n" +
 "0\n" + // error here
 "\r\n"
-)
+) && succeed;
 
-	await sendRawBadRequest("No Return Carriage Nor BreakLine", "/chunked/noReturnCarriageNorBreakLineOnSize", 
+	printHeader("No Return Carriage Nor BreakLine");
+	succeed = await sendRawBadRequest(
 "PUT /chunked/noReturnCarriageNorBreakLineOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -121,8 +126,10 @@ async function runTests()
 "je suis un\r\n" +
 "0\r\n" +
 "\r\n"
-)
-	await sendRawBadRequest("No BreakLine On Data", "/chunked/noBreakLineOnData", 
+) && succeed;
+
+	printHeader("No BreakLine On Data");
+	succeed = await sendRawBadRequest(
 "PUT /chunked/noBreakLineOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -132,8 +139,10 @@ async function runTests()
 "je su\r" + // error here
 "0\r\n" +
 "\r\n"
-)
-	await sendRawBadRequest("No Return Carriage On Data", "/chunked/noReturnCarriageOnData", 
+) && succeed;
+
+	printHeader("No Return Carriage On Data");
+	succeed = await sendRawBadRequest(
 "PUT /chunked/noReturnCarriageOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -143,9 +152,10 @@ async function runTests()
 "je su\n" + // error here
 "0\n" +
 "\r\n"
-)
+) && succeed;
 
-	await sendRawBadRequest("No Return Carriage Nor BreakLine", "/chunked/noReturnCarriageNorBreakLineOnData", 
+	printHeader("No Return Carriage Nor BreakLine");
+	succeed = await sendRawBadRequest(
 "PUT /chunked/noReturnCarriageNorBreakLineOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -157,7 +167,13 @@ async function runTests()
 "je suis un" + // error here
 "0\r\n" +
 "\r\n"
-)
+) && succeed;
+
+
+	if (succeed)
+		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function	run()

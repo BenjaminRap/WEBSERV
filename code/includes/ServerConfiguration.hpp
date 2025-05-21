@@ -37,8 +37,7 @@ public :
 	const std::map<uint16_t, std::string>&		getErrorPages(void) const;
 	const size_t&								getMaxClientBodySize(void) const;
 	const std::map<std::string, Route>&			getRoutes(void) const;
-	const Route*								getRouteFromPath(const std::string &path) const;
-	const std::string							getLocation(const std::string &loc) const;
+	const std::pair<const std::string, Route>*	getRouteFromPath(const std::string &path) const;
 	const std::vector<std::string>&				getIndex(void) const;
 
 private :

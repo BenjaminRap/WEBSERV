@@ -23,7 +23,7 @@ void	checkEnd(std::string &path, DeleteRequest &del)
 		del.setResponse(HTTP_CONFLICT);
 	}
 	else
-		del.setUrl(path);
+		del.setPath(path);
 }
 
 bool	canWrite(const std::string &path)
@@ -42,7 +42,7 @@ bool	canWrite(const std::string &path)
 
 uint16_t	directoryCase(const std::string &path, DeleteRequest &del)
 {
-	checkEnd(del.getUrl(), del);
+	checkEnd(del.getPath(), del);
 	if (del.getCode() == HTTP_CONFLICT)
 		return (HTTP_CONFLICT);
 	if (!canWrite(path) || removeDirectory(path, del) != HTTP_OK

@@ -3,7 +3,6 @@
 
 # include <string>				// for std::string
 
-# include "ABody.hpp"			// for ABdoy
 # include "AFdData.hpp"			// for AFdData
 # include "FlowBuffer.hpp"		// for FlowBuffer
 # include "SharedResource.hpp"	// for SharedResource

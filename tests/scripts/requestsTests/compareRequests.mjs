@@ -37,11 +37,19 @@ function	compareStatus(nginxResponse, webservResponse, printOK)
 function	compareRedirection(nginxResponse, webservResponse, printOK)
 {
 	//redirection
-	const nginxRedirection = nginxResponse.headers.get("Location");
-	const webservRedirection = webservResponse.headers.get("Location");
+	let	nginxRedirection = nginxResponse.headers.get("Location")?.slice(0);
+	let	webservRedirection = webservResponse.headers.get("Location")?.slice(0);
 
-	if (nginxRedirection !== null && webservRedirection !== null)
-			return (verify("redirection : ", nginxRedirection, webservRedirection, printOK));
+	nginxRedirection = nginxRedirection?.replace(nginxPort.toString(), "port")
+	webservRedirection = webservRedirection?.replace(webservPort.toString(), "port")
+
+	nginxRedirection = nginxRedirection?.replace(nginxHost, "host")
+	webservRedirection = webservRedirection?.replace(webservHost, "host")
+
+	if (nginxRedirection !== null || webservRedirection !== null)
+	{
+		return (verify("redirection: ",  nginxRedirection, webservRedirection, printOK));
+	}
 	return (true);
 }
 

@@ -1,15 +1,38 @@
+#include <errno.h>                  // for errno, EACCES, EROFS
 #include <stddef.h>                 // for size_t, NULL
+#include <stdint.h>                 // for uint16_t
 #include <sys/stat.h>               // for stat
 #include <sys/types.h>              // for ssize_t
+#include <unistd.h>                 // for access, X_OK
 #include <string>                   // for basic_string, string
+#include <utility>                  // for pair
 #include <vector>                   // for vector
 
-#include "ARequestType.hpp"         // for ARequestType
+#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route, SRedirection
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_BAD_REQUEST
 #include "socketCommunication.hpp"  // for checkError
+
+uint16_t	isDirOrFile(const std::string& path);
+
+uint16_t	isCgiExecutable(const std::string& path)
+{
+	const uint16_t	targetType = isDirOrFile(path);
+
+	if (targetType == DIRE)
+		return (HTTP_FORBIDDEN);
+	if (targetType != LS_FILE)
+		return (targetType);
+	if (access(path.c_str(), X_OK) == -1)
+	{
+		if (errno == EACCES || errno == EROFS)
+			return (HTTP_FORBIDDEN);
+		return (HTTP_INTERNAL_SERVER_ERROR);
+	}
+	return (0);
+}
 
 bool	checkAllowMeth(const Route *route, EMethods meth)
 {
@@ -94,30 +117,32 @@ void	fixUrl(ARequestType &req, std::string &url)
 	else
 	{
 		fixPath(url);
-		req.setUrl(url);
+		req.setPath(url);
 	}
 }
 
 void	addRoot(ARequestType &req, const ServerConfiguration &config)
 {
-	const Route	*route = config.getRouteFromPath(req.getUrl());
+	const std::pair<const std::string, Route>*	route = config.getRouteFromPath(req.getPath());
+	const std::string*							location = (route) ? &route->first : NULL;
+	const Route*								routeData = (route) ? &route->second : NULL;
 
-	req.setRoute(route);
-	if (!checkAllowMeth(route, req.getMethod()))
+	req.setRoute(routeData);
+	if (!checkAllowMeth(routeData, req.getMethod()))
 	{
 		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
 	if (route == NULL)
 	{
-		buildNewURl(config.getRoot(), req.getUrl());
+		buildNewURl(config.getRoot(), req.getPath());
 		return ;
 	}
-	const std::string &redir = route->getRedirection().url;
+	const std::string &redir = routeData->getRedirection().url;
 	if (!redir.empty())
-		req.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir, true);
+		req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, redir, true);
 	else
-		replaceUrl(config.getLocation(req.getUrl()), route->getRoot(), req.getUrl());
+		replaceUrl(*location, routeData->getRoot(), req.getPath());
 }
 
 ssize_t	getFileSize(const std::string &filePath)

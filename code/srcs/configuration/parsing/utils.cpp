@@ -26,7 +26,7 @@ void	skipLine(std::string &file, size_t &i, size_t &line)
 {
 	i = file.find('\n', i);
 	if (i == std::string::npos)
-		throw (CustomLineException("Unexpected error", line));
+		throw (ParsingLineException("Unexpected error", line));
 	if (i != file.size())
 		line++;
 	i++;
@@ -35,7 +35,7 @@ void	skipLine(std::string &file, size_t &i, size_t &line)
 void	skipWSpace(std::string &file, size_t &i, size_t &line)
 {
 	if (i == std::string::npos)
-		throw (CustomLineException("Unexpected error", line));
+		throw (ParsingLineException("Unexpected error", line));
 	while (std::isspace(static_cast<unsigned char>(file[i])))
 	{
 		if (file[i] == '\n')
@@ -55,7 +55,7 @@ short	realAtoi(std::string &file, size_t &i, size_t &line, short max, short len)
 		len++;
 	}
 	if (nb > max || nb < 0)
-		throw (CustomLineException("Wrong number format", line));
+		throw (ParsingLineException("Wrong number format", line));
 	return (nb);
 }
 
@@ -72,7 +72,7 @@ uint8_t	hexToInt(std::string &file, size_t &i, size_t &line)
 		j--;
 	}
 	if (j != 0)
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	return (nb);
 }
 

@@ -32,7 +32,8 @@ enum	RequestState
 	CONNECTION_CLOSED
 };
 
-class ARequestType;
+class	RequestContext;
+class	ARequestType;
 
 /**
  * @class RequestHandler
@@ -55,7 +56,7 @@ private:
 	/**
 	 * @brief The FlowBuffer managing the read of the request into the _buffer.
 	 */
-	FlowBuffer								_flowBuf;
+	FlowBuffer								_requestBuf;
 	/**
 	 * @brief It keeps track of where the request is. (reading the status line, a header ...)
 	 */
@@ -102,13 +103,7 @@ private:
 	 *
 	 * @param socketFd the socket fd of the client.
 	 */
-	void						executeRequest(Response &response, EPollHandler& ePollHandler);
-	/**
-	 * @brief Write the request body from the _buffer to the body fd.
-	 * If there is an error, it sets the response values.
-	 *
-	 */
-	void						writeBodyFromBuffer(Response &response);
+	void						executeRequest(Response &response, RequestContext& requestContext);
 	/**
 	 * @brief Returns the ServerConfiguration corresponding to the Host header.
 	 * If no ServerConfiguration corresponds or if there is no Host header,
@@ -116,16 +111,6 @@ private:
 	 *
 	 */
 	const ServerConfiguration	&getServerConfiguration(const std::string& host) const;
-	/**
-	 * @brief Set  the response values depending on the results of the
-	 * request.
-	 *
-	 */
-	void						processRequestResult
-	(
-		ARequestType& request,
-		Response &response
-	);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();
@@ -145,23 +130,26 @@ public:
 	 * @param canRead Can this function read from the socketFd.
 	 * @return 
 	 */
-	RequestState				redirectBody(int socketFd, Response &response, bool canRead);
+	RequestState				redirectBody(const int* socketFd, Response &response);
 	/**
 	 * @brief Read and handle the execution of the request
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(Response &response, int socketFd, EPollHandler& ePollHandler);
+	RequestState				readRequest(RequestContext& requestContext);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *
 	 */
 	bool						isStateRequestBody(void);
 	/**
-	 * @brief reset the response and set teh _state to READ_STATUS_LINE
+	 * @brief reset the response and set the _state to READ_STATUS_LINE
 	 *
 	 */
 	void						setNewRequest(void);
+	RequestState				ignoreBody(Response& response);
+	Request&					getRequest(void);
+	FlowBuffer&					getFlowBuffer(void);
 };
 
 #endif // !REQUEST_HANDLER_HPP

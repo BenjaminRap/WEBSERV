@@ -76,28 +76,23 @@ const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 	return (this->routes);
 }
 
-const Route	*ServerConfiguration::getRouteFromPath(const std::string &path) const
+const std::pair<const std::string, Route>*	ServerConfiguration::getRouteFromPath(const std::string &path) const
 {
-	std::map<std::string, Route>::const_iterator temp = routes.end();
+	std::map<std::string, Route>::const_iterator bestMatch = routes.end();
 
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (path.find(it->first) == 0 && (temp == routes.end() || temp->first.size() < it->first.size()))
-			temp = it;
+		if (path.rfind(it->first, 0) == 0
+			&& (bestMatch == routes.end() || bestMatch->first.size() < it->first.size()))
+		{
+			bestMatch = it;
+		}
 	}
-	if (temp != routes.end())
-		return (&temp->second);
+	if (bestMatch != routes.end())
+	{
+		return (&(*bestMatch));
+	}
 	return (NULL);
-}
-
-const std::string	ServerConfiguration::getLocation(const std::string &path) const
-{
-	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
-	{
-		if (path.find(it->first) == 0)
-			return (it->first);
-	}
-	return ("");
 }
 
 const std::vector<std::string>	&ServerConfiguration::getIndex(void) const

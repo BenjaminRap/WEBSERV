@@ -39,12 +39,25 @@ int	setIPV6Only(int fd, bool isIPV6Only)
 	return (returnValue);
 }
 
-int	addFlagsToFd(int fd, int flags)
+bool	addFlagsToFd(int fd, int statusFlags, int descriptorFlags)
 {
-	int currentFlags = fcntl(fd, F_GETFL);
-	if (checkError(currentFlags, -1, "fcntl() : "))
-		return (-1);
-	int ret = fcntl(fd, F_SETFL, currentFlags | flags);
-	checkError(ret, -1, "fcntl() : ");
-	return (ret);
+	if (statusFlags != 0)
+	{
+		const int currentStatusFlags = fcntl(fd, F_GETFL);
+		if (checkError(currentStatusFlags, -1, "fcntl() : "))
+			return (false);
+		int setStatusFlagsRet = fcntl(fd, F_SETFL, currentStatusFlags | statusFlags);
+		if (checkError(setStatusFlagsRet, -1, "fcntl() : "))
+			return (false);
+	}
+	if (descriptorFlags != 0)
+	{
+		const int currentDescriptorFlags = fcntl(fd, F_GETFD);
+		if (checkError(currentDescriptorFlags, -1, "fcntl() : "))
+			return (false);
+		int setDescriptorFlagsRet = fcntl(fd, F_SETFD, currentDescriptorFlags | descriptorFlags);
+		if (checkError(setDescriptorFlagsRet, -1, "fcntl() : "))
+			return (false);
+	}
+	return (true);
 }

@@ -10,51 +10,59 @@ async function	runGoodGetTest(target)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+	return (result);
 }
 
 async function runTests()
 {
+	let	succeed = true;
+
 	printHeader("Classic Case");
-	await runGoodGetTest("/get/main.html");
-	await runGoodGetTest("/get/fake/main.cpp");
-	await runGoodGetTest("/get/fake/../main.html");
-	await runGoodGetTest("/get/fake/../../../../../../../../main.html");
-	await runGoodGetTest("/get/../main.html");
+	succeed = await runGoodGetTest("/get/main.html") && succeed;
+	succeed = await runGoodGetTest("/get/fake/main.cpp") && succeed;
+	succeed = await runGoodGetTest("/get/fake/../main.html") && succeed;
+	succeed = await runGoodGetTest("/get/fake/../../../../../../../../main.html") && succeed;
+	succeed = await runGoodGetTest("/get/../main.html") && succeed;
 
 	printHeader("Index Case");
-	await runGoodGetTest("/get/srcs/");
+	succeed = await runGoodGetTest("/get/srcs/") && succeed;
 
 	printHeader("Redirection Case");
-	await runGoodGetTest("/get/srcs");
+	succeed = await runGoodGetTest("/get/srcs") && succeed;
 
 	printHeader("403 Case");
-	await runGoodGetTest("/get/fake/");
-	await runGoodGetTest("/get/nonono/");
+	succeed = await runGoodGetTest("/get/fake/") && succeed;
+	succeed = await runGoodGetTest("/get/nonono/") && succeed;
 
 	printHeader("405 Case");
-	await runGoodGetTest("/get/405/");
+	succeed = await runGoodGetTest("/get/405/") && succeed;
 
 	printHeader("404 Case");
-	await runGoodGetTest("/unitTest/uplo/");
-	await runGoodGetTest("/gknrk");
-	await runGoodGetTest("/bin/");
+	succeed = await runGoodGetTest("/unitTest/uplo/") && succeed;
+	succeed = await runGoodGetTest("/gknrk") && succeed;
+	succeed = await runGoodGetTest("/bin/") && succeed;
 
 	printHeader("Auto Index");
-	await runGoodGetTest("/get/auto/");
-	await runGoodGetTest("/get/auto2/");
+	succeed = await runGoodGetTest("/get/auto/") && succeed;
+	succeed = await runGoodGetTest("/get/auto2/") && succeed;
 
 	printHeader("Folder With File Name");
-	await runGoodGetTest("/get/truc.txt/");
+	succeed = await runGoodGetTest("/get/truc.txt/") && succeed;
 
 	printHeader("Index Specials");
-	await runGoodGetTest("/get/indexIsFolder/");
-	await runGoodGetTest("/get/indexIsSymlink/");
-	await runGoodGetTest("/get/indexIsFolderAndFile/");
-	await runGoodGetTest("/get/indexIsSymlinkAndFile/");
+	succeed = await runGoodGetTest("/get/indexIsFolder/") && succeed;
+	succeed = await runGoodGetTest("/get/indexIsSymlink/") && succeed;
+	succeed = await runGoodGetTest("/get/indexIsFolderAndFile/") && succeed;
+	succeed = await runGoodGetTest("/get/indexIsSymlinkAndFile/") && succeed;
 
 	printHeader("Fix Url Errors");
-	await runGoodGetTest("/get//main.html");
-	await runGoodGetTest("/get/endWith./index.html");
+	succeed = await runGoodGetTest("/get//main.html") && succeed;
+	succeed = await runGoodGetTest("/get/endWith./index.html") && succeed;
+
+	if (succeed)
+		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function	run()

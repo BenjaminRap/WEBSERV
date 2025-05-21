@@ -52,6 +52,7 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							DeleteRequest.cpp		\
 							DeleteRequestUtils.cpp	\
 							PutRequest.cpp			\
+							PostRequest.cpp			\
 							ARequestType.cpp		\
 							ARequestUtils.cpp		\
 							statuses.cpp			\
@@ -62,11 +63,21 @@ CGI_DIR					:=	cgi/
 CGI_FILES				:=	CgiIn.cpp				\
 							CgiOut.cpp				\
 							CgiOutRedirection.cpp	\
-							CgiOutParsing.cpp
+							CgiOutParsing.cpp		\
+							RequestContext.cpp		\
+							execCGI.cpp
 CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 
 UTILS_DIR				:=	utils/
 UTILS_FILES				:=	conversion.cpp			\
 							EMethods.cpp			\
-							closeAndPrintError.cpp
+							closeAndPrintError.cpp	\
+							deleteArray.cpp			\
+							stringUtils.cpp
 UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))
+
+
+CGI_ENV_DIR			:=	cgiEnv/
+CGI_ENV_FILES		:=	setEnv.cpp	\
+						setArgv.cpp
+CGI_ENV			:=	$(addprefix $(CGI_ENV_DIR), $(CGI_ENV_FILES))

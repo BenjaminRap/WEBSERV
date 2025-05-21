@@ -73,6 +73,7 @@ void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_
 void	parseRouteIndex(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index);
 void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);
 void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
+void	parseRouteCgiInterpreter(std::string &file, size_t &i, size_t &line, std::string &cgiInterpreter);
 void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention);
 void	readfile(const char *path, std::string &buff);
 void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \

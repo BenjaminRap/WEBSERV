@@ -38,12 +38,20 @@ bool		FlowBuffer::getLine(char **lineBegin, char **lineEnd)
 	*lineBegin = start;
 	*lineEnd = breakline;
 	_numCharsWritten += std::distance(start, breakline + 1); // +1 because we go past the /n
-	if (breakline == afterEnd - 1) // afterEnd - 1 means the last character
+	if (_numCharsWritten >= _contentLength) // afterEnd - 1 means the last character
 	{
 		_numCharsWritten = 0;
 		_contentLength = 0;
 	}
 	return (true);
+}
+
+void	FlowBuffer::getContent(char** lineBegin, char** lineEnd)
+{
+	*lineBegin = _buffer + _numCharsWritten;
+	*lineEnd = _buffer + _contentLength;
+	_numCharsWritten = 0;
+	_contentLength = 0;
 }
 
 void	FlowBuffer::moveBufferContentToStart(void)

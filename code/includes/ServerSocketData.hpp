@@ -5,6 +5,8 @@
 
 # define SERVER_EVENTS (EPOLLIN | EPOLLERR)
 
+class	Host;
+
 /**
  * @brief This class stores all the data needed by a server socket. A server socket
  * is a socket that listens on a specific host, and when it receives a request, 
@@ -13,6 +15,11 @@
 class ServerSocketData : public ASocketData
 {
 private:
+	/**
+	 * @brief On which host does this socket listen.
+	 */
+	const Host&	_host;
+
 	ServerSocketData(void);
 	ServerSocketData(const ASocketData &ref);
 
@@ -25,7 +32,7 @@ private:
 	 */
 	void	acceptConnection(uint32_t events);
 public:
-	ServerSocketData(int fd , EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations);
+	ServerSocketData(int fd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations, const Host& host);
 	~ServerSocketData(void);
 
 	/**

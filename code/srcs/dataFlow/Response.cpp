@@ -2,7 +2,6 @@
 #include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
-#include <exception>                // for exception
 #include <iostream>                 // for basic_ostream, operator<<, ostream
 #include <map>                      // for map
 #include <stdexcept>                // for logic_error
@@ -17,7 +16,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
+#include "requestStatusCode.hpp"    // for HTTP_CREATED, HTTP_FORBIDDEN, HTT...
 
 /*********************************Constructors/Destructors*************************************/
 
@@ -110,7 +109,7 @@ FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& se
 		if (errorPage == NULL)
 			return (NULL);
 
-		return (new FileFd(*errorPage, O_RDONLY));
+		return (new FileFd(errorPage->c_str(), O_RDONLY));
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{
@@ -154,18 +153,16 @@ void	Response::setResponse(ARequestType& requestResult)
 	reset();
 
 	_fdData = requestResult.getOutFd();
-	if (_fdData.isManagingValue())
+	if (_fdData.isManagingValue()
+		&& _fdData.getValue()->getType() == CGI_OUT)
 	{
-		AFdData* fdData = _fdData.getValue();
-
-		if (fdData->getType() == CGI_OUT)
-			return ;
+		return ;
 	}
 
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
-		&& _status->isOfType(STATUS_REDIRECTION))
+		&& (_status->isOfType(STATUS_REDIRECTION) || _status->getCode() == HTTP_CREATED))
 	{
 		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
 	}

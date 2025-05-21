@@ -43,10 +43,11 @@ private:
 	 */
 	bool			_reuseAddr;
 
+	Configuration(void);
 	Configuration(const Configuration& ref);
 	Configuration&	operator=(const Configuration& ref);
 public:
-	Configuration(void);
+	Configuration(const char* path);
 	~Configuration(void);
 	
 	int				getMaxConnectionBySocket(void) const;

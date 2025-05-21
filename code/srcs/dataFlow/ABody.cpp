@@ -14,6 +14,7 @@ ABody::ABody(int fd, ABodyChilds type) :
 	_fd(fd),
 	_finished(false),
 	_status(HTTP_OK),
+	_written(0),
 	_type(type)
 {
 }
@@ -22,6 +23,7 @@ ABody::ABody(ABodyChilds type) :
 	_fd(-1),
 	_finished(false),
 	_status(HTTP_OK),
+	_written(0),
 	_type(type)
 {
 }
@@ -58,17 +60,12 @@ ABodyChilds	ABody::getType(void) const
 
 void	ABody::setFd(int fd)
 {
-	if (!_finished && _written != 0)
-		throw std::logic_error("Tried to change the fd of a body that has began to write data but not finished !");
-
-	_finished = false;
-	_written = 0;
 	_fd = fd;
 }
 
 ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 {
-	if (_fd < 0)
+	if (_fd > 0)
 	{
 		const ssize_t	written = write(_fd, buffer, bufferCapacity);
 
@@ -76,6 +73,7 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 			_written += written;
 		return (written);
 	}
+	_written += bufferCapacity;
 	return (bufferCapacity);
 }
 

@@ -86,11 +86,13 @@ int		removeUnixSocketIfExists(const char sun_path[108]);
 int		bindUnixSocket(int fd, const sockaddr *addr, socklen_t addrLen, \
 			std::vector<std::string> &socketsToRemove);
 /**
- * @brief Add flags to a fd, keepingg the previousflags.
+ * @brief Add flags to a fd, keeping the previousflags.
+ * The status flags are the flags beginning with O_, like O_NONBLOCK.
+ * The descriptor flags are teh flags beginning with FD_, like FD_CLOEXEC.
  *
- * @return -1 on error, 0 otherwise.
+ * @return false on error, true otherwise.
  */
-int		addFlagsToFd(int fd, int flags);
+bool		addFlagsToFd(int fd, int statusFlags, int descriptorFlags);
 /**
  * @brief Close the fd and print an error if it fails.
  * Ir prints close() : errno value

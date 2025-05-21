@@ -1,0 +1,123 @@
+#include <cstring>       // for size_t, memset, strcpy, NULL
+#include <exception>     // for exception
+#include <stdexcept>     // for logic_error
+#include <string>        // for basic_string, string, operator+
+
+#include "EMethods.hpp"  // for getStringRepresentation, EMethods
+#include "Headers.hpp"   // for Headers
+#include "Request.hpp"   // for Request
+#include "protocol.hpp"  // for PROTOCOL
+#include "RequestContext.hpp"  // for RequestContext
+#include "Host.hpp"  // for Host
+
+#define SERVER_SOFTWARE "webserv/1.0"
+#define GATEWAY_INTERFACE "CGI/1.1"
+
+std::string	sizeTToString(size_t value);
+std::string uint16toString(u_int16_t nb);
+std::string ipV4toString(const struct sockaddr_in &addr);
+std::string ipV6toString(const struct in6_addr &ip);
+
+char *duplicateString(const std::string &str)
+{
+	char *dup = new char[str.length() + 1];
+
+	std::strcpy(dup, str.c_str());
+	return (dup);
+}
+
+bool	addToEnv(char *(&env)[20], const std::string &title)
+{
+	int i = 0;
+	while (env[i] != NULL && i < 19)
+		i++;
+	if (i == 19)
+		throw std::logic_error("Too much environment variable !");
+	env[i] = duplicateString(title);
+	return (true);
+}
+
+bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *value)
+{
+	if (value == NULL)
+		return (true);
+
+	return (addToEnv(env, title + *value));
+}
+
+
+std::string findScriptName(const std::string &target, size_t &pos, const std::string& extension)
+{
+	const size_t end = target.find(extension);
+
+	if (end == std::string::npos)
+		throw std::logic_error("setEnv called with an invalid file extension");
+	std::string result = target.substr(0, end + extension.size());
+	pos = end + 4;
+	return (result);
+}
+
+std::string findPathInfo(const std::string &target, size_t &pos)
+{
+	if (target[pos] != '/')
+		return ("");
+	size_t end = target.find("?", pos + 1);
+	std::string result;
+	if (end == std::string::npos)
+	{
+		result = target.substr(pos);
+		return (result);
+	}
+	else
+	{
+		result = target.substr(pos, end - pos);
+		pos = end;
+		return (result);
+	}
+}
+
+void	deleteArray(const char** array);
+
+bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext)
+{
+	std::memset(env, 0, sizeof(env));
+	try
+	{
+		const Headers&	headers = request.getHeaders();
+		const EMethods	method = request.getMethod();
+
+		size_t pos = 0;
+
+		addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
+		addToEnv(env, "SERVER_NAME=", headers.getHeader("host"));
+		addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
+		addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL);
+		addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(method));
+		addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("accept"));
+		addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("accept-language"));
+		addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("user-agent"));
+		addToEnv(env, "HTTP_COOKIE=", headers.getHeader("cookie"));
+		addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
+		addToEnv(env, "CONTENT_LENGTH=", headers.getHeader("content-length"));
+		addToEnv(env, "REFERER=", headers.getHeader("referer"));
+		addToEnv(env, "SCRIPT_NAME=" + findScriptName(path, pos, extension));
+		addToEnv(env, "PATH_INFO=" + findPathInfo(path, pos));
+		addToEnv(env, "QUERY_STRING=" + queryString);
+		addToEnv(env, "PATH_TRANSLATED=" + path);
+		sa_family_t family = requestContext.host.getFamily();
+		if (family == AF_INET) {
+			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv4Addr().sin_port));
+			addToEnv(env, "REMOTE_ADDR=" + ipV4toString(requestContext.clientAddr.ipv4));
+		}
+		else if (family == AF_INET6) {
+			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv6Addr().sin6_port));
+			addToEnv(env, "REMOTE_ADDR=" + ipV6toString(requestContext.clientAddr.ipv6.sin6_addr));
+		}
+		return (true);
+	}
+	catch (const std::exception& exception)
+	{
+		deleteArray((const char**)env);
+		return (false);
+	}
+}

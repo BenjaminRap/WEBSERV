@@ -1,89 +1,98 @@
 #ifndef	EXCEPTION_HPP
 # define EXCEPTION_HPP
 
+#include <cerrno>
+#include <cstring>
 # include <string>
 # include <sstream>
 
-class CustomException : public std::exception
+class ParsingException : public std::exception
 {
-	public:
-		CustomException(std::string message) : message(message)
-		{
-			error = errorMsg();
-		}
+public:
+	ParsingException(const std::string& message) : _error(errorMsg(message))
+	{
+	}
 
-		std::string errorMsg() const
-		{
-			return ("Error parsing: " + message);
-		}
+	std::string errorMsg(const std::string& message) const
+	{
+		return ("Error parsing: " + message);
+	}
 
-		virtual const char* what() const throw()
-		{
-			return (error.c_str());
-		}
-		virtual ~CustomException() throw() {}
+	virtual const char* what() const throw()
+	{
+		return (_error.c_str());
+	}
+	virtual ~ParsingException() throw() {}
 
-	private:
-		std::string error;
-		std::string message;
+private:
+	const std::string _error;
 };
 
-class CustomLineException : public std::exception
+class ParsingLineException : public std::exception
 {
-	public:
-		CustomLineException(std::string message, size_t line) : line(line)
-		{
-			this->message = message;
-			error = errorMsg();
-		}
+public:
+	ParsingLineException(const std::string& message, size_t line) :
+		_error(errorMsg(message, line))
+	{
+	}
 
-		std::string errorMsg() const
-		{
-			std::ostringstream oss;
-			oss << line;
-			return ("Error parsing: " + message + "\nline: " + oss.str());
-		}
+	std::string errorMsg(const std::string& message, size_t line) const
+	{
+		std::ostringstream oss;
+		oss << "Error parsing:" << message << ", line: " << line;
+		return (oss.str());
+	}
 
-		virtual const char* what() const throw()
-		{
-			return (error.c_str());
-		}
-		virtual ~CustomLineException() throw() {}
+	virtual const char* what() const throw()
+	{
+		return (_error.c_str());
+	}
+	virtual ~ParsingLineException() throw() {}
 
-	private:
-		size_t		line;
-		std::string error;
-		std::string message;
+private:
+	const std::string	_error;
 };
 
-class CustomKeyWordAndLineException : public std::exception
+class ParsingKeyWordAndLineException : public std::exception
 {
-	public:
-		CustomKeyWordAndLineException(std::string message, size_t line, std::string word) \
-		: line(line), word(word)
-		{
-			this->message = message;
-			error = errorMsg();
-		}
+public:
+	ParsingKeyWordAndLineException(const std::string& message, size_t line, const std::string& word) :
+		_error(errorMsg(message, word, line))
+	{
+	}
 
-		std::string errorMsg() const
-		{
-			std::ostringstream oss;
-			oss << line;
-			return ("Error parsing: " + message + ": " + word + "\nline: " + oss.str());
-		}
+	std::string errorMsg(const std::string& message, const std::string& word, size_t line) const
+	{
+		std::ostringstream oss;
+		oss << "Error parsing: " << message << " : " << word << ", line: " << line;
+		return (oss.str());
+	}
 
-		virtual const char* what() const throw()
-		{
-			return (error.c_str());
-		}
-		virtual ~CustomKeyWordAndLineException() throw() {}
+	virtual const char* what() const throw()
+	{
+		return (_error.c_str());
+	}
+	virtual ~ParsingKeyWordAndLineException() throw() {}
 
-	private:
-		size_t		line;
-		std::string word;
-		std::string error;
-		std::string message;
+private:
+	const std::string	_error;
+};
+
+class ExecveException : public std::exception
+{
+public:
+	ExecveException (void) :
+		_error(strerror(errno))
+	{
+	}
+
+	virtual const char* what() const throw()
+	{
+		return (_error);
+	}
+	virtual ~ExecveException() throw() {}
+private:
+	const char * const	_error;
 };
 
 #endif
