@@ -52,6 +52,7 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							DeleteRequest.cpp		\
 							DeleteRequestUtils.cpp	\
 							PutRequest.cpp			\
+							PostRequest.cpp			\
 							ARequestType.cpp		\
 							ARequestUtils.cpp		\
 							statuses.cpp			\
