@@ -7,11 +7,15 @@
 #include "Headers.hpp"   // for Headers
 #include "Request.hpp"   // for Request
 #include "protocol.hpp"  // for PROTOCOL
+#include "RequestContext.hpp"  // for RequestContext
+#include "Host.hpp"  // for Host
 
 #define SERVER_SOFTWARE "webserv/1.0"
 #define GATEWAY_INTERFACE "CGI/1.1"
 
 std::string	sizeTToString(size_t value);
+std::string uint16toString(u_int16_t nb);
+std::string ipV4toString(const struct sockaddr_in &addr);
 
 char *duplicateString(const std::string &str)
 {
@@ -73,7 +77,7 @@ std::string findPathInfo(const std::string &target, size_t &pos)
 
 void	deleteArray(const char** array);
 
-bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString)
+bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext)
 {
 	std::memset(env, 0, sizeof(env));
 	try
@@ -98,6 +102,13 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		addToEnv(env, "SCRIPT_NAME=" + findScriptName(path, pos, extension));
 		addToEnv(env, "PATH_INFO=" + findPathInfo(path, pos));
 		addToEnv(env, "QUERY_STRING=" + queryString);
+		addToEnv(env, "PATH_TRANSLATED=" + path);
+		sa_family_t family = requestContext.host.getFamily();
+		if (family == AF_INET)
+			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv4Addr().sin_port));
+		else if (family == AF_INET6)
+			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv6Addr().sin6_port));
+		// REMOTE ADDR missing
 		return (true);
 	}
 	catch (const std::exception& exception)
