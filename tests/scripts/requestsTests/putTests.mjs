@@ -3,30 +3,60 @@ import { verifyServersAreRunning, exec, printHeader, generateString, COLOR_GREEN
 
 const	printOK = false;
 
-async function	runGoodPutTest(header, target)
+async function	runGoodPutTest(target)
 {
-	printHeader(header);
 	const	result = await compareGoodRequests(target, "PUT", generateString(10, 100), {}, printOK);
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+	return (result);
 }
 
 async function runTests()
 {
-	await runGoodPutTest("Allowed Case", "/put/allowed/main.html");
-	await runGoodPutTest("Method Not Allowed Case", "/put/notAllowed/main.html");
-	await runGoodPutTest("No Right on folder Case", "/put/forbidden/main.html");
-	await runGoodPutTest("File Already existing With right Case", "/put/mainRight.html");
-	await runGoodPutTest("File Already existing With no right Case", "/put/mainNoRight.html");
-	await runGoodPutTest("Creating directory Case", "/put/directory/");
-	await runGoodPutTest("Creating directory that already exists, with right and empty Case", "/put/alreadyExistingDirEmpty/");
-	await runGoodPutTest("Creating directory that already exists, with right and not empty Case", "/put/alreadyExistingDir/");
-	await runGoodPutTest("Creating directory that already exists, with no right and empty Case", "/put/alreadyExistingDirEmptyNoRight/");
-	await runGoodPutTest("Creating directory that already exists, with no right and not empty Case", "/put/alreadyExistingDirNoRight/");
-	await runGoodPutTest("Existing File", "/put/allowed/main.html");
-	await runGoodPutTest("Folder Not Existing", "/put/allowed/whereAmI/test.txt");
+	let	succeed = true;
+
+	printHeader("Allowed Case");
+	succeed = await runGoodPutTest("/put/allowed/main.html") && succeed;
+
+	printHeader("Method Not Allowed Case");
+	succeed = await runGoodPutTest("/put/notAllowed/main.html") && succeed;
+
+	printHeader("No Right on folder Case");
+	succeed = await runGoodPutTest("/put/forbidden/main.html") && succeed;
+
+	printHeader("File Already existing With right Case");
+	succeed = await runGoodPutTest("/put/mainRight.html") && succeed;
+
+	printHeader("File Already existing With no right Case");
+	succeed = await runGoodPutTest("/put/mainNoRight.html") && succeed;
+
+	printHeader("Creating directory Case");
+	succeed = await runGoodPutTest("/put/directory/") && succeed;
+
+	printHeader("Creating directory that already exists, with right and empty Case");
+	succeed = await runGoodPutTest("/put/alreadyExistingDirEmpty/") && succeed;
+
+	printHeader("Creating directory that already exists, with right and not empty Case");
+	succeed = await runGoodPutTest("/put/alreadyExistingDir/") && succeed;
+
+	printHeader("Creating directory that already exists, with no right and empty Case");
+	succeed = await runGoodPutTest("/put/alreadyExistingDirEmptyNoRight/") && succeed;
+
+	printHeader("Creating directory that already exists, with no right and not empty Case");
+	succeed = await runGoodPutTest("/put/alreadyExistingDirNoRight/") && succeed;
+
+	printHeader("Existing File");
+	succeed = await runGoodPutTest("/put/allowed/main.html") && succeed;
+
+	printHeader("Folder Not Existing");
+	succeed = await runGoodPutTest("/put/allowed/whereAmI/test.txt") && succeed;
+
+	if (succeed)
+		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
 }
 
 async function	run()
