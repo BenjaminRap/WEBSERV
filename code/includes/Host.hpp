@@ -45,6 +45,8 @@ public:
 
 	socklen_t	getAddrInfo(const sockaddr ** outAddr) const;
 	sa_family_t	getFamily(void) const;
+	sockaddr_in getipv4Addr(void) const;
+	sockaddr_in6 getipv6Addr(void) const;
 };
 
 #endif // !HOST_HPP
