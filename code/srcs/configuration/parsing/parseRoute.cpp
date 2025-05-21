@@ -18,6 +18,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	std::string					root;
 	bool						auto_index = 0;
 	std::string					cgiFileExtension;
+	std::string					cgiInterpreter;
 
 	redirection.responseStatusCode = 0;
 	skipWSpace(file, i, line);
@@ -62,6 +63,11 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 			i += 13;
 			parseRouteCgiFileExtension(file, i, line, cgiFileExtension);
 		}
+		else if (!file.compare(i, 15, "cgi_interpreter"))
+		{
+			i += 15;
+			parseRouteCgiInterpreter(file, i, line, cgiInterpreter);
+		}
 		else if (file[i] == '#')
 			skipLine(file, i, line);
 		else if (file[i] != '}')
@@ -78,7 +84,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		acceptedMethods.push_back(GET);
 		acceptedMethods.push_back(POST);
 	}
-	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension)));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, cgiInterpreter)));
 }
 
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)
@@ -165,6 +171,17 @@ void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std:
 	skipWSpace(file, i, line);
 	cgiFileExtention = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i += cgiFileExtention.size();
+	skipWSpace(file, i, line);
+	if (file[i] != ';')
+		throw (ParsingLineException("Missing semi-colon", line));
+	i++;
+}
+
+void	parseRouteCgiInterpreter(std::string &file, size_t &i, size_t &line, std::string &cgiInterpreter)
+{
+	skipWSpace(file, i, line);
+	cgiInterpreter = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i += cgiInterpreter.size();
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
 		throw (ParsingLineException("Missing semi-colon", line));

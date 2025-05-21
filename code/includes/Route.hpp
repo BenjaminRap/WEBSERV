@@ -36,7 +36,8 @@ public:
 		const std::vector<std::string> &index,
 		const bool &auto_index,
 		const std::string &root,
-		const std::string &cgiFileExtension
+		const std::string &cgiFileExtension,
+		const std::string &cgiInterpreter
 	);
 	Route(Route const &src);
 	~Route(void);

@@ -13,14 +13,16 @@ Route::Route
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
-	const std::string &cgiFileExtension
+	const std::string &cgiFileExtension,
+	const std::string &cgiInterpreter
 ) :
 	_acceptedMethods(acceptedMethods),
 	_redirection(redirection),
 	_index(index),
 	_autoIndex(auto_index),
 	_root(root),
-	_cgiFileExtension(cgiFileExtension)
+	_cgiFileExtension(cgiFileExtension),
+	_cgiInterpreter(cgiInterpreter)
 {
 }
 
@@ -32,6 +34,7 @@ Route::Route(Route const &src)
 	this->_autoIndex = src._autoIndex;
 	this->_root = src._root;
 	this->_cgiFileExtension = src._cgiFileExtension;
+	this->_cgiInterpreter = src._cgiInterpreter;
 }
 
 Route::~Route(void)
