@@ -31,7 +31,7 @@ void		addRoot(ARequestType &req, const ServerConfiguration &config);
 int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void		splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
 uint16_t	isCgiExecutable(const std::string& path);
-bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString);
+bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext);
 bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void		deleteArray(const char** array);
 
@@ -91,7 +91,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	std::memset(argv, 0, sizeof(argv));
 	try
 	{
-		const bool	error = (!setEnv(env, request, extension, _path, _queryString)
+		const bool	error = (!setEnv(env, request, extension, _path, _queryString, requestContext)
 			|| !setArgv(argv, _path, _route->getCgiInterpreter())
 			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
 		deleteArray((const char**)env);
