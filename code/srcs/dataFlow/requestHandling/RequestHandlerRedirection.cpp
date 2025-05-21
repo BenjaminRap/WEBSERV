@@ -54,7 +54,7 @@ RequestState	RequestHandler::redirectBody(const int* socketFd, Response &respons
 	ABody * const	body = _request.getBody();
 	AFdData * const	fdData = _request.getFdData();
 	
-	if (body == NULL)
+	if (body == NULL || body->getFinished())
 	{
 		_state = REQUEST_DONE;
 		return (REQUEST_DONE);

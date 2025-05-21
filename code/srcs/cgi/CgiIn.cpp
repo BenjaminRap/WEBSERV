@@ -50,7 +50,7 @@ void	CgiIn::callback(uint32_t events)
 		setFinished(0);
 		return ;
 	}
-	if (!(events & EPOLLIN))
+	if (!(events & EPOLLOUT))
 		return ;
 	const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
 

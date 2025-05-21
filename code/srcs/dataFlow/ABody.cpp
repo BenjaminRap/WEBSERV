@@ -60,11 +60,6 @@ ABodyChilds	ABody::getType(void) const
 
 void	ABody::setFd(int fd)
 {
-	if (!_finished && _written != 0)
-		throw std::logic_error("Tried to change the fd of a body that has began to write data but not finished !");
-
-	_finished = false;
-	_written = 0;
 	_fd = fd;
 }
 
