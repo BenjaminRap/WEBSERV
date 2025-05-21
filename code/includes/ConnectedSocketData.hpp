@@ -71,7 +71,7 @@ public:
 		EPollHandler &ePollHandler,
 		const std::vector<ServerConfiguration> &serverConfiguration,
 		const Host& host,
-		const sockaddr_in clientAddr
+		const sockaddr_in_u clientAddr
 	);
 	~ConnectedSocketData(void);
 

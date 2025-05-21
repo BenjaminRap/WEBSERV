@@ -3,12 +3,13 @@
 
 # include <netinet/in.h>
 
+# include "Host.hpp"
+
 class	Request;
 class	Response;
 class	EPollHandler;
 class	FlowBuffer;
 class	ConnectedSocketData;
-class	Host;
 
 class	RequestContext {
 private:
@@ -17,21 +18,21 @@ private:
 	RequestContext &operator=(const RequestContext &ref);
 	
 public:
-	const Host&				host;
-	const sockaddr_in		clientAddr;
+	const Host&					host;
+	const union sockaddr_in_u	clientAddr;
 
-	Request&				request;
-	Response&				response;
-	EPollHandler&			ePollHandler;
-	FlowBuffer&				requestBuff;
-	FlowBuffer&				responseBuff;
-	ConnectedSocketData&	connectedSocketData;
+	Request&					request;
+	Response&					response;
+	EPollHandler&				ePollHandler;
+	FlowBuffer&					requestBuff;
+	FlowBuffer&					responseBuff;
+	ConnectedSocketData&		connectedSocketData;
 
 	~RequestContext(void);
 	RequestContext
 	(
 		const Host& host,
-		const sockaddr_in clientAddr,
+		const sockaddr_in_u clientAddr,
 		Request& request,
 		Response& response,
 		EPollHandler& ePollHandler,

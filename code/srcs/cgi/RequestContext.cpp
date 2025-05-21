@@ -7,7 +7,7 @@ RequestContext::~RequestContext(void)
 RequestContext::RequestContext
 (
 	const  Host& host,
-	const sockaddr_in clientAddr,
+	const sockaddr_in_u clientAddr,
 	Request& request,
 	Response& response,
 	EPollHandler& ePollHandler,

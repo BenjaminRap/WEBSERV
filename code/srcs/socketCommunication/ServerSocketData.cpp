@@ -41,7 +41,7 @@ ServerSocketData::~ServerSocketData(void)
 
 void	ServerSocketData::acceptConnection(uint32_t events)
 {
-	sockaddr_in		addr;
+	sockaddr_in_u	addr;
 	socklen_t		addrLength;
 
 	if (!(events & EPOLLIN))
