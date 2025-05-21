@@ -51,18 +51,13 @@ void	Status::buildErrorPage(void)
 	std::ostringstream	oss;
 
 	oss << 
-"<!DOCTYPE html>\n\
-<html lang=\"fr\">\n\
-	<head>\n\
-		<meta charset=\"UTF-8\">\n\
-		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
-		<title>" << _code << "</title>\n\
-	</head>\n\
-	<body style=\"font-family:sans-serif;text-align:center;padding:50px;\">\n\
-		<h1>" << _code << "</h1>\n\
-		<p>" << _text << "</p>\n\
-	</body>\n\
-</html>";
+"<html>\r\n\
+<head><title>" << _code << " " << _text << "</title></head>\r\n\
+<body>\r\n\
+<center><h1>" << _code << " " << _text << "</h1></center>\r\n\
+<hr><center>nginx/1.27.4</center>\r\n\
+</body>\r\n\
+</html>\r\n";
 	_errorPage = oss.str();
 }
 
