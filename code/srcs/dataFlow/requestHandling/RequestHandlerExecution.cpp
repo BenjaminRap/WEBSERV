@@ -15,6 +15,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
+#include "PostRequest.hpp"
 
 class RequestContext;
 
@@ -73,6 +74,12 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
 			response.setResponse(deleteRequest);
 			_request.setFdData(&deleteRequest.getInFd());
+			break;
+		}
+		case POST: {
+			PostRequest	postRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(postRequest);
+			_request.setFdData(&postRequest.getInFd());
 			break;
 		}
 		default:
