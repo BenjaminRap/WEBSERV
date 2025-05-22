@@ -48,14 +48,51 @@ function	compareRedirection(nginxResponse, webservResponse, printOK)
 	return (true);
 }
 
+function	compareAutoIndexBody(nginxBody, webservBody)
+{
+	let	posNginx = nginxBody.indexOf("<a href=");
+	let	posWebserv = webservBody.indexOf("<a href=");
+	let	nginxFiles = [];
+	let	webservFiles = [];
+
+	while (posNginx != -1 && posWebserv != -1)
+	{
+		let	nginxFile = nginxBody.slice(posNginx, nginxBody.indexOf("/a>", posNginx));
+		let	webservFile = webservBody.slice(posWebserv, webservBody.indexOf("/a>", posWebserv));
+
+		nginxFiles.push(nginxFile);
+		webservFiles.push(webservFile);
+
+		posNginx = nginxBody.indexOf("<a href=", posNginx + 8);
+		posWebserv = webservBody.indexOf("<a href=", posWebserv + 8);
+	}
+	if (posNginx != posWebserv || nginxFiles.length != webservFiles.length)
+		return (false);
+	for (let i = 0; i < nginxFiles.length; i++)
+	{
+		if (!webservFiles.find((element) => element == nginxFiles[i]))
+			return (false);
+	}
+	return (true);
+}
+
 async function	compareBody(nginxResponse, webservResponse, printOK)
 {
 	//body
 	const nginxBody = await nginxResponse.text();
 	const webservBody = await webservResponse.text();
 
-	console.log("nginx body length" + nginxBody.length);
-	console.log("webserv body length" + webservBody.length);
+	if (nginxBody.includes("<hr><pre><a href=\"../\">../</a>")
+		&& webservBody.includes("<hr><pre><a href=\"../\">../</a>"))
+	{
+		let	bodyEquals = compareAutoIndexBody(nginxBody, webservBody);
+
+		if (!bodyEquals)
+			console.log("auto index body" + COLOR_RED + "[KO] nginx|webserv '" + nginxBody + "' | '" + webservBody + "'" + COLOR_RESET);
+		else if (printOK)
+			console.log("auto index body" + COLOR_GREEN + "[OK] nginx|webserv '" + nginxBody + "' | '" + webservBody + "'" + COLOR_RESET);
+		return (bodyEquals);
+	}
 	return (verify("body : ", nginxBody, webservBody, printOK));
 }
 
