@@ -89,17 +89,17 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		size_t pos = 0;
 
 		addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
-		addToEnv(env, "SERVER_NAME=", headers.getHeader("host"));
+		addToEnv(env, "SERVER_NAME=", headers.getUniqueHeader("host"));
 		addToEnv(env, "GATEWAY_INTERFACE=" GATEWAY_INTERFACE);
 		addToEnv(env, "SERVER_PROTOCOL=" PROTOCOL);
 		addToEnv(env, "REQUEST_METHOD=" + getStringRepresentation(method));
-		addToEnv(env, "HTTP_ACCEPT=", headers.getHeader("accept"));
-		addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getHeader("accept-language"));
-		addToEnv(env, "HTTP_USER_AGENT=", headers.getHeader("user-agent"));
-		addToEnv(env, "HTTP_COOKIE=", headers.getHeader("cookie"));
-		addToEnv(env, "CONTENT_TYPE=", headers.getHeader("content-type"));
-		addToEnv(env, "CONTENT_LENGTH=", headers.getHeader("content-length"));
-		addToEnv(env, "REFERER=", headers.getHeader("referer"));
+		addToEnv(env, "HTTP_ACCEPT=", headers.getUniqueHeader("accept"));
+		addToEnv(env, "HTTP_ACCEPT_LANGUAGE=", headers.getUniqueHeader("accept-language"));
+		addToEnv(env, "HTTP_USER_AGENT=", headers.getUniqueHeader("user-agent"));
+		addToEnv(env, "HTTP_COOKIE=", headers.getUniqueHeader("cookie"));
+		addToEnv(env, "CONTENT_TYPE=", headers.getUniqueHeader("content-type"));
+		addToEnv(env, "CONTENT_LENGTH=", headers.getUniqueHeader("content-length"));
+		addToEnv(env, "REFERER=", headers.getUniqueHeader("referer"));
 		addToEnv(env, "SCRIPT_NAME=" + findScriptName(path, pos, extension));
 		addToEnv(env, "PATH_INFO=" + findPathInfo(path, pos));
 		addToEnv(env, "QUERY_STRING=" + queryString);

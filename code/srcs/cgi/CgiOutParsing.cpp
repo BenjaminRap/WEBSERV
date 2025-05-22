@@ -21,10 +21,10 @@ std::string		sizeTToString(size_t value);
 
 uint16_t	CgiOut::checkHeaders(void)
 {
-	if (_headers.getHeader("content-type") == NULL)
+	if (_headers.getUniqueHeader("content-type") == NULL)
 		return (HTTP_BAD_GATEWAY);
-	const std::string*	contentLength = _headers.getHeader("content-length");
-	const std::string*	transferEncoding = _headers.getHeader("transfer-encoding");
+	const std::string*	contentLength = _headers.getUniqueHeader("content-length");
+	const std::string*	transferEncoding = _headers.getUniqueHeader("transfer-encoding");
 
 	if (contentLength != NULL && transferEncoding != NULL)
 		return (HTTP_BAD_GATEWAY);
@@ -49,7 +49,7 @@ uint16_t	CgiOut::checkHeaders(void)
 
 uint16_t	CgiOut::getStatusCode(void)
 {
-	const std::string*	status = _headers.getHeader("status");
+	const std::string*	status = _headers.getUniqueHeader("status");
 	if (status != NULL)
 	{
 		char	*end;
@@ -63,7 +63,7 @@ uint16_t	CgiOut::getStatusCode(void)
 		_headers.erase("status");
 		return (code);
 	}
-	if (_headers.getHeader("location") != NULL)
+	if (_headers.getUniqueHeader("location") != NULL)
 		return (HTTP_FOUND);
 	return (HTTP_OK);
 }

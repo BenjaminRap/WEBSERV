@@ -22,13 +22,27 @@ Headers::~Headers(void)
 
 /****************************Public Methods*************************************/
 
-const std::string*	Headers::getHeader(const std::string &key) const
+const std::string*	Headers::getUniqueHeader(const std::string &key) const
 {
 	Headers::const_iterator it = find(key);
 
 	if (it != end())
-		return (&it->second);
+	{
+		if (it->second.size() != 1)
+			throw std::logic_error("getUniqueHeader called with a header with multiple values !");
+		return (&it->second.front());
+	}
 	return (NULL);
+}
+
+bool	Headers::addHeader(const std::string&key, const std::string& value)
+{
+	const std::map<const std::string, std::list<std::string> >::iterator&	elem = this->find(key);
+
+	if (elem == this->end())
+
+	operator[](key) = value;
+	return (true);
 }
 
 static char toLowerCase(char& c)
@@ -55,7 +69,8 @@ int	Headers::parseHeader(const char *line, const char *end)
 
 	const char * valuePosition = keyEnd + 2;
 	const std::string value(valuePosition, valueEnd);
-	operator[](key) = value;
+	if (!addHeader(key, value))
+		return (HTTP_BAD_REQUEST);
 	return (HTTP_OK);
 }
 
@@ -64,11 +79,18 @@ size_t	Headers::getTotalSize(void) const
 {
 	size_t	length = 0;
 
-	for (Headers::const_iterator it = begin(); it != end(); it++)
+	for (Headers::const_iterator headerIt = begin(); headerIt != end(); headerIt++)
 	{
-		length += it->first.size() + it->second.size();
-		length += 2; // for the ": "
-		length += LINE_END_LENGTH;
+		const std::list<std::string>&	values = headerIt->second;
+		std::list<std::string>::const_iterator valueIt;
+
+		for (valueIt = values.begin(); valueIt != values.end(); valueIt++)
+		{
+			length += headerIt->first.size();
+			length += 2;
+			length += valueIt->size();
+			length += LINE_END_LENGTH;
+		}
 	}
 	return (length);
 }
@@ -80,12 +102,18 @@ std::string&	operator+=(std::string& dest, const Headers& headers)
 	const size_t	length = headers.getTotalSize();
 
 	dest.reserve(dest.length() + length + 1);
-	for (Headers::const_iterator it = headers.begin(); it != headers.end(); it++)
+	for (Headers::const_iterator headerIt = headers.begin(); headerIt != headers.end(); headerIt++)
 	{
-		dest.append(it->first);
-		dest.append(": ");
-		dest.append(it->second);
-		dest.append(LINE_END);
+		const std::list<std::string>&	values = headerIt->second;
+		std::list<std::string>::const_iterator valueIt;
+
+		for (valueIt = values.begin(); valueIt != values.end(); valueIt++)
+		{
+			dest.append(headerIt->first);
+			dest.append(": ");
+			dest.append(*valueIt);
+			dest.append(LINE_END);
+		}
 	}
 	return (dest);
 }

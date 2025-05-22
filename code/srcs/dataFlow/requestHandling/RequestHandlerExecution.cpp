@@ -40,7 +40,7 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
 
-	const std::string* host = _request.getHeaders().getHeader("host");
+	const std::string* host = _request.getHeaders().getUniqueHeader("host");
 	if (host == NULL)
 	{
 		response.setResponse(HTTP_BAD_REQUEST);

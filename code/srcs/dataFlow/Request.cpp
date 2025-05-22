@@ -46,8 +46,8 @@ void	Request::reset()
 
 int	Request::setBodyFromHeaders(const ServerConfiguration& serverConf)
 {
-	const std::string * const	contentLengthString = _headers.getHeader("content-length");
-	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
+	const std::string * const	contentLengthString = _headers.getUniqueHeader("content-length");
+	const std::string * const	transferEncoding = _headers.getUniqueHeader("transfer-encoding");
 	const size_t				maxSize = serverConf.getMaxClientBodySize();
 
 	if (contentLengthString != NULL && transferEncoding != NULL)
