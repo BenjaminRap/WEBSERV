@@ -10,9 +10,6 @@
 #include "RequestContext.hpp"  // for RequestContext
 #include "Host.hpp"  // for Host
 
-#define SERVER_SOFTWARE "webserv/1.0"
-#define GATEWAY_INTERFACE "CGI/1.1"
-
 std::string	sizeTToString(size_t value);
 std::string uint16toString(u_int16_t nb);
 std::string ipV4toString(const struct sockaddr_in &addr);

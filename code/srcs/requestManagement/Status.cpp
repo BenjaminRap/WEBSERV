@@ -56,7 +56,7 @@ std::string	buildPage(uint16_t code, const std::string& text)
 <head><title>" << code << " " << text << "</title></head>\r\n\
 <body>\r\n\
 <center><h1>" << code << " " << text << "</h1></center>\r\n\
-<hr><center>nginx/1.27.4</center>\r\n\
+<hr><center>" SERVER_SOFTWARE "</center>\r\n\
 </body>\r\n\
 </html>\r\n";
 	return (oss.str());
