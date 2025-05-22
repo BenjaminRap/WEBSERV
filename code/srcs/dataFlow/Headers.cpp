@@ -25,9 +25,9 @@ Headers::~Headers(void)
 
 InsertType	Headers::getHeaderInsertType(const std::string& header)
 {
-	const std::map<const std::string, InsertType>::const_iterator	type = _specialHeaders.find(header);
+	const std::map<const std::string, InsertType>::const_iterator	type = _headersInsertType.find(header);
 
-	if (type == _specialHeaders.end())
+	if (type == _headersInsertType.end())
 		return (REPLACE);
 	return (type->second);
 }

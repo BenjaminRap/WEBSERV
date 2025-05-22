@@ -22,7 +22,7 @@ enum	InsertType
 class Headers : private std::map<std::string, std::list<std::string> >
 {
 private:
-	const static std::map<std::string, InsertType>	_specialHeaders;
+	const static std::map<std::string, InsertType>	_headersInsertType;
 
 	Headers(const Headers& ref);
 
