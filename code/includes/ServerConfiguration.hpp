@@ -46,33 +46,33 @@ private :
 	 * can be referred to. It will be sued to determine if the request
 	 * ask for this ServerConfiguration or not.
 	 */
-	std::vector<std::string>				serverNames;
+	std::vector<std::string>				_serverNames;
 	/**
 	 * @brief A map between an error and an error page path.
 	 * When having an error in this ServerConfiguration,
 	 * the errorPage will be sent instead of the default one.
 	 */
-	std::map<uint16_t, std::string>			errorPages;
+	std::map<uint16_t, std::string>			_errorPages;
 	/**
 	 * @brief The maximum size of a request body. If a request
 	 * body is greater than that, a HTTP_CONTENT_TOO_LARGE.
 	 */
-	size_t									maxClientBodySize;
+	size_t									_maxClientBodySize;
 	/**
 	 * @brief A map with : route url:route class.
 	 */
-	std::map<std::string, Route>			routes;
+	std::map<std::string, Route>			_routes;
 	/**
 	 * @brief Define a directory or a file from where the file should be searched,
 	 * (if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is
 	 * /tmp/www/pouic/toto/pouet).
 	 */
-	std::string								root;
+	std::string								_root;
 	/**
 	 * @brief A vector of all the index names. That means the default
 	 * page that will be shown if the user ask for a folder.
 	 */
-	std::vector<std::string>				index;
+	std::vector<std::string>				_index;
 
 	ServerConfiguration(void);
 	ServerConfiguration    &operator=(ServerConfiguration const &src);
