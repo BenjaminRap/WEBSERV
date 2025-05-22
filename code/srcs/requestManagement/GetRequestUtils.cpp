@@ -23,8 +23,6 @@ void	checkType(std::string &path, GetRequest &get)
 		get.setUrl(get.getUrl() + "/");
 		get.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, path, false);
 	}
-	else
-		get.setPath(path);
 }
 
 uint16_t	isDirOrFile(const std::string& path)
