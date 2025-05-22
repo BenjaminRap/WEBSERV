@@ -10,21 +10,25 @@
 
 # define MAX_HEADER_COUNT 30
 
-enum	InsertingType
+enum	InsertType
 {
 	CONCAT_COMMA,
 	CONCAT_SEMICOLON,
-	UNIQUE
+	UNIQUE,
+	MULTIPLE,
+	REPLACE
 };
 
 class Headers : private std::map<std::string, std::list<std::string> >
 {
 private:
-	const static std::map<std::string, InsertingType>	_specialHeaders;
+	const static std::map<std::string, InsertType>	_specialHeaders;
 
 	Headers(const Headers& ref);
 
 	Headers &operator=(const Headers& ref);
+
+	static InsertType		getHeaderInsertType(const std::string& header);
 public:
 	Headers(void);
 	~Headers(void);

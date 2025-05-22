@@ -22,9 +22,19 @@ Headers::~Headers(void)
 
 /****************************Public Methods*************************************/
 
+
+InsertType	Headers::getHeaderInsertType(const std::string& header)
+{
+	const std::map<const std::string, InsertType>::const_iterator	type = _specialHeaders.find(header);
+
+	if (type == _specialHeaders.end())
+		return (REPLACE);
+	return (type->second);
+}
+
 const std::string*	Headers::getUniqueHeader(const std::string &key) const
 {
-	Headers::const_iterator it = find(key);
+	const Headers::const_iterator it = find(key);
 
 	if (it != end())
 	{
@@ -37,11 +47,30 @@ const std::string*	Headers::getUniqueHeader(const std::string &key) const
 
 bool	Headers::addHeader(const std::string&key, const std::string& value)
 {
-	const std::map<const std::string, std::list<std::string> >::iterator&	elem = this->find(key);
+	const InsertType							type = Headers::getHeaderInsertType(key);
+	const std::pair<Headers::iterator, bool>	elem = this->insert(std::make_pair(key, std::list<std::string>()));
+	const bool									canInsert = elem.second;
+	std::list<std::string>&						values = elem.first->second;
 
-	if (elem == this->end())
+	if (canInsert)
+	{
+		values.push_back(value);
+		return (true);
+	}
+	if (type == UNIQUE)
+		return (false);
+	std::string&	firstValue = values.front();
 
-	operator[](key) = value;
+	if (type == CONCAT_COMMA || type == CONCAT_COMMA)
+	{
+		const char*	separator = (type == CONCAT_COMMA) ? ", " : "; ";
+		firstValue.append(separator);
+		firstValue.append(value);
+	}
+	else if (type == MULTIPLE)
+		values.push_back(value);
+	else if (type == REPLACE)
+		firstValue = value;
 	return (true);
 }
 
