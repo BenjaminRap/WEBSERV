@@ -79,8 +79,12 @@ function	compareAutoIndexBody(nginxBody, webservBody)
 async function	compareBody(nginxResponse, webservResponse, printOK)
 {
 	//body
-	const nginxBody = await nginxResponse.text();
-	const webservBody = await webservResponse.text();
+	let nginxBody = await nginxResponse.text();
+	let webservBody = await webservResponse.text();
+
+	nginxBody = nginxBody.replace(/nginx\/[0-9]+(\.([0-9]+))*/, "serv/version");
+	webservBody = webservBody.replace(/webserv\/[0-9]+(\.([0-9]+))*/, "serv/version");
+
 
 	if (nginxBody.includes("<hr><pre><a href=\"../\">../</a>")
 		&& webservBody.includes("<hr><pre><a href=\"../\">../</a>"))
