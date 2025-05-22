@@ -6,24 +6,14 @@
 #include <list>                   // for list, _List_iterator, operator!=
 #include <new>                    // for bad_alloc
 #include <string>                 // for basic_string, allocator, string
-#include <vector>                 // for vector
 
 #include "ARequestType.hpp"       // for DIRE, LS_FILE
 #include "GetRequest.hpp"         // for GetRequest
 #include "Status.hpp"             // for Status, StatusType
 #include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
 
-void	checkType(std::string &path, GetRequest &get)
-{
-	char lastChar = path[path.length() - 1];
-
-	if (lastChar != '/')
-	{
-		path += "/";
-		get.setUrl(get.getUrl() + "/");
-		get.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, path, false);
-	}
-}
+bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs);
+void	checkType(std::string &path, ARequestType &req);
 
 uint16_t	isDirOrFile(const std::string& path)
 {
@@ -122,35 +112,6 @@ std::string	buildPage(std::list<std::string> &files, const std::string& path)
 	}
 	result += "</pre><hr></body>\n</html>";
 	return (result);
-}
-
-bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
-{
-	size_t		size;
-	std::string	temp;
-	uint16_t	ret;
-
-	size = indexs.size();
-	for (unsigned long i = 0; i < size; i++)
-	{
-		temp = get.getPath() + indexs[i];
-		ret = isDirOrFile(temp);
-		if (ret == LS_FILE || ret == DIRE)
-		{
-			if (ret == DIRE)
-			{
-				get.setUrl(get.getUrl() + indexs[i] + "/");
-				get.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, temp + "/", false);
-			}
-			else
-			{
-				get.setUrl(get.getUrl() + indexs[i]);
-				get.setResponseWithLocation(HTTP_OK, temp, false);
-			}
-			return (true);
-		}
-	}
-	return (false);
 }
 
 void	autoIndexCase(GetRequest &get)

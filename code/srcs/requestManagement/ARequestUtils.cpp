@@ -155,3 +155,44 @@ ssize_t	getFileSize(const std::string &filePath)
 		return (-1);
 	return (fileStat.st_size);
 }
+
+bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs)
+{
+	size_t		size;
+	std::string	absolutePath;
+	uint16_t	ret;
+
+	size = indexs.size();
+	for (unsigned long i = 0; i < size; i++)
+	{
+		absolutePath = req.getPath() + indexs[i];
+		ret = isDirOrFile(absolutePath);
+		if (ret == LS_FILE || ret == DIRE)
+		{
+			if (ret == DIRE)
+			{
+				req.setUrl(req.getUrl() + indexs[i] + "/");
+				req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, absolutePath + "/", false);
+			}
+			else
+			{
+				req.setUrl(req.getUrl() + indexs[i]);
+				req.setResponseWithLocation(HTTP_OK, absolutePath, false);
+			}
+			return (true);
+		}
+	}
+	return (false);
+}
+
+void	checkType(std::string &path, ARequestType &req)
+{
+	char lastChar = path[path.length() - 1];
+
+	if (lastChar != '/')
+	{
+		path += "/";
+		req.setUrl(req.getUrl() + "/");
+		req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, path, false);
+	}
+}
