@@ -1,7 +1,7 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const	printOK = false;
+const	printOK = true;
 
 async function	runGoodGetTest(target)
 {
