@@ -178,6 +178,15 @@ void	parseErrorPages(std::string &file, size_t &i, size_t &line, std::map<unsign
 	}
 }
 
+void	fixPath(std::string &path);
+
+void	checkRoot(std::string& root, size_t line)
+{
+	if (root.empty() || root[0] != '/' || root[root.size() - 1] != '/')
+		throw ParsingLineException("Invalid root", line);
+	fixPath(root);
+}
+
 void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 {
 	if (!root.empty())
@@ -189,4 +198,5 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 	if (file[i] != ';')
 		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
+	checkRoot(root, line);
 }
