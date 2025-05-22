@@ -78,7 +78,7 @@ void	CgiOut::setErrorPage(const Status** currentStatus)
 
 	const size_t	size = (_srcFile)
 		? _srcFile->getSize() :
-		(*currentStatus)->getErrorPage().size();
+		(*currentStatus)->getPage().size();
 
 	_headers["content-length"] = sizeTToString(size);
 }
@@ -109,7 +109,7 @@ void	CgiOut::generateFirstPart(void)
 	}
 	else if (_error && _srcFile == NULL)
 	{
-		const std::string&	errorPage = status->getErrorPage();
+		const std::string&	errorPage = status->getPage();
 
 		bodyBegin = errorPage.c_str();
 		bodyEnd = bodyBegin + errorPage.size();

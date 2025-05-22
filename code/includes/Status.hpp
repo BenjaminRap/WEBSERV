@@ -60,17 +60,12 @@ private:
 	/**
 	 * @brief The errorPage builded from the _code and _text values.
 	 */
-	std::string			_errorPage;
+	const std::string	_page;
 
 	Status(void);
 
 	Status&					operator=(const Status &);
 
-	/**
-	 * @brief Build the error page if the _code is an error.
-	 * Otherwise, does nothing
-	 */
-	void					buildErrorPage(void);
 	/**
 	 * @brief Build the string representation of the status code + text.
 	 */
@@ -106,7 +101,7 @@ public:
 	const std::string&		getRepresentation(void) const;
 	size_t					getRepresentationSize(void) const;
 	const std::string&		getText(void) const;
-	const std::string&		getErrorPage(void) const;
+	const std::string&		getPage(void) const;
 	/**
 	 * @brief Calls the static method isCodeOfType with this instance's code
 	 * @ref isCodeOfType

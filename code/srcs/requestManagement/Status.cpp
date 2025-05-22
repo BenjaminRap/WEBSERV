@@ -12,21 +12,21 @@
 /*******************************Constructors/Destructors*********************************/
 
 std::string	getUInt16TInString(uint16_t value);
+std::string	buildPage(uint16_t code, const std::string& text);
 
 Status::Status(uint16_t code, const std::string &text) :
 	_code(code),
 	_text(text),
 	_representation(buildRepresentation()),
-	_errorPage()
+	_page(buildPage(code, text))
 {
-	buildErrorPage();
 }
 
 Status::Status(const Status& ref) :
 	_code(ref._code),
 	_text(ref._text),
 	_representation(ref._representation),
-	_errorPage(ref._errorPage)
+	_page(ref._page)
 {
 }
 
@@ -44,21 +44,22 @@ bool	Status::operator<(const Status& other)
 
 /********************************Private Methods**********************************************/
 
-void	Status::buildErrorPage(void)
+std::string	buildPage(uint16_t code, const std::string& text)
 {
-	if (isOfType(STATUS_ERROR) == false)
-		return ;
+	if (!Status::isCodeOfType(code, (StatusType)(STATUS_ERROR | STATUS_REDIRECTION)))
+		return ("");
+
 	std::ostringstream	oss;
 
 	oss << 
 "<html>\r\n\
-<head><title>" << _code << " " << _text << "</title></head>\r\n\
+<head><title>" << code << " " << text << "</title></head>\r\n\
 <body>\r\n\
-<center><h1>" << _code << " " << _text << "</h1></center>\r\n\
+<center><h1>" << code << " " << text << "</h1></center>\r\n\
 <hr><center>nginx/1.27.4</center>\r\n\
 </body>\r\n\
 </html>\r\n";
-	_errorPage = oss.str();
+	return (oss.str());
 }
 
 std::string	Status::buildRepresentation(void)
@@ -91,9 +92,9 @@ const std::string&	Status::getText(void) const
 	return (_text);
 }
 
-const std::string&	Status::getErrorPage(void) const
+const std::string&	Status::getPage(void) const
 {
-	return (_errorPage);
+	return (_page);
 }
 
 bool	Status::isOfType(StatusType type) const

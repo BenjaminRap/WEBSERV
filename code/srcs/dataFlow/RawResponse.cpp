@@ -41,12 +41,12 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 		bodyBegin = NULL;
 		bodyEnd = NULL;
 	}
-	else if (status->isOfType(STATUS_ERROR))
+	else if (status->isOfType((StatusType)(STATUS_ERROR | STATUS_REDIRECTION)))
 	{
-		const std::string&	errorPage = status->getErrorPage();
+		const std::string&	page = status->getPage();
 
-		bodyBegin = errorPage.c_str();
-		bodyEnd = bodyBegin + errorPage.size();
+		bodyBegin = page.c_str();
+		bodyEnd = bodyBegin + page.size();
 	}
 	else
 	{

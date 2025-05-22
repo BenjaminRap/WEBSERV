@@ -66,8 +66,8 @@ void	Response::setBody()
 			throw std::logic_error("The AFdData is not a FileFd !");
 		}
 	}
-	else if (_status->getErrorPage().size() != 0)
-		bodySize = _status->getErrorPage().size();
+	else if (_status->getPage().size() != 0)
+		bodySize = _status->getPage().size();
 	else
 		bodySize = _autoIndexPage.size();
 	this->_headers.insert(std::make_pair("content-length", sizeTToString(bodySize)));
@@ -217,8 +217,8 @@ std::ostream & operator<<(std::ostream & o, Response const & response)
 	o << response.getHeaders();
 	if (status != NULL)
 	{
-		if (status->isOfType(STATUS_ERROR))
-			o << status->getErrorPage();
+		if (status->isOfType((StatusType(STATUS_ERROR | STATUS_REDIRECTION))))
+			o << status->getPage();
 		else if (status->isOfType(STATUS_SUCESSFULL))
 			o << response.getAutoIndexPage();
 	}
