@@ -56,7 +56,9 @@ uint16_t	ls(const std::string& path, std::list<std::string> &lst)
 {
 	DIR				*dw;
 	struct dirent	*res;
+	std::string		fileName;
 
+	fileName.reserve(257);
 	dw = opendir(path.c_str());
 	if (!dw)
 	{
@@ -68,7 +70,10 @@ uint16_t	ls(const std::string& path, std::list<std::string> &lst)
 	while ((res = readdir(dw)))
 	{
 		try {
-			lst.push_back(res->d_name);
+			fileName = res->d_name;
+			if (res->d_type == DT_DIR)
+				fileName.append("/");
+			lst.push_back(fileName);
 		}
 		catch (std::bad_alloc &e)
 		{
