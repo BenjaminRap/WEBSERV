@@ -80,7 +80,7 @@ void	CgiOut::setErrorPage(const Status** currentStatus)
 		? _srcFile->getSize() :
 		(*currentStatus)->getPage().size();
 
-	_headers["content-length"] = sizeTToString(size);
+	_headers.addHeader("content-length", sizeTToString(size));
 }
 
 void	CgiOut::generateFirstPart(void)

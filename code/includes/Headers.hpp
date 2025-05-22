@@ -19,7 +19,7 @@ enum	InsertType
 	REPLACE
 };
 
-class Headers : private std::map<std::string, std::list<std::string> >
+class Headers : public std::map<std::string, std::list<std::string> >
 {
 private:
 	const static std::map<std::string, InsertType>	_headersInsertType;

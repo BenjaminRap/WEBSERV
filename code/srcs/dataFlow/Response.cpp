@@ -42,9 +42,9 @@ void	addDefaultHeaders(Headers& headers, const Status* status)
 	const std::time_t	now = std::time(NULL);
 
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
-	headers["date"] = timeBuffer;
-	headers["server"] = "WebServ de bg";
-	headers["connection"] = (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+	headers.addHeader("date", timeBuffer);
+	headers.addHeader("server", "WebServ de bg");
+	headers.addHeader("connection", (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive"));
 
 }
 
@@ -70,7 +70,7 @@ void	Response::setBody()
 		bodySize = _status->getPage().size();
 	else
 		bodySize = _autoIndexPage.size();
-	this->_headers.insert(std::make_pair("content-length", sizeTToString(bodySize)));
+	_headers.addHeader("content-length", sizeTToString(bodySize));
 }
 
 
@@ -164,7 +164,7 @@ void	Response::setResponse(ARequestType& requestResult)
 	if (requestResult.getRedirection().empty() == false
 		&& (_status->isOfType(STATUS_REDIRECTION) || _status->getCode() == HTTP_CREATED))
 	{
-		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
+		_headers.addHeader("location", requestResult.getRedirection());
 	}
 }
 

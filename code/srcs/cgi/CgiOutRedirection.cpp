@@ -29,7 +29,7 @@ void	CgiOut::readFromCgi()
 		try
 		{
 			_srcFile = new FileFd(_tempName, O_RDONLY);
-			_headers["content-length"] = sizeTToString(_srcFile->getSize());
+			_headers.addHeader("content-length", sizeTToString(_srcFile->getSize()));
 		}
 		catch (FileFd::FileOpeningError& e)
 		{
