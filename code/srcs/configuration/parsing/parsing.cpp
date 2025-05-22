@@ -53,6 +53,21 @@ void	parseFile(Configuration &config, std::string &file)
 	}
 }
 
+void	replaceUrl(const std::string &location, const std::string &root, std::string &url);
+const std::pair<const std::string, Route>*	getRouteFromPath(const std::string &path, const std::map<std::string, Route>& routes);
+
+void	setErrorPagesAbsolutePath(std::map<unsigned short, std::string>& errorPages, const std::map<std::string, Route>& routes)
+{
+	for (std::map<unsigned short, std::string>::iterator it = errorPages.begin(); it != errorPages.end(); it++)
+	{
+		const std::pair<const std::string, Route>*	route = getRouteFromPath(it->second, routes);
+		if (route == NULL)
+			continue ;
+
+		replaceUrl(route->first, route->second.getRoot(), it->second);
+	}
+}
+
 void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::string &file, size_t &i, size_t &line)
 {
 	std::vector<std::string>				serverNames;
@@ -114,6 +129,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (ParsingException("Missing host"));
+	setErrorPagesAbsolutePath(errorPages, routes);
 	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
 }
 
