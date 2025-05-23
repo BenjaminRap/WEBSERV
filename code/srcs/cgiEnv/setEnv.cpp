@@ -49,28 +49,14 @@ std::string findScriptName(const std::string &target, size_t &pos, const std::st
 
 	if (end == std::string::npos)
 		throw std::logic_error("setEnv called with an invalid file extension");
-	std::string result = target.substr(0, end + extension.size());
-	pos = end + 4;
+	pos = end + extension.size();
+	std::string result = target.substr(0, pos);
 	return (result);
 }
 
 std::string findPathInfo(const std::string &target, size_t &pos)
 {
-	if (target[pos] != '/')
-		return ("");
-	size_t end = target.find("?", pos + 1);
-	std::string result;
-	if (end == std::string::npos)
-	{
-		result = target.substr(pos);
-		return (result);
-	}
-	else
-	{
-		result = target.substr(pos, end - pos);
-		pos = end;
-		return (result);
-	}
+	return (target.substr(pos));
 }
 
 void	deleteArray(const char** array);
