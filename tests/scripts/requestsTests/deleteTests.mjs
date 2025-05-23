@@ -18,55 +18,53 @@ async function	runGoodDeleteTest(target)
 
 async function runTests()
 {
-	let	succeed = true;
-
 	printHeader("Normal Case");
-	succeed = await runGoodDeleteTest("/delete/full/classic") && succeed;
+	await runGoodDeleteTest("/delete/full/classic");
 
 	printHeader("Normal Case (\"../\" in URL)");
-	succeed = await runGoodDeleteTest("/delete/full/../../delete/full/noback") && succeed;
+	await runGoodDeleteTest("/delete/full/../../delete/full/noback");
 
 	printHeader("No Perm file");
-	succeed = await runGoodDeleteTest("/delete/full/noperms") && succeed;
+	await runGoodDeleteTest("/delete/full/noperms");
 
 	printHeader("No Perm directory of file");
-	succeed = await runGoodDeleteTest("/delete/cant/tryme") && succeed;
+	await runGoodDeleteTest("/delete/cant/tryme");
 
 	printHeader("Only Read Perm directory of file");
-	succeed = await runGoodDeleteTest("/delete/readme/deleteme") && succeed;
+	await runGoodDeleteTest("/delete/readme/deleteme");
 
 	printHeader("Not Found");
-	succeed = await runGoodDeleteTest("/delete/emptwswdy") && succeed;
+	await runGoodDeleteTest("/delete/emptwswdy");
 
 	printHeader("Url not end by \"/\"");
-	succeed = await runGoodDeleteTest("/delete/folder/empty") && succeed;
+	await runGoodDeleteTest("/delete/folder/empty");
 
 	printHeader("Empty Directory");
-	succeed = await runGoodDeleteTest("/delete/folder/empty/") && succeed;
+	await runGoodDeleteTest("/delete/folder/empty/");
 
 	printHeader("Normal Case");
-	succeed = await runGoodDeleteTest("/delete/folder/classic/") && succeed;
+	await runGoodDeleteTest("/delete/folder/classic/");
 
 	printHeader("No Perms for parent dir");
-	succeed = await runGoodDeleteTest("/delete/folder/nopermspa/") && succeed;
+	await runGoodDeleteTest("/delete/folder/nopermspa/");
 
 	printHeader("No Perms for the dir do del");
-	succeed = await runGoodDeleteTest("/delete/folder/noperms/") && succeed;
+	await runGoodDeleteTest("/delete/folder/noperms/");
 
 	printHeader("Dir in Dir (But have no perms)");
-	succeed = await runGoodDeleteTest("/delete/folder/dire/") && succeed;
+	await runGoodDeleteTest("/delete/folder/dire/");
 
 	printHeader("Dir in Dir (Have no perms but empty)");
-	succeed = await runGoodDeleteTest("/delete/folder/dire2/") && succeed;
+	await runGoodDeleteTest("/delete/folder/dire2/");
 
 	printHeader("Dir in Dir (Read Only but empty)");
-	succeed = await runGoodDeleteTest("/delete/folder/dire3/") && succeed;
+	await runGoodDeleteTest("/delete/folder/dire3/");
 
 	printHeader("Normal Case ++++++");
-	succeed = await runGoodDeleteTest("/delete/folder/dire4/") && succeed;
+	await runGoodDeleteTest("/delete/folder/dire4/");
 
 
-	if (succeed)
+	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 	{

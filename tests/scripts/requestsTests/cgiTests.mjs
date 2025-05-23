@@ -35,91 +35,89 @@ async function	sendCgiChunkedRequest(target, headers, chunks, trailers)
 
 async function runTests()
 {
-	let	succeed = true;
-
 	const	defaultHeaders = [ "Host: host:port", "Connection: close", "Transfer-Encoding: chunked" ];
 
 	printHeader("Classic Case");
-	succeed = await runGoodCgiTest("/cgi/cgiTestClassic.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiTestClassic.cgi", "GET", null, {}, 200, "OK");
 
 	printHeader("Chunked Body Output");
-	succeed = await runGoodCgiTest("/cgi/cgiBodyChunked.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiBodyChunked.cgi", "GET", null, {}, 200, "OK");
 
 	printHeader("Cgi Body Too Short");
-	succeed = await runGoodCgiTest("/cgi/cgiBodyTooShort.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiBodyTooShort.cgi", "GET", null, {}, 200, "OK");
 
 	printHeader("Cgi Error In Headers");
-	succeed = await runGoodCgiTest("/cgi/cgiErrorInHeaders.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiErrorInHeaders.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi No Content Length");
-	succeed = await runGoodCgiTest("/cgi/cgiNoContentLength.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiNoContentLength.cgi", "GET", null, {}, 200, "OK");
 
 	printHeader("Cgi No Content Type");
-	succeed = await runGoodCgiTest("/cgi/cgiNoContentType.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiNoContentType.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi No Response");
-	succeed = await runGoodCgiTest("/cgi/cgiNoResponse.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiNoResponse.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi No Status Header");
-	succeed = await runGoodCgiTest("/cgi/cgiNoStatusHeader.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiNoStatusHeader.cgi", "GET", null, {}, 200, "OK");
 
 	printHeader("Cgi No Status Header But Location");
-	succeed = await runGoodCgiTest("/cgi/cgiNoStatusHeaderAndLocation.cgi", "GET", null, {}, 302, "Found") && succeed;
+	await runGoodCgiTest("/cgi/cgiNoStatusHeaderAndLocation.cgi", "GET", null, {}, 302, "Found");
 
 	printHeader("Cgi Printing Every Variables");
-	succeed = await runGoodCgiTest("/cgi/cgiPrintingEveryVariables.cgi", "GET", null, {
+	await runGoodCgiTest("/cgi/cgiPrintingEveryVariables.cgi", "GET", null, {
 		"accept" : "text/*",
 		"accept-language" : "fr",
 		"user-agent" : "jeSaisPasCeQueCEst",
 		"cookIE" : "qwuehx",
 		"REFERER" : "truc"
-	}, 200, "OK") && succeed;
+	}, 200, "OK");
 
 	printHeader("Cgi Closed While Not Reading All");
-	succeed = await runGoodCgiTest("/cgi/put/cgiCloseWhileNotReadingAll.cgiput", "PUT", "un dummy body", {
+	await runGoodCgiTest("/cgi/put/cgiCloseWhileNotReadingAll.cgiput", "PUT", "un dummy body", {
 		"content-length" : "13"
-	}, 200, "OK") && succeed;
+	}, 200, "OK");
 
 	printHeader("Cgi Wrong Content Length 1");
-	succeed = await runGoodCgiTest("/cgi/cgiWrongContentLength1.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiWrongContentLength1.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi Wrong Content Length 2");
-	succeed = await runGoodCgiTest("/cgi/cgiWrongContentLength2.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiWrongContentLength2.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi Wrong Content Length 3");
-	succeed = await runGoodCgiTest("/cgi/cgiWrongContentLength3.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiWrongContentLength3.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi Wrong Status 1");
-	succeed = await runGoodCgiTest("/cgi/cgiWrongStatus1.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiWrongStatus1.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi Wrong Status 2");
-	succeed = await runGoodCgiTest("/cgi/cgiWrongStatus2.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiWrongStatus2.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi Wrong Status 3");
-	succeed = await runGoodCgiTest("/cgi/cgiWrongStatus3.cgi", "GET", null, {}, 502, "Bad Gateway") && succeed;
+	await runGoodCgiTest("/cgi/cgiWrongStatus3.cgi", "GET", null, {}, 502, "Bad Gateway");
 
 	printHeader("Cgi Status Without Text");
-	succeed = await runGoodCgiTest("/cgi/cgiStatusWithoutText.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiStatusWithoutText.cgi", "GET", null, {}, 200, "OK");
 
 	printHeader("Cgi Check Body");
-	succeed = await runGoodCgiTest("/cgi/put/cgiCheckBody.cgiput", "PUT", "je suis le body", {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/put/cgiCheckBody.cgiput", "PUT", "je suis le body", {}, 200, "OK");
 
 	printHeader("Cgi Check Chunked Body");
-	succeed = await sendCgiChunkedRequest("/cgi/put/cgiCheckBody.cgiput", defaultHeaders, [ "je ", "suis ", "le ", "body"], []) && succeed;
+	await sendCgiChunkedRequest("/cgi/put/cgiCheckBody.cgiput", defaultHeaders, [ "je ", "suis ", "le ", "body"], []);
 
 	printHeader("Cgi Check Chunked Body With Trailers");
-	succeed = await sendCgiChunkedRequest("/cgi/put/cgiCheckBody.cgiput", defaultHeaders, [ "je ", "suis ", "le ", "body"], ["test: truc", "machin: bidule"]) && succeed;
+	await sendCgiChunkedRequest("/cgi/put/cgiCheckBody.cgiput", defaultHeaders, [ "je ", "suis ", "le ", "body"], ["test: truc", "machin: bidule"]);
 
 	printHeader("Cgi Test Sleep");
-	succeed = await runGoodCgiTest("/cgi/cgiTestSleep.cgi", "GET", null, {}, 200, "OK") && succeed;
+	await runGoodCgiTest("/cgi/cgiTestSleep.cgi", "GET", null, {}, 200, "OK");
 
-	// printHeader("Cgi Python");
-	// succeed = await runGoodCgiTest("/cgi/python/cgiPythonTest.py", "GET", null, {}, 200, "OK") && succeed;
-	//
-	// printHeader("Cgi Php");
-	// succeed = await runGoodCgiTest("/cgi/php/cgiPhpTest.php", "GET", null, {},  200, "OK") && succeed;
+	printHeader("Cgi Python");
+	await runGoodCgiTest("/cgi/python/cgiPythonTest.py", "GET", null, {}, 200, "OK");
 
-	if (succeed)
+	printHeader("Cgi Php");
+	await runGoodCgiTest("/cgi/php/cgiPhpTest.php", "GET", null, {},  200, "OK");
+
+	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 	{

@@ -18,51 +18,49 @@ async function	runGoodPostTest(target)
 
 async function runTests()
 {
-	let	succeed = true;
-
 	printHeader("Classic Case");
-	succeed = await runGoodPostTest("/post/main.html") && succeed;
-	succeed = await runGoodPostTest("/post/fake/main.cpp") && succeed;
-	succeed = await runGoodPostTest("/post/fake/../main.html") && succeed;
-	succeed = await runGoodPostTest("/post/fake/../../../../../../../../main.html") && succeed;
-	succeed = await runGoodPostTest("/post/../main.html") && succeed;
+	await runGoodPostTest("/post/main.html");
+	await runGoodPostTest("/post/fake/main.cpp");
+	await runGoodPostTest("/post/fake/../main.html");
+	await runGoodPostTest("/post/fake/../../../../../../../../main.html");
+	await runGoodPostTest("/post/../main.html");
 
 	printHeader("Index Case");
-	succeed = await runGoodPostTest("/post/srcs/") && succeed;
+	await runGoodPostTest("/post/srcs/");
 
 	printHeader("Redirection Case");
-	succeed = await runGoodPostTest("/post/srcs") && succeed;
+	await runGoodPostTest("/post/srcs");
 
 	printHeader("403 Case");
-	succeed = await runGoodPostTest("/post/fake/") && succeed;
-	succeed = await runGoodPostTest("/post/nonono/") && succeed;
+	await runGoodPostTest("/post/fake/");
+	await runGoodPostTest("/post/nonono/");
 
 	printHeader("405 Case");
-	succeed = await runGoodPostTest("/post/405/") && succeed;
+	await runGoodPostTest("/post/405/");
 
 	printHeader("404 Case");
-	succeed = await runGoodPostTest("/unitTest/uplo/") && succeed;
-	succeed = await runGoodPostTest("/gknrk") && succeed;
-	succeed = await runGoodPostTest("/bin/") && succeed;
+	await runGoodPostTest("/unitTest/uplo/");
+	await runGoodPostTest("/gknrk");
+	await runGoodPostTest("/bin/");
 
 	printHeader("Auto Index");
-	succeed = await runGoodPostTest("/post/auto/") && succeed;
-	succeed = await runGoodPostTest("/post/auto2/") && succeed;
+	await runGoodPostTest("/post/auto/");
+	await runGoodPostTest("/post/auto2/");
 
 	printHeader("Folder With File Name");
-	succeed = await runGoodPostTest("/post/truc.txt/") && succeed;
+	await runGoodPostTest("/post/truc.txt/");
 
 	printHeader("Index Specials");
-	succeed = await runGoodPostTest("/post/indexIsFolder/") && succeed;
-	succeed = await runGoodPostTest("/post/indexIsSymlink/") && succeed;
-	succeed = await runGoodPostTest("/post/indexIsFolderAndFile/") && succeed;
-	succeed = await runGoodPostTest("/post/indexIsSymlinkAndFile/") && succeed;
+	await runGoodPostTest("/post/indexIsFolder/");
+	await runGoodPostTest("/post/indexIsSymlink/");
+	await runGoodPostTest("/post/indexIsFolderAndFile/");
+	await runGoodPostTest("/post/indexIsSymlinkAndFile/");
 
 	printHeader("Fix Url Errors");
-	succeed = await runGoodPostTest("/post//main.html") && succeed;
-	succeed = await runGoodPostTest("/post/endWith./index.html") && succeed;
+	await runGoodPostTest("/post//main.html");
+	await runGoodPostTest("/post/endWith./index.html");
 
-	if (succeed)
+	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 	{

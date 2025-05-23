@@ -18,45 +18,43 @@ async function	runGoodPutTest(target)
 
 async function runTests()
 {
-	let	succeed = true;
-
 	printHeader("Allowed Case");
-	succeed = await runGoodPutTest("/put/allowed/main.html") && succeed;
+	await runGoodPutTest("/put/allowed/main.html");
 
 	printHeader("Method Not Allowed Case");
-	succeed = await runGoodPutTest("/put/notAllowed/main.html") && succeed;
+	await runGoodPutTest("/put/notAllowed/main.html");
 
 	printHeader("No Right on folder Case");
-	succeed = await runGoodPutTest("/put/forbidden/main.html") && succeed;
+	await runGoodPutTest("/put/forbidden/main.html");
 
 	printHeader("File Already existing With right Case");
-	succeed = await runGoodPutTest("/put/mainRight.html") && succeed;
+	await runGoodPutTest("/put/mainRight.html");
 
 	printHeader("File Already existing With no right Case");
-	succeed = await runGoodPutTest("/put/mainNoRight.html") && succeed;
+	await runGoodPutTest("/put/mainNoRight.html");
 
 	printHeader("Creating directory Case");
-	succeed = await runGoodPutTest("/put/directory/") && succeed;
+	await runGoodPutTest("/put/directory/");
 
 	printHeader("Creating directory that already exists, with right and empty Case");
-	succeed = await runGoodPutTest("/put/alreadyExistingDirEmpty/") && succeed;
+	await runGoodPutTest("/put/alreadyExistingDirEmpty/");
 
 	printHeader("Creating directory that already exists, with right and not empty Case");
-	succeed = await runGoodPutTest("/put/alreadyExistingDir/") && succeed;
+	await runGoodPutTest("/put/alreadyExistingDir/");
 
 	printHeader("Creating directory that already exists, with no right and empty Case");
-	succeed = await runGoodPutTest("/put/alreadyExistingDirEmptyNoRight/") && succeed;
+	await runGoodPutTest("/put/alreadyExistingDirEmptyNoRight/");
 
 	printHeader("Creating directory that already exists, with no right and not empty Case");
-	succeed = await runGoodPutTest("/put/alreadyExistingDirNoRight/") && succeed;
+	await runGoodPutTest("/put/alreadyExistingDirNoRight/");
 
 	printHeader("Existing File");
-	succeed = await runGoodPutTest("/put/allowed/main.html") && succeed;
+	await runGoodPutTest("/put/allowed/main.html");
 
 	printHeader("Folder Not Existing");
-	succeed = await runGoodPutTest("/put/allowed/whereAmI/test.txt") && succeed;
+	await runGoodPutTest("/put/allowed/whereAmI/test.txt");
 
-	if (succeed)
+	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
 	{
