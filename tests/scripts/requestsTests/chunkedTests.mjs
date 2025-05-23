@@ -1,6 +1,8 @@
 import { compareBadRequests, compareBadRequestWithValues } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, generateString, randomInt, COLOR_GREEN, COLOR_RED, COLOR_RESET, createChunkedRequest } from "./utils.mjs"
 
+let	failedTests = [];
+
 function	randomStringArray(minArray, maxArray, minString, maxString)
 {
     let		result = [];
@@ -13,14 +15,17 @@ function	randomStringArray(minArray, maxArray, minString, maxString)
     return (result);
 }
 
-async function	sendRawBadRequest(message)
+async function	sendRawBadRequest(target, message)
 {
 	const	result = await compareBadRequestWithValues(message, 400, "Bad Request");
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
 	return (result);
 }
 
@@ -32,7 +37,10 @@ async function	sendGoodChunkedRequest(target, headers, chunks, trailers)
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
 	return (result);
 }
 
@@ -45,7 +53,10 @@ async function	sendBadChunkedRequest(target, headers, chunks, trailers)
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
 	return (result);
 }
 
@@ -62,7 +73,7 @@ async function runTests()
 	succeed = await sendGoodChunkedRequest("/chunked/empty.txt", defaultHeaders, [], []) && succeed;
 
 	printHeader("One Chunk Empty");
-	succeed = await sendBadChunkedRequest("/chunked/oneEmpty.txt", defaultHeaders, ["testestets\r\r\n\r\n  ", "", "autre test"], []) && succeed;
+	succeed = await sendGoodChunkedRequest("/chunked/oneEmpty.txt", defaultHeaders, ["testestets\r\r\n\r\n  ", "", "autre test"], []) && succeed;
 
 	printHeader("Random Small");
 	succeed = await sendGoodChunkedRequest("/chunked/small.txt", defaultHeaders, randomStringArray(1, 5, 50, 100), []) && succeed;
@@ -86,7 +97,7 @@ async function runTests()
 	succeed = await sendGoodChunkedRequest("/chunked/invalidTrailer.txt", defaultHeaders, randomStringArray(50, 100, 50, 100), [ "test=tru" ]) && succeed;
 
 	printHeader("No BreakLine On Size");
-	succeed = await sendRawBadRequest(
+	succeed = await sendRawBadRequest("/chunked/noBreakLineOnSize",
 "PUT /chunked/noBreakLineOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -99,7 +110,7 @@ async function runTests()
 ) && succeed;
 
 	printHeader("No Return Carriage On Size");
-	succeed = await sendRawBadRequest(
+	succeed = await sendRawBadRequest("chunked/noReturnCarriageOnSize",
 "PUT /chunked/noReturnCarriageOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -112,7 +123,7 @@ async function runTests()
 ) && succeed;
 
 	printHeader("No Return Carriage Nor BreakLine");
-	succeed = await sendRawBadRequest(
+	succeed = await sendRawBadRequest("/chunked/noReturnCarriageNorBreakLineOnData",
 "PUT /chunked/noReturnCarriageNorBreakLineOnSize\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -127,7 +138,7 @@ async function runTests()
 ) && succeed;
 
 	printHeader("No BreakLine On Data");
-	succeed = await sendRawBadRequest(
+	succeed = await sendRawBadRequest("chunked/noBreakLineOnData",
 "PUT /chunked/noBreakLineOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -140,7 +151,7 @@ async function runTests()
 ) && succeed;
 
 	printHeader("No Return Carriage On Data");
-	succeed = await sendRawBadRequest(
+	succeed = await sendRawBadRequest("/chunked/noReturnCarriageOnData",
 "PUT /chunked/noReturnCarriageOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -153,7 +164,7 @@ async function runTests()
 ) && succeed;
 
 	printHeader("No Return Carriage Nor BreakLine");
-	succeed = await sendRawBadRequest(
+	succeed = await sendRawBadRequest("/chunked/noReturnCarriageNorBreakLineOnData",
 "PUT /chunked/noReturnCarriageNorBreakLineOnData\r\n" +
 "Host: nginx\r\n" +
 "Connection: close\r\n" +
@@ -171,7 +182,10 @@ async function runTests()
 	if (succeed)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
+		console.table(failedTests);
+	}
 }
 
 async function	run()

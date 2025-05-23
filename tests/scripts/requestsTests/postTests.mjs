@@ -1,13 +1,18 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
+let	failedTests = [];
+
 async function	runGoodPostTest(target)
 {
 	const	result = await compareGoodRequests(target, "POST", null, {});
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
 	return (result);
 }
 
@@ -60,7 +65,10 @@ async function runTests()
 	if (succeed)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
+		console.table(failedTests);
+	}
 }
 
 async function	run()

@@ -2,6 +2,8 @@ import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
 import { compareGoodRequestWithValues, compareBadRequestWithValues } from "./compareRequests.mjs";
 import { COLOR_GREEN, COLOR_RED, COLOR_RESET, createChunkedRequest } from "./utils.mjs";
 
+let	failedTests = [];
+
 async function	runGoodCgiTest(target, method, body, headers, statusCode, statusText)
 {
 	const result = await compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText);
@@ -9,7 +11,10 @@ async function	runGoodCgiTest(target, method, body, headers, statusCode, statusT
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
 	return (result);
 }
 
@@ -21,7 +26,10 @@ async function	sendCgiChunkedRequest(target, headers, chunks, trailers)
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
 	return (result);
 }
 
@@ -114,7 +122,10 @@ async function runTests()
 	if (succeed)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
+		console.table(failedTests);
+	}
 }
 
 async function	run()
