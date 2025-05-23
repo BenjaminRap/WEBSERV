@@ -131,11 +131,11 @@ export async function	compareGoodRequests(target, method, body, headers)
 	try
 	{
 		if (showDuration)
-			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
-		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-		if (showDuration)
 			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
+		if (showDuration)
+			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
+		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
 		return (compareRequests(target, nginxResponse, webservResponse));
 	}
 	catch (error)
@@ -150,11 +150,11 @@ export async function	compareBadRequests(message, target)
 	try
 	{
 		if (showDuration)
-			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
-		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-		if (showDuration)
 			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
+		if (showDuration)
+			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
+		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
 		return (compareRequests(target, nginxResponse, webservResponse));
 	}
 	catch (error)
@@ -171,8 +171,6 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-		if (showDuration)
-			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const expectedResponse = {
 			status: statusCode,
 			statusText: statusText,
@@ -193,8 +191,6 @@ export async function	compareBadRequestWithValues(message, statusCode, statusTex
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-		if (showDuration)
-			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const expectedResponse = {
 			status: statusCode,
 			statusText: statusText,
