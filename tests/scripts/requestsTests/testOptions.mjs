@@ -1,1 +1,2 @@
-export let	printOK = true;
+export const	printOK = true;
+export const	showDuration = true;

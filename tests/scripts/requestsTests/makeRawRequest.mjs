@@ -1,5 +1,7 @@
 import { HTTPParser } from "/usr/local/lib/node_modules/http-parser-js/http-parser.js";
 import * as net from "net";
+import { showDuration } from "./testOptions.mjs"
+import { COLOR_BLUE, COLOR_RESET } from "./utils.mjs"
 
 
 let headers;
@@ -41,7 +43,8 @@ export async function	makeRawRequest(host, port, requestData)
 	const	httpParser = getHTTPParser();
 	const	response = await sendRawRequest(host, port, requestData, httpParser);
 	const	end = performance.now();
-	console.log("duree : " +  (end - start).toFixed(3) + "ms");
+	if (showDuration)
+		console.log(COLOR_BLUE + "duree : " +  (end - start).toFixed(3) + "ms" + COLOR_RESET);
 	return (response);
 }
 

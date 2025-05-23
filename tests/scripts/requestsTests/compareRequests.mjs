@@ -2,7 +2,7 @@ import { exec, COLOR_RESET, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, C
 import { makeRequest } from "./makeRequest.mjs"
 import { makeRawRequest } from "./makeRawRequest.mjs"
 import { nginxHost, webservHost, nginxPort, webservPort, nginxUrl, webservUrl } from "./hosts.mjs"
-import { printOK } from "./testOptions.mjs"
+import { printOK, showDuration } from "./testOptions.mjs"
 
 function	verify(prefix, nginxValue, webservValue)
 {
@@ -130,9 +130,11 @@ export async function	compareGoodRequests(target, method, body, headers)
 {
 	try
 	{
-		console.log("webserv");
+		if (showDuration)
+			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-		console.log("nginx");
+		if (showDuration)
+			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
 		return (compareRequests(target, nginxResponse, webservResponse));
 	}
@@ -147,9 +149,11 @@ export async function	compareBadRequests(message, target)
 {
 	try
 	{
-		console.log("webserv");
+		if (showDuration)
+			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-		console.log("nginx");
+		if (showDuration)
+			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
 		return (compareRequests(target, nginxResponse, webservResponse));
 	}
@@ -164,9 +168,11 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 {
 	try
 	{
-		console.log("webserv");
+		if (showDuration)
+			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-		console.log("nginx");
+		if (showDuration)
+			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const expectedResponse = {
 			status: statusCode,
 			statusText: statusText,
@@ -184,9 +190,11 @@ export async function	compareBadRequestWithValues(message, statusCode, statusTex
 {
 	try
 	{
-		console.log("webserv");
+		if (showDuration)
+			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-		console.log("nginx");
+		if (showDuration)
+			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const expectedResponse = {
 			status: statusCode,
 			statusText: statusText,
