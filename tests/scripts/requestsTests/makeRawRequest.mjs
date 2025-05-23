@@ -85,6 +85,8 @@ function getHTTPParser()
 
     // Callback pour récupérer les headers et les convertir d'un array a une map
     parser[HTTPParser.kOnHeadersComplete] = (response) => {
+		if (complete == true)
+			return ;
         headers = response.headers.reduce((map, key, index, array) => {
             if (index % 2 === 0)
 				map[key] = array[index + 1];
@@ -95,11 +97,15 @@ function getHTTPParser()
     };
 
 	parser[HTTPParser.kOnMessageComplete] = () => {
+		if (complete == true)
+			return ;
 		complete = true;
 	}
 
     // Callback pour récupérer le corps
     parser[HTTPParser.kOnBody] = (chunk, start, len) => {
+		if (complete == true)
+			return ;
         body += chunk.toString('utf-8', start, start + len);
     };
 
