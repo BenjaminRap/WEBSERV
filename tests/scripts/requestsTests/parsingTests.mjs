@@ -1,8 +1,6 @@
 import { compareBadRequests, compareBadRequestWithValues  } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const	printOK = false;
-
 function	createRequest(statusLine, headers)
 {
 	let message = statusLine + "\r\n";
@@ -16,7 +14,7 @@ function	createRequest(statusLine, headers)
 async function	runTestWithStatusLine(statusLine, target, headers)
 {
 	const	message = createRequest(statusLine, headers);
-	const	result = await  compareBadRequests(message, target, printOK);
+	const	result = await  compareBadRequests(message, target);
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
@@ -28,7 +26,7 @@ async function	runTestWithStatusLine(statusLine, target, headers)
 async function	runBadRequestTest(statusLine, headers)
 {
 	const	message = createRequest(statusLine, headers);
-	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
+	const	result = await compareBadRequestWithValues(message, 400, "Bad Request");
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);

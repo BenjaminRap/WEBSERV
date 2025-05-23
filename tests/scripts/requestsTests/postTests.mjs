@@ -1,11 +1,9 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const	printOK = true;
-
 async function	runGoodPostTest(target)
 {
-	const	result = await compareGoodRequests(target, "POST", null, {}, printOK);
+	const	result = await compareGoodRequests(target, "POST", null, {});
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else

@@ -2,11 +2,9 @@ import { verifyServersAreRunning, exec, printHeader } from "./utils.mjs"
 import { compareGoodRequestWithValues, compareBadRequestWithValues } from "./compareRequests.mjs";
 import { COLOR_GREEN, COLOR_RED, COLOR_RESET, createChunkedRequest } from "./utils.mjs";
 
-let	printOK = false;
-
 async function	runGoodCgiTest(target, method, body, headers, statusCode, statusText)
 {
-	const result = await compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText, printOK);
+	const result = await compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText);
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
@@ -18,7 +16,7 @@ async function	runGoodCgiTest(target, method, body, headers, statusCode, statusT
 async function	sendCgiChunkedRequest(target, headers, chunks, trailers)
 {
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
-	const	result = await compareBadRequestWithValues(message, 200, "OK", printOK);
+	const	result = await compareBadRequestWithValues(message, 200, "OK");
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);

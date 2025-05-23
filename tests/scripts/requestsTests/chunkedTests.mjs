@@ -1,8 +1,6 @@
 import { compareBadRequests, compareBadRequestWithValues } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, generateString, randomInt, COLOR_GREEN, COLOR_RED, COLOR_RESET, createChunkedRequest } from "./utils.mjs"
 
-const	printOK = false;
-
 function	randomStringArray(minArray, maxArray, minString, maxString)
 {
     let		result = [];
@@ -17,7 +15,7 @@ function	randomStringArray(minArray, maxArray, minString, maxString)
 
 async function	sendRawBadRequest(message)
 {
-	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
+	const	result = await compareBadRequestWithValues(message, 400, "Bad Request");
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
@@ -29,7 +27,7 @@ async function	sendRawBadRequest(message)
 async function	sendGoodChunkedRequest(target, headers, chunks, trailers)
 {
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
-	const	result = await compareBadRequests(message, target, printOK);
+	const	result = await compareBadRequests(message, target);
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
@@ -42,7 +40,7 @@ async function	sendGoodChunkedRequest(target, headers, chunks, trailers)
 async function	sendBadChunkedRequest(target, headers, chunks, trailers)
 {
 	const	message = createChunkedRequest(target, headers, chunks, trailers);
-	const	result = await compareBadRequestWithValues(message, 400, "Bad Request", printOK);
+	const	result = await compareBadRequestWithValues(message, 400, "Bad Request");
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);

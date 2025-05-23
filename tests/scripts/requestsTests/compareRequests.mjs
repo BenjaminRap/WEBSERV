@@ -2,8 +2,9 @@ import { exec, COLOR_RESET, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, C
 import { makeRequest } from "./makeRequest.mjs"
 import { makeRawRequest } from "./makeRawRequest.mjs"
 import { nginxHost, webservHost, nginxPort, webservPort, nginxUrl, webservUrl } from "./hosts.mjs"
+import { printOK } from "./testOptions.mjs"
 
-function	verify(prefix, nginxValue, webservValue, printOK)
+function	verify(prefix, nginxValue, webservValue)
 {
 	if (nginxValue !== webservValue)
 	{
@@ -20,16 +21,16 @@ function	getStatus(response)
 	return (response.status + "|" + response.statusText);
 }
 
-function	compareStatus(nginxResponse, webservResponse, printOK)
+function	compareStatus(nginxResponse, webservResponse)
 {
 	//status code + text
 	const	nginxStatus = getStatus(nginxResponse);
 	const	webservStatus = getStatus(webservResponse);
 
-	return (verify("status : ", nginxStatus , webservStatus, printOK));
+	return (verify("status : ", nginxStatus , webservStatus));
 }
 
-function	compareRedirection(nginxResponse, webservResponse, printOK)
+function	compareRedirection(nginxResponse, webservResponse)
 {
 	//redirection
 	let	nginxRedirection = nginxResponse.headers.get("Location")?.slice(0);
@@ -43,7 +44,7 @@ function	compareRedirection(nginxResponse, webservResponse, printOK)
 
 	if (nginxRedirection !== null || webservRedirection !== null)
 	{
-		return (verify("redirection: ",  nginxRedirection, webservRedirection, printOK));
+		return (verify("redirection: ",  nginxRedirection, webservRedirection));
 	}
 	return (true);
 }
@@ -76,7 +77,7 @@ function	compareAutoIndexBody(nginxBody, webservBody)
 	return (true);
 }
 
-async function	compareBody(nginxResponse, webservResponse, printOK)
+async function	compareBody(nginxResponse, webservResponse)
 {
 	//body
 	let nginxBody = await nginxResponse.text();
@@ -97,10 +98,10 @@ async function	compareBody(nginxResponse, webservResponse, printOK)
 			console.log("auto index body" + COLOR_GREEN + "[OK] nginx|webserv '" + nginxBody + "' | '" + webservBody + "'" + COLOR_RESET);
 		return (bodyEquals);
 	}
-	return (verify("body : ", nginxBody, webservBody, printOK));
+	return (verify("body : ", nginxBody, webservBody));
 }
 
-function	compareRequestEffect(target, nginxResponse, webservResponse, printOK)
+function	compareRequestEffect(target, nginxResponse, webservResponse)
 {
 	if ((nginxResponse.status == 201 && webservResponse.status == 201)
 		|| (nginxResponse.status == 204 && webservResponse.status == 204))
@@ -109,23 +110,23 @@ function	compareRequestEffect(target, nginxResponse, webservResponse, printOK)
 			console.log(COLOR_CYAN + "checking if the file has been created with the right body : " + COLOR_RESET)
 		else
 			console.log(COLOR_CYAN + "checking if the file has been deleted: " + COLOR_RESET)
-		return (compareGoodRequests(target, "GET", null, [], printOK));
+		return (compareGoodRequests(target, "GET", null, []));
 	}
 	return (true);
 }
 
-async function	compareRequests(target, nginxResponse, webservResponse, printOK)
+async function	compareRequests(target, nginxResponse, webservResponse)
 {
 	let	succeed = true;
 
-	succeed = compareStatus(nginxResponse, webservResponse, printOK) && succeed;
-	succeed = compareRedirection(nginxResponse, webservResponse, printOK) && succeed;
-	succeed = await compareBody(nginxResponse, webservResponse, printOK) && succeed;
-	succeed = await compareRequestEffect(target, nginxResponse, webservResponse, printOK) && succeed;
+	succeed = compareStatus(nginxResponse, webservResponse) && succeed;
+	succeed = compareRedirection(nginxResponse, webservResponse) && succeed;
+	succeed = await compareBody(nginxResponse, webservResponse) && succeed;
+	succeed = await compareRequestEffect(target, nginxResponse, webservResponse) && succeed;
 	return (succeed);
 }
 
-export async function	compareGoodRequests(target, method, body, headers, printOK)
+export async function	compareGoodRequests(target, method, body, headers)
 {
 	try
 	{
@@ -133,7 +134,7 @@ export async function	compareGoodRequests(target, method, body, headers, printOK
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
 		console.log("nginx");
 		const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
-		return (compareRequests(target, nginxResponse, webservResponse, printOK));
+		return (compareRequests(target, nginxResponse, webservResponse));
 	}
 	catch (error)
 	{
@@ -142,7 +143,7 @@ export async function	compareGoodRequests(target, method, body, headers, printOK
 	}
 }
 
-export async function	compareBadRequests(message, target, printOK)
+export async function	compareBadRequests(message, target)
 {
 	try
 	{
@@ -150,7 +151,7 @@ export async function	compareBadRequests(message, target, printOK)
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
 		console.log("nginx");
 		const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
-		return (compareRequests(target, nginxResponse, webservResponse, printOK));
+		return (compareRequests(target, nginxResponse, webservResponse));
 	}
 	catch (error)
 	{
@@ -159,7 +160,7 @@ export async function	compareBadRequests(message, target, printOK)
 	}
 }
 
-export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText, printOK)
+export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText)
 {
 	try
 	{
@@ -170,7 +171,7 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 			status: statusCode,
 			statusText: statusText,
 		};
-		return (compareStatus(expectedResponse, webservResponse, printOK));
+		return (compareStatus(expectedResponse, webservResponse));
 	}
 	catch (error)
 	{
@@ -179,7 +180,7 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 	}
 }
 
-export async function	compareBadRequestWithValues(message, statusCode, statusText, printOK)
+export async function	compareBadRequestWithValues(message, statusCode, statusText)
 {
 	try
 	{
@@ -190,7 +191,7 @@ export async function	compareBadRequestWithValues(message, statusCode, statusTex
 			status: statusCode,
 			statusText: statusText,
 		};
-		return (compareStatus(expectedResponse, webservResponse, printOK));
+		return (compareStatus(expectedResponse, webservResponse));
 	}
 	catch (error)
 	{
