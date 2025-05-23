@@ -74,7 +74,9 @@ function sendRawRequest(host, port, requestData, httpParser)
 
         client.on('error', (err) => {
 			httpParser.finish();
-			return (resolve(createResponse()));
+			if (complete == true)
+				return (resolve(createResponse()));
+			return (reject("Could not finished"));
 		});
     });
 }
