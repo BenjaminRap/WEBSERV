@@ -44,27 +44,17 @@ export function	exec(command)
 	return (childProcess.spawnSync(command, { shell: true }));
 }
 
-export function	verifyServersAreRunning()
+export async function	verifyServersAreRunning()
 {
-	{
-		const result = exec("curl -I " + nginxUrl + " > /dev/null 2>&1")
+	await fetch(nginxUrl).catch(error => {
+		console.log("Nginx server not running, exiting")
+		process.exit(0);
+	});
 
-		if (result.status != 0)
-		{
-			console.log("Nginx server not running, exiting")
-			process.exit(0);
-		}
-	}
-
-	{
-		const result = exec("curl -I " + webservUrl + " > /dev/null 2>&1");
-
-		if (result.status != 0)
-		{
-			console.log("WebServ server not running, exiting")
-			process.exit(0);
-		}
-	}
+	await fetch(webservUrl).catch(error => {
+		console.log("Webserv server not running, exiting")
+		process.exit(0);
+	});
 }
 
 export function	createChunkedRequest(target, headers, chunks, trailers)
