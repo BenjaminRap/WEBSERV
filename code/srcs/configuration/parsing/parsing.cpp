@@ -73,10 +73,13 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	std::vector<std::string>				serverNames;
 	std::map<unsigned short, std::string>	errorPages;
 	size_t									maxClientBodySize = -1;
+	std::vector<EMethods>					acceptedMethods;
 	std::map<std::string, Route>			routes;
 	std::string								root;
 	ip_t									ip;
 	std::vector<std::string>				index;
+	std::string								cgiFileExtension;
+	std::string								cgiInterpreter;
 
 	while (i < file.size() && file[i] != '}')
 	{
@@ -103,6 +106,11 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 			i += 10;
 			parseErrorPages(file, i, line, errorPages);
 		}
+		else if (!file.compare(i, 14, "request_method"))
+		{
+			i += 14;
+			parseRouteAcceptedMethod(file, i, line, acceptedMethods);
+		}
 		else if (!file.compare(i, 8, "location"))
 		{
 			i += 8;
@@ -118,6 +126,16 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 			i += 5;
 			parseRouteIndex(file, i, line, index);
 		}
+		else if (!file.compare(i, 13, "cgi_extension"))
+		{
+			i += 13;
+			parseRouteCgiFileExtension(file, i, line, cgiFileExtension);
+		}
+		else if (!file.compare(i, 15, "cgi_interpreter"))
+		{
+			i += 15;
+			parseRouteCgiInterpreter(file, i, line, cgiInterpreter);
+		}
 		else if (file[i] != '}')
 			throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
@@ -130,7 +148,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (ParsingException("Missing host"));
 	setErrorPagesAbsolutePath(errorPages, routes);
-	insertHost(conf, serverNames, errorPages, maxClientBodySize, routes, root, ip, index);
+	insertHost(conf, serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, ip, index, cgiFileExtension, cgiInterpreter);
 }
 
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)

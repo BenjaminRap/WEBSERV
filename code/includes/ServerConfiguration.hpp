@@ -24,9 +24,12 @@ public :
 		const std::vector<std::string> &serverNames,
 		const std::map<unsigned short, std::string> &errorPages,
 		const size_t &maxClientBodySize,
+		const std::vector<EMethods> &acceptedMethods,
 		const std::map<std::string, Route> &routes,
 		const std::string &root,
-		const std::vector<std::string> &index
+		const std::vector<std::string> &index,
+		const std::string &cgiFileExtension,
+		const std::string &cgiInterpreter
 	);
 	ServerConfiguration(ServerConfiguration const &src);
 	~ServerConfiguration(void);
@@ -36,9 +39,12 @@ public :
 	const std::string*							getErrorPage(uint16_t error) const;
 	const std::map<uint16_t, std::string>&		getErrorPages(void) const;
 	const size_t&								getMaxClientBodySize(void) const;
+	const std::vector<EMethods>&				getAcceptedMethods(void) const;
 	const std::map<std::string, Route>&			getRoutes(void) const;
 	const std::pair<const std::string, Route>*	getRouteFromPath(const std::string &path) const;
 	const std::vector<std::string>&				getIndex(void) const;
+	const std::string&							getCgiFileExtension(void) const;
+	const std::string&							getCgiInterpreter(void) const;
 
 private :
 	/**
@@ -59,6 +65,13 @@ private :
 	 */
 	size_t									_maxClientBodySize;
 	/**
+	 * @brief A list of all methods this route accept. For example,
+	 * if this route acceptedMethods are GET and POST, and the request
+	 * is a delete request, we will send a 405.
+	 */
+	std::vector<EMethods>					_acceptedMethods;
+	
+	/**
 	 * @brief A map with : route url:route class.
 	 */
 	std::map<std::string, Route>			_routes;
@@ -73,6 +86,12 @@ private :
 	 * page that will be shown if the user ask for a folder.
 	 */
 	std::vector<std::string>				_index;
+	/**
+	 * @brief if a file, at this route has this file extension, it will execute it
+	 * and returns the results of the cgi, instead of returning the file.
+	 */
+	std::string								_cgiFileExtension;
+	std::string								_cgiInterpreter;
 
 	ServerConfiguration(void);
 	ServerConfiguration    &operator=(ServerConfiguration const &src);

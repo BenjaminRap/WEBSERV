@@ -78,6 +78,7 @@ void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std:
 void	readfile(const char *path, std::string &buff);
 void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
 &serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index);
+std::vector<EMethods> &acceptedMethods, std::map<std::string, Route> &routes, std::string &root, \
+ip_t &ip, std::vector<std::string> &index, std::string &cgiFileExtension, std::string &cgiInterpreter);
 
 #endif

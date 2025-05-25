@@ -10,20 +10,26 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration, operator<<
 
 ServerConfiguration::ServerConfiguration
-(
-	const std::vector<std::string> &serverNames,
-	const std::map<unsigned short, std::string> &errorPages,
-	const size_t &maxClientBodySize,
-	const std::map<std::string, Route> &routes,
-	const std::string &root,
-	const std::vector<std::string> &index
-) :
+	(
+		const std::vector<std::string> &serverNames,
+		const std::map<unsigned short, std::string> &errorPages,
+		const size_t &maxClientBodySize,
+		const std::vector<EMethods> &acceptedMethods,
+		const std::map<std::string, Route> &routes,
+		const std::string &root,
+		const std::vector<std::string> &index,
+		const std::string &cgiFileExtension,
+		const std::string &cgiInterpreter
+	) :
 	_serverNames(serverNames),
 	_errorPages(errorPages),
 	_maxClientBodySize(maxClientBodySize),
+	_acceptedMethods(acceptedMethods),
 	_routes(routes),
 	_root(root),
-	_index(index)
+	_index(index),
+	_cgiFileExtension(cgiFileExtension),
+	_cgiInterpreter(cgiInterpreter)
 {
 }
 
@@ -32,9 +38,12 @@ ServerConfiguration::ServerConfiguration(ServerConfiguration const &src)
 	this->_serverNames = src._serverNames;
 	this->_errorPages = src._errorPages;
 	this->_maxClientBodySize = src._maxClientBodySize;
+	this->_acceptedMethods = src._acceptedMethods;
 	this->_routes = src._routes;
 	this->_root = src._root;
 	this->_index = src._index;
+	this->_cgiFileExtension = src._cgiFileExtension;
+	this->_cgiInterpreter = src._cgiInterpreter;
 }
 
 ServerConfiguration::~ServerConfiguration(void)
@@ -71,6 +80,11 @@ const size_t					&ServerConfiguration::getMaxClientBodySize(void) const
 	return (this->_maxClientBodySize);
 }
 
+const std::vector<EMethods>		&ServerConfiguration::getAcceptedMethods(void) const
+{
+	return (_acceptedMethods);
+}
+
 const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 {
 	return (this->_routes);
@@ -103,6 +117,16 @@ const std::pair<const std::string, Route>*	ServerConfiguration::getRouteFromPath
 const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 {
 	return (this->_index);
+}
+
+const std::string				&ServerConfiguration::getCgiFileExtension(void) const
+{
+	return (_cgiFileExtension);
+}
+
+const std::string&				ServerConfiguration::getCgiInterpreter(void) const
+{
+	return (_cgiInterpreter);
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)
