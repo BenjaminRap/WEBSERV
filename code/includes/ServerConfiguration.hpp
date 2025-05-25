@@ -27,7 +27,7 @@ public :
 		const std::map<std::string, Route> &routes,
 		const std::string &root,
 		const std::vector<std::string> &index,
-		const std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader
+		const std::map< std::string, std::pair<std::string, bool> > &addHeader
 	);
 	ServerConfiguration(ServerConfiguration const &src);
 	~ServerConfiguration(void);
@@ -41,7 +41,7 @@ public :
 	const Route*								getRouteFromPath(const std::string &path) const;
 	const std::string							getLocation(const std::string &loc) const;
 	const std::vector<std::string>&				getIndex(void) const;
-	const std::map< std::string, std::map< std::string, std::map< bool, Route * > > >&	getAddHeader(void) const;
+	const std::map< std::string, std::pair<std::string, bool> >&	getAddHeader(void) const;
 
 private :
 	/**
@@ -77,7 +77,7 @@ private :
 	 */
 	std::vector<std::string>				index;
 
-	std::map< std::string, std::map< std::string, std::map< bool, Route * > > >	addHeader;
+	const std::map< std::string, std::pair<std::string, bool> >	addHeader;
 
 	ServerConfiguration(void);
 	ServerConfiguration    &operator=(ServerConfiguration const &src);

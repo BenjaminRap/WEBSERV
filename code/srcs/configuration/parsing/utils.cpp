@@ -86,7 +86,7 @@ void	insertHost
 	std::string &root,
 	ip_t &ip,
 	std::vector<std::string> &index,
-	std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader
+	std::map< std::string, std::pair<std::string, bool> > &addHeader
 )
 {
 	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)

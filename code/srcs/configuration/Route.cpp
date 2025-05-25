@@ -13,14 +13,16 @@ Route::Route
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
-	const std::string &cgiFileExtension
+	const std::string &cgiFileExtension,
+	const std::map< std::string, std::pair<std::string, bool> > &addHeader
 ) :
 	acceptedMethods(acceptedMethods),
 	redirection(redirection),
 	index(index),
 	autoIndex(auto_index),
 	root(root),
-	cgiFileExtension(cgiFileExtension)
+	cgiFileExtension(cgiFileExtension),
+	addHeader(addHeader)
 {
 }
 
@@ -67,6 +69,11 @@ const std::string				&Route::getRoot(void) const
 const std::string				&Route::getCgiFileExtension(void) const
 {
 	return (cgiFileExtension);
+}
+
+const std::map< std::string, std::pair<std::string, bool> >&	Route::getAddHeader(void) const
+{
+	return (this->addHeader);
 }
 
 void							Route::setIndex(const std::vector<std::string> &v)

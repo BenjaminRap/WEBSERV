@@ -62,7 +62,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	std::string								root;
 	ip_t									ip;
 	std::vector<std::string>				index;
-	std::map< std::string, std::map< std::string, std::map< bool, Route * > > >	addHeader;
+	std::map< std::string, std::pair<std::string, bool> > addHeader;
 
 	while (i < file.size() && file[i] != '}')
 	{
@@ -92,7 +92,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 		else if (!file.compare(i, 8, "location"))
 		{
 			i += 8;
-			parseRoute(file, i, line, routes, addHeader);
+			parseRoute(file, i, line, routes);
 		}
 		else if (!file.compare(i, 4, "root"))
 		{
@@ -107,7 +107,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 		else if (!file.compare(i, 10, "add_header"))
 		{
 			i += 10;
-			parseAddHeader(file, i, line, addHeader, NULL);
+			parseAddHeader(file, i, line, addHeader);
 		}
 		else if (file[i] != '}')
 			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
@@ -197,11 +197,11 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 	i++;
 }
 
-void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::string, std::map< std::string, std::map< bool, Route * > > > addHeader, Route *route)
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::string, std::pair<std::string, bool> > &addHeader)
 {
 	std::string	title;
 	std::string	value;
-	bool		always = 0;
+	bool		always = false;
 
 	skipWSpace(file, i, line);
 	title = file.substr(i, file.find_first_of(WSPACE, i) - i);
@@ -212,6 +212,8 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::s
 	i++;
 	value = file.substr(i, file.find('"') - i);
 	i = file.find('"') + 1;
+	if (i == std::string::npos || file[i] != '"')
+		throw (CustomLineException("Exepected \" for add_header", line));
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
 	{
@@ -226,5 +228,5 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::s
 		else
 			throw (CustomLineException("Missing semi-colon", line));
 	}
-	addHeader[title][value][always] = route;
+	addHeader.insert(std::make_pair(title, std::make_pair(value, always)));
 }

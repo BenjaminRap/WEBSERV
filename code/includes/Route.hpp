@@ -4,6 +4,7 @@
 # include <vector>
 # include <string>
 # include <iostream>
+# include <map>
 
 # include "EMethods.hpp"
 
@@ -36,7 +37,8 @@ public:
 		const std::vector<std::string> &index,
 		const bool &auto_index,
 		const std::string &root,
-		const std::string &cgiFileExtension
+		const std::string &cgiFileExtension,
+		const std::map< std::string, std::pair<std::string, bool> >	&addHeader
 	);
 	Route(Route const &src);
 	~Route(void);
@@ -47,6 +49,7 @@ public:
 	bool							getAutoIndex(void) const;
 	const std::string&				getRoot(void) const;
 	const std::string&				getCgiFileExtension(void) const;
+	const std::map< std::string, std::pair<std::string, bool> >&	getAddHeader(void) const;
 	void							setIndex(const std::vector<std::string> &v);
 
 private:
@@ -87,7 +90,8 @@ private:
 	 * @brief if a file, at this route accept uploads through the POST or PUT
 	 * requests.
 	 */
-	bool						acceptUploads;
+
+	std::map< std::string, std::pair<std::string, bool> >	addHeader;
 
 	Route(void);
 	Route    &operator=(Route const &src);

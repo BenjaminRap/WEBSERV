@@ -17,7 +17,7 @@ ServerConfiguration::ServerConfiguration
 	const std::map<std::string, Route> &routes,
 	const std::string &root,
 	const std::vector<std::string> &index,
-	const std::map< std::string, std::map< std::string, std::map< bool, Route * > > > &addHeader
+	const std::map< std::string, std::pair<std::string, bool> > &addHeader
 ) :
 	serverNames(serverNames),
 	errorPages(errorPages),
@@ -107,7 +107,7 @@ const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 	return (this->index);
 }
 
-const std::map< std::string, std::map< std::string, std::map< bool, Route * > > >&	ServerConfiguration::getAddHeader(void) const
+const std::map< std::string, std::pair<std::string, bool> >&	ServerConfiguration::getAddHeader(void) const
 {
 	return (this->addHeader);
 }
