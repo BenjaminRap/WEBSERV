@@ -9,7 +9,6 @@ class RequestContext;
 class ServerConfiguration;
 
 bool		findIndex(ARequestType& req, const std::vector<std::string> &indexs);
-void		checkType(std::string &path, ARequestType &req);
 void		directoryCase(PostRequest &post);
 
 PostRequest::PostRequest
@@ -39,9 +38,6 @@ PostRequest::~PostRequest()
 
 void	directoryCase(PostRequest &post)
 {
-	checkType(post.getPath(), post);
-	if (post.getCode() == HTTP_MOVED_PERMANENTLY)
-		return;
 	if (findIndex(post, post.getIndexs()))
 	{
 		if (post.getCode() == HTTP_OK)

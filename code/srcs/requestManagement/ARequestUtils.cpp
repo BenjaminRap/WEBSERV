@@ -164,14 +164,15 @@ bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs)
 	return (false);
 }
 
-void	checkType(std::string &path, ARequestType &req)
+bool	checkLastSlash(ARequestType &req)
 {
-	char lastChar = path[path.length() - 1];
+	std::string&	path = req.getPath();
+	char			lastChar = path[path.length() - 1];
 
-	if (lastChar != '/')
-	{
-		path += "/";
-		req.setUrl(req.getUrl() + "/");
-		req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, path, false);
-	}
+	if (lastChar == '/')
+		return (true);
+	path += "/";
+	req.setUrl(req.getUrl() + "/");
+	req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, path, false);
+	return (false);
 }

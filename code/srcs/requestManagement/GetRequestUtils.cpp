@@ -13,7 +13,7 @@
 #include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
 
 bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs);
-void	checkType(std::string &path, ARequestType &req);
+bool	checkLastSlash(ARequestType &req);
 
 uint16_t	isDirOrFile(const std::string& path)
 {
@@ -128,9 +128,8 @@ void	autoIndexCase(GetRequest &get)
 
 void	directoryCase(GetRequest &get)
 {
-	checkType(get.getPath(), get);
-	if (get.getCode() == HTTP_MOVED_PERMANENTLY)
-		return;
+	if (!checkLastSlash(get))
+		return ;
 	if (findIndex(get, get.getIndexs()))
 		return ;
 	if (get.getAutoIndex())
