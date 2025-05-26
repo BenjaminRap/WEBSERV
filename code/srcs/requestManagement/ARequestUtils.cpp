@@ -55,23 +55,11 @@ void	delString(const std::string &toDel, std::string &str)
 	}
 }
 
-void	buildNewURl(std::string root, std::string &url)
-{
-	url.insert(0, root);
-}
-
 void	replaceUrl(const std::string &location, const std::string &root, std::string &url)
 {
-	size_t found;
-
 	if (root.empty())
 		return ;
-	found = url.find(location);
-	while (found != std::string::npos)
-	{
-		url.replace(found, location.length(), root);
-		found = url.find(location, found + root.length());
-	}
+	url.replace(0, location.size(), root);
 }
 
 void	fixPath(std::string &path)
@@ -111,7 +99,7 @@ void	fixUrl(ARequestType &req, std::string &url)
 void	addRoot(ARequestType &req, const ServerConfiguration &config)
 {
 	const std::pair<const std::string, Route>*	route = config.getRouteFromPath(req.getPath());
-	const std::string*							location = (route) ? &route->first : NULL;
+	const std::string&							location = (route) ? route->first : "";
 	const Route*								routeData = (route) ? &route->second : NULL;
 
 	req.setRoute(routeData);
@@ -120,16 +108,17 @@ void	addRoot(ARequestType &req, const ServerConfiguration &config)
 		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
 	}
-	if (route == NULL)
+	if (route != NULL)
 	{
-		buildNewURl(config.getRoot(), req.getPath());
-		return ;
+		const std::string &redir = routeData->getRedirection().url;
+		if (!redir.empty())
+		{
+			req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, redir, true);
+			return ;
+		}
+
 	}
-	const std::string &redir = routeData->getRedirection().url;
-	if (!redir.empty())
-		req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, redir, true);
-	else
-		replaceUrl(*location, routeData->getRoot(), req.getPath());
+	replaceUrl(location, req.getRoot(), req.getPath());
 }
 
 ssize_t	getFileSize(const std::string &filePath)
