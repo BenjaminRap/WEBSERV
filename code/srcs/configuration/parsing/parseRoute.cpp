@@ -90,6 +90,11 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		acceptedMethods.push_back(GET);
 		acceptedMethods.push_back(POST);
 	}
+	if (index.empty())
+	{
+		index.push_back("index.html");
+		index.push_back("index.htm");
+	}
 	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, maxClientBodySize, index, autoIndex, root, cgiFileExtension, cgiInterpreter)));
 }
 

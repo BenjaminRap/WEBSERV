@@ -153,6 +153,11 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 		acceptedMethods.push_back(GET);
 		acceptedMethods.push_back(POST);
 	}
+	if (index.empty())
+	{
+		index.push_back("index.html");
+		index.push_back("index.htm");
+	}
 	insertHost(conf, serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, ip, index, cgiFileExtension, cgiInterpreter);
 }
 
