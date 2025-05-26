@@ -148,16 +148,6 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (ParsingException("Missing host"));
 	setErrorPagesAbsolutePath(errorPages, routes);
-	if (acceptedMethods.empty())
-	{
-		acceptedMethods.push_back(GET);
-		acceptedMethods.push_back(POST);
-	}
-	if (index.empty())
-	{
-		index.push_back("index.html");
-		index.push_back("index.htm");
-	}
 	insertHost(conf, serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, ip, index, cgiFileExtension, cgiInterpreter);
 }
 
