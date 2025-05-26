@@ -35,10 +35,15 @@ uint16_t	isCgiExecutable(const std::string& path)
 	return (0);
 }
 
-bool	checkAllowMeth(const std::vector<EMethods>& accepted, EMethods meth)
+bool	checkAllowMeth(ARequestType& req)
 {
-	std::vector<EMethods>::const_iterator  it = std::find(accepted.begin(), accepted.end(), meth);
-	return (it != accepted.end());
+	const std::vector<EMethods>&	accepted = req.getAcceptedMethods();
+	EMethods						meth = req.getMethod();
+
+	const bool	allowed = (std::find(accepted.begin(), accepted.end(), meth) != accepted.end());
+	if (!allowed)
+		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
+	return (allowed);
 }
 
 void	delString(const std::string &toDel, std::string &str)
@@ -85,15 +90,30 @@ void	fixPath(std::string &path)
 		path = "/";
 }
 
-void	fixUrl(ARequestType &req, std::string &url)
+bool	fixUrl(ARequestType &req, std::string &url)
 {
 	if (*url.begin() != '/')
-		req.setResponse(HTTP_BAD_REQUEST);
-	else
 	{
-		fixPath(url);
-		req.setPath(url);
+		req.setResponse(HTTP_BAD_REQUEST);
+		return (false);
 	}
+	fixPath(url);
+	req.setPath(url);
+	return (true);
+}
+
+bool	setRedirection(ARequestType& req)
+{
+	const Route*	route = req.getRoute();
+
+	if (route == NULL)
+		return (false);
+	const std::string &redir = route->getRedirection().url;
+
+	if (redir.empty())
+		return (false);
+	req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, redir, true);
+	return (true);
 }
 
 void	addRoot(ARequestType &req, const ServerConfiguration &config)
@@ -103,21 +123,6 @@ void	addRoot(ARequestType &req, const ServerConfiguration &config)
 	const Route*								routeData = (route) ? &route->second : NULL;
 
 	req.setRoute(routeData);
-	if (!checkAllowMeth(req.getAcceptedMethods(), req.getMethod()))
-	{
-		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
-		return ;
-	}
-	if (route != NULL)
-	{
-		const std::string &redir = routeData->getRedirection().url;
-		if (!redir.empty())
-		{
-			req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, redir, true);
-			return ;
-		}
-
-	}
 	replaceUrl(location, req.getRoot(), req.getPath());
 }
 

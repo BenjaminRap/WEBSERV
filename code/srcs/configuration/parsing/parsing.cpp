@@ -148,6 +148,11 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (ParsingException("Missing host"));
 	setErrorPagesAbsolutePath(errorPages, routes);
+	if (acceptedMethods.empty())
+	{
+		acceptedMethods.push_back(GET);
+		acceptedMethods.push_back(POST);
+	}
 	insertHost(conf, serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, ip, index, cgiFileExtension, cgiInterpreter);
 }
 
@@ -218,9 +223,6 @@ void	checkRoot(std::string& root, size_t line)
 {
 	if (root.empty() || root[0] != '/')
 		throw ParsingLineException("Invalid root", line);
-	size_t	lastIndex = root.size() - 1;
-	if (root[lastIndex] == '/')
-		root.erase(lastIndex);
 	fixPath(root);
 }
 

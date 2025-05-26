@@ -44,11 +44,10 @@ void	Request::reset()
 	_body.stopManagingResource();
 }
 
-int	Request::setBodyFromHeaders(const ServerConfiguration& serverConf)
+int	Request::setBodyFromHeaders(size_t maxClientBodySize)
 {
 	const std::string * const	contentLengthString = _headers.getUniqueHeader("content-length");
 	const std::string * const	transferEncoding = _headers.getUniqueHeader("transfer-encoding");
-	const size_t				maxSize = serverConf.getMaxClientBodySize();
 
 	if (contentLengthString != NULL && transferEncoding != NULL)
 		return (HTTP_BAD_REQUEST);
@@ -57,15 +56,15 @@ int	Request::setBodyFromHeaders(const ServerConfiguration& serverConf)
 		const unsigned long	contentLength = stringToULongBase(*contentLengthString, std::isdigit, 10);
 		if (contentLength == (unsigned long)-1)
 			return (HTTP_BAD_REQUEST);
-		if ((size_t)contentLength > maxSize)
+		if ((size_t)contentLength > maxClientBodySize)
 			return (HTTP_CONTENT_TOO_LARGE);
 		_body.setManagedResource(new SizedBody(contentLength), freePointer);
 	}
 	else if (transferEncoding != NULL && *transferEncoding == "chunked")
-		_body.setManagedResource(new ChunkedBody(maxSize), freePointer);
+		_body.setManagedResource(new ChunkedBody(maxClientBodySize), freePointer);
 	else if (_statusLine.method == PUT || _statusLine.method == POST)
 		return (HTTP_LENGTH_REQUIRED);
-	return (HTTP_OK);
+	return (0);
 }
 
 /**********************************Getters*******************************************************/

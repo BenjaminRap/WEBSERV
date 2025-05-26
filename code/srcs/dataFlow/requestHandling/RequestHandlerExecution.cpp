@@ -48,14 +48,6 @@ void	RequestHandler::executeRequest(Response &response, RequestContext& requestC
 		return ;
 	}
 	const ServerConfiguration	&serverConf = getServerConfiguration(*host);
-	const int code = _request.setBodyFromHeaders(serverConf);
-	if (code != HTTP_OK)
-	{
-		response.setResponse(code);
-		_state = REQUEST_DONE;
-		return ;
-	}
-	// std::cout << _request << '\n';
 	switch (_request.getMethod())
 	{
 		case GET: {

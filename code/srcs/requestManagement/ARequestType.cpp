@@ -21,12 +21,12 @@
 class ABody;
 class AFdData;  // lines 20-20
 
-bool		checkAllowMeth(const Route &root, EMethods meth);
+bool		checkAllowMeth(ARequestType& req);
 void		delString(const std::string &toDel, std::string &str);
 void		buildNewURl(std::string root, std::string &url);
 void		replaceUrl(const std::string &location, const std::string &root, std::string &url);
 void		fixPath(std::string &path);
-void		fixUrl(ARequestType &req, std::string &url);
+bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
 int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void		splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
@@ -34,6 +34,7 @@ uint16_t	isCgiExecutable(const std::string& path);
 bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext);
 bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void		deleteArray(const char** array);
+bool		setRedirection(ARequestType& req);
 
 ARequestType::ARequestType
 (
@@ -57,12 +58,16 @@ ARequestType::ARequestType
 	_outFd()
 {
 	splitInTwo(url, '?', _path, _queryString);
-	fixUrl(*this, url);
-	if (getCode() == HTTP_BAD_REQUEST)
+	if (!fixUrl(*this, url))
 		return ;
 	addRoot(*this, config);
-	if (this->_code == HTTP_MOVED_PERMANENTLY || this->_code == HTTP_METHOD_NOT_ALLOWED)
-		return;
+	this->_code = requestContext.request.setBodyFromHeaders(getMaxClientBodySize());
+	if (_code != 0)
+		return ;
+	if (!checkAllowMeth(*this))
+		return ;
+	if (setRedirection(*this))
+		return ;
 	if (this->_path[0] != '.')
 		this->_path.insert(0, ".");
 	if (this->_route != NULL)
@@ -249,6 +254,13 @@ const std::string&	ARequestType::getRoot(void) const
 	if (_route == NULL)
 		return (_config.getRoot());
 	return (_route->getRoot());
+}
+
+size_t	ARequestType::getMaxClientBodySize(void) const
+{
+	if (_route == NULL)
+		return (_config.getMaxClientBodySize());
+	return (_route->getMaxClientBodySize());
 }
 
 const ServerConfiguration&	ARequestType::getConfig() const

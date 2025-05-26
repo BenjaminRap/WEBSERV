@@ -67,6 +67,7 @@ class ARequestType
 		const std::string&						getCgiFileExtension(void) const;
 		const std::string&						getCgiInterpreter(void) const;
 		const std::string&						getRoot(void) const;
+		size_t									getMaxClientBodySize(void) const;
 		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
 		std::string&							getPath(void);
 		const std::string&						getRedirection(void) const;
