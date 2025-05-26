@@ -13,7 +13,7 @@ ServerConfiguration::ServerConfiguration
 	(
 		const std::vector<std::string> &serverNames,
 		const std::map<unsigned short, std::string> &errorPages,
-		const size_t &maxClientBodySize,
+		size_t maxClientBodySize,
 		const std::vector<EMethods> &acceptedMethods,
 		const std::map<std::string, Route> &routes,
 		const std::string &root,
