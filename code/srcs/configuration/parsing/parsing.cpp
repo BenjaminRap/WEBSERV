@@ -218,6 +218,9 @@ void	checkRoot(std::string& root, size_t line)
 {
 	if (root.empty() || root[0] != '/')
 		throw ParsingLineException("Invalid root", line);
+	size_t	lastIndex = root.size() - 1;
+	if (root[lastIndex] == '/')
+		root.erase(lastIndex);
 	fixPath(root);
 }
 

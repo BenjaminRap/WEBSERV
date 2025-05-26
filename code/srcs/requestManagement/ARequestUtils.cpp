@@ -57,8 +57,6 @@ void	delString(const std::string &toDel, std::string &str)
 
 void	buildNewURl(std::string root, std::string &url)
 {
-	if (!root.empty() && root[root.size() - 1] == '/')
-		root.erase(root.size() - 1);
 	url.insert(0, root);
 }
 
