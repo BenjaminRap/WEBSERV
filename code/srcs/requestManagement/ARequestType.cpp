@@ -138,11 +138,8 @@ void	ARequestType::setResponseWithLocation(uint16_t code, const std::string &red
 	this->_redirection = redirection;
 	if (!isReelRedirect)
 	{
-		if ((_route != NULL && redirection.find(_route->getRoot()))
-			|| (_config.getRoot() != "" && redirection.find(_config.getRoot())))
-		{
+		if (getRoot() != "" && redirection.find(getRoot()))
 			this->_redirection = this->getUrl();
-		}
 		if (this->_redirection[0] == '.')
 			this->_redirection.erase(0, 1);
 		this->_redirection = "http://" + this->_domain + this->_redirection;
@@ -245,6 +242,13 @@ const std::string&	ARequestType::getCgiInterpreter(void) const
 	if (_route == NULL)
 		return (_config.getCgiInterpreter());
 	return (_route->getCgiInterpreter());
+}
+
+const std::string&	ARequestType::getRoot(void) const
+{
+	if (_route == NULL)
+		return (_config.getRoot());
+	return (_route->getRoot());
 }
 
 const ServerConfiguration&	ARequestType::getConfig() const

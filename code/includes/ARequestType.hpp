@@ -66,6 +66,7 @@ class ARequestType
 		const std::vector<EMethods>&			getAcceptedMethods(void) const;
 		const std::string&						getCgiFileExtension(void) const;
 		const std::string&						getCgiInterpreter(void) const;
+		const std::string&						getRoot(void) const;
 		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
 		std::string&							getPath(void);
 		const std::string&						getRedirection(void) const;
