@@ -67,7 +67,7 @@ ARequestType::ARequestType
 		this->_path.insert(0, ".");
 	if (this->_route != NULL)
 	{
-		const std::string&	CGIextention = this->_route->getCgiFileExtension();
+		const std::string&	CGIextention = getCgiFileExtension();
 		if (CGIextention == "" || _path.find(CGIextention) == std::string::npos)
 			return ;
 		_code = isCgiExecutable(_path);
@@ -92,7 +92,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	try
 	{
 		const bool	error = (!setEnv(env, request, extension, _path, _queryString, requestContext)
-			|| !setArgv(argv, _path, _route->getCgiInterpreter())
+			|| !setArgv(argv, _path, getCgiInterpreter())
 			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
 		deleteArray((const char**)env);
 		deleteArray((const char**)argv);
@@ -224,6 +224,27 @@ const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
 {
 	// for an upgrade : do the same as getIndexs.
 	return (_config.getErrorPages());
+}
+
+const std::vector<EMethods>&	ARequestType::getAcceptedMethods(void) const
+{
+	if (_route == NULL)
+		return (_config.getAcceptedMethods());
+	return (_route->getAcceptedMethods());
+}
+
+const std::string&	ARequestType::getCgiFileExtension(void) const
+{
+	if (_route == NULL)
+		return (_config.getCgiFileExtension());
+	return (_route->getCgiFileExtension());
+}
+
+const std::string&	ARequestType::getCgiInterpreter(void) const
+{
+	if (_route == NULL)
+		return (_config.getCgiInterpreter());
+	return (_route->getCgiInterpreter());
 }
 
 const ServerConfiguration&	ARequestType::getConfig() const

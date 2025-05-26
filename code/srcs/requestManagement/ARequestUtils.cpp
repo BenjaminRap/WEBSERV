@@ -7,6 +7,7 @@
 #include <string>                   // for basic_string, string
 #include <utility>                  // for pair
 #include <vector>                   // for vector
+#include <algorithm>
 
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
@@ -34,22 +35,10 @@ uint16_t	isCgiExecutable(const std::string& path)
 	return (0);
 }
 
-bool	checkAllowMeth(const Route *route, EMethods meth)
+bool	checkAllowMeth(const std::vector<EMethods>& accepted, EMethods meth)
 {
-	if (route == NULL)
-		return (meth != PUT && meth != DELETE);
-	const std::vector<EMethods>	&meths = route->getAcceptedMethods();
-	size_t						len;
-
-	len = meths.size();
-	if (len == 0)
-		return (true);
-	for (size_t i = 0; i < len ; i++)
-	{
-		if (meths[i] == meth)
-			return (true);
-	}
-	return (false);
+	std::vector<EMethods>::const_iterator  it = std::find(accepted.begin(), accepted.end(), meth);
+	return (it != accepted.end());
 }
 
 void	delString(const std::string &toDel, std::string &str)
@@ -128,7 +117,7 @@ void	addRoot(ARequestType &req, const ServerConfiguration &config)
 	const Route*								routeData = (route) ? &route->second : NULL;
 
 	req.setRoute(routeData);
-	if (!checkAllowMeth(routeData, req.getMethod()))
+	if (!checkAllowMeth(req.getAcceptedMethods(), req.getMethod()))
 	{
 		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
 		return ;
