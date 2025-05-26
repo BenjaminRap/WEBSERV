@@ -210,6 +210,11 @@ const SharedResource<AFdData*>&	ARequestType::getOutFd() const
 	return (_outFd);
 }
 
+const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
+{
+	return (_config.getErrorPages());
+}
+
 bool	ARequestType::getAutoIndex(void) const
 {
 	if (_route == NULL)
@@ -219,48 +224,43 @@ bool	ARequestType::getAutoIndex(void) const
 
 const std::vector<std::string>&	ARequestType::getIndexs(void) const
 {
-	if (_route == NULL)
+	if (_route == NULL || _route->getIndex().size() == 0)
 		return (_config.getIndex());
 	return (_route->getIndex());
 }
 
-const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
-{
-	// for an upgrade : do the same as getIndexs.
-	return (_config.getErrorPages());
-}
 
 const std::vector<EMethods>&	ARequestType::getAcceptedMethods(void) const
 {
-	if (_route == NULL)
+	if (_route == NULL || _route->getAcceptedMethods().size() == 0)
 		return (_config.getAcceptedMethods());
 	return (_route->getAcceptedMethods());
 }
 
 const std::string&	ARequestType::getCgiFileExtension(void) const
 {
-	if (_route == NULL)
+	if (_route == NULL || _route->getCgiFileExtension() == "")
 		return (_config.getCgiFileExtension());
 	return (_route->getCgiFileExtension());
 }
 
 const std::string&	ARequestType::getCgiInterpreter(void) const
 {
-	if (_route == NULL)
+	if (_route == NULL || _route->getCgiInterpreter() == "")
 		return (_config.getCgiInterpreter());
 	return (_route->getCgiInterpreter());
 }
 
 const std::string&	ARequestType::getRoot(void) const
 {
-	if (_route == NULL)
+	if (_route == NULL || _route->getRoot() == "")
 		return (_config.getRoot());
 	return (_route->getRoot());
 }
 
 size_t	ARequestType::getMaxClientBodySize(void) const
 {
-	if (_route == NULL)
+	if (_route == NULL || _route->getMaxClientBodySize() == (size_t)-1)
 		return (_config.getMaxClientBodySize());
 	return (_route->getMaxClientBodySize());
 }
