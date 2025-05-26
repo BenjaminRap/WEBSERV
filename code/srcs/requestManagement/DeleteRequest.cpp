@@ -8,7 +8,6 @@
 class RequestContext;
 class ServerConfiguration;  // lines 9-9
 
-uint16_t	isDirOrFile(const std::string& path);
 uint16_t	directoryCase(const std::string &path, DeleteRequest &del);
 uint16_t	fileCase(const std::string &path, DeleteRequest &del);
 
@@ -21,17 +20,14 @@ DeleteRequest::DeleteRequest
 ) :
 	ARequestType(url, config, DELETE, domain, requestContext)
 {
-	uint16_t	fileType;
-
 	if (this->_code != 0)
 		return ;
-	fileType = isDirOrFile(this->_path);
-	if (fileType == DIRE)
+	if (_targetType == DIRE)
 		directoryCase(this->_path, *this);
-	else if (fileType == LS_FILE)
+	else if (_targetType == LS_FILE)
 		fileCase(this->_path, *this);
 	else
-		setResponse(fileType);
+		setResponse(_targetType);
 }
 
 DeleteRequest::~DeleteRequest()

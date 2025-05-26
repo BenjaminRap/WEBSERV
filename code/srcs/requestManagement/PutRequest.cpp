@@ -13,7 +13,6 @@
 class RequestContext;
 class ServerConfiguration;  // lines 14-14
 
-uint16_t	isDirOrFile(const std::string& path);
 bool		canWrite(const std::string &path);
 
 std::string getName(std::string &path)
@@ -48,19 +47,17 @@ PutRequest::PutRequest
 	ARequestType(url, config, PUT, domain, requestContext)
 {
 	std::string path;
-	uint16_t	fileType;
 
 	if (this->_code != 0)
 		return ;
 	this->_fileName = getName(this->_path);
 	path = this->_path;
 	removeFileName(this->_path);
-	fileType = isDirOrFile(path);
-	if (fileType == DIRE)
+	if (_targetType == DIRE)
 		this->setResponse(HTTP_CONFLICT);
-	else if (this->_fileName.empty() && fileType == HTTP_NOT_FOUND)
+	else if (this->_fileName.empty() && _targetType == HTTP_NOT_FOUND)
 		this->setResponse(HTTP_CONFLICT);
-	else if (!canWrite(this->_path) && fileType != HTTP_FORBIDDEN)
+	else if (!canWrite(this->_path) && _targetType != HTTP_FORBIDDEN)
 		this->setResponse(HTTP_INTERNAL_SERVER_ERROR);
 	else
 	{
@@ -69,7 +66,7 @@ PutRequest::PutRequest
 			FileFd*	fileFd = new FileFd(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
 			this->_inFd.setManagedResource(fileFd, freePointer);
-			if (fileType == LS_FILE)
+			if (_targetType == LS_FILE)
 				this->setResponse(HTTP_NO_CONTENT);
 			else
 				this->setResponseWithLocation(HTTP_CREATED, this->_path, false);

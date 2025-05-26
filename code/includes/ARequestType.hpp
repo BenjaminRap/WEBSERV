@@ -41,6 +41,7 @@ class ARequestType
 		std::string					_queryString;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
+		uint16_t					_targetType;
 
 	public :
 		explicit ARequestType

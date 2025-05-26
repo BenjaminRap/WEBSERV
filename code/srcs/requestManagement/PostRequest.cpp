@@ -8,7 +8,6 @@
 class RequestContext;
 class ServerConfiguration;
 
-uint16_t	isDirOrFile(const std::string& path);
 bool		findIndex(ARequestType& req, const std::vector<std::string> &indexs);
 void		checkType(std::string &path, ARequestType &req);
 void		directoryCase(PostRequest &post);
@@ -25,14 +24,12 @@ ARequestType(url, config, POST, domain, requestContext)
 	if (this->_code != 0)
 		return ;
 
-	const uint16_t	fileType = isDirOrFile(this->_path);
-
-	if (fileType == DIRE)
+	if (_targetType == DIRE)
 		directoryCase(*this);
-	else if (fileType == LS_FILE)
+	else if (_targetType == LS_FILE)
 		setResponse(HTTP_METHOD_NOT_ALLOWED);
 	else
-		setResponse(fileType);
+		setResponse(_targetType);
 }
 
 PostRequest::~PostRequest()

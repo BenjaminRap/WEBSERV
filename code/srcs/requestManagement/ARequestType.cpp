@@ -30,11 +30,12 @@ bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
 int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void		splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
-uint16_t	isCgiExecutable(const std::string& path);
+uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
 bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext);
 bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
+uint16_t	isDirOrFile(const std::string& path);
 
 ARequestType::ARequestType
 (
@@ -70,12 +71,13 @@ ARequestType::ARequestType
 		return ;
 	if (this->_path[0] != '.')
 		this->_path.insert(0, ".");
+	_targetType = isDirOrFile(_path);
 	if (this->_route != NULL)
 	{
 		const std::string&	CGIextention = getCgiFileExtension();
 		if (CGIextention == "" || _path.find(CGIextention) == std::string::npos)
 			return ;
-		_code = isCgiExecutable(_path);
+		_code = isCgiExecutable(_path, _targetType);
 		if (_code != 0)
 			return ;
 		_code = setCgiAFdData(requestContext, CGIextention);

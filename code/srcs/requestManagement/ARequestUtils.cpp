@@ -18,10 +18,8 @@
 
 uint16_t	isDirOrFile(const std::string& path);
 
-uint16_t	isCgiExecutable(const std::string& path)
+uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType)
 {
-	const uint16_t	targetType = isDirOrFile(path);
-
 	if (targetType == DIRE)
 		return (HTTP_FORBIDDEN);
 	if (targetType != LS_FILE)

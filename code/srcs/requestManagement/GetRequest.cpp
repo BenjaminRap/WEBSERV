@@ -13,7 +13,6 @@
 class RequestContext;
 class ServerConfiguration;  // lines 15-15
 
-uint16_t	isDirOrFile(const std::string& path);
 void		directoryCase(GetRequest& get);
 ssize_t		getFileSize(const std::string &filePath);
 
@@ -26,20 +25,17 @@ GetRequest::GetRequest
 ) :
 	ARequestType(url, config, GET, domain, requestContext)
 {
-	uint16_t	targetType;
-
 	if (this->_code != 0)
 		return ;
-	targetType = isDirOrFile(this->_path);
-	if (targetType == DIRE)
+	if (_targetType == DIRE)
 		directoryCase(*this);
-	else if (targetType == LS_FILE)
+	else if (_targetType == LS_FILE)
 	{
 		setResponse(HTTP_OK);
 		openFile();
 	}
 	else
-		setResponse(targetType);
+		setResponse(_targetType);
 }
 
 GetRequest::~GetRequest()
