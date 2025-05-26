@@ -99,7 +99,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	try
 	{
 		const bool	error = (!setEnv(env, request, extension, _path, _queryString, requestContext)
-			|| !setArgv(argv, _path, getCgiInterpreter())
+			|| !setArgv(argv, getCgiInterpreter(), _path)
 			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
 		deleteArray((const char**)env);
 		deleteArray((const char**)argv);
