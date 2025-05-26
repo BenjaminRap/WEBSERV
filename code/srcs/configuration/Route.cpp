@@ -26,15 +26,15 @@ Route::Route
 {
 }
 
-Route::Route(Route const &src)
+Route::Route(Route const &src) :
+	_acceptedMethods(src._acceptedMethods),
+	_redirection(src._redirection),
+	_index(src._index),
+	_autoIndex(src._autoIndex),
+	_root(src._root),
+	_cgiFileExtension(src._cgiFileExtension),
+	_cgiInterpreter(src._cgiInterpreter)
 {
-	this->_acceptedMethods = src._acceptedMethods;
-	this->_redirection = src._redirection;
-	this->_index = src._index;
-	this->_autoIndex = src._autoIndex;
-	this->_root = src._root;
-	this->_cgiFileExtension = src._cgiFileExtension;
-	this->_cgiInterpreter = src._cgiInterpreter;
 }
 
 Route::~Route(void)
@@ -112,5 +112,5 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	}
 	if (!cgiFileExtension.empty())
 		o << "cgiFileExtension:" << cgiFileExtension << std::endl;
-  return (o);
+	return (o);
 }

@@ -33,17 +33,17 @@ ServerConfiguration::ServerConfiguration
 {
 }
 
-ServerConfiguration::ServerConfiguration(ServerConfiguration const &src)
+ServerConfiguration::ServerConfiguration(ServerConfiguration const &src) :
+	_serverNames(src._serverNames),
+	_errorPages(src._errorPages),
+	_maxClientBodySize(src._maxClientBodySize),
+	_acceptedMethods(src._acceptedMethods),
+	_routes(src._routes),
+	_root(src._root),
+	_index(src._index),
+	_cgiFileExtension(src._cgiFileExtension),
+	_cgiInterpreter(src._cgiInterpreter)
 {
-	this->_serverNames = src._serverNames;
-	this->_errorPages = src._errorPages;
-	this->_maxClientBodySize = src._maxClientBodySize;
-	this->_acceptedMethods = src._acceptedMethods;
-	this->_routes = src._routes;
-	this->_root = src._root;
-	this->_index = src._index;
-	this->_cgiFileExtension = src._cgiFileExtension;
-	this->_cgiInterpreter = src._cgiInterpreter;
 }
 
 ServerConfiguration::~ServerConfiguration(void)
