@@ -33,6 +33,7 @@ public:
 	(
 		const std::vector<EMethods> &acceptedMethods,
 		const SRedirection &redirection,
+		size_t maxClientBodySize,
 		const std::vector<std::string> &index,
 		const bool &auto_index,
 		const std::string &root,
@@ -50,6 +51,7 @@ public:
 	const std::string&				getCgiFileExtension(void) const;
 	const std::string&				getCgiInterpreter(void) const;
 	void							setIndex(const std::vector<std::string> &v);
+	const size_t&					getMaxClientBodySize(void) const;
 
 private:
 	/**
@@ -64,6 +66,11 @@ private:
 	 * and returns the response status code.
 	 */
 	SRedirection				_redirection;
+	/**
+	 * @brief The maximum size of a request body. If a request
+	 * body is greater than that, a HTTP_CONTENT_TOO_LARGE.
+	 */
+	size_t						_maxClientBodySize;
 	/**
 	 * @brief A vector of all the index names. That means the default
 	 * page that will be shown if the user ask for a folder.

@@ -10,6 +10,7 @@ Route::Route
 (
 	const std::vector<EMethods> &acceptedMethods,
 	const SRedirection &redirection,
+	size_t maxClientBodySize,
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
@@ -18,6 +19,7 @@ Route::Route
 ) :
 	_acceptedMethods(acceptedMethods),
 	_redirection(redirection),
+	_maxClientBodySize(maxClientBodySize),
 	_index(index),
 	_autoIndex(auto_index),
 	_root(root),
@@ -29,6 +31,7 @@ Route::Route
 Route::Route(Route const &src) :
 	_acceptedMethods(src._acceptedMethods),
 	_redirection(src._redirection),
+	_maxClientBodySize(src._maxClientBodySize),
 	_index(src._index),
 	_autoIndex(src._autoIndex),
 	_root(src._root),
@@ -65,6 +68,11 @@ bool	Route::getAutoIndex(void) const
 const std::string				&Route::getRoot(void) const
 {
 	return (_root);
+}
+
+const size_t					&Route::getMaxClientBodySize(void) const
+{
+	return (_maxClientBodySize);
 }
 
 const std::string				&Route::getCgiFileExtension(void) const

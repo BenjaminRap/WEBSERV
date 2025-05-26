@@ -16,9 +16,10 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	SRedirection				redirection;
 	std::string					path;
 	std::string					root;
-	bool						auto_index = 0;
+	bool						autoIndex = false;
 	std::string					cgiFileExtension;
 	std::string					cgiInterpreter;
+	size_t						maxClientBodySize = -1;
 
 	redirection.responseStatusCode = 0;
 	skipWSpace(file, i, line);
@@ -41,7 +42,12 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		else if (!file.compare(i, 9, "autoindex"))
 		{
 			i += 9;
-			parseRouteAutoIndex(file, i, line, auto_index);
+			parseRouteAutoIndex(file, i, line, autoIndex);
+		}
+		else if (!file.compare(i, 20, "client_max_body_size"))
+		{
+			i += 20;
+			parseMaxClientBodySize(file, i, line, maxClientBodySize);
 		}
 		else if (!file.compare(i, 5, "index"))
 		{
@@ -84,7 +90,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		acceptedMethods.push_back(GET);
 		acceptedMethods.push_back(POST);
 	}
-	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, cgiInterpreter)));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, maxClientBodySize, index, autoIndex, root, cgiFileExtension, cgiInterpreter)));
 }
 
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)
