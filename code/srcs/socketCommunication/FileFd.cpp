@@ -74,7 +74,7 @@ FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam])
 		return (NULL);
 	try
 	{
-		return (new FileFd(name, O_WRONLY | O_CREAT | O_EXCL));
+		return (new FileFd(name, O_WRONLY | O_CREAT | O_EXCL, 0600));
 	}
 	catch (FileFd::FileOpeningError& e)
 	{
