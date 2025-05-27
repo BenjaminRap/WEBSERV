@@ -69,6 +69,7 @@ class ARequestType
 		const std::string&						getRoot(void) const;
 		size_t									getMaxClientBodySize(void) const;
 		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
+		const std::list<ConfigHeaders>&			getAddHeader(void) const;
 		std::string&							getPath(void);
 		const std::string&						getRedirection(void) const;
 		const Route*							getRoute(void) const;

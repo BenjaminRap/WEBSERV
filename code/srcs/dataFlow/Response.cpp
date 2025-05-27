@@ -142,10 +142,13 @@ void	Response::initValues(int code, const ServerConfiguration& serverConfigurati
 
 /*********************************Public Methods********************************************/
 
+void	processAddHeader(Headers &responseHeaders, const std::list<ConfigHeaders>& addHeader, uint16_t code);
+
 void	Response::setResponse(uint16_t code)
 {
 	reset();
 	initValues(code, _defaultConfig);
+	processAddHeader(_headers, _defaultConfig.getAddHeader(), code);
 }
 
 void	Response::setResponse(ARequestType& requestResult)
@@ -166,6 +169,7 @@ void	Response::setResponse(ARequestType& requestResult)
 	{
 		_headers.addHeader("location", requestResult.getRedirection());
 	}
+	processAddHeader(_headers, requestResult.getAddHeader(), requestResult.getCode());
 }
 
 void	Response::reset()
