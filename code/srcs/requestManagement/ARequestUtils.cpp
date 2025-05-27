@@ -42,10 +42,9 @@ uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType)
 	return (0);
 }
 
-bool	checkAllowMeth(ARequestType& req)
+bool	checkAllowMeth(ARequestType& req, EMethods meth)
 {
 	const std::vector<EMethods>&	accepted = req.getAcceptedMethods();
-	EMethods						meth = req.getMethod();
 
 	const bool	allowed = (std::find(accepted.begin(), accepted.end(), meth) != accepted.end());
 	if (!allowed)

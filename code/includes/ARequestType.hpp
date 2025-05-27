@@ -28,7 +28,6 @@ class ARequestType
 		ARequestType& operator=(const ARequestType& src);
 
 	protected :
-		EMethods					_method;
 		const ServerConfiguration&	_config;
 		const Route*				_route;
 		std::string					_path;
@@ -59,7 +58,6 @@ class ARequestType
 		void									setResponse(uint16_t code);
 		void									setPath(const std::string &src);
 		void									setRoute(const Route *root);
-		void									setMethod(EMethods method);
 		void									setUrl(const std::string &url);
 
 		const std::string&						getAutoIndexPage(void) const;
@@ -75,7 +73,6 @@ class ARequestType
 		const std::string&						getRedirection(void) const;
 		const Route*							getRoute(void) const;
 		int										getCode(void) const;
-		EMethods								getMethod(void) const;
 		const SharedResource<AFdData*>&			getInFd(void) const;
 		const SharedResource<AFdData*>&			getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;

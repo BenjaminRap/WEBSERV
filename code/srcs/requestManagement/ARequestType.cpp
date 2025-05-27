@@ -21,7 +21,7 @@
 class ABody;
 class AFdData;  // lines 20-20
 
-bool		checkAllowMeth(ARequestType& req);
+bool		checkAllowMeth(ARequestType& req, EMethods meth);
 void		delString(const std::string &toDel, std::string &str);
 void		buildNewURl(std::string root, std::string &url);
 void		replaceUrl(const std::string &location, const std::string &root, std::string &url);
@@ -46,7 +46,6 @@ ARequestType::ARequestType
 	const std::string& domain,
 	RequestContext& requestContext
 ) :
-	_method(method),
 	_config(config),
 	_route(NULL),
 	_path(),
@@ -67,7 +66,7 @@ ARequestType::ARequestType
 	this->_code = requestContext.request.setBodyFromHeaders(getMaxClientBodySize());
 	if (_code != 0)
 		return ;
-	if (!checkAllowMeth(*this))
+	if (!checkAllowMeth(*this, method))
 		return ;
 	if (setRedirection(*this))
 		return ;
@@ -202,11 +201,6 @@ void	ARequestType::setRoute(const Route *route)
 	this->_route = route;
 }
 
-void	ARequestType::setMethod(EMethods method)
-{
-	this->_method = method;
-}
-
 std::string	&ARequestType::getPath()
 {
 	return (this->_path);
@@ -225,11 +219,6 @@ const Route	*ARequestType::getRoute() const
 int	ARequestType::getCode() const
 {
 	return (this->_code);
-}
-
-EMethods	ARequestType::getMethod() const
-{
-	return (this->_method);
 }
 
 const SharedResource<AFdData*>&	ARequestType::getInFd() const
