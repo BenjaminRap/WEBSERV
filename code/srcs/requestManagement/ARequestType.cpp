@@ -111,8 +111,6 @@ bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
 	}
 	_pathInfo.append(_path, path.size(), std::string::npos);
 	_path = path;
-	std::cout << "path :" << _path << std::endl;
-	std::cout << "pathInfo :" << _pathInfo << std::endl;
 	return (true);
 }
 
