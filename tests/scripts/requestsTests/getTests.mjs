@@ -60,6 +60,29 @@ async function runTests()
 	await runGoodGetTest("/get//main.html");
 	await runGoodGetTest("/get/endWith./index.html");
 
+
+	printHeader("Same but with query string");
+	await runGoodGetTest("/get/main.html?truc=var");
+	await runGoodGetTest("/get/fake/main.cpp?truc=var");
+	await runGoodGetTest("/get/fake/../main.html?truc=var");
+	await runGoodGetTest("/get/fake/../../../../../../../../main.html?truc=var");
+	await runGoodGetTest("/get/../main.html?truc=var");
+	await runGoodGetTest("/get/srcs/?truc=var");
+	await runGoodGetTest("/get/srcs?truc=var");
+	await runGoodGetTest("/get/fake/?truc=var");
+	await runGoodGetTest("/get/nonono/?truc=var");
+	await runGoodGetTest("/get/405/?truc=var");
+	await runGoodGetTest("/unitTest/uplo/?truc=var");
+	await runGoodGetTest("/gknrk?truc=var");
+	await runGoodGetTest("/get/auto2/?truc=var");
+	await runGoodGetTest("/get/truc.txt/?truc=var");
+	await runGoodGetTest("/get/indexIsFolder/?truc=var");
+	await runGoodGetTest("/get/indexIsSymlink/?truc=var");
+	await runGoodGetTest("/get/indexIsFolderAndFile/?truc=var");
+	await runGoodGetTest("/get/indexIsSymlinkAndFile/?truc=var");
+	await runGoodGetTest("/get//main.html?truc=var");
+	await runGoodGetTest("/get/endWith./index.html?truc=var");
+
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
