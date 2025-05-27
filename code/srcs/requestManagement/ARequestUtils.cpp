@@ -24,7 +24,7 @@ bool	isExtension(const std::string& file, const std::string& extension)
 		return (false);
 	const size_t	extensionStart = file.size() - extension.size();
 
-	return (extension.compare(extensionStart, extension.size(), extension) == 0);
+	return (file.compare(extensionStart, extension.size(), extension) == 0);
 }
 
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType)
