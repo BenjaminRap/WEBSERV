@@ -63,6 +63,28 @@ async function runTests()
 	printHeader("Normal Case ++++++");
 	await runGoodDeleteTest("/delete/folder/dire4/");
 
+	exec("cd ../../webserv && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/initDeleteTest.sh"); // setup webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/initDeleteTest.sh"); // setup nginx
+
+	printHeader("Same But With Query String");
+	await runGoodDeleteTest("/delete/full/classic?truc=var");
+	await runGoodDeleteTest("/delete/full/../../delete/full/noback?truc=var");
+	await runGoodDeleteTest("/delete/full/noperms?truc=var");
+	await runGoodDeleteTest("/delete/cant/tryme?truc=var");
+	await runGoodDeleteTest("/delete/readme/deleteme?truc=var");
+	await runGoodDeleteTest("/delete/emptwswdy?truc=var");
+	await runGoodDeleteTest("/delete/folder/empty?truc=var");
+	await runGoodDeleteTest("/delete/folder/empty/?truc=var");
+	await runGoodDeleteTest("/delete/folder/classic/?truc=var");
+	await runGoodDeleteTest("/delete/folder/nopermspa/?truc=var");
+	await runGoodDeleteTest("/delete/folder/noperms/?truc=var");
+	await runGoodDeleteTest("/delete/folder/dire/?truc=var");
+	await runGoodDeleteTest("/delete/folder/dire2/?truc=var");
+	await runGoodDeleteTest("/delete/folder/dire3/?truc=var");
+	await runGoodDeleteTest("/delete/folder/dire4/?truc=var");
+
 
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);

@@ -60,6 +60,30 @@ async function runTests()
 	await runGoodPostTest("/post//main.html");
 	await runGoodPostTest("/post/endWith./index.html");
 
+	printHeader("Same But With Query String");
+	await runGoodPostTest("/post/main.html?truc=var");
+	await runGoodPostTest("/post/fake/main.cpp?truc=var");
+	await runGoodPostTest("/post/fake/../main.html?truc=var");
+	await runGoodPostTest("/post/fake/../../../../../../../../main.html?truc=var");
+	await runGoodPostTest("/post/../main.html?truc=var");
+	await runGoodPostTest("/post/srcs/?truc=var");
+	await runGoodPostTest("/post/srcs?truc=var");
+	await runGoodPostTest("/post/fake/?truc=var");
+	await runGoodPostTest("/post/nonono/?truc=var");
+	await runGoodPostTest("/post/405/?truc=var");
+	await runGoodPostTest("/unitTest/uplo/?truc=var");
+	await runGoodPostTest("/gknrk?truc=var");
+	await runGoodPostTest("/bin/?truc=var");
+	await runGoodPostTest("/post/auto/?truc=var");
+	await runGoodPostTest("/post/auto2/?truc=var");
+	await runGoodPostTest("/post/truc.txt/?truc=var");
+	await runGoodPostTest("/post/indexIsFolder/?truc=var");
+	await runGoodPostTest("/post/indexIsSymlink/?truc=var");
+	await runGoodPostTest("/post/indexIsFolderAndFile/?truc=var");
+	await runGoodPostTest("/post/indexIsSymlinkAndFile/?truc=var");
+	await runGoodPostTest("/post//main.html?truc=var");
+	await runGoodPostTest("/post/endWith./index.html?truc=var");
+
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else

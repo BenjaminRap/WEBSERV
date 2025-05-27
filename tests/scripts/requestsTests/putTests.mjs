@@ -54,6 +54,26 @@ async function runTests()
 	printHeader("Folder Not Existing");
 	await runGoodPutTest("/put/allowed/whereAmI/test.txt");
 
+
+	exec("cd ../../webserv && ../scripts/requestsTests/cleanPutTest.sh"); // clean webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/cleanPutTest.sh"); // clean nginx
+	exec("cd ../../webserv && ../scripts/requestsTests/initPutTest.sh"); // setup webserv
+	exec("cd ../../nginx && ../scripts/requestsTests/initPutTest.sh"); // setup nginx
+
+	printHeader("Same But With Query String");
+	await runGoodPutTest("/put/allowed/main.html?truc=var");
+	await runGoodPutTest("/put/notAllowed/main.html?truc=var");
+	await runGoodPutTest("/put/forbidden/main.html?truc=var");
+	await runGoodPutTest("/put/mainRight.html?truc=var");
+	await runGoodPutTest("/put/mainNoRight.html?truc=var");
+	await runGoodPutTest("/put/directory/?truc=var");
+	await runGoodPutTest("/put/alreadyExistingDirEmpty/?truc=var");
+	await runGoodPutTest("/put/alreadyExistingDir/?truc=var");
+	await runGoodPutTest("/put/alreadyExistingDirEmptyNoRight/?truc=var");
+	await runGoodPutTest("/put/alreadyExistingDirNoRight/?truc=var");
+	await runGoodPutTest("/put/allowed/main.html?truc=var");
+	await runGoodPutTest("/put/allowed/whereAmI/test.txt?truc=var");
+
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
