@@ -60,8 +60,8 @@ ARequestType::ARequestType
 	_inFd(),
 	_outFd()
 {
-	extractQueryString(url, _queryString);
-	if (!fixUrl(*this, url))
+	extractQueryString(_url, _queryString);
+	if (!fixUrl(*this, _url))
 		return ;
 	addRoot(*this, config);
 	this->_code = requestContext.request.setBodyFromHeaders(getMaxClientBodySize());
@@ -174,12 +174,18 @@ void	ARequestType::setResponseWithLocation(uint16_t code, const std::string &red
 	this->_code = code;
 	if (!isReelRedirect)
 	{
-		if (!Status::isCodeOfType(code, STATUS_REDIRECTION))
-			_queryString.clear();
-		_redirection.reserve(7 + _domain.size() + _url.size() + _queryString.size());
+		const bool	addQueryString = Status::isCodeOfType(code, STATUS_REDIRECTION) && !_queryString.empty();
+		size_t		redirectionSize = 7 + _domain.size() + _url.size();
+
+		if (addQueryString)
+			redirectionSize += 1 + _queryString.size();
+		_redirection.reserve(redirectionSize);
 		_redirection.append("http://");
 		_redirection.append(_domain);
 		_redirection.append(_url);
+		if (!addQueryString)
+			return ;
+		_redirection.append("?");
 		_redirection.append(_queryString);
 	}
 	else
