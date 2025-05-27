@@ -26,12 +26,13 @@ private:
 	 * Depending on the value of family, the _addr union is cast as a sockarddr_in (IPV4),
 	 * sockaddr_in6 (IPV6) or sockaddr_un (unix socket).
 	 */
-	sa_family_t			_family;
+	const sa_family_t	_family;
 	/**
 	 * @brief An union between all the structure needed by the bind() function,
 	 * depending on their family.
 	 */
 	union sockaddr_in_u	_addr;
+	const std::string	_port;
 	
 	Host(void);
 	Host&	operator=(const Host& ref);
@@ -43,13 +44,14 @@ public:
 	Host(const Host &ref);
 	~Host(void);
 
-	bool		operator<(const Host &host) const;
+	bool				operator<(const Host &host) const;
 
-	socklen_t		getAddrInfo(const sockaddr ** outAddr) const;
-	sa_family_t		getFamily(void) const;
-	sockaddr_in		getipv4Addr(void) const;
-	sockaddr_in6	getipv6Addr(void) const;
-	sockaddr_un		getunixAddr(void) const;
+	socklen_t			getAddrInfo(const sockaddr ** outAddr) const;
+	sa_family_t			getFamily(void) const;
+	sockaddr_in			getipv4Addr(void) const;
+	sockaddr_in6		getipv6Addr(void) const;
+	sockaddr_un			getunixAddr(void) const;
+	const std::string&	getPort(void) const;
 };
 
 #endif // !HOST_HPP

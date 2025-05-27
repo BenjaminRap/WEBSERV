@@ -9,6 +9,8 @@
 
 #include "Host.hpp"      // for Host
 
+std::string uint16toString(u_int16_t nb);
+
 /**
  * @brief Compare two host, first by their family, then by their addr value.
  * @return True if this Host is inferior, false if it is equal or superior.
@@ -26,7 +28,8 @@ bool	Host::operator<(const Host& host) const
  * @param port The port to listen to.
  */
 Host::Host(in_addr_t addrIPV4, in_port_t port) :
-	_family(AF_INET)
+	_family(AF_INET),
+	_port(uint16toString(port))
 {
 	sockaddr_in	&addr = this->_addr.ipv4;
 
@@ -42,7 +45,8 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
  * @param port The port to listen to.
  */
 Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
-	_family(AF_INET6)
+	_family(AF_INET6),
+	_port(uint16toString(port))
 {
 	sockaddr_in6	&addr = this->_addr.ipv6;
 
@@ -62,7 +66,8 @@ Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
  * @param path The path to the unix endpoint.
  */
 Host::Host(const std::string &path) :
-	_family(AF_UNIX)
+	_family(AF_UNIX),
+	_port()
 {
 	sockaddr_un	&addr = this->_addr.unixAddr;
 
@@ -73,7 +78,10 @@ Host::Host(const std::string &path) :
 	std::memcpy(addr.sun_path, path.c_str(), path.size());
 }
 
-Host::Host(const Host& ref) : _family(ref._family), _addr(ref._addr)
+Host::Host(const Host& ref) :
+	_family(ref._family),
+	_addr(ref._addr),
+	_port(ref._port)
 {
 }
 
@@ -138,4 +146,11 @@ sockaddr_un Host::getunixAddr(void) const
 	if (_family != AF_UNIX)
 		throw std::logic_error("Host::getunixAddr called on a non UNIX host");
 	return (_addr.unixAddr);
+}
+
+const std::string&	Host::getPort(void) const
+{
+	if (_family == AF_UNIX)
+		throw std::logic_error("Host:getPort calleed with a unix socket");
+	return (_port);
 }

@@ -79,18 +79,18 @@ bool	setEnv(char *(&env)[20], const ARequestType& req, RequestContext& requestCo
 		addToEnv(env, "SCRIPT_NAME=" + findScriptName(req.getUrl(), pathInfo));
 		if (pathInfo != "")
 			addToEnv(env, "PATH_INFO=" + pathInfo);
+
 		if (req.getQueryString() != "")
 			addToEnv(env, "QUERY_STRING=" + req.getQueryString());
 		addToEnv(env, "PATH_TRANSLATED=" + req.getPath());
 		sa_family_t family = requestContext.host.getFamily();
-		if (family == AF_INET) {
-			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv4Addr().sin_port));
+		if (family == AF_UNIX)
+			return (true);
+		addToEnv(env, "SERVER_PORT=" + requestContext.host.getPort());
+		if (family == AF_INET)
 			addToEnv(env, "REMOTE_ADDR=" + ipV4toString(requestContext.clientAddr.ipv4));
-		}
-		else if (family == AF_INET6) {
-			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv6Addr().sin6_port));
+		else
 			addToEnv(env, "REMOTE_ADDR=" + ipV6toString(requestContext.clientAddr.ipv6.sin6_addr));
-		}
 		return (true);
 	}
 	catch (const std::exception& exception)
