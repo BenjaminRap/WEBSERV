@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cctype>                   // for isdigit
 #include <cstdlib>                  // for size_t, atol
 #include <map>                      // for map, _Rb_tree_iterator, operator==
@@ -251,9 +252,14 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 	checkRoot(root, line);
 }
 
+static char toLowerCase(char& c)
+{
+    return (std::tolower(c));
+}
+
 void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<ConfigHeaders> &addHeader)
 {
-	std::string	title;
+	std::string	key;
 	std::string	value;
 	bool		always = false;
 	size_t		end;
@@ -263,7 +269,7 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<Config
 	if (end == std::string::npos)
 		throw (ParsingLineException("Missing key", line));
 
-	title.append(file, i, end - i);
+	key.append(file, i, end - i);
 	i = end;
 	skipWSpace(file, i, line);
 	if (file[i] != '"')
@@ -291,5 +297,6 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<Config
 			throw (ParsingLineException("Missing semi-colon", line));
 	}
 	i++;
-	addHeader.push_back(ConfigHeaders(title, value, always));
+	std::transform(key.begin(), key.end(), key.begin(), toLowerCase);
+	addHeader.push_back(ConfigHeaders(key, value, always));
 }
