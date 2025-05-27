@@ -126,17 +126,37 @@ async function	compareRequests(target, nginxResponse, webservResponse)
 	return (succeed);
 }
 
-export async function	compareGoodRequests(target, method, body, headers)
+function	checkHeaders(webservHeaders, expectedHeaders)
+{
+	let	succeed = true;
+
+	expectedHeaders.forEarch((element) => {
+		if (webservHeaders.get(element.key) != element.value)
+		{
+			succeed = false;
+			if (printOK)
+				console.log("Missing header, expected:" + element);
+		}
+	});
+	return (succeed);
+}
+
+export async function	compareGoodRequests(target, method, body, headers, expectedHeaders)
 {
 	try
 	{
+		let	succeed = true;
+
 		if (showDuration)
 			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const nginxResponse = await makeRequest(nginxUrl + target, method, body, headers);
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-		return (compareRequests(target, nginxResponse, webservResponse));
+		succeed =  compareRequests(target, nginxResponse, webservResponse) && succeed;
+		if (expectedHeaders != undefined)
+			succeed = checkHeaders(webservResponse.headers, expectedHeaders) && succeed;
+		return (succeed);
 	}
 	catch (error)
 	{
@@ -145,17 +165,22 @@ export async function	compareGoodRequests(target, method, body, headers)
 	}
 }
 
-export async function	compareBadRequests(message, target)
+export async function	compareBadRequests(message, target, expectedHeaders)
 {
 	try
 	{
+		let	succeed = true;
+
 		if (showDuration)
 			console.log(COLOR_BLUE + "nginx" + COLOR_RESET);
 		const nginxResponse = await makeRawRequest(nginxHost, nginxPort, message);
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-		return (compareRequests(target, nginxResponse, webservResponse));
+		succeed = compareRequests(target, nginxResponse, webservResponse) && succeed;
+		if (expectedHeaders != undefined)
+			succeed = checkHeaders(webservResponse.headers, expectedHeaders) && succeed;
+		return (succeed);
 	}
 	catch (error)
 	{
@@ -164,10 +189,12 @@ export async function	compareBadRequests(message, target)
 	}
 }
 
-export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText)
+export async function	compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText, expectedHeaders)
 {
 	try
 	{
+		let	succeed = true;
+
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
@@ -175,7 +202,10 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 			status: statusCode,
 			statusText: statusText,
 		};
-		return (compareStatus(expectedResponse, webservResponse));
+		succeed = compareStatus(expectedResponse, webservResponse) && succeed;
+		if (expectedHeaders != undefined)
+			succeed = checkHeaders(webservResponse.headers, expectedHeaders) && succeed;
+		return (succeed);
 	}
 	catch (error)
 	{
@@ -184,10 +214,12 @@ export async function	compareGoodRequestWithValues(target, method, body, headers
 	}
 }
 
-export async function	compareBadRequestWithValues(message, statusCode, statusText)
+export async function	compareBadRequestWithValues(message, statusCode, statusText, expectedHeaders)
 {
 	try
 	{
+		let	succeed = true;
+
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
@@ -195,7 +227,10 @@ export async function	compareBadRequestWithValues(message, statusCode, statusTex
 			status: statusCode,
 			statusText: statusText,
 		};
-		return (compareStatus(expectedResponse, webservResponse));
+		succeed = compareStatus(expectedResponse, webservResponse) && succeed;
+		if (expectedHeaders != undefined)
+			succeed = checkHeaders(webservResponse.headers, expectedHeaders) && succeed;
+		return (succeed);
 	}
 	catch (error)
 	{
