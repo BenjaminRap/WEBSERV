@@ -24,7 +24,7 @@ void	extractQueryString(std::string& url, std::string& queryString)
 
 	if (pos == std::string::npos)
 		return ;
-	queryString.append(url, pos);
+	queryString.append(url, pos + 1);
 	url.erase(pos);
 }
 
