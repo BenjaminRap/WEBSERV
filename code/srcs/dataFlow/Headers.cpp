@@ -61,9 +61,11 @@ bool	Headers::addHeader(const std::string&key, const std::string& value)
 		return (false);
 	std::string&	firstValue = values.front();
 
-	if (type == CONCAT_COMMA || type == CONCAT_COMMA)
+	if (type == CONCAT_COMMA || type == CONCAT_SEMICOLON)
 	{
 		const char*	separator = (type == CONCAT_COMMA) ? ", " : "; ";
+
+		firstValue.reserve(firstValue.size() + value.size() + 3);
 		firstValue.append(separator);
 		firstValue.append(value);
 	}
