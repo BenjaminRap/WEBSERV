@@ -37,6 +37,7 @@ Route::Route(Route const &src) :
 	_index(src._index),
 	_autoIndex(src._autoIndex),
 	_root(src._root),
+	_addHeader(src._addHeader),
 	_cgiFileExtension(src._cgiFileExtension),
 	_cgiInterpreter(src._cgiInterpreter)
 {
