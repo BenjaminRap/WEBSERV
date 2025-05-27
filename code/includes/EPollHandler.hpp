@@ -5,8 +5,12 @@
 # include <sys/epoll.h>
 # include <vector>
 # include <string>
+# include <map>
+# include <ctime>
 
 # include "socketCommunication.hpp"
+
+# define TIMEOUT_VALUE_USEC	30	
 
 class	Configuration;
 class	Host;
@@ -53,6 +57,8 @@ private:
 	 * It should be used to removed them in the destructor.
 	 */
 	std::vector<std::string>	_unixSocketsToRemove;
+
+	std::map<int , time_t>		_fdEventTime;
 
 	EPollHandler(const EPollHandler& ref);
 	EPollHandler(void);
@@ -128,6 +134,9 @@ public:
 	 * the destructor shouldn't remove the unix sockets.
 	 */
 	void	clearUnixSocketsList(void);
+
+	int	checkTimeOut(void);
+	void	setTimeFd(const int _fd);
 };
 
 #endif // !EPOLL_HANDLER_HPP

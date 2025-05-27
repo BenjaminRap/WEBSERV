@@ -77,7 +77,10 @@ RequestState	ConnectedSocketData::processRequest(void)
 		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
+		{
 			requestState = _requestHandler.readRequest(_requestContext);
+
+		}
 	}
 	requestState = readNextRequests(currentResponse, requestState);
 	return (requestState);
@@ -129,6 +132,8 @@ void	ConnectedSocketData::callback(uint32_t events)
 			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
 				_isActive = false;
+			else
+				_requestContext.ePollHandler.setTimeFd(_fd);
 		}
 	}
 	catch(const ExecveException& e)
