@@ -84,13 +84,16 @@ void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
 
 int	EPollHandler::epollWaitForEvent()
 {
-	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
-
-	if (checkError(nfds, -1, "epoll_wait() : "))
-		_eventsCount = 0;
-	else
-		_eventsCount = nfds;
-	return (nfds);
+	while (true)
+	{
+		const int	nfds = epoll_wait(_epfd, _events, _maxEvents, 1000);
+		checkTimeOut();
+		if (checkError(nfds, -1, "epoll_wait() : "))
+			_eventsCount = 0;
+		else
+			_eventsCount = nfds;
+		return (nfds);
+	}
 }
 
 bool	EPollHandler::callSocketsCallback(void)
@@ -189,7 +192,7 @@ void	EPollHandler::clearUnixSocketsList(void)
 	_unixSocketsToRemove.clear();
 }
 
-int	EPollHandler::checkTimeOut(void)
+void	EPollHandler::checkTimeOut(void)
 {
 	time_t	now;
 
@@ -199,8 +202,18 @@ int	EPollHandler::checkTimeOut(void)
 		if (difftime(now, it->second) > 30)
 		{
 			closeFdAndRemoveFromEpoll(it->first, -1);
+			for (std::list<ASocketData*>::iterator _AFdData = _socketsData.begin(); _AFdData != _socketsData.end(); ++_AFdData)
+			{
+				if (it->first == (*_AFdData)->getFd())
+				{
+					removeFdDataFromList(_AFdData);
+					break;
+				}
+			}
+			it = _fdEventTime.begin();
 		}
 	}
+
 }
 
 void	EPollHandler::setTimeFd(const int _fd)

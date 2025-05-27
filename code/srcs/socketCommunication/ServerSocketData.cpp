@@ -61,7 +61,10 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 			closeFdAndPrintError(newFd);
 		}
 		else
+		{
 			std::cout << "Accepted a new connection, fd : " << newFd << std::endl;
+			this->_ePollHandler->setTimeFd(newFd);
+		}
 	}
 	catch(const std::exception& e)
 	{

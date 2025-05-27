@@ -135,7 +135,7 @@ public:
 	 */
 	void	clearUnixSocketsList(void);
 
-	int	checkTimeOut(void);
+	void	checkTimeOut(void);
 	void	setTimeFd(const int _fd);
 };
 

@@ -15,6 +15,7 @@
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
+#include "EPollHandler.hpp"			// for EpollHandler
 #include "exception.hpp"            // for ExecveException
 
 class EPollHandler;  // lines 19-19
@@ -126,6 +127,8 @@ void	ConnectedSocketData::callback(uint32_t events)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
 				_isActive = false;
+			else
+				this->_ePollHandler->setTimeFd(_fd);
 		}
 		if (_isActive && events & EPOLLOUT)
 		{
@@ -133,7 +136,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
 				_isActive = false;
 			else
-				_requestContext.ePollHandler.setTimeFd(_fd);
+				this->_ePollHandler->setTimeFd(_fd);
 		}
 	}
 	catch(const ExecveException& e)
