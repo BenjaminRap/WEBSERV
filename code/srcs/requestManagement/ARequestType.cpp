@@ -36,6 +36,7 @@ bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::strin
 void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
 uint16_t	isDirOrFile(const std::string& path);
+bool		isExtension(const std::string& file, const std::string& extension);
 
 ARequestType::ARequestType
 (
@@ -55,6 +56,7 @@ ARequestType::ARequestType
 	_autoIndexPage(),
 	_url(url),
 	_queryString(),
+	_pathInfo(),
 	_inFd(),
 	_outFd()
 {
@@ -74,14 +76,42 @@ ARequestType::ARequestType
 	_targetType = isDirOrFile(_path);
 	if (this->_route != NULL)
 	{
-		const std::string&	CGIextention = getCgiFileExtension();
-		if (CGIextention == "" || _path.find(CGIextention) == std::string::npos)
+		const std::string&	CGIextension = getCgiFileExtension();
+		if (CGIextension == "")
+			return ;
+		if (_targetType != HTTP_NOT_FOUND)
+		{
+			if (!isExtension(_path, CGIextension))
+				return ;
+		}
+		else if (!setPathInfo(CGIextension, _path))
 			return ;
 		_code = isCgiExecutable(_path, _targetType);
 		if (_code != 0)
 			return ;
-		_code = setCgiAFdData(requestContext, CGIextention);
+		_code = setCgiAFdData(requestContext, CGIextension);
 	}
+}
+
+bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
+{
+	while (_targetType == HTTP_NOT_FOUND)
+	{
+		if (path.size() < extension.size() + 1)
+			return (false);
+		const size_t	pos = path.rfind(extension, path.size() - extension.size() - 1);
+
+		if (pos == std::string::npos)
+			return (false);
+		const char		afterExtension = path[pos + extension.size()];
+
+		if  (afterExtension == '/')
+			_targetType = isDirOrFile(path) ;
+		path.erase(pos + extension.size());
+	}
+	_path = path;
+	_pathInfo.append(_path, path.size(), std::string::npos);
+	return (true);
 }
 
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)

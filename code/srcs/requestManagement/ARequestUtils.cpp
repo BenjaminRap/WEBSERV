@@ -18,6 +18,15 @@
 
 uint16_t	isDirOrFile(const std::string& path);
 
+bool	isExtension(const std::string& file, const std::string& extension)
+{
+	if (extension.size() > file.size())
+		return (false);
+	const size_t	extensionStart = file.size() - extension.size();
+
+	return (extension.compare(extensionStart, extension.size(), extension) == 0);
+}
+
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType)
 {
 	if (targetType == DIRE)

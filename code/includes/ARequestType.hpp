@@ -39,6 +39,7 @@ class ARequestType
 		std::string					_autoIndexPage;
 		std::string					_url;
 		std::string					_queryString;
+		std::string					_pathInfo;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
 		uint16_t					_targetType;
@@ -80,6 +81,7 @@ class ARequestType
 		const ServerConfiguration&				getConfig(void) const;
 		std::string&							getUrl(void);
 		uint16_t								setCgiAFdData(RequestContext& requestContext, const std::string& extension);
+		bool									setPathInfo(const std::string& extension, std::string path);
 };
 
 #endif //!A_REQUEST_HPP
