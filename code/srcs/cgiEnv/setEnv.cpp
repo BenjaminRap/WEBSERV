@@ -3,6 +3,7 @@
 #include <stdexcept>     // for logic_error
 #include <string>        // for basic_string, string, operator+
 
+#include "ARequestType.hpp"
 #include "EMethods.hpp"  // for getStringRepresentation, EMethods
 #include "Headers.hpp"   // for Headers
 #include "Request.hpp"   // for Request
@@ -43,28 +44,25 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 }
 
 
-std::string findScriptName(const std::string &target, size_t &pos, const std::string& extension)
+std::string findScriptName(const std::string& url, const std::string& pathInfo)
 {
-	const size_t end = target.find(extension);
+	const size_t	pos = url.find(pathInfo);
 
-	if (end == std::string::npos)
-		throw std::logic_error("setEnv called with an invalid file extension");
-	pos = end + extension.size();
-	std::string result = target.substr(0, pos);
-	return (result);
+	if (pos == std::string::npos)
+		return (url);
+	return (url.substr(0, pos));
 }
 
 void	deleteArray(const char** array);
 
-bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext , const std::string& pathInfo)
+bool	setEnv(char *(&env)[20], const ARequestType& req, RequestContext& requestContext)
 {
 	std::memset(env, 0, sizeof(env));
 	try
 	{
-		const Headers&	headers = request.getHeaders();
-		const EMethods	method = request.getMethod();
-
-		size_t pos = 0;
+		const Headers&		headers = requestContext.request.getHeaders();
+		const EMethods		method = requestContext.request.getMethod();
+		const std::string&	pathInfo = req.getPathInfo();
 
 		addToEnv(env, "SERVER_SOFTWARE=" SERVER_SOFTWARE);
 		addToEnv(env, "SERVER_NAME=", headers.getUniqueHeader("host"));
@@ -78,11 +76,11 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		addToEnv(env, "CONTENT_TYPE=", headers.getUniqueHeader("content-type"));
 		addToEnv(env, "CONTENT_LENGTH=", headers.getUniqueHeader("content-length"));
 		addToEnv(env, "REFERER=", headers.getUniqueHeader("referer"));
-		addToEnv(env, "SCRIPT_NAME=" + findScriptName(path, pos, extension));
+		addToEnv(env, "SCRIPT_NAME=" + findScriptName(req.getUrl(), pathInfo));
 		if (pathInfo != "")
 			addToEnv(env, "PATH_INFO=" + pathInfo);
-		addToEnv(env, "QUERY_STRING=" + queryString);
-		addToEnv(env, "PATH_TRANSLATED=" + path);
+		addToEnv(env, "QUERY_STRING=" + req.getQueryString());
+		addToEnv(env, "PATH_TRANSLATED=" + req.getPath());
 		sa_family_t family = requestContext.host.getFamily();
 		if (family == AF_INET) {
 			addToEnv(env, "SERVER_PORT" + uint16toString(requestContext.host.getipv4Addr().sin_port));

@@ -32,7 +32,7 @@ void		addRoot(ARequestType &req, const ServerConfiguration &config);
 int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void		extractQueryString(std::string& url, std::string& queryString);
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
-bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext, const std::string& pathInfo);
+bool		setEnv(char *(&env)[20], const ARequestType& req, RequestContext& requestContext);
 bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
@@ -89,7 +89,7 @@ ARequestType::ARequestType
 		_code = isCgiExecutable(_path, _targetType);
 		if (_code != 0)
 			return ;
-		_code = setCgiAFdData(requestContext, CGIextension);
+		_code = setCgiAFdData(requestContext);
 	}
 }
 
@@ -116,7 +116,7 @@ bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
 	return (true);
 }
 
-uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::string& extension)
+uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 {
 	Request&	request = requestContext.request;
 	ABody*		body = request.getBody();
@@ -130,7 +130,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	std::memset(argv, 0, sizeof(argv));
 	try
 	{
-		const bool	error = (!setEnv(env, request, extension, _path, _queryString, requestContext, _pathInfo)
+		const bool	error = (!setEnv(env, *this, requestContext)
 			|| !setArgv(argv, getCgiInterpreter(), _path)
 			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
 		deleteArray((const char**)env);
@@ -307,4 +307,24 @@ void	ARequestType::setUrl(const std::string &url)
 std::string&	ARequestType::getUrl(void)
 {
 	return (_url);
+}
+
+const std::string&	ARequestType::getUrl(void) const
+{
+	return (_url);
+}
+
+const std::string&	ARequestType::getPath(void) const
+{
+	return (_path);
+}
+
+const std::string&	ARequestType::getQueryString(void) const
+{
+	return (_queryString);
+}
+
+const std::string&	ARequestType::getPathInfo(void) const
+{
+	return (_pathInfo);
 }

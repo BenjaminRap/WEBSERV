@@ -76,8 +76,12 @@ class ARequestType
 		const SharedResource<AFdData*>&			getInFd(void) const;
 		const SharedResource<AFdData*>&			getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
+		const std::string&						getUrl(void) const;
+		const std::string&						getPath(void) const;
+		const std::string&						getQueryString(void) const;
+		const std::string&						getPathInfo(void) const;
 		std::string&							getUrl(void);
-		uint16_t								setCgiAFdData(RequestContext& requestContext, const std::string& extension);
+		uint16_t								setCgiAFdData(RequestContext& requestContext);
 		bool									setPathInfo(const std::string& extension, std::string path);
 };
 
