@@ -160,7 +160,8 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 		requestContext.ePollHandler,
 		requestContext.responseBuff,
 		_config,
-		pid
+		pid,
+		getAddHeader()
 	), freePointer);
 	return (HTTP_OK);
 };
@@ -290,6 +291,13 @@ size_t	ARequestType::getMaxClientBodySize(void) const
 	if (_route == NULL || _route->getMaxClientBodySize() == (size_t)-1)
 		return (_config.getMaxClientBodySize());
 	return (_route->getMaxClientBodySize());
+}
+
+const std::list<ConfigHeaders>&	ARequestType::getAddHeader(void) const
+{
+	if (_route == NULL || _route->getAddHeader().size() == 0)
+		return (_config.getAddHeader());
+	return (_route->getAddHeader());
 }
 
 const ServerConfiguration&	ARequestType::getConfig() const

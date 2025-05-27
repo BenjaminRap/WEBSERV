@@ -14,6 +14,7 @@ Route::Route
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
+	const std::list<ConfigHeaders> &addHeader,
 	const std::string &cgiFileExtension,
 	const std::string &cgiInterpreter
 ) :
@@ -23,6 +24,7 @@ Route::Route
 	_index(index),
 	_autoIndex(auto_index),
 	_root(root),
+	_addHeader(addHeader),
 	_cgiFileExtension(cgiFileExtension),
 	_cgiInterpreter(cgiInterpreter)
 {
@@ -83,6 +85,11 @@ const std::string				&Route::getCgiFileExtension(void) const
 const std::string&				Route::getCgiInterpreter(void) const
 {
 	return (_cgiInterpreter);
+}
+
+const std::list<ConfigHeaders>&	Route::getAddHeader(void) const
+{
+	return (this->_addHeader);
 }
 
 void							Route::setIndex(const std::vector<std::string> &v)

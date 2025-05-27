@@ -1,6 +1,7 @@
 #ifndef	PARSING_HPP
 # define PARSING_HPP
 
+#include <list>
 # include <netinet/in.h>  // for in_port_t, in_addr_t
 # include <stdint.h>      // for uint8_t
 # include <cstring>       // for size_t, memcmp
@@ -19,6 +20,20 @@ struct SRedirection;
 # define SEP_WSPACE "\t\n\v\f\r ;"
 # define SEP_WSPACE_ARG "\t\n\v\f\r ;{}"
 # define DIGITS "0123456789"
+
+struct	ConfigHeaders
+{
+	const std::string	key;
+	const std::string	value;
+	const bool			always;
+
+	ConfigHeaders(const std::string& key, const std::string& value, bool always) :
+		key(key),
+		value(value),
+		always(always)
+	{
+	}
+};
 
 typedef struct ipv6_s {
     uint8_t ipv6[16];
@@ -75,10 +90,22 @@ void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::v
 void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
 void	parseRouteCgiInterpreter(std::string &file, size_t &i, size_t &line, std::string &cgiInterpreter);
 void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention);
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<ConfigHeaders> &addHeader);
 void	readfile(const char *path, std::string &buff);
-void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
-&serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::vector<EMethods> &acceptedMethods, std::map<std::string, Route> &routes, std::string &root, \
-ip_t &ip, std::vector<std::string> &index, std::string &cgiFileExtension, std::string &cgiInterpreter);
+void	insertHost
+(
+	std::map<ip_t, std::vector<ServerConfiguration> > &conf,
+	std::vector<std::string> &serverNames,
+	std::map<unsigned short, std::string> &errorPages,
+	size_t maxClientBodySize,
+	std::vector<EMethods>& acceptedMethods,
+	std::map<std::string, Route> &routes,
+	std::string &root,
+	ip_t &ip,
+	std::vector<std::string> &index,
+	std::list<ConfigHeaders> &addHeader,
+	std::string& cgiFileExtension,
+	std::string& cgiInterpreter
+);
 
 #endif

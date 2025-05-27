@@ -30,37 +30,38 @@ private:
 	 * @brief The FlowBuffer of the RawResponse, what is written to
 	 * it will be written to the client.
 	 */
-	FlowBuffer&					_flowBuf;
+	FlowBuffer&						_flowBuf;
 	/**
 	 * @brief The first part of the response.
 	 */
-	std::string					_firstPart;
+	std::string						_firstPart;
 	/**
 	 * @brief The number of character from the firstPart that
 	 * has been written to the flowBuf
 	 */
-	size_t						_charsWritten;
+	size_t							_charsWritten;
 	/**
 	 * @brief The headers parsed from the cgi.
 	 */
-	Headers						_headers;
+	Headers							_headers;
 	/**
 	 * @brief The name of the temporary file, or "\0" if no
 	 * temporary file has been created.
 	 */
-	char						_tempName[L_tmpnam];
+	char							_tempName[L_tmpnam];
 	/**
 	 * @brief The source file, it can be the temporary file or the
 	 * error page.
 	 */
-	FileFd*						_srcFile;
-	CgiOutState					_state;
-	uint16_t					_code;
-	bool						_error;
-	const ServerConfiguration&	_serverConf;
-	bool						_canWrite;
-	bool						_cgiReadFinished;
-	pid_t						_pid;
+	FileFd*							_srcFile;
+	CgiOutState						_state;
+	uint16_t						_code;
+	bool							_error;
+	const ServerConfiguration&		_serverConf;
+	bool							_canWrite;
+	bool							_cgiReadFinished;
+	pid_t							_pid;
+	const std::list<ConfigHeaders>	_addHeader;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
@@ -146,7 +147,8 @@ public:
 		EPollHandler& ePollHandler,
 		FlowBuffer& responseFlowBuffer,
 		const ServerConfiguration& serverConfiguration,
-		pid_t pid
+		pid_t pid,
+		const std::list<ConfigHeaders>& addHeader
 	);
 	~CgiOut();
 

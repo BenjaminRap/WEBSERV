@@ -18,6 +18,7 @@ std::string&	getFirstPart(const Status& status, const Headers& headers, const ch
 void			addDefaultHeaders(Headers& headers, const Status* status);
 FileFd*			getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration);
 std::string		sizeTToString(size_t value);
+void			processAddHeader(Headers &responseHeaders, const std::list<ConfigHeaders>& addHeader, uint16_t code);
 
 uint16_t	CgiOut::checkHeaders(void)
 {
@@ -119,6 +120,7 @@ void	CgiOut::generateFirstPart(void)
 		bodyBegin = remainingBegin;
 		bodyEnd = remainingEnd;
 	}
+	processAddHeader(_headers, _addHeader, _code);
 	_firstPart = getFirstPart(*status, _headers, bodyBegin, bodyEnd);
 	_state = WRITE_FIRST_PART;
 	_canWrite = true;

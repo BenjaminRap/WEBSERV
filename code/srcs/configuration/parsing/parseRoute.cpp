@@ -18,6 +18,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	std::string					root;
 	bool						autoIndex = false;
 	std::string					cgiFileExtension;
+	std::list<ConfigHeaders>	addHeader;
 	std::string					cgiInterpreter;
 	size_t						maxClientBodySize = -1;
 
@@ -69,6 +70,11 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 			i += 13;
 			parseRouteCgiFileExtension(file, i, line, cgiFileExtension);
 		}
+		else if (!file.compare(i, 10, "add_header"))
+		{
+			i += 10;
+			parseAddHeader(file, i, line, addHeader);
+		}
 		else if (!file.compare(i, 15, "cgi_interpreter"))
 		{
 			i += 15;
@@ -85,7 +91,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	if (file[i] != '}')
 		throw (ParsingLineException("Unclosed brace", line));
 	i++;
-	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, maxClientBodySize, index, autoIndex, root, cgiFileExtension, cgiInterpreter)));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, maxClientBodySize, index, autoIndex, root, addHeader, cgiFileExtension, cgiInterpreter)));
 }
 
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)

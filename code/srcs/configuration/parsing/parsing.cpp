@@ -78,6 +78,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	std::string								root;
 	ip_t									ip;
 	std::vector<std::string>				index;
+	std::list<ConfigHeaders> 				addHeader;
 	std::string								cgiFileExtension;
 	std::string								cgiInterpreter;
 
@@ -126,6 +127,11 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 			i += 5;
 			parseRouteIndex(file, i, line, index);
 		}
+		else if (!file.compare(i, 10, "add_header"))
+		{
+			i += 10;
+			parseAddHeader(file, i, line, addHeader);
+		}
 		else if (!file.compare(i, 13, "cgi_extension"))
 		{
 			i += 13;
@@ -158,7 +164,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 		index.push_back("index.html");
 		index.push_back("index.htm");
 	}
-	insertHost(conf, serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, ip, index, cgiFileExtension, cgiInterpreter);
+	insertHost(conf, serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, ip, index, addHeader, cgiFileExtension, cgiInterpreter);
 }
 
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize)
@@ -243,4 +249,46 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 	checkRoot(root, line);
+}
+
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<ConfigHeaders> &addHeader)
+{
+	std::string	title;
+	std::string	value;
+	bool		always = false;
+	size_t		end;
+
+	skipWSpace(file, i, line);
+	end = file.find_first_of(WSPACE, i);
+	if (end == std::string::npos)
+		throw (ParsingLineException("Missing key", line));
+
+	title.append(file, i, end - i);
+	i = end;
+	skipWSpace(file, i, line);
+	if (file[i] != '"')
+		throw (ParsingLineException("Missing value start quote", line));
+
+	i++;
+	end = file.find_first_of('"', i);
+	if (end == std::string::npos)
+		throw (ParsingLineException("Missing value end quote", line));
+
+	value.append(file, i, end - i);
+	i = end + 1;
+	skipWSpace(file, i, line);
+	if (file[i] != ';')
+	{
+		if (!file.compare(i, 6, "always"))
+		{
+			always = true;
+			skipWSpace(file, i, line);
+			if (file[i] != ';')
+				throw (ParsingLineException("Missing semi-colon", line));
+
+		}
+		else
+			throw (ParsingLineException("Missing semi-colon", line));
+	}
+	addHeader.push_back(ConfigHeaders(title, value, always));
 }

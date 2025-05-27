@@ -1,6 +1,7 @@
 #ifndef SERVERCONFIGURATION_HPP
 # define SERVERCONFIGURATION_HPP
 
+# include <list>
 # include <stddef.h>   // for size_t
 # include <iosfwd>     // for ostream
 # include <map>        // for map
@@ -9,6 +10,7 @@
 # include <stdint.h>   // for uint16_t
 
 # include "Route.hpp"  // for Route
+# include "parsing.hpp"
 
 /**
  * @class ServerConfiguration
@@ -28,6 +30,7 @@ public :
 		const std::map<std::string, Route> &routes,
 		const std::string &root,
 		const std::vector<std::string> &index,
+		const std::list<ConfigHeaders> &addHeader,
 		const std::string &cgiFileExtension,
 		const std::string &cgiInterpreter
 	);
@@ -43,6 +46,7 @@ public :
 	const std::pair<const std::string, Route>*	getRouteFromPath(const std::string &path) const;
 	const std::string&							getRoot(void) const;
 	const std::vector<std::string>&				getIndex(void) const;
+	const std::list<ConfigHeaders>&				getAddHeader(void) const;
 	const std::string&							getCgiFileExtension(void) const;
 	const std::string&							getCgiInterpreter(void) const;
 
@@ -86,12 +90,14 @@ private :
 	 * page that will be shown if the user ask for a folder.
 	 */
 	std::vector<std::string>				_index;
+	const std::list<ConfigHeaders>			_addHeader;
 	/**
 	 * @brief if a file, at this route has this file extension, it will execute it
 	 * and returns the results of the cgi, instead of returning the file.
 	 */
 	std::string								_cgiFileExtension;
 	std::string								_cgiInterpreter;
+
 
 	ServerConfiguration(void);
 	ServerConfiguration    &operator=(ServerConfiguration const &src);

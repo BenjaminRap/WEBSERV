@@ -10,17 +10,18 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration, operator<<
 
 ServerConfiguration::ServerConfiguration
-	(
-		const std::vector<std::string> &serverNames,
-		const std::map<unsigned short, std::string> &errorPages,
-		size_t maxClientBodySize,
-		const std::vector<EMethods> &acceptedMethods,
-		const std::map<std::string, Route> &routes,
-		const std::string &root,
-		const std::vector<std::string> &index,
-		const std::string &cgiFileExtension,
-		const std::string &cgiInterpreter
-	) :
+(
+	const std::vector<std::string> &serverNames,
+	const std::map<unsigned short, std::string> &errorPages,
+	size_t maxClientBodySize,
+	const std::vector<EMethods> &acceptedMethods,
+	const std::map<std::string, Route> &routes,
+	const std::string &root,
+	const std::vector<std::string> &index,
+	const std::list<ConfigHeaders> &addHeader,
+	const std::string &cgiFileExtension,
+	const std::string &cgiInterpreter
+) :
 	_serverNames(serverNames),
 	_errorPages(errorPages),
 	_maxClientBodySize(maxClientBodySize),
@@ -28,6 +29,7 @@ ServerConfiguration::ServerConfiguration
 	_routes(routes),
 	_root(root),
 	_index(index),
+	_addHeader(addHeader),
 	_cgiFileExtension(cgiFileExtension),
 	_cgiInterpreter(cgiInterpreter)
 {
@@ -41,6 +43,7 @@ ServerConfiguration::ServerConfiguration(ServerConfiguration const &src) :
 	_routes(src._routes),
 	_root(src._root),
 	_index(src._index),
+	_addHeader(src._addHeader),
 	_cgiFileExtension(src._cgiFileExtension),
 	_cgiInterpreter(src._cgiInterpreter)
 {
@@ -127,6 +130,11 @@ const std::string				&ServerConfiguration::getCgiFileExtension(void) const
 const std::string&				ServerConfiguration::getCgiInterpreter(void) const
 {
 	return (_cgiInterpreter);
+}
+
+const std::list<ConfigHeaders>&	ServerConfiguration::getAddHeader(void) const
+{
+	return (this->_addHeader);
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)

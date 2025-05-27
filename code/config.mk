@@ -73,6 +73,7 @@ UTILS_DIR				:=	utils/
 UTILS_FILES				:=	conversion.cpp			\
 							EMethods.cpp			\
 							closeAndPrintError.cpp	\
+							processAddHeader.cpp	\
 							deleteArray.cpp
 UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))
 
