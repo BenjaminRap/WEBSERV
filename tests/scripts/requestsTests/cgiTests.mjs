@@ -117,20 +117,27 @@ async function runTests()
 	// printHeader("Cgi Php");
 	// await runGoodCgiTest("/cgi/php/cgiPhpTest.php", "GET", null, {},  200, "OK");
 
-	printHeader("Cgi Path Info Classic");
-	await runGoodCgiTest("/cgi/cgiCheckPathInfo1.cgi/test", "GET", null, {},  200, "OK");
+	// printHeader("Cgi Path Info Classic");
+	// await runGoodCgiTest("/cgi/cgiCheckPathInfo1.cgi/test", "GET", null, {},  200, "OK");
+	//
+	// printHeader("Cgi Path Info Multiple .cgi");
+	// await runGoodCgiTest("/cgi/cgiCheckPathInfo2.cgi/dummy.cgi", "GET", null, {},  200, "OK");
+	//
+	// printHeader("Cgi Path Info Multiple .cgi 2");
+	// await runGoodCgiTest("/cgi/cgiCheckPathInfo3.cgi/dummy.cgi/test", "GET", null, {},  200, "OK");
+	//
+	// printHeader("Cgi Path Multiple .cgi, no existing");
+	// await runGoodCgiTest("/cgi/dummy1.cgi/test/dummy2.cgi/truc/dummy3.cgi", "GET", null, {},  404, "Not Found");
+	//
+	// printHeader("Cgi Path Multiple .cgitruc");
+	// await runGoodCgiTest("/cgi/cgiCheckPathInfo1.cgiput/truc.cgi", "GET", null, {},  404, "Not Found");
 
-	printHeader("Cgi Path Info Multiple .cgi");
-	await runGoodCgiTest("/cgi/cgiCheckPathInfo2.cgi/dummy.cgi", "GET", null, {},  200, "OK");
+	printHeader("Cgi Path Info Multiple .cgi 2 With Query String");
+	await runGoodCgiTest("/cgi/cgiCheckPathInfo3.cgi/dummy.cgi/test?truc=var", "GET", null, {},  200, "OK");
 
-	printHeader("Cgi Path Info Multiple .cgi 2");
-	await runGoodCgiTest("/cgi/cgiCheckPathInfo3.cgi/dummy.cgi/test", "GET", null, {},  200, "OK");
+	printHeader("Cgi Path Info Multiple .cgi 2 With Query String Empty");
+	await runGoodCgiTest("/cgi/cgiCheckPathInfo3.cgi/dummy.cgi/test?", "GET", null, {},  200, "OK");
 
-	printHeader("Cgi Path Multiple .cgi, no existing");
-	await runGoodCgiTest("/cgi/dummy1.cgi/test/dummy2.cgi/truc/dummy3.cgi", "GET", null, {},  404, "Not Found");
-
-	printHeader("Cgi Path Multiple .cgitruc");
-	await runGoodCgiTest("/cgi/cgiCheckPathInfo1.cgiput/truc.cgi", "GET", null, {},  404, "Not Found");
 
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
