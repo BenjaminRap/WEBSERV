@@ -79,7 +79,8 @@ bool	setEnv(char *(&env)[20], const ARequestType& req, RequestContext& requestCo
 		addToEnv(env, "SCRIPT_NAME=" + findScriptName(req.getUrl(), pathInfo));
 		if (pathInfo != "")
 			addToEnv(env, "PATH_INFO=" + pathInfo);
-		addToEnv(env, "QUERY_STRING=" + req.getQueryString());
+		if (req.getQueryString() != "")
+			addToEnv(env, "QUERY_STRING=" + req.getQueryString());
 		addToEnv(env, "PATH_TRANSLATED=" + req.getPath());
 		sa_family_t family = requestContext.host.getFamily();
 		if (family == AF_INET) {
