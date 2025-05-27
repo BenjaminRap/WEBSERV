@@ -19,7 +19,7 @@ void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip)
 		i++;
 		parseIpv6(file, i, line, ip.ipv6);
 	}
-	else if (file.substr(i, 5) == "unix:")
+	else if (file.compare(i, 5, "unix:") == 0)
 	{
 		i += 5;
 		parseIpUnix(file, i, line, ip.unix_adrr);
