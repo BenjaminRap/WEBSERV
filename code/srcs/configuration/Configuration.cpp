@@ -10,13 +10,20 @@
 #include "Host.hpp"                 // for Host
 #include "ServerConfiguration.hpp"  // for operator<<, ServerConfiguration
 
+void	readfile(const char *path, std::string &buff);
+void	parseFile(Configuration &config, std::string &file);
+
 bool	Configuration::_instanciated = false;
 
-Configuration::Configuration(void)
+Configuration::Configuration(const char* path)
 	: _maxConnectionBySocket(10000), _maxEvents(10000), _reuseAddr(true)
 {
 	if (_instanciated)
 		throw std::logic_error("Error : Trying to instanciate a Configuration multiples times");
+	std::string	file;
+
+	readfile(path, file);
+	parseFile(*this, file);
 	Configuration::_instanciated = true;
 }
 

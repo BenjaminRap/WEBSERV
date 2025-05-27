@@ -16,19 +16,21 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	SRedirection				redirection;
 	std::string					path;
 	std::string					root;
-	bool						auto_index = 0;
+	bool						autoIndex = false;
 	std::string					cgiFileExtension;
 	std::map< std::string, std::pair<std::string, bool> >	addHeader;
+	std::string					cgiInterpreter;
+	size_t						maxClientBodySize = -1;
 
 	redirection.responseStatusCode = 0;
 	skipWSpace(file, i, line);
 	if (file[i] != '/')
-		throw (CustomLineException("Path not found", line));
+		throw (ParsingLineException("Path not found", line));
 	path = file.substr(i, file.find_first_of(SEP_WSPACE_ARG, i) - i);
 	i = file.find_first_of(SEP_WSPACE_ARG, i);
 	skipWSpace(file, i, line);
 	if (file[i] != '{')
-		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	i++;
 	while (i < file.size() && file[i] != '}')
 	{
@@ -41,7 +43,12 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 		else if (!file.compare(i, 9, "autoindex"))
 		{
 			i += 9;
-			parseRouteAutoIndex(file, i, line, auto_index);
+			parseRouteAutoIndex(file, i, line, autoIndex);
+		}
+		else if (!file.compare(i, 20, "client_max_body_size"))
+		{
+			i += 20;
+			parseMaxClientBodySize(file, i, line, maxClientBodySize);
 		}
 		else if (!file.compare(i, 5, "index"))
 		{
@@ -68,23 +75,23 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 			i += 10;
 			parseAddHeader(file, i, line, addHeader);
 		}
+		else if (!file.compare(i, 15, "cgi_interpreter"))
+		{
+			i += 15;
+			parseRouteCgiInterpreter(file, i, line, cgiInterpreter);
+		}
 		else if (file[i] == '#')
 			skipLine(file, i, line);
 		else if (file[i] != '}')
-			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+			throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 		else if (i == std::string::npos)
-			throw (CustomLineException("Unexpected error", line));
+			throw (ParsingLineException("Unexpected error", line));
 		skipWSpace(file, i, line);
 	}
 	if (file[i] != '}')
-		throw (CustomLineException("Unclosed brace", line));
+		throw (ParsingLineException("Unclosed brace", line));
 	i++;
-	if (acceptedMethods.empty())
-	{
-		acceptedMethods.push_back(GET);
-		acceptedMethods.push_back(POST);
-	}
-	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, index, auto_index, root, cgiFileExtension, addHeader)));
+	routes.insert(std::make_pair(path, Route(acceptedMethods, redirection, maxClientBodySize, index, autoIndex, root, addHeader, cgiFileExtension, cgiInterpreter)));
 }
 
 void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_index)
@@ -101,10 +108,10 @@ void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_
 		i += 3;
 	}
 	else
-		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -118,7 +125,7 @@ void	parseRouteIndex(std::string &file, size_t &i, size_t &line, std::vector<std
 		skipWSpace(file, i, line);
 	}
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -148,10 +155,10 @@ void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::v
 			acceptedMethods.push_back(DELETE);
 		}
 		else if (file[i] != ';')
-			throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+			throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	}
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection)
@@ -162,16 +169,29 @@ void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirect
 	redirection.url = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
 	i = file.find_first_of(SEP_WSPACE, i);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
 void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention)
 {
 	skipWSpace(file, i, line);
-	cgiFileExtention = file.substr(i, file.find_first_of(WSPACE, i) - i);
+	cgiFileExtention.append(".");
+	cgiFileExtention.append(file, i, file.find_first_of(SEP_WSPACE, i) - i);
+	i += cgiFileExtention.size() - 1;
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
+	i++;
+}
+
+void	parseRouteCgiInterpreter(std::string &file, size_t &i, size_t &line, std::string &cgiInterpreter)
+{
+	skipWSpace(file, i, line);
+	cgiInterpreter = file.substr(i, file.find_first_of(SEP_WSPACE, i) - i);
+	i += cgiInterpreter.size();
+	skipWSpace(file, i, line);
+	if (file[i] != ';')
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }

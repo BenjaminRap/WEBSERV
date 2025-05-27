@@ -63,7 +63,7 @@ const Configuration &conf,
 			continue ;
 		try
 		{
-			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations));
+			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations, host));
 			if (ePollHandler.addFdToList(serverSocketData) == -1)
 			{
 				delete &serverSocketData;

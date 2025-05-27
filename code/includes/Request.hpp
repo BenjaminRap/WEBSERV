@@ -100,11 +100,7 @@ public:
 	 * @return the http status corresponding to the error (HTTP_BAD_REQUEST ...),
 	 * or HTTP_OK if there is no errors.
 	 */
-	int					setBodyFromHeaders
-	(
-		SharedResource<AFdData*> fdData,
-		const ServerConfiguration& serverConfiguration
-	);
+	int					setBodyFromHeaders(size_t maxClientBodySize);
 
 	ABody*				getBody() const;
 	Headers&			getHeaders();
@@ -112,6 +108,7 @@ public:
 	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;
+	void				setFdData(const SharedResource<AFdData*>* fdData);
 };
 
 std::ostream & operator<<(std::ostream & o, Request const & rhs);

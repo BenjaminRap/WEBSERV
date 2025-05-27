@@ -1,15 +1,19 @@
 import { compareGoodRequests } from "./compareRequests.mjs"
 import { verifyServersAreRunning, exec, printHeader, COLOR_GREEN, COLOR_RED, COLOR_RESET } from "./utils.mjs"
 
-const	printOK = false;
+let	failedTests = [];
 
 async function	runGoodGetTest(target)
 {
-	const	result = await compareGoodRequests(target, "GET", null, {}, printOK);
+	const	result = await compareGoodRequests(target, "GET", null, {});
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else
+	{
 		console.log(COLOR_RED + "[KO] " + COLOR_RESET);
+		failedTests.push(target);
+	}
+	return (result);
 }
 
 async function runTests()
@@ -55,6 +59,37 @@ async function runTests()
 	printHeader("Fix Url Errors");
 	await runGoodGetTest("/get//main.html");
 	await runGoodGetTest("/get/endWith./index.html");
+
+
+	printHeader("Same but with query string");
+	await runGoodGetTest("/get/main.html?truc=var");
+	await runGoodGetTest("/get/fake/main.cpp?truc=var");
+	await runGoodGetTest("/get/fake/../main.html?truc=var");
+	await runGoodGetTest("/get/fake/../../../../../../../../main.html?truc=var");
+	await runGoodGetTest("/get/../main.html?truc=var");
+	await runGoodGetTest("/get/srcs/?truc=var");
+	await runGoodGetTest("/get/srcs?truc=var");
+	await runGoodGetTest("/get/fake/?truc=var");
+	await runGoodGetTest("/get/nonono/?truc=var");
+	await runGoodGetTest("/get/405/?truc=var");
+	await runGoodGetTest("/unitTest/uplo/?truc=var");
+	await runGoodGetTest("/gknrk?truc=var");
+	await runGoodGetTest("/get/auto2/?truc=var");
+	await runGoodGetTest("/get/truc.txt/?truc=var");
+	await runGoodGetTest("/get/indexIsFolder/?truc=var");
+	await runGoodGetTest("/get/indexIsSymlink/?truc=var");
+	await runGoodGetTest("/get/indexIsFolderAndFile/?truc=var");
+	await runGoodGetTest("/get/indexIsSymlinkAndFile/?truc=var");
+	await runGoodGetTest("/get//main.html?truc=var");
+	await runGoodGetTest("/get/endWith./index.html?truc=var");
+
+	if (failedTests.length == 0)
+		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
+	else
+	{
+		printHeader("Everything Done : " + COLOR_RED + "[KO] " + COLOR_RESET);
+		console.table(failedTests);
+	}
 }
 
 async function	run()

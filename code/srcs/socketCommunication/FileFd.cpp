@@ -1,25 +1,24 @@
-#include <fcntl.h>      // for open, O_CREAT, O_EXCL, O_RDONLY, O_WRONLY
+#include <fcntl.h>      // for open, O_CREAT, O_EXCL, O_WRONLY
 #include <stdint.h>     // for uint32_t
 #include <sys/types.h>  // for ssize_t, mode_t
 #include <cstdio>       // for tmpnam, NULL, L_tmpnam, size_t
-#include <new>          // for nothrow
-#include <string>       // for string, basic_string
+#include <string>       // for basic_string, string
 
 #include "AFdData.hpp"  // for AFdData, AFdDataChilds
 #include "FileFd.hpp"   // for FileFd
 
-static int	openFile(const std::string& path, int flags, mode_t mode)
+static int	openFile(const char* path, int flags, mode_t mode)
 {
-	int	fd = open(path.c_str(), flags, mode);
+	int	fd = open(path, flags, mode);
 
 	if (fd == -1)
 		throw FileFd::FileOpeningError();
 	return (fd);
 }
 
-static int	openFile(const std::string& path, int flags)
+static int	openFile(const char* path, int flags)
 {
-	int	fd = open(path.c_str(), flags);
+	int	fd = open(path, flags);
 
 	if (fd == -1)
 		throw FileFd::FileOpeningError();
@@ -28,7 +27,7 @@ static int	openFile(const std::string& path, int flags)
 
 ssize_t		getFileSize(const std::string &filePath);
 
-FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
+FileFd::FileFd(const char* path, int flags, mode_t mode) :
 	AFdData(openFile(path, flags, mode), FILE_FD),
 	_fileSize(0)
 {
@@ -41,7 +40,7 @@ FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
 	_fileSize = fileSize;
 }
 
-FileFd::FileFd(const std::string& path, int flags) :
+FileFd::FileFd(const char* path, int flags) :
 	AFdData(openFile(path, flags), FILE_FD),
 	_fileSize(0)
 {
@@ -69,14 +68,16 @@ size_t	FileFd::getSize(void) const
 }
 
 
-FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam], int rights)
+FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam])
 {
-	if (rights != O_RDONLY || rights != O_WRONLY)
+	if (!std::tmpnam(name))
 		return (NULL);
-	if (*name == '\0')
+	try
 	{
-		if (!std::tmpnam(name))
-			return (NULL);
+		return (new FileFd(name, O_WRONLY | O_CREAT | O_EXCL, 0600));
 	}
-	return (new (std::nothrow) FileFd(name, rights));
+	catch (FileFd::FileOpeningError& e)
+	{
+		return (NULL);
+	}
 }

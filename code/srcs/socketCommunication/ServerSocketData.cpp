@@ -13,7 +13,8 @@
 #include "ServerSocketData.hpp"     // for ServerSocketData, SERVER_EVENTS
 #include "socketCommunication.hpp"  // for closeFdAndPrintError, checkError
 
-class ServerConfiguration;  // lines 17-17
+class Host;
+class ServerConfiguration;  // lines 16-16
 
 //***********************Cosntructors / Destructors****************************/
 
@@ -21,9 +22,11 @@ ServerSocketData::ServerSocketData
 (
 	int fd ,
 	EPollHandler &ePollHandler,
-	const std::vector<ServerConfiguration> &serverConfiguration
+	const std::vector<ServerConfiguration> &serverConfiguration,
+	const Host& host
 ) :
-	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA, SERVER_EVENTS)
+	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA, SERVER_EVENTS),
+	_host(host)
 {
 
 }
@@ -38,7 +41,7 @@ ServerSocketData::~ServerSocketData(void)
 
 void	ServerSocketData::acceptConnection(uint32_t events)
 {
-	sockaddr_in		addr;
+	sockaddr_in_u	addr;
 	socklen_t		addrLength;
 
 	if (!(events & EPOLLIN))
@@ -50,11 +53,11 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		return ;
 	try
 	{
-		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations));
-		if (_ePollHandler->addFdToList(connectedSocketData) == -1)
+		ConnectedSocketData* connectedSocketData = new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations, _host, addr);
+		if (_ePollHandler->addFdToList(*connectedSocketData) == -1)
 		{
 			std::cerr << "Can't accept new connection" << std::endl;
-			delete &connectedSocketData;
+			delete connectedSocketData;
 			closeFdAndPrintError(newFd);
 		}
 		else

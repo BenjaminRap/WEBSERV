@@ -1,26 +1,25 @@
-#include <fcntl.h>                // for O_RDONLY
 #include <stdint.h>               // for uint32_t
 #include <sys/epoll.h>            // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOLLR...
-#include <cstdio>                 // for NULL, remove, size_t
-#include <map>                    // for map
-#include <string>                 // for basic_string, string
+#include <sys/types.h>            // for pid_t
+#include <cstdio>                 // for remove, NULL
 
 #include "AFdData.hpp"            // for AFdData, AFdDataChilds
 #include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
-#include "FileFd.hpp"             // for FileFd
-#include "Headers.hpp"            // for Headers
-#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_SER...
+#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
-class EPollHandler;
-class FlowBuffer;
-class ServerConfiguration;
+class EPollHandler;  // lines 15-15
+class FlowBuffer;  // lines 16-16
+class ServerConfiguration;  // lines 17-17
+
+int	getCGIStatus(pid_t pid);
 
 CgiOut::CgiOut
 (
 	int fd,
 	EPollHandler& ePollHandler,
 	FlowBuffer&	responseFlowBuffer,
-	const ServerConfiguration& serverConfiguration
+	const ServerConfiguration& serverConfiguration,
+	pid_t pid
 ) :
 	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
 	_flowBuf(responseFlowBuffer),
@@ -31,19 +30,21 @@ CgiOut::CgiOut
 	_state(READ_HEADER),
 	_code(0),
 	_error(false),
-	_serverConf(serverConfiguration)
+	_serverConf(serverConfiguration),
+	_canWrite(false),
+	_cgiReadFinished(false),
+	_pid(pid)
 {
 	_tempName[0] = '\0';
 }
 
 CgiOut::~CgiOut()
 {
+	if (_tempName[0] != '\0')
+		std::remove(_tempName);
 	if (_srcFile != NULL)
-	{
-		if (_tempName[0] != '\0')
-			std::remove(_tempName);
 		delete _srcFile;
-	}
+	getCGIStatus(_pid);
 }
 
 void	CgiOut::setFinished(void)
@@ -52,40 +53,37 @@ void	CgiOut::setFinished(void)
 	_state = DONE;
 }
 
-std::string	sizeTToString(size_t value);
-
-void	CgiOut::handleClosingCgi()
+void	CgiOut::handleCgiError(uint32_t& events)
 {
+	events = 0;
 	if (_state == READ_HEADER)
 	{
 		_code = HTTP_BAD_GATEWAY;
 		_error = true;
 		generateFirstPart();
 	}
-	else if (_state == CGI_TO_TEMP)
-	{
-		delete _srcFile;
-		_srcFile = FileFd::getTemporaryFile(_tempName, O_RDONLY);
-		if (_srcFile == NULL)
-		{
-			_code = HTTP_INTERNAL_SERVER_ERROR;
-			_error = true;
-		}
-		else
-			_headers["content-length"] = sizeTToString(_srcFile->getSize());
-		generateFirstPart();
-	}
 	else
 		setFinished();
 }
 
+bool	CgiOut::isResponseReady(void) const
+{
+	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+		return (false);
+	return (true);
+}
+
 void	CgiOut::callback(uint32_t events)
 {
-	if (!_isActive || _state == DONE)
+	if (!_canWrite && !events)
+		_canWrite = true;
+	if (!_isActive || !_canWrite)
 		return ;
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-		handleClosingCgi();
-	if (events & EPOLLIN)
+	if (events & (EPOLLHUP | EPOLLRDHUP))
+		_cgiReadFinished = true;
+	if (events & EPOLLERR)
+		handleCgiError(events);
+	if (events & EPOLLIN || _cgiReadFinished)
 		readFromCgi();
 	if (_state == READ_HEADER)
 		readHeaders();

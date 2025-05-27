@@ -1,4 +1,5 @@
 #include "EPollHandler.hpp"         // for EPollHandler
+#include "exception.hpp"
 #include "socketCommunication.hpp"  // for createAllServerSockets, getSignal...
 class Configuration;
 
@@ -14,15 +15,17 @@ void	handleIOEvents(const Configuration &conf)
 	EPollHandler			ePollHandler(conf);
 
 	createAllServerSockets(conf, ePollHandler);
-	while (getSignalStatus() == NO_SIGNAL)
+	try
 	{
-		const int	nfds = ePollHandler.epollWaitForEvent(); 
-
-		if (nfds == -1)
-			break ;
-		for (int i = 0; i < nfds; i++)
+		while (getSignalStatus() == NO_SIGNAL)
 		{
-			ePollHandler.callSocketCallback(i);
+			if (!ePollHandler.callSocketsCallback())
+				break ;
 		}
+	}
+	catch (const ExecveException& e)
+	{
+		ePollHandler.clearUnixSocketsList();
+		throw;
 	}
 }

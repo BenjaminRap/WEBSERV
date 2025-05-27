@@ -58,6 +58,9 @@ private:
 	uint16_t					_code;
 	bool						_error;
 	const ServerConfiguration&	_serverConf;
+	bool						_canWrite;
+	bool						_cgiReadFinished;
+	pid_t						_pid;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
@@ -102,11 +105,11 @@ private:
 	 */
 	void		setErrorPage(const Status** currentStatus);
 	/**
-	 * @brief This method shhould be called when we can't read
-	 * from the cgi anymore. Depending on the state of this
+	 * @brief This method should be called when we can't read
+	 * from the cgi anymore because of an error. Depending on the state of this
 	 * instance, the behaviour changes.
 	 */
-	void		handleClosingCgi(void);
+	void		handleCgiError(uint32_t& events);
 	/**
 	 * @brief Read from the cgi and write it into the _flowBuf.
 	 * This method should only be called if a EPOLLIN  events has
@@ -142,11 +145,13 @@ public:
 		int fd,
 		EPollHandler& ePollHandler,
 		FlowBuffer& responseFlowBuffer,
-		const ServerConfiguration& serverConfiguration
+		const ServerConfiguration& serverConfiguration,
+		pid_t pid
 	);
 	~CgiOut();
 
-	void	callback(uint32_t events);
+	void		callback(uint32_t events);
+	bool		isResponseReady(void) const;
 };
 
 #endif // !CGI_OUT_HPP

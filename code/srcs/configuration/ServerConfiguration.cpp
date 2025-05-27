@@ -13,30 +13,40 @@ ServerConfiguration::ServerConfiguration
 (
 	const std::vector<std::string> &serverNames,
 	const std::map<unsigned short, std::string> &errorPages,
-	const size_t &maxClientBodySize,
+	size_t maxClientBodySize,
+	const std::vector<EMethods> &acceptedMethods,
 	const std::map<std::string, Route> &routes,
 	const std::string &root,
 	const std::vector<std::string> &index,
-	const std::map< std::string, std::pair<std::string, bool> > &addHeader
+	const std::map< std::string, std::pair<std::string, bool> > &addHeader,
+	const std::string &cgiFileExtension,
+	const std::string &cgiInterpreter
 ) :
-	serverNames(serverNames),
-	errorPages(errorPages),
-	maxClientBodySize(maxClientBodySize),
-	routes(routes),
-	root(root),
-	index(index),
-	addHeader(addHeader)
+	_serverNames(serverNames),
+	_errorPages(errorPages),
+	_maxClientBodySize(maxClientBodySize),
+	_acceptedMethods(acceptedMethods),
+	_routes(routes),
+	_root(root),
+	_index(index),
+	_addHeader(addHeader),
+	_cgiFileExtension(cgiFileExtension),
+	_cgiInterpreter(cgiInterpreter)
 {
 }
 
-ServerConfiguration::ServerConfiguration(ServerConfiguration const &src)
+ServerConfiguration::ServerConfiguration(ServerConfiguration const &src) :
+	_serverNames(src._serverNames),
+	_errorPages(src._errorPages),
+	_maxClientBodySize(src._maxClientBodySize),
+	_acceptedMethods(src._acceptedMethods),
+	_routes(src._routes),
+	_root(src._root),
+	_index(src._index),
+	_addHeader(src._addHeader),
+	_cgiFileExtension(src._cgiFileExtension),
+	_cgiInterpreter(src._cgiInterpreter)
 {
-	this->serverNames = src.serverNames;
-	this->errorPages = src.errorPages;
-	this->maxClientBodySize = src.maxClientBodySize;
-	this->routes = src.routes;
-	this->root = src.root;
-	this->index = src.index;
 }
 
 ServerConfiguration::~ServerConfiguration(void)
@@ -46,70 +56,85 @@ ServerConfiguration::~ServerConfiguration(void)
 
 const std::string	&ServerConfiguration::getRoot(void) const
 {
-	return (this->root);
+	return (this->_root);
 }
 
 const std::vector<std::string>	&ServerConfiguration::getServerNames(void) const
 {
-	return (this->serverNames);
+	return (this->_serverNames);
 }
 
 const std::string	*ServerConfiguration::getErrorPage(uint16_t errorCode) const
 {
-	std::map<uint16_t, std::string>::const_iterator it = this->errorPages.find(errorCode);
+	std::map<uint16_t, std::string>::const_iterator it = this->_errorPages.find(errorCode);
 
-	if (it == this->errorPages.end())
+	if (it == this->_errorPages.end())
 		return (NULL);
     return (&it->second);
 }
 
 const std::map<uint16_t, std::string>	&ServerConfiguration::getErrorPages(void) const
 {
-	return (this->errorPages);
+	return (this->_errorPages);
 }
 
 const size_t					&ServerConfiguration::getMaxClientBodySize(void) const
 {
-	return (this->maxClientBodySize);
+	return (this->_maxClientBodySize);
+}
+
+const std::vector<EMethods>		&ServerConfiguration::getAcceptedMethods(void) const
+{
+	return (_acceptedMethods);
 }
 
 const std::map<std::string, Route>	&ServerConfiguration::getRoutes(void) const
 {
-	return (this->routes);
+	return (this->_routes);
 }
 
-const Route	*ServerConfiguration::getRouteFromPath(const std::string &path) const
+const std::pair<const std::string, Route>*	getRouteFromPath(const std::string &path, const std::map<std::string, Route>& routes)
 {
-	std::map<std::string, Route>::const_iterator temp = routes.end();
+	std::map<std::string, Route>::const_iterator bestMatch = routes.end();
 
 	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		if (path.find(it->first) == 0 && (temp == routes.end() || temp->first.size() < it->first.size()))
-			temp = it;
+		if (path.rfind(it->first, 0) == 0
+			&& (bestMatch == routes.end() || bestMatch->first.size() < it->first.size()))
+		{
+			bestMatch = it;
+		}
 	}
-	if (temp != routes.end())
-		return (&temp->second);
+	if (bestMatch != routes.end())
+	{
+		return (&(*bestMatch));
+	}
 	return (NULL);
 }
 
-const std::string	ServerConfiguration::getLocation(const std::string &path) const
+const std::pair<const std::string, Route>*	ServerConfiguration::getRouteFromPath(const std::string &path) const
 {
-	for (std::map<std::string, Route>::const_iterator it = routes.begin(); it != routes.end(); ++it)
-	{
-		if (path.find(it->first) == 0)
-			return (it->first);
-	}
-	return ("");
+	return (::getRouteFromPath(path, _routes));
 }
 
 const std::vector<std::string>	&ServerConfiguration::getIndex(void) const
 {
-	return (this->index);
+	return (this->_index);
+}
+
+const std::string				&ServerConfiguration::getCgiFileExtension(void) const
+{
+	return (_cgiFileExtension);
+}
+
+const std::string&				ServerConfiguration::getCgiInterpreter(void) const
+{
+	return (_cgiInterpreter);
 }
 
 const std::map< std::string, std::pair<std::string, bool> >&	ServerConfiguration::getAddHeader(void) const
 {
-	return (this->addHeader);
+	return (this->_addHeader);
 }
 
 std::ostream & operator<<(std::ostream & o, ServerConfiguration const & rhs)

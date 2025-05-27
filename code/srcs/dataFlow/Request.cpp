@@ -3,6 +3,7 @@
 #include <iostream>                 // for operator<<, basic_ostream, ostream
 #include <string>                   // for char_traits, basic_string, operat...
 
+#include "ABody.hpp"                // for ABody
 #include "AFdData.hpp"              // for AFdData
 #include "ChunkedBody.hpp"          // for ChunkedBody
 #include "EMethods.hpp"             // for EMethods, getStringRepresentation
@@ -13,8 +14,6 @@
 #include "SizedBody.hpp"            // for SizedBody
 #include "protocol.hpp"             // for PROTOCOL
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
-
-class ABody;  // lines 16-16
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
@@ -45,19 +44,10 @@ void	Request::reset()
 	_body.stopManagingResource();
 }
 
-int	Request::setBodyFromHeaders
-(
-	SharedResource<AFdData*> fdData,
-	const ServerConfiguration& serverConfiguration
-)
+int	Request::setBodyFromHeaders(size_t maxClientBodySize)
 {
-	_fdData = fdData;
-	const std::string * const	contentLengthString = _headers.getHeader("content-length");
-	const std::string * const	transferEncoding = _headers.getHeader("transfer-encoding");
-	const size_t				maxSize = serverConfiguration.getMaxClientBodySize();
-	const int 					fd = fdData.isManagingValue() ? fdData.getValue()->getFd() : -1;
-
-	ABody*						body = NULL;
+	const std::string * const	contentLengthString = _headers.getUniqueHeader("content-length");
+	const std::string * const	transferEncoding = _headers.getUniqueHeader("transfer-encoding");
 
 	if (contentLengthString != NULL && transferEncoding != NULL)
 		return (HTTP_BAD_REQUEST);
@@ -66,16 +56,15 @@ int	Request::setBodyFromHeaders
 		const unsigned long	contentLength = stringToULongBase(*contentLengthString, std::isdigit, 10);
 		if (contentLength == (unsigned long)-1)
 			return (HTTP_BAD_REQUEST);
-		if ((size_t)contentLength > maxSize)
+		if ((size_t)contentLength > maxClientBodySize)
 			return (HTTP_CONTENT_TOO_LARGE);
-		body = new SizedBody(fd, contentLength);
+		_body.setManagedResource(new SizedBody(contentLength), freePointer);
 	}
 	else if (transferEncoding != NULL && *transferEncoding == "chunked")
-		body = new ChunkedBody(fd, maxSize);
+		_body.setManagedResource(new ChunkedBody(maxClientBodySize), freePointer);
 	else if (_statusLine.method == PUT || _statusLine.method == POST)
 		return (HTTP_LENGTH_REQUIRED);
-	_body.setManagedResource(body, freePointer);
-	return (HTTP_OK);
+	return (0);
 }
 
 /**********************************Getters*******************************************************/
@@ -113,6 +102,26 @@ Headers&	Request::getHeaders()
 const Headers&	Request::getHeaders() const
 {
 	return (_headers);
+}
+
+void	Request::setFdData(const SharedResource<AFdData*>* fdData)
+{
+	if (!_body.isManagingValue())
+		return ;
+	ABody*	body = _body.getValue();
+	if (fdData == NULL)
+	{
+		_fdData.stopManagingResource();
+		body->setFd(-1);
+		return ;
+	}
+	if (!fdData->isManagingValue())
+		return ;
+	_fdData = *fdData;
+
+	const int fd =  _fdData.getValue()->getFd();
+
+	body->setFd(fd);
 }
 
 /******************************Operator Overload*****************************************/

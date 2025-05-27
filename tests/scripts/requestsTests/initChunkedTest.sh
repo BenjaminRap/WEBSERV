@@ -1,6 +1,2 @@
-mkdir put
-chmod 777 put/
-
-##-----------------------------------------------------------------------------------------------------##
-	mkdir chunked/
-	chmod 777 chunked/
+mkdir chunked/
+chmod 777 chunked/

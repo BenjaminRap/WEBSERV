@@ -4,7 +4,6 @@
 #include <string>                   // for basic_string, string, operator==
 #include <vector>                   // for vector
 
-#include "ARequestType.hpp"         // for ARequestType
 #include "DeleteRequest.hpp"        // for DeleteRequest
 #include "EMethods.hpp"             // for EMethods
 #include "GetRequest.hpp"           // for GetRequest
@@ -14,10 +13,11 @@
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource
+#include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_OK
+#include "PostRequest.hpp"
 
-class EPollHandler;
+class RequestContext;
 
 const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::string& host) const
 {
@@ -35,59 +35,51 @@ const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::str
 	return (_serverConfs[0]);
 }
 
-void	RequestHandler::processRequestResult
-(
-	ARequestType &requestResult,
-	Response &response
-)
-{
-	{
-		const int status = _request.setBodyFromHeaders(requestResult.getInFd(), requestResult.getConfig());
-		if (status != HTTP_OK)
-		{
-			response.setResponse(status);
-			_state = REQUEST_DONE;
-			return ;
-		}
-	}
-
-	response.setResponse(requestResult);
-	_state = REQUEST_BODY;
-}
-
-
-void	RequestHandler::executeRequest(Response &response, EPollHandler& ePollHandler)
+void	RequestHandler::executeRequest(Response &response, RequestContext& requestContext)
 {
 	if (_state != REQUEST_EMPTY_LINE)
 		return ;
 
-	const std::string* host = _request.getHeaders().getHeader("host");
+	const std::string* host = _request.getHeaders().getUniqueHeader("host");
 	if (host == NULL)
 	{
 		response.setResponse(HTTP_BAD_REQUEST);
 		_state = REQUEST_DONE;
 		return ;
 	}
-	const ServerConfiguration	&serverConfiguration = getServerConfiguration(*host);
-	std::cout << _request << '\n';
+	const ServerConfiguration	&serverConf = getServerConfiguration(*host);
 	switch (_request.getMethod())
 	{
 		case GET: {
-			GetRequest	getRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
-			processRequestResult(getRequest, response);
+			GetRequest	getRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(getRequest);
+			_request.setFdData(&getRequest.getInFd());
 			break;
 		}
 		case PUT: {
-			PutRequest	putRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
-			processRequestResult(putRequest, response);
+			PutRequest	putRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(putRequest);
+			_request.setFdData(&putRequest.getInFd());
 			break;
 		}
 		case DELETE: {
-			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConfiguration, ePollHandler, *host);
-			processRequestResult(deleteRequest, response);
+			DeleteRequest	deleteRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(deleteRequest);
+			_request.setFdData(&deleteRequest.getInFd());
+			break;
+		}
+		case POST: {
+			PostRequest	postRequest(_request.getRequestTarget(), serverConf, *host, requestContext);
+			response.setResponse(postRequest);
+			_request.setFdData(&postRequest.getInFd());
 			break;
 		}
 		default:
 			throw std::logic_error("executeRequest called with a request method invalid !");
 	}
+	const Status * const	status = response.getStatus();
+	if (status && status->isOfType(STATUS_ERROR))
+		_state = REQUEST_DONE;
+	else
+		_state = REQUEST_BODY;
 }

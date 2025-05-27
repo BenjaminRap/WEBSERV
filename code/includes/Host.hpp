@@ -5,6 +5,13 @@
 # include <sys/un.h>
 # include <string>
 
+union sockaddr_in_u
+{
+	sockaddr_in		ipv4;
+	sockaddr_in6	ipv6;
+	sockaddr_un		unixAddr;
+};
+
 /**
  * @brief This class represents the host : addresse, port and family. It will be
  * used to create server sockets.
@@ -19,17 +26,12 @@ private:
 	 * Depending on the value of family, the _addr union is cast as a sockarddr_in (IPV4),
 	 * sockaddr_in6 (IPV6) or sockaddr_un (unix socket).
 	 */
-	sa_family_t		_family;
+	sa_family_t			_family;
 	/**
 	 * @brief An union between all the structure needed by the bind() function,
 	 * depending on their family.
 	 */
-	union sockaddr_in_u
-	{
-		sockaddr_in		ipv4;
-		sockaddr_in6	ipv6;
-		sockaddr_un		unixAddr;
-	}				_addr;
+	union sockaddr_in_u	_addr;
 	
 	Host(void);
 	Host&	operator=(const Host& ref);
@@ -43,8 +45,11 @@ public:
 
 	bool		operator<(const Host &host) const;
 
-	socklen_t	getAddrInfo(const sockaddr ** outAddr) const;
-	sa_family_t	getFamily(void) const;
+	socklen_t		getAddrInfo(const sockaddr ** outAddr) const;
+	sa_family_t		getFamily(void) const;
+	sockaddr_in		getipv4Addr(void) const;
+	sockaddr_in6	getipv6Addr(void) const;
+	sockaddr_un		getunixAddr(void) const;
 };
 
 #endif // !HOST_HPP

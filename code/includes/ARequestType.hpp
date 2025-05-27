@@ -4,6 +4,7 @@
 # include <sys/types.h>				// for size_t
 # include <stdint.h>				// for uint16_t
 
+# include "RequestContext.hpp"		// for RequestContext
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
 # include "SharedResource.hpp"		// for SharedResource
 
@@ -27,52 +28,61 @@ class ARequestType
 		ARequestType& operator=(const ARequestType& src);
 
 	protected :
-		EMethods					_method;
 		const ServerConfiguration&	_config;
-		EPollHandler&				_ePollHandler;
 		const Route*				_route;
-		std::string					_url;
+		std::string					_path;
 		std::string					_domain;
 
 		int							_code;
 		std::string					_redirection;
 		std::string					_autoIndexPage;
-		std::string					_backupUrl;
+		std::string					_url;
+		std::string					_queryString;
+		std::string					_pathInfo;
 		SharedResource<AFdData*>	_inFd;
 		SharedResource<AFdData*>	_outFd;
+		uint16_t					_targetType;
 
 	public :
 		explicit ARequestType
 		(
 			std::string &url,
 			const ServerConfiguration& config,
-			EPollHandler& ePollHandler,
 			EMethods method,
-			const std::string& domain
+			const std::string& domain,
+			RequestContext& requestContext
 		);
 		virtual ~ARequestType() = 0;
 
-		void									setRedirectionResponse(uint16_t code, const std::string &redirection, bool isReelRedirect);
+		void									setResponseWithLocation(uint16_t code, const std::string &redirection, bool isReelRedirect);
 		void									setResponse(uint16_t code);
-		void									setUrl(const std::string &src);
+		void									setPath(const std::string &src);
 		void									setRoute(const Route *root);
-		void									setMethod(EMethods method);
-		void									setBackupUrl(const std::string &url);
+		void									setUrl(const std::string &url);
 
 		const std::string&						getAutoIndexPage(void) const;
 		bool									getAutoIndex(void) const;
 		const std::vector<std::string>&			getIndexs(void) const;
+		const std::vector<EMethods>&			getAcceptedMethods(void) const;
+		const std::string&						getCgiFileExtension(void) const;
+		const std::string&						getCgiInterpreter(void) const;
+		const std::string&						getRoot(void) const;
+		size_t									getMaxClientBodySize(void) const;
 		const std::map<uint16_t, std::string>&	getErrorPages(void) const;
-		std::string&							getUrl(void);
+		std::string&							getPath(void);
 		const std::string&						getRedirection(void) const;
 		const Route*							getRoute(void) const;
 		int										getCode(void) const;
-		EMethods								getMethod(void) const;
-		SharedResource<AFdData*>				getInFd(void) const;
-		SharedResource<AFdData*>				getOutFd(void) const;
+		const SharedResource<AFdData*>&			getInFd(void) const;
+		const SharedResource<AFdData*>&			getOutFd(void) const;
 		const ServerConfiguration&				getConfig(void) const;
-		std::string&							getBackupUrl(void);
-		int										execCGI(const char *path, char **argv, char **env, int fd[2]);
+		const std::string&						getUrl(void) const;
+		const std::string&						getPath(void) const;
+		const std::string&						getQueryString(void) const;
+		const std::string&						getPathInfo(void) const;
+		std::string&							getUrl(void);
+		uint16_t								setCgiAFdData(RequestContext& requestContext);
+		bool									setPathInfo(const std::string& extension, std::string path);
 };
 
 #endif //!A_REQUEST_HPP

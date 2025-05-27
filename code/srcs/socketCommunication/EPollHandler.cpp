@@ -1,8 +1,10 @@
+#include <fcntl.h>                  // for FD_CLOEXEC
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for epoll_event, epoll_ctl, epoll_create
 #include <sys/socket.h>             // for AF_UNIX, bind, sockaddr, socklen_t
+#include <sys/types.h>              // for ssize_t
 #include <sys/un.h>                 // for sa_family_t
-#include <cstdio>                   // for size_t, NULL
+#include <cstdio>                   // for NULL, size_t
 #include <exception>                // for exception
 #include <iostream>                 // for basic_ostream, operator<<, cerr
 #include <list>                     // for list, operator!=, _List_const_ite...
@@ -47,7 +49,8 @@ EPollHandler::EPollHandler(const Configuration &conf) :
 		throw std::logic_error("Error : trying to instantiate a EPollHandler multiple times");
 	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = epoll_create(1);
-	if (checkError(_epfd, -1, "epoll_create() :"))
+	if (!addFlagsToFd(_epfd, 0, FD_CLOEXEC)
+		&& checkError(_epfd, -1, "epoll_create() :"))
 	{
 		delete [] _events;
 		throw std::exception();
@@ -70,10 +73,12 @@ EPollHandler::~EPollHandler()
 	}
 }
 
-void	EPollHandler::closeFdAndRemoveFromEpoll(int fd)
+void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
 {
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	closeFdAndPrintError(fd);
+	if (eventIndex != -1)
+		_events[eventIndex].data.ptr = NULL;
 }
 
 int	EPollHandler::epollWaitForEvent()
@@ -87,16 +92,32 @@ int	EPollHandler::epollWaitForEvent()
 	return (nfds);
 }
 
-void	EPollHandler::callSocketCallback(size_t eventIndex) const
+bool	EPollHandler::callSocketsCallback(void)
 {
-	if (eventIndex >= _eventsCount)
-	{
-		std::cerr << "EPollHandler callSocketCallback method was called with a wrong index" << std::endl;
-		return ;
-	}
-	AFdData	*fdData = static_cast<AFdData *>(_events[eventIndex].data.ptr);
+	const ssize_t	nfds = epollWaitForEvent();
 
-	fdData->callback(_events[eventIndex].events);
+	if (nfds == -1)
+		return (false);
+
+	for (ssize_t i = 0; i < nfds; i++)
+	{
+		static_cast<AFdData *>(_events[i].data.ptr)->setEventIndex(i);
+	}
+	for (ssize_t i = 0; i < nfds; i++)
+	{
+		const epoll_event&	fdEvent = _events[i];
+		if (fdEvent.data.ptr == NULL)
+			continue ;
+		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
+	}
+	for (ssize_t i = 0; i < nfds; i++)
+	{
+		const epoll_event&	fdEvent = _events[i];
+		if (fdEvent.data.ptr == NULL)
+			continue ;
+		static_cast<AFdData *>(fdEvent.data.ptr)->setEventIndex(-1);
+	}
+	return (true);
 }
 
 int	EPollHandler::bindFdToHost(int fd, const Host& host)
@@ -159,4 +180,9 @@ void	EPollHandler::removeFdDataFromList(std::list<ASocketData*>::iterator pos)
 
 	_socketsData.erase(pos);
 	delete socket;
+}
+
+void	EPollHandler::clearUnixSocketsList(void)
+{
+	_unixSocketsToRemove.clear();
 }

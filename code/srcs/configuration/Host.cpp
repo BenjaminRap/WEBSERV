@@ -118,3 +118,24 @@ sa_family_t	Host::getFamily(void) const
 {
 	return (_family);
 }
+
+sockaddr_in Host::getipv4Addr(void) const
+{
+	if (_family != AF_INET)
+		throw std::logic_error("Host::getipv4Addr called on a non IPV4 host");
+	return (_addr.ipv4);
+}
+
+sockaddr_in6 Host::getipv6Addr(void) const
+{
+	if (_family != AF_INET6)
+		throw std::logic_error("Host::getipv6Addr called on a non IPV6 host");
+	return (_addr.ipv6);
+}
+
+sockaddr_un Host::getunixAddr(void) const
+{
+	if (_family != AF_UNIX)
+		throw std::logic_error("Host::getunixAddr called on a non UNIX host");
+	return (_addr.unixAddr);
+}

@@ -17,6 +17,7 @@ bool	checkError(ReturnType value, ReturnType error, const char *errorPrefix)
 	if (value == error)
 	{
 		std::cerr << errorPrefix << strerror(errno) << std::endl;
+		errno = 0;
 		return (true);
 	}
 	return (false);

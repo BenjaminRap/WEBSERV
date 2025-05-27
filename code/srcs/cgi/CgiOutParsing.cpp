@@ -1,4 +1,3 @@
-#include <fcntl.h>                // for O_WRONLY
 #include <stdint.h>               // for uint16_t
 #include <cctype>                 // for isdigit
 #include <cstdlib>                // for NULL, strtoul, size_t
@@ -12,20 +11,21 @@
 #include "Status.hpp"             // for Status
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_OK, HTTP_FOUND
 
-class ServerConfiguration;
+class ServerConfiguration;  // lines 15-15
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
-void			setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers, bool hasBody);
+std::string&	getFirstPart(const Status& status, const Headers& headers, const char* bodyBegin, const char* bodyEnd);
 void			addDefaultHeaders(Headers& headers, const Status* status);
 FileFd*			getErrorPage(const Status** currentStatus, const ServerConfiguration& serverConfiguration);
 std::string		sizeTToString(size_t value);
 
 uint16_t	CgiOut::checkHeaders(void)
 {
-	if (_headers.getHeader("content-type") == NULL)
+	if (_headers.getUniqueHeader("content-type") == NULL)
 		return (HTTP_BAD_GATEWAY);
-	const std::string*	contentLength = _headers.getHeader("content-length");
-	const std::string*	transferEncoding = _headers.getHeader("transfer-encoding");
+	const std::string*	contentLength = _headers.getUniqueHeader("content-length");
+	const std::string*	transferEncoding = _headers.getUniqueHeader("transfer-encoding");
+
 	if (contentLength != NULL && transferEncoding != NULL)
 		return (HTTP_BAD_GATEWAY);
 	if (contentLength != NULL)
@@ -36,9 +36,12 @@ uint16_t	CgiOut::checkHeaders(void)
 	}
 	else if (transferEncoding == NULL)
 	{
-		_srcFile = FileFd::getTemporaryFile(_tempName, O_WRONLY);
+		_srcFile = FileFd::getTemporaryFile(_tempName);
 		if (_srcFile == NULL)
+		{
+			_tempName[0] = '\0';
 			return (HTTP_INTERNAL_SERVER_ERROR);
+		}
 		_state = CGI_TO_TEMP;
 	}
 	return (HTTP_OK);
@@ -46,21 +49,21 @@ uint16_t	CgiOut::checkHeaders(void)
 
 uint16_t	CgiOut::getStatusCode(void)
 {
-	const std::string*	status = _headers.getHeader("status");
+	const std::string*	status = _headers.getUniqueHeader("status");
 	if (status != NULL)
 	{
 		char	*end;
 		const unsigned long	code = std::strtoul(status->c_str(), &end, 10);
 
-		_headers.erase("status");
-		if (end != status->c_str() + 2 || code < 100 || code >= 600)
+		if (end != status->c_str() + 3 || code < 100 || code >= 600)
 		{
 			_error = true;
 			return (HTTP_BAD_GATEWAY);
 		}
+		_headers.erase("status");
 		return (code);
 	}
-	if (_headers.getHeader("Location") != NULL)
+	if (_headers.getUniqueHeader("location") != NULL)
 		return (HTTP_FOUND);
 	return (HTTP_OK);
 }
@@ -75,9 +78,9 @@ void	CgiOut::setErrorPage(const Status** currentStatus)
 
 	const size_t	size = (_srcFile)
 		? _srcFile->getSize() :
-		(*currentStatus)->getErrorPage().size();
+		(*currentStatus)->getPage().size();
 
-	_headers["content-length"] = sizeTToString(size);
+	_headers.addHeader("content-length", sizeTToString(size));
 }
 
 void	CgiOut::generateFirstPart(void)
@@ -92,10 +95,33 @@ void	CgiOut::generateFirstPart(void)
 	}
 	if (_error)
 		setErrorPage(&status);
-	const bool	hasBody = (_srcFile != NULL || _error == false);
+	char*	remainingBegin;
+	char*	remainingEnd;
+	const char*	bodyBegin;
+	const char*	bodyEnd;
 
-	setFirstPart(_firstPart, *status, "", _headers, hasBody);
+	_flowBuf.getContent(&remainingBegin, &remainingEnd);
+
+	if (_srcFile != NULL)
+	{
+		bodyBegin = NULL;
+		bodyEnd = NULL;
+	}
+	else if (_error && _srcFile == NULL)
+	{
+		const std::string&	errorPage = status->getPage();
+
+		bodyBegin = errorPage.c_str();
+		bodyEnd = bodyBegin + errorPage.size();
+	}
+	else
+	{
+		bodyBegin = remainingBegin;
+		bodyEnd = remainingEnd;
+	}
+	_firstPart = getFirstPart(*status, _headers, bodyBegin, bodyEnd);
 	_state = WRITE_FIRST_PART;
+	_canWrite = true;
 }
 
 void		CgiOut::readHeaders(void)
@@ -103,28 +129,30 @@ void		CgiOut::readHeaders(void)
 	char	*begin;
 	char	*end;
 
+	_code = HTTP_OK;
 	while (_flowBuf.getLine(&begin, &end))
 	{
 		if (end == begin + 1 && *begin == '\r')
 		{
 			_code = checkHeaders();
 			if (_code != HTTP_OK)
-			{
-				_error = true;
-				generateFirstPart();
-				return ;
-			}
+				break ;
 			_code = getStatusCode();
 			if (_state != CGI_TO_TEMP || _error)
 				generateFirstPart();
 			return ;
 		}
-		_code = _headers.parseHeader(begin, end);
-		if (_code != HTTP_OK)
+		if (_headers.parseHeader(begin, end) != HTTP_OK)
 		{
-			_error = true;
-			generateFirstPart();
-			return ;
+			_code = HTTP_BAD_GATEWAY;
+			break ;
 		}
+	}
+	if (_flowBuf.isBufferFull())
+		_code = HTTP_BAD_GATEWAY;
+	if (_code != HTTP_OK)
+	{
+		_error = true;
+		generateFirstPart();
 	}
 }

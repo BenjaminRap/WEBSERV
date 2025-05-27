@@ -6,26 +6,14 @@
 #include <list>                   // for list, _List_iterator, operator!=
 #include <new>                    // for bad_alloc
 #include <string>                 // for basic_string, allocator, string
-#include <vector>                 // for vector
 
 #include "ARequestType.hpp"       // for DIRE, LS_FILE
 #include "GetRequest.hpp"         // for GetRequest
 #include "Status.hpp"             // for Status, StatusType
 #include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
 
-void	checkType(std::string &path, GetRequest &get)
-{
-	char lastChar = path[path.length() - 1];
-
-	if (lastChar != '/')
-	{
-		path += "/";
-		get.setBackupUrl(get.getBackupUrl() + "/");
-		get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, path, false);
-	}
-	else
-		get.setUrl(path);
-}
+bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs);
+bool	checkLastSlash(ARequestType &req);
 
 uint16_t	isDirOrFile(const std::string& path)
 {
@@ -56,7 +44,9 @@ uint16_t	ls(const std::string& path, std::list<std::string> &lst)
 {
 	DIR				*dw;
 	struct dirent	*res;
+	std::string		fileName;
 
+	fileName.reserve(257);
 	dw = opendir(path.c_str());
 	if (!dw)
 	{
@@ -68,7 +58,10 @@ uint16_t	ls(const std::string& path, std::list<std::string> &lst)
 	while ((res = readdir(dw)))
 	{
 		try {
-			lst.push_back(res->d_name);
+			fileName = res->d_name;
+			if (res->d_type == DT_DIR)
+				fileName.append("/");
+			lst.push_back(fileName);
 		}
 		catch (std::bad_alloc &e)
 		{
@@ -121,52 +114,22 @@ std::string	buildPage(std::list<std::string> &files, const std::string& path)
 	return (result);
 }
 
-bool	findIndex(GetRequest& get, const std::vector<std::string> &indexs)
-{
-	size_t		size;
-	std::string	temp;
-	uint16_t	ret;
-
-	size = indexs.size();
-	for (unsigned long i = 0; i < size; i++)
-	{
-		temp = get.getUrl() + indexs[i];
-		ret = isDirOrFile(temp);
-		if (ret == LS_FILE || ret == DIRE)
-		{
-			if (ret == DIRE)
-			{
-				get.setBackupUrl(get.getBackupUrl() + indexs[i] + "/");
-				get.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, temp + "/", false);
-			}
-			else
-			{
-				get.setBackupUrl(get.getBackupUrl() + indexs[i]);
-				get.setRedirectionResponse(HTTP_OK, temp, false);
-			}
-			return (true);
-		}
-	}
-	return (false);
-}
-
 void	autoIndexCase(GetRequest &get)
 {
 	std::list<std::string>	files;
 	uint16_t				response;
 
-	response = ls(get.getUrl(), files);
+	response = ls(get.getPath(), files);
 	if (Status::isCodeOfType(response, STATUS_ERROR))
 		get.setResponse(response);
 	else
-		get.setResponseWithAutoIndex(response, buildPage(files, get.getUrl()));
+		get.setResponseWithAutoIndex(response, buildPage(files, get.getPath()));
 }
 
 void	directoryCase(GetRequest &get)
 {
-	checkType(get.getUrl(), get);
-	if (get.getCode() == HTTP_MOVED_PERMANENTLY)
-		return;
+	if (!checkLastSlash(get))
+		return ;
 	if (findIndex(get, get.getIndexs()))
 		return ;
 	if (get.getAutoIndex())

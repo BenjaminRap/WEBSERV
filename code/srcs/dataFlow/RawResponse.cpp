@@ -1,8 +1,11 @@
-#include <stddef.h>            // for size_t, NULL
+#include <stddef.h>            // for NULL, size_t
+#include <iostream>            // for basic_ostream, basic_ios, cout, endl
+#include <iterator>            // for distance
 #include <stdexcept>           // for logic_error
-#include <string>              // for basic_string, string
+#include <string>              // for basic_string, char_traits, string, ope...
 
 #include "AFdData.hpp"         // for AFdData, AFdDataChilds
+#include "CgiOut.hpp"          // for CgiOut
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
 #include "Headers.hpp"         // for operator+=, Headers, LINE_END, LINE_EN...
 #include "RawResponse.hpp"     // for RawResponse
@@ -13,7 +16,7 @@
 /*************************Constructors / Destructors***************************/
 
 
-void	setFirstPart(std::string& result, const Status& status, const std::string& autoIndexPage, const Headers& headers, bool hasBody);
+std::string&	getFirstPart(const Status& status, const Headers& headers, const char* bodyBegin, const char* bodyEnd);
 
 RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_firstPart(),
@@ -21,19 +24,41 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_fdData(response.getFdData()),
 	_flowBuf(bodyBuffer)
 {
+	if (_fdData.isManagingValue()
+		&& _fdData.getValue()->getType() == CGI_OUT)
+	{
+		return ;
+	}
 	const Status * const		status = response.getStatus();
 
 	if (status == NULL)
 		throw std::logic_error("RawResponse constructor called with an unset response !");
+	const char*	bodyBegin;
+	const char*	bodyEnd;
+
 	if (_fdData.isManagingValue())
 	{
-		AFdData* fdData = _fdData.getValue();
-
-		if (fdData->getType() == CGI_OUT)
-			return ;
+		bodyBegin = NULL;
+		bodyEnd = NULL;
 	}
-	setFirstPart(_firstPart, *status, response.getAutoIndexPage(), response.getHeaders(), _fdData.isManagingValue());
+	else if (status->isOfType((StatusType)(STATUS_ERROR | STATUS_REDIRECTION)))
+	{
+		const std::string&	page = status->getPage();
+
+		bodyBegin = page.c_str();
+		bodyEnd = bodyBegin + page.size();
+	}
+	else
+	{
+		const std::string&	autoIndexPage = response.getAutoIndexPage();
+
+		bodyBegin = autoIndexPage.c_str();
+		bodyEnd = bodyBegin + autoIndexPage.size();
+	}
+
+	_firstPart = getFirstPart(*status, response.getHeaders(), bodyBegin, bodyEnd);
 	_firstPartBuffer.setBuffer(&_firstPart[0], _firstPart.size(), _firstPart.capacity());
+	std::cout << _firstPart << std::endl;
 }
 
 RawResponse::~RawResponse()
@@ -44,10 +69,10 @@ RawResponse::~RawResponse()
 
 static size_t	getFirstPartLength
 (
-	const Headers& headers,
 	const Status& status,
-	size_t autoIndexPageSize,
-	bool hasBody
+	const Headers& headers,
+	const char* bodyBegin,
+	const char* bodyEnd
 )
 {
 	size_t										length = 0;
@@ -56,36 +81,39 @@ static size_t	getFirstPartLength
 	length += headers.getTotalSize();
 	length += LINE_END_LENGTH; // for the empty line
 	length += 1; // for the /0
-	if (hasBody)
-		return (length);
-	if (status.isOfType(STATUS_SUCESSFULL))
-		length += autoIndexPageSize;
-	else if (status.isOfType(STATUS_ERROR))
-		length += status.getErrorPage().size();
+	if (bodyBegin != NULL && bodyEnd != NULL)
+		length += std::distance(bodyBegin, bodyEnd);
 	return (length);
 }
 
-void	setFirstPart
+std::string&	getFirstPart
 (
-	std::string& result,
 	const Status& status,
-	const std::string& autoIndexPage,
 	const Headers& headers,
-	bool hasBody
+	const char* bodyBegin,
+	const char* bodyEnd
 )
 {
-	const size_t								length = getFirstPartLength(headers, status, autoIndexPage.size(), hasBody);
+	static std::string	result;
+	const size_t								length = getFirstPartLength(status, headers, bodyBegin, bodyEnd);
 
+	result.clear();
 	result.reserve(length);
 	result += status.getRepresentation();
 	result += headers;
 	result.append(LINE_END);
-	if (hasBody)
-		return ;
-	if (status.isOfType(STATUS_SUCESSFULL))
-		result.append(autoIndexPage);
-	else if (status.isOfType(STATUS_ERROR))
-		result.append(status.getErrorPage());
+	if (bodyBegin != NULL && bodyEnd != NULL)
+		result.append(bodyBegin, bodyEnd);
+	return (result);
+}
+
+bool	canWriteFromBuffer(const AFdData* fdData)
+{
+	if (fdData->getType() != CGI_OUT)
+		return (true);
+	const CgiOut * const	cgiOut = static_cast<const CgiOut*>(fdData);
+
+	return (cgiOut->isResponseReady());
 }
 
 FlowState	RawResponse::sendResponseToSocket(int socketFd)
@@ -107,9 +135,11 @@ FlowState	RawResponse::sendResponseToSocket(int socketFd)
 	fdData->callback(0);
 	if (fdData->getIsBlocking())
 	{
+		if (!canWriteFromBuffer(fdData))
+			return (FLOW_MORE);
 		const FlowState flowState = _flowBuf.buffToDest(socketFd);
 
-		if (!fdData->getIsActive() && flowState == FLOW_DONE)
+		if (fdData->getIsActive() && flowState == FLOW_DONE)
 			return (FLOW_MORE);
 		return (flowState);
 	}

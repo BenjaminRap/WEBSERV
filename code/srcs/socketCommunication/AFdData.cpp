@@ -1,6 +1,7 @@
 #include <fcntl.h>                  // for FD_CLOEXEC, O_NONBLOCK
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
+#include <sys/types.h>              // for ssize_t
 #include <stdexcept>                // for runtime_error, invalid_argument
 #include <string>                   // for basic_string
 
@@ -12,12 +13,13 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 	_fd(fd),
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
-	_type(type)
+	_type(type),
+	_eventIndex(-1)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 
-	if (addFlagsToFd(_fd, O_NONBLOCK | FD_CLOEXEC) == -1)
+	if (!addFlagsToFd(_fd, O_NONBLOCK, FD_CLOEXEC))
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
 	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
 		throw std::runtime_error("Can't add the fd to epoll !");
@@ -27,19 +29,20 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 AFdData::AFdData(int fd, AFdDataChilds type) :
 	_fd(fd),
 	_ePollHandler(NULL),
-	_type(type)
+	_type(type),
+	_eventIndex(-1)
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
 
-	if (addFlagsToFd(_fd, FD_CLOEXEC) == -1)
+	if (!addFlagsToFd(_fd, 0, FD_CLOEXEC))
 		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
 
 AFdData::~AFdData(void)
 {
 	if (_ePollHandler != NULL)
-		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
+		_ePollHandler->closeFdAndRemoveFromEpoll(_fd, _eventIndex);
 	else if (_fd > 0)
 		closeFdAndPrintError(_fd);
 }
@@ -62,4 +65,9 @@ bool	AFdData::getIsActive(void) const
 AFdDataChilds	AFdData::getType(void) const
 {
 	return (_type);
+}
+
+void	AFdData::setEventIndex(ssize_t eventIndex)
+{
+	_eventIndex = eventIndex;
 }

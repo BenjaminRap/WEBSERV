@@ -1,15 +1,18 @@
 #ifndef CONNECTED_SOCKET_DATA_HPP
 # define CONNECTED_SOCKET_DATA_HPP
 
+# include <netinet/in.h>
 # include <stdint.h>              // for uint32_t
 	
 # include "ASocketData.hpp"       // for ASocketData
 # include "RequestHandler.hpp"    // for RequestHandler
 # include "ResponsesHandler.hpp"  // for ResponsesHandler
+# include "RequestContext.hpp"		  // for RequestVars
 
 # define CONNECTED_EVENTS (EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
 
-class EPollHandler;
+class	EPollHandler;
+class	Host;
 
 /**
  * @brief This class stores all the data needed by a connected Socket. This fd
@@ -35,6 +38,11 @@ private:
 	 * list.
 	 */
 	bool				_closing;
+	/**
+	 * @brief A class containing all the variables necessary for the
+	 * ARequestType.
+	 */
+	RequestContext		_requestContext;
 
 	ConnectedSocketData(void);
 	ConnectedSocketData(const ASocketData &ref);
@@ -51,12 +59,19 @@ private:
 	 * @return The state of the request. It can be any of the enum values.
 	 */
 	RequestState			processRequest(void);
+	RequestState			readNextRequests
+	(
+		Response& currentResponse,
+		RequestState requestState
+	);
 public:
 	ConnectedSocketData
 	(
 		int fd,
 		EPollHandler &ePollHandler,
-		const std::vector<ServerConfiguration> &serverConfiguration
+		const std::vector<ServerConfiguration> &serverConfiguration,
+		const Host& host,
+		const sockaddr_in_u clientAddr
 	);
 	~ConnectedSocketData(void);
 
@@ -67,11 +82,7 @@ public:
 	 * @param events 
 	 */
 	void			callback(uint32_t events);
-	RequestState	readNextRequests
-	(
-		Response& currentResponse,
-		RequestState requestState
-	);
+	void			ignoreBodyAndReadRequests(Response& response);
 };
 
 #endif // !CONNECTED_SOCKET_DATA_HPP

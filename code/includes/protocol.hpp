@@ -5,5 +5,7 @@
 # define PROTOCOL_LENGTH 8
 # define PROTOCOL_MAJOR 1
 # define PROTOCOL_MINOR 1
+# define SERVER_SOFTWARE "webserv/1.0"
+# define GATEWAY_INTERFACE "CGI/1.1"
 
 #endif // !PROTOCOL_HPP

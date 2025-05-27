@@ -1,32 +1,65 @@
+#include <errno.h>                  // for errno, EACCES, EROFS
 #include <stddef.h>                 // for size_t, NULL
+#include <stdint.h>                 // for uint16_t
 #include <sys/stat.h>               // for stat
 #include <sys/types.h>              // for ssize_t
+#include <unistd.h>                 // for access, X_OK
 #include <string>                   // for basic_string, string
+#include <utility>                  // for pair
 #include <vector>                   // for vector
+#include <algorithm>
 
-#include "ARequestType.hpp"         // for ARequestType
+#include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route, SRedirection
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_METHOD_NOT...
+#include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_BAD_REQUEST
 #include "socketCommunication.hpp"  // for checkError
 
-bool	checkAllowMeth(const Route *route, EMethods meth)
-{
-	if (route == NULL)
-		return (meth != PUT && meth != DELETE);
-	const std::vector<EMethods>	&meths = route->getAcceptedMethods();
-	size_t						len;
+uint16_t	isDirOrFile(const std::string& path);
 
-	len = meths.size();
-	if (len == 0)
-		return (true);
-	for (size_t i = 0; i < len ; i++)
+void	extractQueryString(std::string& url, std::string& queryString)
+{
+	size_t	pos = url.find('?', 0);
+
+	if (pos == std::string::npos)
+		return ;
+	queryString.append(url, pos + 1);
+	url.erase(pos);
+}
+
+bool	isExtension(const std::string& file, const std::string& extension)
+{
+	if (extension.size() > file.size())
+		return (false);
+	const size_t	extensionStart = file.size() - extension.size();
+
+	return (file.compare(extensionStart, extension.size(), extension) == 0);
+}
+
+uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType)
+{
+	if (targetType == DIRE)
+		return (HTTP_FORBIDDEN);
+	if (targetType != LS_FILE)
+		return (targetType);
+	if (access(path.c_str(), X_OK) == -1)
 	{
-		if (meths[i] == meth)
-			return (true);
+		if (errno == EACCES || errno == EROFS)
+			return (HTTP_FORBIDDEN);
+		return (HTTP_INTERNAL_SERVER_ERROR);
 	}
-	return (false);
+	return (0);
+}
+
+bool	checkAllowMeth(ARequestType& req, EMethods meth)
+{
+	const std::vector<EMethods>&	accepted = req.getAcceptedMethods();
+
+	const bool	allowed = (std::find(accepted.begin(), accepted.end(), meth) != accepted.end());
+	if (!allowed)
+		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
+	return (allowed);
 }
 
 void	delString(const std::string &toDel, std::string &str)
@@ -43,25 +76,11 @@ void	delString(const std::string &toDel, std::string &str)
 	}
 }
 
-void	buildNewURl(std::string root, std::string &url)
-{
-	if (!root.empty() && root[root.size() - 1] == '/')
-		root.erase(root.size() - 1);
-	url.insert(0, root);
-}
-
 void	replaceUrl(const std::string &location, const std::string &root, std::string &url)
 {
-	size_t found;
-
 	if (root.empty())
 		return ;
-	found = url.find(location);
-	while (found != std::string::npos)
-	{
-		url.replace(found, location.length(), root);
-		found = url.find(location, found + root.length());
-	}
+	url.replace(0, location.size(), root);
 }
 
 void	fixPath(std::string &path)
@@ -87,37 +106,40 @@ void	fixPath(std::string &path)
 		path = "/";
 }
 
-void	fixUrl(ARequestType &req, std::string &url)
+bool	fixUrl(ARequestType &req, std::string &url)
 {
 	if (*url.begin() != '/')
-		req.setResponse(HTTP_BAD_REQUEST);
-	else
 	{
-		fixPath(url);
-		req.setUrl(url);
+		req.setResponse(HTTP_BAD_REQUEST);
+		return (false);
 	}
+	fixPath(url);
+	req.setPath(url);
+	return (true);
+}
+
+bool	setRedirection(ARequestType& req)
+{
+	const Route*	route = req.getRoute();
+
+	if (route == NULL)
+		return (false);
+	const std::string &redir = route->getRedirection().url;
+
+	if (redir.empty())
+		return (false);
+	req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, redir, true);
+	return (true);
 }
 
 void	addRoot(ARequestType &req, const ServerConfiguration &config)
 {
-	const Route	*route = config.getRouteFromPath(req.getUrl());
+	const std::pair<const std::string, Route>*	route = config.getRouteFromPath(req.getPath());
+	const std::string&							location = (route) ? route->first : "";
+	const Route*								routeData = (route) ? &route->second : NULL;
 
-	req.setRoute(route);
-	if (!checkAllowMeth(route, req.getMethod()))
-	{
-		req.setResponse(HTTP_METHOD_NOT_ALLOWED);
-		return ;
-	}
-	if (route == NULL)
-	{
-		buildNewURl(config.getRoot(), req.getUrl());
-		return ;
-	}
-	const std::string &redir = route->getRedirection().url;
-	if (!redir.empty())
-		req.setRedirectionResponse(HTTP_MOVED_PERMANENTLY, redir, true);
-	else
-		replaceUrl(config.getLocation(req.getUrl()), route->getRoot(), req.getUrl());
+	req.setRoute(routeData);
+	replaceUrl(location, req.getRoot(), req.getPath());
 }
 
 ssize_t	getFileSize(const std::string &filePath)
@@ -129,4 +151,45 @@ ssize_t	getFileSize(const std::string &filePath)
 	if (checkError(ret, -1, "stat() : "))
 		return (-1);
 	return (fileStat.st_size);
+}
+
+bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs)
+{
+	size_t		size;
+	std::string	absolutePath;
+	uint16_t	ret;
+
+	size = indexs.size();
+	for (unsigned long i = 0; i < size; i++)
+	{
+		absolutePath = req.getPath() + indexs[i];
+		ret = isDirOrFile(absolutePath);
+		if (ret == LS_FILE || ret == DIRE)
+		{
+			if (ret == DIRE)
+			{
+				req.getUrl() += indexs[i] + "/";
+				req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, "", false);
+			}
+			else
+			{
+				req.getUrl() += indexs[i];
+				req.setResponseWithLocation(HTTP_OK, "", false);
+			}
+			return (true);
+		}
+	}
+	return (false);
+}
+
+bool	checkLastSlash(ARequestType &req)
+{
+	std::string&	url = req.getUrl();
+	char			lastChar = url[url.length() - 1];
+
+	if (lastChar == '/')
+		return (true);
+	url += "/";
+	req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, "", false);
+	return (false);
 }
