@@ -56,7 +56,7 @@ void	CgiOut::setFinished(void)
 void	CgiOut::handleCgiError(uint32_t& events)
 {
 	events = 0;
-	if (_state == READ_HEADER)
+	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
 	{
 		_code = HTTP_BAD_GATEWAY;
 		_error = true;
