@@ -69,7 +69,7 @@ PutRequest::PutRequest
 			if (_targetType == LS_FILE)
 				this->setResponse(HTTP_NO_CONTENT);
 			else
-				this->setResponseWithLocation(HTTP_CREATED, this->_path, true);
+				this->setResponseWithLocation(HTTP_CREATED, this->_path, false);
 		}
 		catch(const FileFd::FileOpeningError& openError)
 		{

@@ -15,6 +15,7 @@
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for freePointer, SharedResource
+#include "Status.hpp"
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_INTERNAL_S...
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
 
@@ -175,6 +176,8 @@ void	ARequestType::setResponseWithLocation(uint16_t code, const std::string &red
 	this->_code = code;
 	if (!isReelRedirect)
 	{
+		if (!Status::isCodeOfType(code, STATUS_REDIRECTION))
+			_queryString.clear();
 		_redirection.reserve(7 + _domain.size() + _url.size() + _queryString.size());
 		_redirection.append("http://");
 		_redirection.append(_domain);
