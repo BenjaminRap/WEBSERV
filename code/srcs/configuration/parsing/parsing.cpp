@@ -282,13 +282,14 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<Config
 		if (!file.compare(i, 6, "always"))
 		{
 			always = true;
+			i += 6;
 			skipWSpace(file, i, line);
 			if (file[i] != ';')
 				throw (ParsingLineException("Missing semi-colon", line));
-
 		}
 		else
 			throw (ParsingLineException("Missing semi-colon", line));
 	}
+	i++;
 	addHeader.push_back(ConfigHeaders(title, value, always));
 }
