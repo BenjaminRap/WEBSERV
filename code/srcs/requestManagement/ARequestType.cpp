@@ -31,7 +31,7 @@ void		addRoot(ARequestType &req, const ServerConfiguration &config);
 int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void		splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
-bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext);
+bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext, const std::string& pathInfo);
 bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
@@ -105,12 +105,14 @@ bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
 			return (false);
 		const char		afterExtension = path[pos + extension.size()];
 
+		path.erase(pos + extension.size());
 		if  (afterExtension == '/')
 			_targetType = isDirOrFile(path) ;
-		path.erase(pos + extension.size());
 	}
-	_path = path;
 	_pathInfo.append(_path, path.size(), std::string::npos);
+	_path = path;
+	std::cout << "path :" << _path << std::endl;
+	std::cout << "pathInfo :" << _pathInfo << std::endl;
 	return (true);
 }
 
@@ -128,7 +130,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext, const std::
 	std::memset(argv, 0, sizeof(argv));
 	try
 	{
-		const bool	error = (!setEnv(env, request, extension, _path, _queryString, requestContext)
+		const bool	error = (!setEnv(env, request, extension, _path, _queryString, requestContext, _pathInfo)
 			|| !setArgv(argv, getCgiInterpreter(), _path)
 			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
 		deleteArray((const char**)env);

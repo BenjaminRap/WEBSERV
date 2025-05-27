@@ -117,6 +117,9 @@ async function runTests()
 	printHeader("Cgi Php");
 	await runGoodCgiTest("/cgi/php/cgiPhpTest.php", "GET", null, {},  200, "OK");
 
+	printHeader("Cgi Path Info Classic");
+	await runGoodCgiTest("/cgi/cgiCheckPathInfo1.cgi/test", "GET", null, {},  200, "OK");
+
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
 	else

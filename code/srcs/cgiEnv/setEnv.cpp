@@ -54,14 +54,9 @@ std::string findScriptName(const std::string &target, size_t &pos, const std::st
 	return (result);
 }
 
-std::string findPathInfo(const std::string &target, size_t &pos)
-{
-	return (target.substr(pos));
-}
-
 void	deleteArray(const char** array);
 
-bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext)
+bool	setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext , const std::string& pathInfo)
 {
 	std::memset(env, 0, sizeof(env));
 	try
@@ -84,7 +79,8 @@ bool	setEnv(char *(&env)[20], const Request &request, const std::string& extensi
 		addToEnv(env, "CONTENT_LENGTH=", headers.getUniqueHeader("content-length"));
 		addToEnv(env, "REFERER=", headers.getUniqueHeader("referer"));
 		addToEnv(env, "SCRIPT_NAME=" + findScriptName(path, pos, extension));
-		addToEnv(env, "PATH_INFO=" + findPathInfo(path, pos));
+		if (pathInfo != "")
+			addToEnv(env, "PATH_INFO=" + pathInfo);
 		addToEnv(env, "QUERY_STRING=" + queryString);
 		addToEnv(env, "PATH_TRANSLATED=" + path);
 		sa_family_t family = requestContext.host.getFamily();
