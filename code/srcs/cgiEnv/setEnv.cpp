@@ -46,6 +46,8 @@ bool	addToEnv(char *(&env)[20], const std::string &title, const std::string *val
 
 std::string findScriptName(const std::string& url, const std::string& pathInfo)
 {
+	if (pathInfo == "")
+		return (url);
 	const size_t	pos = url.find(pathInfo);
 
 	if (pos == std::string::npos)
