@@ -1,2 +1,2 @@
-export const	printOK = true;
+export const	printOK = false;
 export const	showDuration = true;
