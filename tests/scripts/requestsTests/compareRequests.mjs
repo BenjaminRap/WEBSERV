@@ -130,14 +130,11 @@ function	checkHeaders(webservHeaders, expectedHeaders)
 {
 	let	succeed = true;
 
-	expectedHeaders.forEarch((element) => {
-		if (webservHeaders.get(element.key) != element.value)
-		{
+	for (const [key, value] of Object.entries(expectedHeaders))
+	{
+		if (!verify("expected header: ", key + ": " + value, key + ": " + webservHeaders.get(key)))
 			succeed = false;
-			if (printOK)
-				console.log("Missing header, expected:" + element);
-		}
-	});
+	}
 	return (succeed);
 }
 
@@ -153,7 +150,7 @@ export async function	compareGoodRequests(target, method, body, headers, expecte
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRequest(webservUrl + target, method, body, headers);
-		succeed =  compareRequests(target, nginxResponse, webservResponse) && succeed;
+		succeed =  await compareRequests(target, nginxResponse, webservResponse) && succeed;
 		if (expectedHeaders != undefined)
 			succeed = checkHeaders(webservResponse.headers, expectedHeaders) && succeed;
 		return (succeed);
@@ -177,7 +174,7 @@ export async function	compareBadRequests(message, target, expectedHeaders)
 		if (showDuration)
 			console.log(COLOR_BLUE + "webserv" + COLOR_RESET);
 		const webservResponse = await makeRawRequest(webservHost, webservPort, message);
-		succeed = compareRequests(target, nginxResponse, webservResponse) && succeed;
+		succeed = await compareRequests(target, nginxResponse, webservResponse) && succeed;
 		if (expectedHeaders != undefined)
 			succeed = checkHeaders(webservResponse.headers, expectedHeaders) && succeed;
 		return (succeed);
