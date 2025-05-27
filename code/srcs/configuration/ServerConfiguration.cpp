@@ -18,7 +18,7 @@ ServerConfiguration::ServerConfiguration
 	const std::map<std::string, Route> &routes,
 	const std::string &root,
 	const std::vector<std::string> &index,
-	const std::map< std::string, std::pair<std::string, bool> > &addHeader,
+	const std::list<ConfigHeaders> &addHeader,
 	const std::string &cgiFileExtension,
 	const std::string &cgiInterpreter
 ) :
@@ -132,7 +132,7 @@ const std::string&				ServerConfiguration::getCgiInterpreter(void) const
 	return (_cgiInterpreter);
 }
 
-const std::map< std::string, std::pair<std::string, bool> >&	ServerConfiguration::getAddHeader(void) const
+const std::list<ConfigHeaders>&	ServerConfiguration::getAddHeader(void) const
 {
 	return (this->_addHeader);
 }

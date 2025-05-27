@@ -1,12 +1,13 @@
 #ifndef ROUTE_HPP
 # define ROUTE_HPP
 
+# include <list>
 # include <vector>
 # include <string>
 # include <iostream>
-# include <map>
 
 # include "EMethods.hpp"
+# include "parsing.hpp"
 
 /**
  * @class SRedirection
@@ -38,7 +39,7 @@ public:
 		const std::vector<std::string> &index,
 		const bool &auto_index,
 		const std::string &root,
-		const std::map< std::string, std::pair<std::string, bool> >	&addHeader,
+		const std::list<ConfigHeaders>	&addHeader,
 		const std::string &cgiFileExtension,
 		const std::string &cgiInterpreter
 	);
@@ -51,7 +52,7 @@ public:
 	bool							getAutoIndex(void) const;
 	const std::string&				getRoot(void) const;
 	const std::string&				getCgiFileExtension(void) const;
-	const std::map< std::string, std::pair<std::string, bool> >&	getAddHeader(void) const;
+	const std::list<ConfigHeaders>&	getAddHeader(void) const;
 	const std::string&				getCgiInterpreter(void) const;
 	void							setIndex(const std::vector<std::string> &v);
 	const size_t&					getMaxClientBodySize(void) const;
@@ -90,7 +91,7 @@ private:
 	 * /tmp/www/pouic/toto/pouet).
 	 */
 	std::string					_root;
-	std::map< std::string, std::pair<std::string, bool> >	_addHeader;
+	std::list<ConfigHeaders>	_addHeader;
 	/**
 	 * @brief if a file, at this route has this file extension, it will execute it
 	 * and returns the results of the cgi, instead of returning the file.

@@ -78,7 +78,7 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	std::string								root;
 	ip_t									ip;
 	std::vector<std::string>				index;
-	std::map< std::string, std::pair<std::string, bool> > addHeader;
+	std::list<ConfigHeaders> 				addHeader;
 	std::string								cgiFileExtension;
 	std::string								cgiInterpreter;
 
@@ -251,7 +251,7 @@ void	parseRoot(std::string &file, size_t &i, size_t &line, std::string &root)
 	checkRoot(root, line);
 }
 
-void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::string, std::pair<std::string, bool> > &addHeader)
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<ConfigHeaders> &addHeader)
 {
 	std::string	title;
 	std::string	value;
@@ -282,5 +282,5 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::map< std::s
 		else
 			throw (ParsingLineException("Missing semi-colon", line));
 	}
-	addHeader.insert(std::make_pair(title, std::make_pair(value, always)));
+	addHeader.push_back(ConfigHeaders(title, value, always));
 }

@@ -14,7 +14,7 @@ Route::Route
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
-	const std::map< std::string, std::pair<std::string, bool> > &addHeader,
+	const std::list<ConfigHeaders> &addHeader,
 	const std::string &cgiFileExtension,
 	const std::string &cgiInterpreter
 ) :
@@ -87,7 +87,7 @@ const std::string&				Route::getCgiInterpreter(void) const
 	return (_cgiInterpreter);
 }
 
-const std::map< std::string, std::pair<std::string, bool> >&	Route::getAddHeader(void) const
+const std::list<ConfigHeaders>&	Route::getAddHeader(void) const
 {
 	return (this->_addHeader);
 }

@@ -87,7 +87,7 @@ void	insertHost
 	std::string &root,
 	ip_t &ip,
 	std::vector<std::string> &index,
-	std::map< std::string, std::pair<std::string, bool> > &addHeader,
+	std::list<ConfigHeaders> &addHeader,
 	std::string &cgiFileExtension,
 	std::string &cgiInterpreter
 )

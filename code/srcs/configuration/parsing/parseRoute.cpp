@@ -18,7 +18,7 @@ void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string
 	std::string					root;
 	bool						autoIndex = false;
 	std::string					cgiFileExtension;
-	std::map< std::string, std::pair<std::string, bool> >	addHeader;
+	std::list<ConfigHeaders>	addHeader;
 	std::string					cgiInterpreter;
 	size_t						maxClientBodySize = -1;
 

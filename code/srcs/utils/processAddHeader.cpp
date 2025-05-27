@@ -4,23 +4,13 @@
 
 void	processAddHeader(Headers &responseHeaders, ARequestType &req, const ServerConfiguration &config)
 {
-	const std::map< std::string, std::pair<std::string, bool> > &rootAddHeader = config.getAddHeader();
-	const uint16_t code = req.getCode();
+	const Route * const				route = req.getRoute();
+	const std::list<ConfigHeaders>& rootAddHeader = (route) ? route->getAddHeader() : config.getAddHeader();
+	const uint16_t					code = req.getCode();
 
-	for (std::map< std::string, std::pair<std::string, bool> >::const_iterator it = rootAddHeader.begin(); it != rootAddHeader.end(); ++it)
+	for (std::list<ConfigHeaders>::const_iterator header = rootAddHeader.begin(); header != rootAddHeader.end(); header++)
 	{
-		if (it->second.second == true || code < 400)
-			responseHeaders.addHeader(it->first, it->second.first);
-	}
-
-	if (req.getRoute() != NULL)
-	{
-		const std::map< std::string, std::pair<std::string, bool> > &routeAddHeader = req.getRoute()->getAddHeader();
-
-		for (std::map< std::string, std::pair<std::string, bool> >::const_iterator it = routeAddHeader.begin(); it != routeAddHeader.end(); ++it)
-		{
-			if (it->second.second == true || code < 400)
-				responseHeaders.addHeader(it->first, it->second.first);
-		}
+		if (header->always == true || code < 400)
+			responseHeaders.addHeader(header->key, header->value);
 	}
 }
