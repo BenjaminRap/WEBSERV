@@ -256,18 +256,26 @@ void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<Config
 	std::string	title;
 	std::string	value;
 	bool		always = false;
+	size_t		end;
 
 	skipWSpace(file, i, line);
-	title = file.substr(i, file.find_first_of(WSPACE, i) - i);
-	i = file.find_first_of(WSPACE, i);
+	end = file.find_first_of(WSPACE, i);
+	if (end == std::string::npos)
+		throw (ParsingLineException("Missing key", line));
+
+	title.append(file, i, end - i);
+	i = end;
 	skipWSpace(file, i, line);
 	if (file[i] != '"')
-		throw (ParsingKeyWordAndLineException("Unexpected keyword", i, file.substr(i, file.find_first_of(SEP_WSPACE, i) - i)));
+		throw (ParsingLineException("Missing value start quote", line));
+
 	i++;
-	value = file.substr(i, file.find('"') - i);
-	i = file.find('"') + 1;
-	if (i == std::string::npos || file[i] != '"')
-		throw (ParsingLineException("Exepected \" for add_header", line));
+	end = file.find_first_of('"', i);
+	if (end == std::string::npos)
+		throw (ParsingLineException("Missing value end quote", line));
+
+	value.append(file, i, end - i);
+	i = end + 1;
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
 	{
