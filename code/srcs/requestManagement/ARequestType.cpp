@@ -29,7 +29,7 @@ void		fixPath(std::string &path);
 bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
 int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
-void		splitInTwo(const std::string& str, char delimiter, std::string& firstPart, std::string& secondPart);
+void		extractQueryString(std::string& url, std::string& queryString);
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
 bool		setEnv(char *(&env)[20], const Request &request, const std::string& extension, const std::string& path, const std::string& queryString, RequestContext& requestContext, const std::string& pathInfo);
 bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
@@ -59,7 +59,7 @@ ARequestType::ARequestType
 	_inFd(),
 	_outFd()
 {
-	splitInTwo(url, '?', _path, _queryString);
+	extractQueryString(url, _queryString);
 	if (!fixUrl(*this, url))
 		return ;
 	addRoot(*this, config);
@@ -173,17 +173,16 @@ ARequestType::~ARequestType()
 void	ARequestType::setResponseWithLocation(uint16_t code, const std::string &redirection, bool isReelRedirect)
 {
 	this->_code = code;
-	this->_redirection = redirection;
 	if (!isReelRedirect)
 	{
-		if (getRoot() != "" && redirection.find(getRoot()))
-			this->_redirection = this->getUrl();
-		if (this->_redirection[0] == '.')
-			this->_redirection.erase(0, 1);
-		this->_redirection = "http://" + this->_domain + this->_redirection;
+		_redirection.reserve(7 + _domain.size() + _url.size() + _queryString.size());
+		_redirection.append("http://");
+		_redirection.append(_domain);
+		_redirection.append(_url);
+		_redirection.append(_queryString);
 	}
-	if (this->_queryString != "")
-		this->_redirection += "?" + this->_queryString;
+	else
+		this->_redirection = redirection;
 }
 
 void	ARequestType::setResponse(uint16_t code)

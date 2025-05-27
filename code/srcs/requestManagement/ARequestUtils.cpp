@@ -18,6 +18,16 @@
 
 uint16_t	isDirOrFile(const std::string& path);
 
+void	extractQueryString(std::string& url, std::string& queryString)
+{
+	size_t	pos = url.find('?', 0);
+
+	if (pos == std::string::npos)
+		return ;
+	queryString.append(url, pos);
+	url.erase(pos);
+}
+
 bool	isExtension(const std::string& file, const std::string& extension)
 {
 	if (extension.size() > file.size())
@@ -158,13 +168,13 @@ bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs)
 		{
 			if (ret == DIRE)
 			{
-				req.setUrl(req.getUrl() + indexs[i] + "/");
-				req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, absolutePath + "/", false);
+				req.getUrl() += indexs[i] + "/";
+				req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, "", false);
 			}
 			else
 			{
-				req.setUrl(req.getUrl() + indexs[i]);
-				req.setResponseWithLocation(HTTP_OK, absolutePath, false);
+				req.getUrl() += indexs[i];
+				req.setResponseWithLocation(HTTP_OK, "", false);
 			}
 			return (true);
 		}
@@ -180,6 +190,6 @@ bool	checkLastSlash(ARequestType &req)
 	if (lastChar == '/')
 		return (true);
 	url += "/";
-	req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, url, false);
+	req.setResponseWithLocation(HTTP_MOVED_PERMANENTLY, "", false);
 	return (false);
 }
