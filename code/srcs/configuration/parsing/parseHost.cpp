@@ -5,6 +5,8 @@
 #include <string>         // for basic_string, string, operator==
 #include <utility>        // for make_pair, pair
 #include <vector>         // for vector
+#include <sstream>
+#include <iostream>
 
 #include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
 #include "parsing.hpp"    // for real_atoi, ipv6_s, skip_wspace, ft_hextoint
@@ -39,15 +41,15 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 
 	ipv4 = realAtoi(file, i, line, 255, 3) << 24;
 	if (file[i] != '.')
-		throw (ParsingLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IPv4 format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3) << 16;
 	if (file[i] != '.')
-		throw (ParsingLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IPv4 format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3) << 8;
 	if (file[i] != '.')
-		throw (ParsingLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IPv4 format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3);
 	parsePort(file, i, line, port);
@@ -59,24 +61,91 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 	ip.insert(std::make_pair(ipv4, port));
 }
 
+int convertIpv6(const std::string &ip, uint8_t ipv6[16])
+{
+	std::vector<std::string>	parts;
+	bool						compression = false;
+	bool						begin = true;
+	size_t						pos = 0;
+	size_t						prev = 0;
+	int							compression_pos = -1;
+
+	if (ip[0] == ':' && (ip[1] != ':' || ip[2] == ':'))
+		return (1);
+	while ((pos = ip.find(':', prev)) != std::string::npos)
+	{
+		if (pos > prev)
+		{
+			parts.push_back(ip.substr(prev, pos - prev));
+			begin = false;
+		}
+		else if (pos == prev)
+		{
+			if (compression_pos != -1 && begin == false)
+				return (1);
+			compression_pos = (int)parts.size();
+			compression = true;
+		}
+		prev = pos + 1;
+	}
+	parts.push_back(ip.substr(prev));
+
+	if (compression)
+	{
+		int needed = 8 - (int)parts.size();
+		if (needed < 1)
+			return (1);
+		std::vector<std::string> expanded;
+
+		for (int i = 0; i < compression_pos; ++i)
+			expanded.push_back(parts[i]);
+		for (int i = 0; i < needed; ++i)
+			expanded.push_back("0");
+		for (size_t i = compression_pos; i < parts.size(); ++i)
+			expanded.push_back(parts[i]);
+		parts = expanded;
+	}
+
+	if (parts.size() != 8) 
+		return (1);
+	for (int i = 0; i < 8; ++i)
+	{
+		if (parts[i].empty())
+		{
+			ipv6[2*i] = 0;
+			ipv6[2*i + 1] = 0;
+			continue ;
+		}
+		if (parts[i].size() > 4)
+			return (1);
+		for (size_t j = 0; j < parts[i].size(); ++j)
+		{
+			if (!isxdigit(parts[i][j]))
+				return (1);
+		}
+		std::istringstream iss(parts[i]);
+		unsigned long val = 0;
+		iss >> std::hex >> val;
+		if (val > 0xFFFF)
+			return (1);
+		ipv6[2*i] = (uint8_t)(val >> 8);
+		ipv6[2*i+1] = (uint8_t)(val & 0xFF);
+	}
+	return (0);
+}
+
 void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip)
 {
 	ipv6_t		ipv6;
 	in_port_t	port;
 
-	for (int j = 0; j < 16; j++)
-	{
-		ipv6.ipv6[j] = hexToInt(file, i, line);
-		j++;
-		ipv6.ipv6[j] = hexToInt(file, i, line);
-		if (file[i] != ':' && j != 15)
-			throw (ParsingLineException("Wrong IP format", line));
-		if (j != 15)
-			i++;
-	}
-	if (file[i] != ']')
-		throw (ParsingLineException("Wrong IP format", line));
-	i++;
+	const size_t end = file.find(']', i);
+	if (end == std::string::npos)
+		throw (ParsingLineException("Expected a ']' to close ip adress", line));
+	const std::string	ipString = file.substr(i, end - i);
+	if (convertIpv6(ipString, ipv6.ipv6))
+		throw (ParsingKeyWordAndLineException("Wrong IPv6 format", line, ipString));
+	i = end + 1;
 	parsePort(file, i, line, port);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
