@@ -8,6 +8,7 @@
 # include "RequestHandler.hpp"    // for RequestHandler
 # include "ResponsesHandler.hpp"  // for ResponsesHandler
 # include "RequestContext.hpp"		  // for RequestVars
+# include <ctime>
 
 # define CONNECTED_EVENTS (EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
 
@@ -38,6 +39,10 @@ private:
 	 * list.
 	 */
 	bool				_closing;
+
+	time_t	_lastEPollIn;
+	time_t	_lastEpollOut;
+
 	/**
 	 * @brief A class containing all the variables necessary for the
 	 * ARequestType.
@@ -83,6 +88,8 @@ public:
 	 */
 	void			callback(uint32_t events);
 	void			ignoreBodyAndReadRequests(Response& response);
+	void			setTimeToEvent(uint32_t events);
+	void			checkTime(void);
 };
 
 #endif // !CONNECTED_SOCKET_DATA_HPP

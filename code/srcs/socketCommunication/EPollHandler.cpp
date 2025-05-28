@@ -75,7 +75,6 @@ EPollHandler::~EPollHandler()
 
 void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
 {
-	_fdEventTime.erase(fd);
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	closeFdAndPrintError(fd);
 	if (eventIndex != -1)
@@ -84,16 +83,13 @@ void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
 
 int	EPollHandler::epollWaitForEvent()
 {
-	while (true)
-	{
-		const int	nfds = epoll_wait(_epfd, _events, _maxEvents, 1000);
-		checkTimeOut();
-		if (checkError(nfds, -1, "epoll_wait() : "))
-			_eventsCount = 0;
-		else
-			_eventsCount = nfds;
-		return (nfds);
-	}
+	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
+
+	if (checkError(nfds, -1, "epoll_wait() : "))
+		_eventsCount = 0;
+	else
+		_eventsCount = nfds;
+	return (nfds);
 }
 
 bool	EPollHandler::callSocketsCallback(void)
@@ -157,7 +153,6 @@ int	EPollHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
 		_socketsData.pop_front();
 		return (-1);
 	}
-	setTimeFd(FdData.getFd());
 	return (0);
 }
 
@@ -190,36 +185,4 @@ void	EPollHandler::removeFdDataFromList(std::list<ASocketData*>::iterator pos)
 void	EPollHandler::clearUnixSocketsList(void)
 {
 	_unixSocketsToRemove.clear();
-}
-
-void	EPollHandler::checkTimeOut(void)
-{
-	time_t	now;
-
-	time(&now);
-	for (std::map<int , time_t>::iterator it = _fdEventTime.begin(); it != _fdEventTime.end(); ++it)
-	{
-		if (difftime(now, it->second) > 30)
-		{
-			closeFdAndRemoveFromEpoll(it->first, -1);
-			for (std::list<ASocketData*>::iterator _AFdData = _socketsData.begin(); _AFdData != _socketsData.end(); ++_AFdData)
-			{
-				if (it->first == (*_AFdData)->getFd())
-				{
-					removeFdDataFromList(_AFdData);
-					break;
-				}
-			}
-			it = _fdEventTime.begin();
-		}
-	}
-
-}
-
-void	EPollHandler::setTimeFd(const int _fd)
-{
-	time_t	now;
-
-	time(&now);
-	_fdEventTime[_fd] = now;
 }
