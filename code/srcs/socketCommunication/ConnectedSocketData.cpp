@@ -125,10 +125,9 @@ void	ConnectedSocketData::callback(uint32_t events)
 		_isActive = false;
 	else if (events & (EPOLLIN | EPOLLOUT))
 		setTimeToEvent(events);
-	else
-		checkTime();
 	try
 	{
+		checkTime();
 		if (_isActive && !_closing && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
@@ -167,10 +166,15 @@ void	ConnectedSocketData::setTimeToEvent(uint32_t events)
 void			ConnectedSocketData::checkTime(void)
 {
 	time_t	now = time(NULL);
-
-	if (difftime(now, _lastEPollIn))
+	if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC)
 	{
 		_closing = true;
 		_responsesHandler.getCurrentResponse().setResponse(408);
+		_responsesHandler.sendResponseToSocket(_fd);
+	}
+	else if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
+	{
+		this->_ePollHandler->closeFdAndRemoveFromEpoll(this->_fd, this->_eventIndex);
+		this->_ePollHandler->removeFdDataFromList(this->getIterator());
 	}
 }

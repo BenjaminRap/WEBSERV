@@ -10,6 +10,7 @@
 # include "RequestContext.hpp"		  // for RequestVars
 # include <ctime>
 
+# define TIMEOUT_VALUE_SEC	3	
 # define CONNECTED_EVENTS (EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
 
 class	EPollHandler;

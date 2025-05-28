@@ -9,8 +9,6 @@
 
 # include "socketCommunication.hpp"
 
-# define TIMEOUT_VALUE_USEC	30	
-
 class	Configuration;
 class	Host;
 class	ASocketData;
