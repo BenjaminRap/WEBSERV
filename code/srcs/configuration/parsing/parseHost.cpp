@@ -70,6 +70,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 	size_t						prev = 0;
 	int							compression_pos = -1;
 
+	// storing all the ip parts and saving the position of '::' if existing into a vecotr
 	if (ip[0] == ':' && (ip[1] != ':' || ip[2] == ':'))
 		return (1);
 	while ((pos = ip.find(':', prev)) != std::string::npos)
@@ -90,6 +91,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 	}
 	parts.push_back(ip.substr(prev));
 
+	// expanding the :: 
 	if (compression)
 	{
 		int needed = 8 - (int)parts.size();
@@ -106,6 +108,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 		parts = expanded;
 	}
 
+	// converting the string vector of ip parts into a uint8_t[16]
 	if (parts.size() != 8) 
 		return (1);
 	for (int i = 0; i < 8; ++i)
