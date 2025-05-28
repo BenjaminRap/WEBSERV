@@ -15,6 +15,7 @@
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
+#include "EPollHandler.hpp"			// for EpollHandler
 #include "exception.hpp"            // for ExecveException
 
 class EPollHandler;  // lines 19-19
@@ -41,6 +42,8 @@ ConnectedSocketData::ConnectedSocketData
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false),
+	_lastEPollIn(time(NULL)),
+	_lastEpollOut(time(NULL)),
 	_requestContext
 	(
 		host,
@@ -77,7 +80,10 @@ RequestState	ConnectedSocketData::processRequest(void)
 		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
 		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
+		{
 			requestState = _requestHandler.readRequest(_requestContext);
+
+		}
 	}
 	requestState = readNextRequests(currentResponse, requestState);
 	return (requestState);
@@ -117,8 +123,11 @@ void	ConnectedSocketData::callback(uint32_t events)
 {
 	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
 		_isActive = false;
+	else if (events & (EPOLLIN | EPOLLOUT))
+		setTimeToEvent(events);
 	try
 	{
+		checkTime();
 		if (_isActive && !_closing && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
@@ -142,4 +151,30 @@ void	ConnectedSocketData::callback(uint32_t events)
 	}
 	if (_isActive == false)
 		removeFromEPollHandler();
+}
+
+void	ConnectedSocketData::setTimeToEvent(uint32_t events)
+{
+	time_t	now = time(NULL);
+
+	if (events & EPOLLIN)
+		_lastEPollIn = now;
+	if (events & EPOLLOUT)
+		_lastEpollOut= now;
+}
+
+void			ConnectedSocketData::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC)
+	{
+		_closing = true;
+		_responsesHandler.getCurrentResponse().setResponse(408);
+		_responsesHandler.sendResponseToSocket(_fd);
+	}
+	else if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
+	{
+		this->_ePollHandler->closeFdAndRemoveFromEpoll(this->_fd, this->_eventIndex);
+		this->_ePollHandler->removeFdDataFromList(this->getIterator());
+	}
 }

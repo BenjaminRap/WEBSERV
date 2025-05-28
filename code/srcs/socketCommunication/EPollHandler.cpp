@@ -83,7 +83,7 @@ void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
 
 int	EPollHandler::epollWaitForEvent()
 {
-	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
+	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, 1000);
 
 	if (checkError(nfds, -1, "epoll_wait() : "))
 		_eventsCount = 0;

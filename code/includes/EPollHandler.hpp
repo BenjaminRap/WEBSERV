@@ -5,6 +5,7 @@
 # include <sys/epoll.h>
 # include <vector>
 # include <string>
+# include <map>
 
 # include "socketCommunication.hpp"
 
