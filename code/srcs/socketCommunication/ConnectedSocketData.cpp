@@ -42,8 +42,6 @@ ConnectedSocketData::ConnectedSocketData
 	_responsesHandler(serverConfiguration.front()),
 	_requestHandler(serverConfiguration),
 	_closing(false),
-	_lastEPollIn(time(NULL)),
-	_lastEpollOut(time(NULL)),
 	_requestContext
 	(
 		host,
@@ -123,8 +121,6 @@ void	ConnectedSocketData::callback(uint32_t events)
 {
 	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
 		_isActive = false;
-	else if (events & (EPOLLIN | EPOLLOUT))
-		setTimeToEvent(events);
 	try
 	{
 		checkTime();
@@ -153,28 +149,18 @@ void	ConnectedSocketData::callback(uint32_t events)
 		removeFromEPollHandler();
 }
 
-void	ConnectedSocketData::setTimeToEvent(uint32_t events)
-{
-	time_t	now = time(NULL);
-
-	if (events & EPOLLIN)
-		_lastEPollIn = now;
-	if (events & EPOLLOUT)
-		_lastEpollOut= now;
-}
-
 void			ConnectedSocketData::checkTime(void)
 {
 	time_t	now = time(NULL);
-	if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC)
+	if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
+	{
+		this->_ePollHandler->closeFdAndRemoveFromEpoll(this->_fd, this->_eventIndex);
+		this->_ePollHandler->removeFdDataFromList(this->getIterator());
+	}
+	else if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC)
 	{
 		_closing = true;
 		_responsesHandler.getCurrentResponse().setResponse(408);
 		_responsesHandler.sendResponseToSocket(_fd);
-	}
-	else if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
-	{
-		this->_ePollHandler->closeFdAndRemoveFromEpoll(this->_fd, this->_eventIndex);
-		this->_ePollHandler->removeFdDataFromList(this->getIterator());
 	}
 }

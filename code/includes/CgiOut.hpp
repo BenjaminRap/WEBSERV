@@ -138,6 +138,7 @@ private:
 	 * The fd shouldn't be read from after this method is called.
 	 */
 	void		setFinished(void);
+	void		checkTime(uint32_t& events);
 
 public:
 	CgiOut

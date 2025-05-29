@@ -14,7 +14,9 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
 	_type(type),
-	_eventIndex(-1)
+	_eventIndex(-1),
+	_lastEPollIn(time(NULL)),
+	_lastEpollOut(time(NULL))
 {
 	if (fd <= 3)
 		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
@@ -70,4 +72,12 @@ AFdDataChilds	AFdData::getType(void) const
 void	AFdData::setEventIndex(ssize_t eventIndex)
 {
 	_eventIndex = eventIndex;
+}
+
+void	AFdData::setTimeToEvent(uint32_t events)
+{
+	if (events & EPOLLIN)
+		_lastEPollIn = time(NULL);
+	if (events & EPOLLOUT)
+		_lastEpollOut= time(NULL);
 }

@@ -94,3 +94,19 @@ void	CgiOut::callback(uint32_t events)
 	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
 		writeToBuff();
 }
+
+void	CgiOut::checkTime(uint32_t& events)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
+	{
+		setFinished();
+	}
+	else if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC)
+	{
+		events = 0;
+		_code = HTTP_GATEWAY_TIMEOUT;
+		_error = true;
+		generateFirstPart();
+	}
+}

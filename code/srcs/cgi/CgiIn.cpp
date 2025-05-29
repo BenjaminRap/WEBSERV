@@ -50,6 +50,7 @@ void	CgiIn::callback(uint32_t events)
 		setFinished(0);
 		return ;
 	}
+	checkTime();
 	if (!(events & EPOLLOUT))
 		return ;
 	const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
@@ -58,4 +59,13 @@ void	CgiIn::callback(uint32_t events)
 	if (code == 0)
 		return ;
 	setFinished(code);
+}
+
+void			CgiIn::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC || difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
+	{
+		setFinished(408);
+	}
 }

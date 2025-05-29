@@ -4,6 +4,8 @@
 # include <stdint.h>	// for uint32_t
 # include <sys/types.h>	// for ssize_t
 
+# define TIMEOUT_VALUE_SEC	3	
+
 class EPollHandler;
 
 enum	AFdDataChilds
@@ -43,6 +45,9 @@ protected:
 	AFdDataChilds	_type;
 	ssize_t			_eventIndex;
 
+	time_t			_lastEPollIn;
+	time_t			_lastEpollOut;
+
 	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);
 	AFdData(int fd, AFdDataChilds type);
 private:
@@ -67,6 +72,7 @@ public:
 	bool			getIsActive(void) const;
 	AFdDataChilds	getType(void) const;
 	void			setEventIndex(ssize_t eventIndex);
+	void			setTimeToEvent(uint32_t events);
 };
 
 #endif // !A_FD_DATA_HPP

@@ -108,6 +108,7 @@ bool	EPollHandler::callSocketsCallback(void)
 		const epoll_event&	fdEvent = _events[i];
 		if (fdEvent.data.ptr == NULL)
 			continue ;
+		static_cast<AFdData *>(fdEvent.data.ptr)->setTimeToEvent(fdEvent.events);
 		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
 	}
 	for (ssize_t i = 0; i < nfds; i++)
