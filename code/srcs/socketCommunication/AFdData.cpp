@@ -48,7 +48,8 @@ AFdData::~AFdData(void)
 		return ;
 	if (_addedToEPoll)
 		_ePollHandler->closeFdAndRemoveFromEpoll(_fd, _eventIndex);
-	closeFdAndPrintError(_fd);
+	else
+		closeFdAndPrintError(_fd);
 }
 
 int	AFdData::getFd() const
