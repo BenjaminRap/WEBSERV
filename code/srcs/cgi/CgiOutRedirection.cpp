@@ -1,6 +1,5 @@
 #include <fcntl.h>                // for O_RDONLY
 #include <stddef.h>               // for NULL, size_t
-#include <map>                    // for map
 #include <string>                 // for basic_string, string
 
 #include "CgiOut.hpp"             // for CgiOut, CgiOutState
@@ -12,7 +11,7 @@ std::string	sizeTToString(size_t value);
 
 void	CgiOut::readFromCgi()
 {
-	if (_error || _state == FILE_TO_BUFFER || _state == DONE)
+	if (_error || _state == CgiOut::FILE_TO_BUFFER || _state == CgiOut::DONE)
 		return ;
 	const FlowState flowState = _flowBuf.srcToBuff(getFd());
 
@@ -24,7 +23,7 @@ void	CgiOut::readFromCgi()
 		delete _srcFile;
 		_srcFile = NULL;
 	}
-	if (_state == CGI_TO_TEMP && flowState == FLOW_DONE)
+	if (_state == CgiOut::CGI_TO_TEMP && flowState == FLOW_DONE)
 	{
 		try
 		{
@@ -38,7 +37,7 @@ void	CgiOut::readFromCgi()
 		}
 		generateFirstPart();
 	}
-	else if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+	else if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 	{
 		_code = HTTP_BAD_GATEWAY;
 		_error = true;
@@ -69,11 +68,11 @@ void	CgiOut::writeFirstPart(void)
 	if (_charsWritten != _firstPart.size())
 		return ;
 	if (_srcFile != NULL)
-		_state = FILE_TO_BUFFER;
+		_state = CgiOut::FILE_TO_BUFFER;
 	else if (_error)
 		setFinished();
 	else
-		_state = CGI_TO_BUFFER;
+		_state = CgiOut::CGI_TO_BUFFER;
 }
 
 void	CgiOut::writeToBuff(void)

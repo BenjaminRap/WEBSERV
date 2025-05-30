@@ -52,13 +52,13 @@ CgiOut::~CgiOut()
 void	CgiOut::setFinished(void)
 {
 	_isActive = false;
-	_state = DONE;
+	_state = CgiOut::DONE;
 }
 
 void	CgiOut::handleCgiError(uint32_t& events)
 {
 	events = 0;
-	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 	{
 		_code = HTTP_BAD_GATEWAY;
 		_error = true;
@@ -70,7 +70,7 @@ void	CgiOut::handleCgiError(uint32_t& events)
 
 bool	CgiOut::isResponseReady(void) const
 {
-	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 		return (false);
 	return (true);
 }
@@ -87,12 +87,12 @@ void	CgiOut::callback(uint32_t events)
 		handleCgiError(events);
 	if (events & EPOLLIN || _cgiReadFinished)
 		readFromCgi();
-	if (_state == READ_HEADER)
+	if (_state == CgiOut::READ_HEADER)
 		readHeaders();
-	if (_state == CGI_TO_TEMP)
+	if (_state == CgiOut::CGI_TO_TEMP)
 		writeToTemp();
-	if (_state == WRITE_FIRST_PART)
+	if (_state == CgiOut::WRITE_FIRST_PART)
 		writeFirstPart();
-	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
+	if (_state == CgiOut::FILE_TO_BUFFER || _state == CgiOut::CGI_TO_BUFFER)
 		writeToBuff();
 }

@@ -13,19 +13,19 @@
 class	FlowBuffer;
 class	Status;
 
-enum	CgiOutState
-{
-	READ_HEADER,
-	CGI_TO_TEMP,
-	WRITE_FIRST_PART,
-	FILE_TO_BUFFER,
-	CGI_TO_BUFFER,
-	DONE
-};
-
 class CgiOut : public AFdData
 {
 private:
+	enum	CgiOutState
+	{
+		READ_HEADER,
+		CGI_TO_TEMP,
+		WRITE_FIRST_PART,
+		FILE_TO_BUFFER,
+		CGI_TO_BUFFER,
+		DONE
+	};
+
 	/**
 	 * @brief The FlowBuffer of the RawResponse, what is written to
 	 * it will be written to the client.
