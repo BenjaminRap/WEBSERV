@@ -23,6 +23,17 @@ ASocketData::ASocketData
 {
 }
 
+ASocketData::ASocketData
+(
+	EPollHandler &ePollHandler,
+	AFdDataChilds type
+) :
+	AFdData(ePollHandler, type),
+	_iterator(),
+	_isIteratorSet(false)
+{
+}
+
 ASocketData::~ASocketData(void)
 {
 }

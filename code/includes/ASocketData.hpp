@@ -31,6 +31,11 @@ protected:
 		AFdDataChilds type,
 		uint32_t events
 	);
+	ASocketData
+	(
+		EPollHandler &ePollHandler,
+		AFdDataChilds type
+	);
 private:
 	ASocketData(void);
 	ASocketData(const ASocketData &ref);
