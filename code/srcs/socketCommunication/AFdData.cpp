@@ -10,41 +10,45 @@
 #include "socketCommunication.hpp"  // for addFlagsToFd, closeFdAndPrintError
 
 AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events) :
-	_fd(fd),
+	_fd(-1),
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
 	_type(type),
-	_eventIndex(-1)
+	_eventIndex(-1),
+	_addedToEPoll(false)
 {
-	if (fd <= 3)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+	if (events == 0)
+		throw std::logic_error("AfdData constructor called with events set to 0");
+	setFd(fd, events);
+}
 
-	if (!addFlagsToFd(_fd, O_NONBLOCK, FD_CLOEXEC))
-		throw std::runtime_error("AFdData: Can't apply flags to fd");
-	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
-		throw std::runtime_error("Can't add the fd to epoll !");
-
+AFdData::AFdData(EPollHandler& ePollHandler, AFdDataChilds type) :
+	_fd(-1),
+	_ePollHandler(&ePollHandler),
+	_isActive(true),
+	_type(type),
+	_eventIndex(-1),
+	_addedToEPoll(false)
+{
 }
 
 AFdData::AFdData(int fd, AFdDataChilds type) :
-	_fd(fd),
+	_fd(-1),
 	_ePollHandler(NULL),
 	_type(type),
-	_eventIndex(-1)
+	_eventIndex(-1),
+	_addedToEPoll(false)
 {
-	if (fd <= 3)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
-
-	if (!addFlagsToFd(_fd, 0, FD_CLOEXEC))
-		throw std::runtime_error("AFdData: Can't apply flags to fd");
+	setFd(fd, 0);
 }
 
 AFdData::~AFdData(void)
 {
-	if (_ePollHandler != NULL)
+	if (_fd < 0)
+		return ;
+	if (_addedToEPoll)
 		_ePollHandler->closeFdAndRemoveFromEpoll(_fd, _eventIndex);
-	else if (_fd > 0)
-		closeFdAndPrintError(_fd);
+	closeFdAndPrintError(_fd);
 }
 
 int	AFdData::getFd() const
@@ -70,4 +74,21 @@ AFdDataChilds	AFdData::getType(void) const
 void	AFdData::setEventIndex(ssize_t eventIndex)
 {
 	_eventIndex = eventIndex;
+}
+
+void	AFdData::setFd(int fd, uint32_t events)
+{
+	if (fd <= 3)
+		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+	if (events != 0 && !_ePollHandler)
+		throw std::logic_error("setFd called with events different to 0, but the instance hasn't be created with the right constructor");
+
+	_fd = fd;
+	if (!addFlagsToFd(_fd, O_NONBLOCK, FD_CLOEXEC))
+		throw std::runtime_error("AFdData: Can't apply flags to fd");
+	if (events == 0)
+		return ;
+	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
+		throw std::runtime_error("Can't add the fd to epoll !");
+	_addedToEPoll = true;
 }

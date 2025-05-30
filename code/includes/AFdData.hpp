@@ -27,7 +27,7 @@ protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
 	 */
-	const int		_fd;
+	int				_fd;
 	/**
 	 * @brief The class managing all fds in epoll, including this one,
 	 * if it is blocking.
@@ -42,9 +42,13 @@ protected:
 	bool			_isActive;
 	AFdDataChilds	_type;
 	ssize_t			_eventIndex;
+	bool			_addedToEPoll;
 
 	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);
+	AFdData(EPollHandler& ePollHandler, AFdDataChilds type);
 	AFdData(int fd, AFdDataChilds type);
+
+	void			setFd(int fd, uint32_t events);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);
