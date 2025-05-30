@@ -136,7 +136,7 @@ public:
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(RequestContext& requestContext);
+	RequestState				readRequest(RequestContext& requestContext, Response& response);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *

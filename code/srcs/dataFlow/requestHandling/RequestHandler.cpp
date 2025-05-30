@@ -30,10 +30,8 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(RequestContext& requestContext)
+RequestState			RequestHandler::readRequest(RequestContext& requestContext, Response& response)
 {
-	Response&	response = requestContext.response;
-
 	try
 	{
 		readStatusLine(response);
