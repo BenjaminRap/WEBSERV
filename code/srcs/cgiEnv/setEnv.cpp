@@ -1,6 +1,7 @@
 #include <cstring>       // for size_t, memset, strcpy, NULL
 #include <stdexcept>     // for logic_error
 #include <string>        // for basic_string, string, operator+
+#include <sstream>
 
 #include "ARequestType.hpp"
 #include "EMethods.hpp"  // for getStringRepresentation, EMethods
@@ -32,6 +33,14 @@ bool	addToEnv(char *(&env)[23], const std::string &title)
 		throw std::logic_error("Too much environment variable !");
 	env[i] = duplicateString(title);
 	return (true);
+}
+
+bool	addContentLengthToEnv(char *(&env)[23], size_t contentLength)
+{
+	std::ostringstream	oss;
+
+	oss << "CONTENT_LENGTH=" << contentLength;
+	return (addToEnv(env, oss.str()));
 }
 
 bool	addToEnv(char *(&env)[23], const std::string &title, const std::string *value)
