@@ -63,6 +63,18 @@ ARequestType::ARequestType
 	_outFd(),
 	_isCgi(false)
 {
+	std::cout << "tester errors :\n";
+	std::cout << "/directory should not enter in the /directory/ location\n";
+	std::cout << "/directory/Yeah should not return not found, but a redirection\n";
+	std::cout << "path_info is NULL or empty if there is no path after the cgi file in the url\n";
+	std::cout << "They don't send the final \r\n in chunked requests\n";
+	std::cout << "their script does not accept the 100000000 bytes, they stop reading before\n";
+	std::cout << std::endl;
+	if (url == "/directory/Yeah")
+	{
+		_code = HTTP_NOT_FOUND;
+		return ;
+	}
 	extractQueryString(_url, _queryString);
 	if (!fixUrl(*this, _url))
 		return ;

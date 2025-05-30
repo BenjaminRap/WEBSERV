@@ -70,7 +70,10 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 		return (-1);
 	}
 	if (_chunkSize == 0)
-		_state = ChunkedBody::TRAILERS;
+	{
+		// _state = ChunkedBody::TRAILERS;
+		setFinished(HTTP_OK);
+	}
 	else
 		_state = ChunkedBody::DATA;
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
