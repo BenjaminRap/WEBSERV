@@ -155,11 +155,8 @@ void	Response::setResponse(ARequestType& requestResult)
 
 	const SharedResource<AFdData*>	inFd = requestResult.getInFd();
 
-	if (inFd.isManagingValue()
-		&& inFd.getValue()->getType() == AFdData::CGI_IN)
-	{
+	if (requestResult.getIsCgi())
 		return ;
-	}
 
 	_fdData = requestResult.getOutFd();
 	_autoIndexPage = requestResult.getAutoIndexPage();

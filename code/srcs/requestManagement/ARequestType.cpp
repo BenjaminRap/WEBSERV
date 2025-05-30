@@ -60,7 +60,8 @@ ARequestType::ARequestType
 	_queryString(),
 	_pathInfo(),
 	_inFd(),
-	_outFd()
+	_outFd(),
+	_isCgi(false)
 {
 	extractQueryString(_url, _queryString);
 	if (!fixUrl(*this, _url))
@@ -188,6 +189,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 		closeFdAndPrintError(outFd);
 		return (HTTP_INTERNAL_SERVER_ERROR);
 	}
+	_isCgi = true;
 	return (HTTP_OK);
 };
 
@@ -261,6 +263,11 @@ const SharedResource<AFdData*>&	ARequestType::getInFd() const
 const SharedResource<AFdData*>&	ARequestType::getOutFd() const
 {
 	return (_outFd);
+}
+
+bool	ARequestType::getIsCgi(void) const
+{
+	return (_isCgi);
 }
 
 const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const
