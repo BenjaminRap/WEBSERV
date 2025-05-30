@@ -85,6 +85,7 @@ public:
 
 	void							setResponse(uint16_t code);
 	void							setResponse(ARequestType& ARequestType);
+	void							setFdData(AFdData& fdData, void (&free)(AFdData*));
 	/**
 	 * @brief Reset this instance as it was after construction.
 	 */

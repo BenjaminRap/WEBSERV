@@ -209,6 +209,11 @@ const std::string&	Response::getAutoIndexPage(void) const
 	return (_autoIndexPage);
 }
 
+void	Response::setFdData(AFdData& fdData, void (&free)(AFdData*))
+{
+	_fdData.setManagedResource(&fdData, free);
+}
+
 /*********************************Operator Overload**********************************************/
 
 std::ostream & operator<<(std::ostream & o, Response const & response)
