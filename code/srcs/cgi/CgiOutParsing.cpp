@@ -37,12 +37,10 @@ uint16_t	CgiOut::checkHeaders(void)
 	}
 	else if (transferEncoding == NULL)
 	{
+		_tempName[0] = '\0';
 		_srcFile = FileFd::getTemporaryFile(_tempName);
 		if (_srcFile == NULL)
-		{
-			_tempName[0] = '\0';
 			return (HTTP_INTERNAL_SERVER_ERROR);
-		}
 		_state = CGI_TO_TEMP;
 	}
 	return (HTTP_OK);
