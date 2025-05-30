@@ -53,7 +53,7 @@ size_t	ABody::getWritten(void) const
 	return (_written);
 }
 
-ABodyChilds	ABody::getType(void) const
+ABody::ABodyChilds	ABody::getType(void) const
 {
 	return (_type);
 }
@@ -80,13 +80,13 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 ssize_t	ABody::writeToFd(ABody &body, const void *buffer, size_t bufferCapacity)
 {
 	switch (body.getType()) {
-		case SIZED_BODY:
+		case ABody::SIZED:
 		{
 			SizedBody*	sizedBody = static_cast<SizedBody*>(&body);
 
 			return (sizedBody->writeToFd(buffer, bufferCapacity));
 		}
-		case CHUNKED_REQUEST:
+		case ABody::CHUNKED:
 		{
 			ChunkedBody*	chunkedBody = static_cast<ChunkedBody*>(&body);
 

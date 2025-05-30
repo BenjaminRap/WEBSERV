@@ -6,14 +6,6 @@
 
 class EPollHandler;
 
-enum	AFdDataChilds
-{
-	FILE_FD,
-	CGI_OUT,
-	CGI_IN,
-	SERVER_SOCKET_DATA,
-	CONNECTED_SOCKET_DATA
-};
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
@@ -23,6 +15,31 @@ enum	AFdDataChilds
  */
 class AFdData
 {
+public:
+	enum	AFdDataChilds
+	{
+		FILE_FD,
+		CGI_OUT,
+		CGI_IN,
+		SERVER_SOCKET_DATA,
+		CONNECTED_SOCKET_DATA
+	};
+	virtual ~AFdData(void);
+
+	/**
+	 * @brief This function is called when the _fd receives and events, the
+	 * implementation depends on the child : a ServerSocketData will create
+	 * a new connection, the ConnectedSocketData will manage a request ...
+	 *
+	 * @param events 
+	 */
+	virtual void	callback(uint32_t events) = 0;
+
+	int				getFd(void) const;
+	bool			getIsBlocking(void) const;
+	bool			getIsActive(void) const;
+	AFdDataChilds	getType(void) const;
+	void			setEventIndex(ssize_t eventIndex);
 protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
@@ -54,23 +71,6 @@ private:
 	AFdData(const AFdData &ref);
 
 	AFdData&	operator=(const AFdData& ref);
-public:
-	virtual ~AFdData(void);
-
-	/**
-	 * @brief This function is called when the _fd receives and events, the
-	 * implementation depends on the child : a ServerSocketData will create
-	 * a new connection, the ConnectedSocketData will manage a request ...
-	 *
-	 * @param events 
-	 */
-	virtual void	callback(uint32_t events) = 0;
-
-	int				getFd(void) const;
-	bool			getIsBlocking(void) const;
-	bool			getIsActive(void) const;
-	AFdDataChilds	getType(void) const;
-	void			setEventIndex(ssize_t eventIndex);
 };
 
 #endif // !A_FD_DATA_HPP

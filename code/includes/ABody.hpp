@@ -4,11 +4,6 @@
 # include <stdint.h>	// for uint16_t
 # include <sys/types.h>	// for ssize_t
 
-enum	ABodyChilds
-{
-	SIZED_BODY,
-	CHUNKED_REQUEST
-};
 
 /**
  * @class ABody
@@ -22,6 +17,39 @@ enum	ABodyChilds
  */
 class ABody
 {
+public:
+	enum	ABodyChilds
+	{
+		SIZED,
+		CHUNKED
+	};
+
+	virtual ~ABody();
+
+	bool		getFinished() const;
+	uint16_t	getStatus() const;
+	size_t		getWritten(void) const;
+	ABodyChilds	getType(void) const;
+	void		setFd(int fd);
+	/**
+	 * @brief Write bufferSize bytes from the buffer to the _fd.
+	 * If the _fd is set to -1, it justs ignores them.
+	 *
+	 * @param buffer The buffer whose characters will be written.
+	 * @param bufferCapacity The number of characters to write.
+	 * @return The number of characters written, or, if _fd is set to
+	 * -1 : bufferCapacity.
+	 */
+	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
+
+	/**
+	 * @brief Call the ABody child class writeToFd
+	 *
+	 * @param body The instance whose writeToFd method will called.
+	 * @throw It should not throw
+	 * @ref writeToFd The rest of the parameters and return value corresponds.
+	 */
+	static ssize_t	writeToFd(ABody &body, const void *buffer, size_t bufferCapacity);
 private:
 	/**
 	 * @brief The fd in which the body will write. It could be the
@@ -71,33 +99,6 @@ protected:
 	 * @return The number of character written (or ignored if the _fd is set to -1)
 	 */
 	virtual ssize_t		writeToFd(const void *buffer, size_t bufferCapacity) = 0;
-public:
-	virtual ~ABody();
-	
-	bool		getFinished() const;
-	uint16_t	getStatus() const;
-	size_t		getWritten(void) const;
-	ABodyChilds	getType(void) const;
-	void		setFd(int fd);
-	/**
-	 * @brief Write bufferSize bytes from the buffer to the _fd.
-	 * If the _fd is set to -1, it justs ignores them.
-	 *
-	 * @param buffer The buffer whose characters will be written.
-	 * @param bufferCapacity The number of characters to write.
-	 * @return The number of characters written, or, if _fd is set to
-	 * -1 : bufferCapacity.
-	 */
-	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
-	
-	/**
-	 * @brief Call the ABody child class writeToFd
-	 *
-	 * @param body The instance whose writeToFd method will called.
-	 * @throw It should not throw
-	 * @ref writeToFd The rest of the parameters and return value corresponds.
-	 */
-	static ssize_t	writeToFd(ABody &body, const void *buffer, size_t bufferCapacity);
 };
 
 #endif // !A_BODY_HPP

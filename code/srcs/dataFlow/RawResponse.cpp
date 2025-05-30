@@ -25,7 +25,7 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_flowBuf(bodyBuffer)
 {
 	if (_fdData.isManagingValue()
-		&& _fdData.getValue()->getType() == CGI_OUT)
+		&& _fdData.getValue()->getType() == AFdData::CGI_OUT)
 	{
 		return ;
 	}
@@ -109,7 +109,7 @@ std::string&	getFirstPart
 
 bool	canWriteFromBuffer(const AFdData* fdData)
 {
-	if (fdData->getType() != CGI_OUT)
+	if (fdData->getType() != AFdData::CGI_OUT)
 		return (true);
 	const CgiOut * const	cgiOut = static_cast<const CgiOut*>(fdData);
 

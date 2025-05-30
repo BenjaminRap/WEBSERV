@@ -4,23 +4,6 @@
 # include "ABody.hpp"
 # include "Request.hpp"
 
-/**
- * @enum ChunkedBodyState
- * @brief An enumeration that deescribes the state of the
- * ChunkedBody. As this class could parse the messsage in
- * mutliple calls, it has to remember where it was the previous
- * time. 
- * @note This ABody SHOULD NOT be used with blocking fd !!
- *
- */
-enum ChunkedBodyState
-{
-	CHUNKED_SIZE,
-	CHUNKED_DATA,
-	CHUNKED_ENDLINE,
-	CHUNKED_TRAILERS,
-	CHUNKED_DONE
-};
 
 /**
  * @class ChunkedBody
@@ -31,6 +14,23 @@ enum ChunkedBodyState
 class ChunkedBody : public ABody
 {
 private:
+	/**
+ * @enum ChunkedBodyState
+ * @brief An enumeration that deescribes the state of the
+ * ChunkedBody. As this class could parse the messsage in
+ * mutliple calls, it has to remember where it was the previous
+ * time. 
+ * @note This ABody SHOULD NOT be used with blocking fd !!
+ *
+ */
+	enum ChunkedBodyState
+	{
+		SIZE,
+		DATA,
+		ENDLINE,
+		TRAILERS,
+		DONE
+	};
 	/**
 	 * @brief The string that ends each line : \r\n
 	 */

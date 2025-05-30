@@ -8,7 +8,7 @@
 #include "socketCommunication.hpp"  // for checkError
 
 SizedBody::SizedBody(int fd, size_t size) :
-	ABody(fd, SIZED_BODY),
+	ABody(fd, ABody::SIZED),
 	_size(size),
 	_numCharsWritten(0)
 {
@@ -17,7 +17,7 @@ SizedBody::SizedBody(int fd, size_t size) :
 }
 
 SizedBody::SizedBody(size_t size) :
-	ABody(SIZED_BODY),
+	ABody(ABody::SIZED),
 	_size(size),
 	_numCharsWritten(0)
 {

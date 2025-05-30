@@ -3,10 +3,8 @@
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
 #include <iostream>                 // for basic_ostream, operator<<, ostream
-#include <map>                      // for map
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, operator<<, string
-#include <utility>                  // for make_pair
 
 #include "AFdData.hpp"              // for AFdData, AFdDataChilds
 #include "ARequestType.hpp"         // for ARequestType
@@ -58,7 +56,7 @@ void	Response::setBody()
 	{
 		AFdData*	fdData = _fdData.getValue();
 
-		if (fdData->getType() == FILE_FD)
+		if (fdData->getType() == AFdData::FILE_FD)
 			bodySize = static_cast<FileFd*>(fdData)->getSize();
 		else
 		{
@@ -158,7 +156,7 @@ void	Response::setResponse(ARequestType& requestResult)
 	const SharedResource<AFdData*>	inFd = requestResult.getInFd();
 
 	if (inFd.isManagingValue()
-		&& inFd.getValue()->getType() == CGI_IN)
+		&& inFd.getValue()->getType() == AFdData::CGI_IN)
 	{
 		return ;
 	}

@@ -66,7 +66,7 @@ bool	AFdData::getIsActive(void) const
 	return (_isActive);
 }
 
-AFdDataChilds	AFdData::getType(void) const
+AFdData::AFdDataChilds	AFdData::getType(void) const
 {
 	return (_type);
 }
