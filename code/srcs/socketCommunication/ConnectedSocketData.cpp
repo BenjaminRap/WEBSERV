@@ -34,7 +34,6 @@ ConnectedSocketData::ConnectedSocketData
 	(
 		fd,
 		ePollHandler,
-		serverConfiguration,
 		CONNECTED_SOCKET_DATA,
 		CONNECTED_EVENTS
 	),
@@ -51,7 +50,8 @@ ConnectedSocketData::ConnectedSocketData
 		_requestHandler.getFlowBuffer(),
 		_responsesHandler.getFlowBuffer(),
 		*this
-	)
+	),
+	_serverConfigurations(serverConfiguration)
 {
 
 }

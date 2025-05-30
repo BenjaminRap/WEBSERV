@@ -25,24 +25,25 @@ private:
 	 * @brief The class managing the queue of responses and the
 	 * sending in the right order.
 	 */
-	ResponsesHandler	_responsesHandler;
+	ResponsesHandler						_responsesHandler;
 	/**
 	 * @brief The class managing the parsing and execution of
 	 * the request.
 	 */
-	RequestHandler		_requestHandler;
+	RequestHandler							_requestHandler;
 	/**
 	 * @brief True when this socket needs to stop receiving requests.
 	 * When this is set to true, the ConnectedSocketData sends all the
 	 * remaining responses and removes itself from the epoll interest
 	 * list.
 	 */
-	bool				_closing;
+	bool									_closing;
 	/**
 	 * @brief A class containing all the variables necessary for the
 	 * ARequestType.
 	 */
-	RequestContext		_requestContext;
+	RequestContext							_requestContext;
+	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ConnectedSocketData(void);
 	ConnectedSocketData(const ASocketData &ref);

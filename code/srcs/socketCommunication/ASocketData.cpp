@@ -3,7 +3,6 @@
 #include <list>              // for list
 #include <stdexcept>         // for logic_error
 #include <string>            // for char_traits, basic_string
-#include <vector>            // for vector
 
 #include "AFdData.hpp"       // for AFdData, AFdDataChilds
 #include "ASocketData.hpp"   // for ASocketData
@@ -15,14 +14,12 @@ ASocketData::ASocketData
 (
 	int fd, 
 	EPollHandler& ePollHandler,
-	const std::vector<ServerConfiguration> &serverConfigurations,
 	AFdDataChilds type,
 	uint32_t events
 ) :
 	AFdData(fd, ePollHandler, type, events),
 	_iterator(),
-	_isIteratorSet(false),
-	_serverConfigurations(serverConfigurations)
+	_isIteratorSet(false)
 {
 }
 

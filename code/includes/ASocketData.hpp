@@ -4,7 +4,6 @@
 # include <list>					// for std::list
 
 # include "AFdData.hpp"				// for AFdData
-# include "ServerConfiguration.hpp"	// for ServerConfiguration
 
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
@@ -24,13 +23,11 @@ protected:
 	 * @brief True if the setIterator has been called with a valid argument.
 	 */
 	bool									_isIteratorSet;
-	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ASocketData
 	(
 		int fd,
 		EPollHandler &ePollHandler,
-		const std::vector<ServerConfiguration> &serverConfigurations,
 		AFdDataChilds type,
 		uint32_t events
 	);

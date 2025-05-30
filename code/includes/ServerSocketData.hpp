@@ -18,7 +18,8 @@ private:
 	/**
 	 * @brief On which host does this socket listen.
 	 */
-	const Host&	_host;
+	const Host&								_host;
+	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ServerSocketData(void);
 	ServerSocketData(const ASocketData &ref);
