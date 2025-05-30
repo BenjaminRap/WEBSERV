@@ -12,6 +12,7 @@
 
 class	FlowBuffer;
 class	Status;
+class	CgiOutArgs;
 
 class CgiOut : public AFdData
 {
@@ -149,6 +150,13 @@ public:
 		const ServerConfiguration& serverConfiguration,
 		pid_t pid,
 		const std::list<ConfigHeaders>& addHeader
+	);
+	CgiOut
+	(
+		int fd,
+		EPollHandler& ePollHandler,
+		pid_t pid,
+		const CgiOutArgs& cgiOutArgs
 	);
 	~CgiOut();
 

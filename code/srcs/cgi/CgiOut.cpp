@@ -5,6 +5,7 @@
 
 #include "AFdData.hpp"            // for AFdData, AFdDataChilds
 #include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
+#include "CgiOutArgs.hpp"
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
 class EPollHandler;  // lines 15-15
@@ -28,7 +29,7 @@ CgiOut::CgiOut
 	_charsWritten(0),
 	_headers(),
 	_srcFile(NULL),
-	_state(READ_HEADER),
+	_state(CgiOut::READ_HEADER),
 	_code(0),
 	_error(false),
 	_serverConf(serverConfiguration),
@@ -36,6 +37,31 @@ CgiOut::CgiOut
 	_cgiReadFinished(false),
 	_pid(pid),
 	_addHeader(addHeader)
+{
+	_tempName[0] = '\0';
+}
+
+CgiOut::CgiOut
+(
+	int fd,
+	EPollHandler& ePollHandler,
+	pid_t pid,
+	const CgiOutArgs& cgiOutArgs
+) :
+	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
+	_flowBuf(cgiOutArgs._responsesFlowBuffer),
+	_firstPart(),
+	_charsWritten(0),
+	_headers(),
+	_srcFile(NULL),
+	_state(CgiOut::READ_HEADER),
+	_code(0),
+	_error(false),
+	_serverConf(cgiOutArgs._serverConfiguration),
+	_canWrite(false),
+	_cgiReadFinished(false),
+	_pid(pid),
+	_addHeader(cgiOutArgs._addHeader)
 {
 	_tempName[0] = '\0';
 }
