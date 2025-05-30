@@ -65,7 +65,6 @@ CGI_FILES				:=	CgiIn.cpp				\
 							CgiOut.cpp				\
 							CgiOutRedirection.cpp	\
 							CgiOutParsing.cpp		\
-							RequestContext.cpp		\
 							execCGI.cpp
 CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 

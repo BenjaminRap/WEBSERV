@@ -27,8 +27,10 @@ public:
 	FlowBuffer&					requestBuff;
 	FlowBuffer&					responseBuff;
 	ConnectedSocketData&		connectedSocketData;
+	~RequestContext(void)
+	{
+	}
 
-	~RequestContext(void);
 	RequestContext
 	(
 		const Host& host,
@@ -39,7 +41,18 @@ public:
 		FlowBuffer& requestBuffer,
 		FlowBuffer& responseBuffer,
 		ConnectedSocketData& connectedSocketData
-	);
+	) :
+		_host(host),
+		_clientAddr(clientAddr),
+		_request(request),
+		_response(response),
+		_ePollHandler(ePollHandler),
+		_requestBuff(requestBuffer),
+		_responseBuff(responseBuffer),
+		_connectedSocketData(connectedSocketData)
+	{
+
+	}
 };
 
 #endif // !REQUEST_CONTEXT_HPP
