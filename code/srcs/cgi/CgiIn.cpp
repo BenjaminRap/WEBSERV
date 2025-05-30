@@ -118,7 +118,6 @@ void	CgiIn::execCgi(void)
 		if (pid != -1)
 			getCGIStatus(pid);
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
-		return ;
 	}
 }
 
