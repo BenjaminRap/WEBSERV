@@ -186,7 +186,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 			getCGIStatus(pid);
 		closeFdAndPrintError(inFd);
 		closeFdAndPrintError(outFd);
-		throw;
+		return (HTTP_INTERNAL_SERVER_ERROR);
 	}
 	return (HTTP_OK);
 };
