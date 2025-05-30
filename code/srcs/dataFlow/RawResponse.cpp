@@ -24,15 +24,10 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_fdData(response.getFdData()),
 	_flowBuf(bodyBuffer)
 {
-	if (_fdData.isManagingValue()
-		&& _fdData.getValue()->getType() == AFdData::CGI_OUT)
-	{
-		return ;
-	}
 	const Status * const		status = response.getStatus();
 
 	if (status == NULL)
-		throw std::logic_error("RawResponse constructor called with an unset response !");
+		return ;
 	const char*	bodyBegin;
 	const char*	bodyEnd;
 

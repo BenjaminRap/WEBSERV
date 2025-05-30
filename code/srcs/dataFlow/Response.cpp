@@ -153,12 +153,10 @@ void	Response::setResponse(ARequestType& requestResult)
 {
 	reset();
 
-	const SharedResource<AFdData*>	inFd = requestResult.getInFd();
-
+	_fdData = requestResult.getOutFd();
 	if (requestResult.getIsCgi())
 		return ;
 
-	_fdData = requestResult.getOutFd();
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
