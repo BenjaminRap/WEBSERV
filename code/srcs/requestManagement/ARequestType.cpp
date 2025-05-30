@@ -7,6 +7,7 @@
 #include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType
+#include "ABody.hpp"
 #include "CgiIn.hpp"                // for CgiIn
 #include "CgiOut.hpp"               // for CgiOut
 #include "EMethods.hpp"             // for EMethods
@@ -37,6 +38,8 @@ void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
 uint16_t	isDirOrFile(const std::string& path);
 bool		isExtension(const std::string& file, const std::string& extension);
+int			getCGIStatus(pid_t pid);
+
 
 ARequestType::ARequestType
 (
@@ -63,7 +66,7 @@ ARequestType::ARequestType
 	if (!fixUrl(*this, _url))
 		return ;
 	addRoot(*this, config);
-	this->_code = requestContext.request.setBodyFromHeaders(getMaxClientBodySize());
+	this->_code = requestContext._request.setBodyFromHeaders(getMaxClientBodySize());
 	if (_code != 0)
 		return ;
 	if (!checkAllowMeth(*this, method))
@@ -115,53 +118,76 @@ bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
 
 uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 {
-	Request&	request = requestContext.request;
-	ABody*		body = request.getBody();
-	int			inFd;
-	int			outFd;
-	char*		env[20];
-	char*		argv[3];
-	pid_t		pid;
+	const char*			env[23];
+	const char*			argv[3];
+	ABody * const		body = requestContext._request.getBody();
+	const CgiOutArgs*	cgiOutArgs = NULL;
+	int					inFd = -1;
+	int					outFd = -1;
+	pid_t				pid = -1;
 
 	std::memset(env, 0, sizeof(env));
 	std::memset(argv, 0, sizeof(argv));
 	try
 	{
-		const bool	error = (!setEnv(env, *this, requestContext)
-			|| !setArgv(argv, getCgiInterpreter(), _path)
-			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
+		setEnv(env, requestContext);
+		setArgv(argv, getCgiInterpreter(), _path);
+		cgiOutArgs = new CgiOutArgs(_config, requestContext._responseBuff, getAddHeader());
+		if (body != NULL && body->getType() == ABody::CHUNKED)
+		{
+			_inFd.setManagedResource(new CgiIn(requestContext._ePollHandler,
+				requestContext._requestBuff,
+				(ChunkedBody&)*body,
+				requestContext._connectedSocketData,
+				requestContext._response,
+				argv,
+				env,
+				cgiOutArgs
+			), freePointer);
+			return (HTTP_OK);
+		}
+
+		pid = execCGI(argv, env, inFd, outFd);
+		if (pid == -1)
+			throw ;
+		if (body != NULL)
+		{
+			_inFd.setManagedResource(new CgiIn(
+				inFd,
+				requestContext._ePollHandler,
+				requestContext._requestBuff,
+				(SizedBody&)*body,
+				requestContext._connectedSocketData,
+				requestContext._response
+			), freePointer);
+		}
+		else
+			closeFdAndPrintError(inFd);
+		inFd = -1;
+		_outFd.setManagedResource(new CgiOut(
+			outFd,
+			requestContext._ePollHandler,
+			pid,
+			*cgiOutArgs
+		), freePointer);
+		outFd = -1;
+		pid = -1;
+
+		delete cgiOutArgs;
 		deleteArray((const char**)env);
 		deleteArray((const char**)argv);
-		if (error)
-			return (HTTP_INTERNAL_SERVER_ERROR);
 	}
 	catch (const std::exception& e)
 	{
 		deleteArray((const char**)env);
 		deleteArray((const char**)argv);
+		delete cgiOutArgs;
+		if (pid != -1)
+			getCGIStatus(pid);
+		closeFdAndPrintError(inFd);
+		closeFdAndPrintError(outFd);
 		throw;
 	}
-	if (body != NULL)
-	{
-		this->_inFd.setManagedResource(new CgiIn(
-			inFd,
-			requestContext.ePollHandler,
-			requestContext.requestBuff,
-			*body,
-			requestContext.connectedSocketData,
-			requestContext.response
-		), freePointer);
-	}
-	else
-		closeFdAndPrintError(inFd);
-	this->_outFd.setManagedResource(new CgiOut(
-		outFd,
-		requestContext.ePollHandler,
-		requestContext.responseBuff,
-		_config,
-		pid,
-		getAddHeader()
-	), freePointer);
 	return (HTTP_OK);
 };
 
