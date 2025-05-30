@@ -18,33 +18,6 @@ CgiOut::CgiOut
 (
 	int fd,
 	EPollHandler& ePollHandler,
-	FlowBuffer&	responseFlowBuffer,
-	const ServerConfiguration& serverConfiguration,
-	pid_t pid,
-	const std::list<ConfigHeaders>& addHeader
-) :
-	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
-	_flowBuf(responseFlowBuffer),
-	_firstPart(),
-	_charsWritten(0),
-	_headers(),
-	_srcFile(NULL),
-	_state(CgiOut::READ_HEADER),
-	_code(0),
-	_error(false),
-	_serverConf(serverConfiguration),
-	_canWrite(false),
-	_cgiReadFinished(false),
-	_pid(pid),
-	_addHeader(addHeader)
-{
-	_tempName[0] = '\0';
-}
-
-CgiOut::CgiOut
-(
-	int fd,
-	EPollHandler& ePollHandler,
 	pid_t pid,
 	const CgiOutArgs& cgiOutArgs
 ) :

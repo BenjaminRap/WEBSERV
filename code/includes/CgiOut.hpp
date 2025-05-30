@@ -146,15 +146,6 @@ public:
 	(
 		int fd,
 		EPollHandler& ePollHandler,
-		FlowBuffer& responseFlowBuffer,
-		const ServerConfiguration& serverConfiguration,
-		pid_t pid,
-		const std::list<ConfigHeaders>& addHeader
-	);
-	CgiOut
-	(
-		int fd,
-		EPollHandler& ePollHandler,
 		pid_t pid,
 		const CgiOutArgs& cgiOutArgs
 	);
