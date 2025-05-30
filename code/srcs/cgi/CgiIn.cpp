@@ -19,6 +19,7 @@ class EPollHandler;  // lines 14-14
 bool	addContentLengthToEnv(const char *(&env)[23], size_t contentLength);
 int		execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd);
 int		getCGIStatus(pid_t pid);
+void	deleteArray(const char** array);
 
 CgiIn::CgiIn
 (
@@ -78,6 +79,8 @@ CgiIn::~CgiIn()
 		std::remove(_tempName);
 	delete _tmpFile;
 	delete _cgiOutArgs;
+	deleteArray((const char**)_env);
+	deleteArray((const char**)_argv);
 }
 
 void	CgiIn::execCgi(void)
