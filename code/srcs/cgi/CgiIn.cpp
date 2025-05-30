@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdint.h>                 // for uint16_t, uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN
 
@@ -7,28 +8,117 @@
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
+#include "requestStatusCode.hpp"
+#include "CgiOut.hpp"
+#include "ChunkedBody.hpp"
+#include "SizedBody.hpp"
+#include "socketCommunication.hpp"
 
 class EPollHandler;  // lines 14-14
+
+bool	addContentLengthToEnv(char *(&env)[23], size_t contentLength);
+int		execCGI(char * const * argv, char * const * env, int& inFd, int& outFd);
+int		getCGIStatus(pid_t pid);
+
+CgiIn::CgiIn
+(
+	EPollHandler& ePollHandler,
+	FlowBuffer& requestFlowBuffer,
+	ChunkedBody& chunkedBody,
+	ConnectedSocketData& connectedSocketData,
+	Response& currentResponse,
+	char* argv[3],
+	char* env[23],
+	const CgiOutArgs * cgiOutArgs
+) :
+	AFdData(ePollHandler, CGI_IN),
+	_flowBuf(requestFlowBuffer),
+	_body(chunkedBody),
+	_connectedSocketData(connectedSocketData),
+	_response(currentResponse),
+	_tmpFile(NULL),
+	_cgiOutArgs(cgiOutArgs)
+{
+	std::memcpy(_argv, argv, sizeof(_argv));
+	std::memcpy(_env, env, sizeof(_env));
+	_tempName[0] = '\0';
+	_tmpFile = FileFd::getTemporaryFile(_tempName);
+	if (_tmpFile == NULL)
+		throw std::runtime_error("Can't open a temporary file !");
+	_state = CgiIn::BUFFER_TO_TEMP;
+	setFd(_tmpFile->getFd(), 0);
+}
 
 CgiIn::CgiIn
 (
 	int fd,
 	EPollHandler& ePollHandler,
 	FlowBuffer& requestFlowBuffer,
-	ABody& body,
+	SizedBody& sizedBody,
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
 	AFdData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
 	_flowBuf(requestFlowBuffer),
-	_body(body),
+	_body(sizedBody),
 	_connectedSocketData(connectedSocketData),
-	_response(currentResponse)
+	_response(currentResponse),
+	_tmpFile(NULL),
+	_cgiOutArgs(NULL)
 {
+	std::memset(_argv, 0, sizeof(_argv));
+	std::memset(_env, 0, sizeof(_env));
+	_tempName[0] = '\0';
+	_state = CgiIn::BUFFER_TO_CGI;
 }
 
 CgiIn::~CgiIn()
 {
+	if (_tempName[0] != '\0')
+		std::remove(_tempName);
+	if (_tmpFile != NULL)
+		delete _tmpFile;
+	if (_cgiOutArgs != NULL)
+		delete _cgiOutArgs;
+}
+
+void	CgiIn::execCgi(void)
+{
+	int		inFd = -1;
+	int		outFd = -1;
+	pid_t	pid = -1;
+
+	try
+	{
+		delete _tmpFile;
+		_tmpFile = NULL;
+		_tmpFile = new FileFd(_tempName, O_RDONLY);
+		addContentLengthToEnv(_env, _tmpFile->getSize());
+		
+		pid = execCGI(_argv, _env, inFd, outFd);
+		if (pid == -1)
+			throw ;
+
+		setFd(inFd, CGI_IN_EVENTS);
+		_body.setFd(inFd);
+		inFd = -1;
+		_response.setFdData(*new CgiOut(
+			outFd,
+			*_ePollHandler,
+			pid,
+			*_cgiOutArgs
+		), freePointer);
+		_state = CgiIn::TEMP_TO_CGI;
+	}
+	catch (const std::exception& e)
+	{
+		closeFdAndPrintError(inFd);
+		closeFdAndPrintError(outFd);
+		if (pid != -1)
+			getCGIStatus(pid);
+		setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		return ;
+	}
 }
 
 void	CgiIn::setFinished(uint16_t code)
@@ -43,19 +133,41 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiIn::callback(uint32_t events)
 {
-	if (!_isActive)
+	if (!_isActive || _state == CgiIn::DONE)
 		return ;
 	if (events & (EPOLLERR | EPOLLHUP))
 	{
 		setFinished(0);
 		return ;
 	}
+	if (_state == CgiIn::BUFFER_TO_TEMP)
+	{
+		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+
+		if (code == HTTP_OK)
+			execCgi();
+		else if (code != 0)
+			setFinished(code);
+		return ;
+	}
 	if (!(events & EPOLLOUT))
 		return ;
-	const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+	if (_state == CgiIn::BUFFER_TO_CGI)
+	{
+		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
 
-	const uint16_t	code = getCodeIfFinished(true, flowState, _body);
-	if (code == 0)
-		return ;
-	setFinished(code);
+		if (code != 0)
+			setFinished(code);
+	}
+	else if (_state == CgiIn::TEMP_TO_CGI)
+	{
+		const FlowState	flowState = _flowBuf.redirect(_tmpFile->getFd(), getFd());
+
+		if (flowState == FLOW_ERROR)
+			setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		else if (flowState == FLOW_DONE)
+			setFinished(0);
+	}
 }
