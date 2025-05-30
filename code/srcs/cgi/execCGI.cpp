@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <sys/types.h>              // for pid_t
 #include <sys/wait.h>               // for waitpid, WNOHANG
 #include <unistd.h>                 // for dup2, pipe, execve, fork, STDIN_F...
@@ -49,6 +50,14 @@ void	replaceByProgram(
 	}
 	closeFdAndPrintError(inFd);
 
+	for (size_t i = 0; argv[i] != NULL; i++)
+	{
+		std::cerr << "argv[" << i << "]: " << argv[i] << std::endl;
+	}
+	for (size_t i = 0; env[i] != NULL; i++)
+	{
+		std::cerr << "env[" << i << "]: " << env[i] << std::endl;
+	}
 	//execute cgi
 	execve(argv[0], (char**)argv, (char**)env);
 }
