@@ -76,10 +76,8 @@ CgiIn::~CgiIn()
 {
 	if (_tempName[0] != '\0')
 		std::remove(_tempName);
-	if (_tmpFile != NULL)
-		delete _tmpFile;
-	if (_cgiOutArgs != NULL)
-		delete _cgiOutArgs;
+	delete _tmpFile;
+	delete _cgiOutArgs;
 }
 
 void	CgiIn::execCgi(void)

@@ -18,11 +18,8 @@ void	CgiOut::readFromCgi()
 	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
 		return ;
 
-	if (_srcFile != NULL)
-	{
-		delete _srcFile;
-		_srcFile = NULL;
-	}
+	delete _srcFile;
+	_srcFile = NULL;
 	if (_state == CgiOut::CGI_TO_TEMP && flowState == FLOW_DONE)
 	{
 		try

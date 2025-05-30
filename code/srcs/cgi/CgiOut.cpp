@@ -43,8 +43,7 @@ CgiOut::~CgiOut()
 {
 	if (_tempName[0] != '\0')
 		std::remove(_tempName);
-	if (_srcFile != NULL)
-		delete _srcFile;
+	delete _srcFile;
 	getCGIStatus(_pid);
 }
 

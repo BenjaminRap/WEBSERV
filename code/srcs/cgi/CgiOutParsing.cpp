@@ -70,8 +70,7 @@ uint16_t	CgiOut::getStatusCode(void)
 void	CgiOut::setErrorPage(const Status** currentStatus)
 {
 	_headers.clear();
-	if (_srcFile != NULL)
-		delete _srcFile;
+	delete _srcFile;
 	_srcFile = getErrorPage(currentStatus, _serverConf);
 	addDefaultHeaders(_headers, *currentStatus);
 
