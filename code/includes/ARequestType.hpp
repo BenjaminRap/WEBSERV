@@ -84,7 +84,7 @@ class ARequestType
 		std::string&							getUrl(void);
 		uint16_t								setCgiAFdData(RequestContext& requestContext);
 		bool									setPathInfo(const std::string& extension, std::string path);
-		void									setEnv(char *(&env)[23], RequestContext& requestContext);
+		void									setEnv(const char *(&env)[23], RequestContext& requestContext);
 };
 
 #endif //!A_REQUEST_HPP

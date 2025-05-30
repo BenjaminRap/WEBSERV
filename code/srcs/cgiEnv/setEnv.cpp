@@ -24,7 +24,7 @@ char *duplicateString(const std::string &str)
 	return (dup);
 }
 
-bool	addToEnv(char *(&env)[23], const std::string &title)
+bool	addToEnv(const char *(&env)[23], const std::string &title)
 {
 	int i = 0;
 	while (env[i] != NULL && i < 22)
@@ -35,7 +35,7 @@ bool	addToEnv(char *(&env)[23], const std::string &title)
 	return (true);
 }
 
-bool	addContentLengthToEnv(char *(&env)[23], size_t contentLength)
+bool	addContentLengthToEnv(const char *(&env)[23], size_t contentLength)
 {
 	std::ostringstream	oss;
 
@@ -43,7 +43,7 @@ bool	addContentLengthToEnv(char *(&env)[23], size_t contentLength)
 	return (addToEnv(env, oss.str()));
 }
 
-bool	addToEnv(char *(&env)[23], const std::string &title, const std::string *value)
+bool	addToEnv(const char *(&env)[23], const std::string &title, const std::string *value)
 {
 	if (value == NULL)
 		return (true);
@@ -64,7 +64,7 @@ std::string findScriptName(const std::string& url, const std::string& pathInfo)
 
 void	deleteArray(const char** array);
 
-void	ARequestType::setEnv(char *(&env)[23], RequestContext& requestContext)
+void	ARequestType::setEnv(const char *(&env)[23], RequestContext& requestContext)
 {
 	std::memset(env, 0, sizeof(env));
 	const Headers&		headers = requestContext._request.getHeaders();

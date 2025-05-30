@@ -20,7 +20,9 @@ void	closeFds(int fdA, int fdB)
 	closeFdAndPrintError(fdB);
 }
 
-void	replaceByProgram(char *const * argv, char *const * env, int inFd, int outFd)
+void	replaceByProgram(
+	const char * const argv[3], const char * const env[23], int inFd, int outFd
+)
 {
 	// Reset the signals handler.
 	if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
@@ -48,10 +50,10 @@ void	replaceByProgram(char *const * argv, char *const * env, int inFd, int outFd
 	closeFdAndPrintError(inFd);
 
 	//execute cgi
-	execve(path, argv, env);
+	execve(argv[0], (char**)argv, (char**)env);
 }
 
-int	execCGI(char * const * argv, char * const * env, int& inFd, int& outFd)
+int	execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd)
 {
 	int	tubeIn[2];
 	int	tubeOut[2];

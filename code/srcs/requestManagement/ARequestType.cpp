@@ -29,11 +29,10 @@ void		replaceUrl(const std::string &location, const std::string &root, std::stri
 void		fixPath(std::string &path);
 bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
-int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
+int			execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd);
 void		extractQueryString(std::string& url, std::string& queryString);
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
-bool		setEnv(char *(&env)[20], const ARequestType& req, RequestContext& requestContext);
-bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
+void		setArgv(const char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
 void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
 uint16_t	isDirOrFile(const std::string& path);

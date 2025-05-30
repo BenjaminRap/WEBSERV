@@ -53,8 +53,8 @@ private:
 	CgiInState					_state;
 	char						_tempName[L_tmpnam];
 	FileFd*						_tmpFile;
-	char*						_argv[3];
-	char*						_env[23];
+	const char*					_argv[3];
+	const char*					_env[23];
 	const CgiOutArgs * const	_cgiOutArgs;
 
 	CgiIn(void);
@@ -79,8 +79,8 @@ public:
 		ChunkedBody& chunkedBody,
 		ConnectedSocketData& connectedSocketData,
 		Response& currentResponse,
-		char* argv[3],
-		char* env[23],
+		const char* argv[3],
+		const char* env[23],
 		const CgiOutArgs * cgiOutArgs
 	);
 	CgiIn

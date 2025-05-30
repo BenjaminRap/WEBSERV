@@ -16,8 +16,8 @@
 
 class EPollHandler;  // lines 14-14
 
-bool	addContentLengthToEnv(char *(&env)[23], size_t contentLength);
-int		execCGI(char * const * argv, char * const * env, int& inFd, int& outFd);
+bool	addContentLengthToEnv(const char *(&env)[23], size_t contentLength);
+int		execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd);
 int		getCGIStatus(pid_t pid);
 
 CgiIn::CgiIn
@@ -27,8 +27,8 @@ CgiIn::CgiIn
 	ChunkedBody& chunkedBody,
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse,
-	char* argv[3],
-	char* env[23],
+	const char* argv[3],
+	const char* env[23],
 	const CgiOutArgs * cgiOutArgs
 ) :
 	AFdData(ePollHandler, CGI_IN),
