@@ -62,10 +62,10 @@ void	ASocketData::setIterator(const std::list<ASocketData *>::iterator &iterator
 	this->_iterator = iterator;
 }
 
-
 void	ASocketData::removeFromEPollHandler(void)
 {
 	if (_isIteratorSet == false)
 		return ;
-	_ePollHandler->removeFdDataFromList(_iterator);
+	_isActive = false;
+	_ePollHandler->addFdToRemoveList(*this);
 }

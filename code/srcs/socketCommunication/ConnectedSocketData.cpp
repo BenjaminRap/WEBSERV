@@ -115,20 +115,22 @@ void	ConnectedSocketData::ignoreBodyAndReadRequests(Response& response)
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-		_isActive = false;
+	if (!_isActive)
+		return ;
 	try
 	{
-		if (_isActive && !_closing && events & EPOLLIN)
+		if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+			throw ("Client closed the connection");
+		if (!_closing && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
-				_isActive = false;
+				throw std::runtime_error("client closed the connection");
 		}
-		if (_isActive && events & EPOLLOUT)
+		if (events & EPOLLOUT)
 		{
 			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
 			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
-				_isActive = false;
+				throw std::runtime_error("Error sending the response !");
 		}
 	}
 	catch(const ExecveException& e)
@@ -138,8 +140,6 @@ void	ConnectedSocketData::callback(uint32_t events)
 	catch (const std::exception& exception)
 	{
 		std::cerr << exception.what() << std::endl;
-		_isActive = false;
-	}
-	if (_isActive == false)
 		removeFromEPollHandler();
+	}
 }

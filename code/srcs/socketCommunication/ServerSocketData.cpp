@@ -73,6 +73,8 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 
 void	ServerSocketData::callback(uint32_t events)
 {
+	if (!_isActive)
+		return ;
 	if (events & EPOLLERR)
 		removeFromEPollHandler();
 	else
