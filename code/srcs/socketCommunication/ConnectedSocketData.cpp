@@ -120,7 +120,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 	try
 	{
 		if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-			throw ("Client closed the connection");
+			throw std::runtime_error("Client closed the connection");
 		if (!_closing && events & EPOLLIN)
 		{
 			if (processRequest() == CONNECTION_CLOSED)
