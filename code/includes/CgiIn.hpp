@@ -1,6 +1,7 @@
 #ifndef CGI_IN_HPP
 # define CGI_IN_HPP
 
+# include "ASocketData.hpp"
 # include "CgiOutArgs.hpp"
 # include "FileFd.hpp"
 # include "FlowBuffer.hpp"
@@ -19,7 +20,7 @@ class	CgiOut;
 class	FlowBuffer;
 class	ABody;
 
-class CgiIn : public AFdData
+class CgiIn : public ASocketData
 {
 private:
 	enum	CgiInState

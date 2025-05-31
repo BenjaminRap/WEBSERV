@@ -4,6 +4,7 @@
 # include <cstdio>					// for L_tmpnam
 
 # include "AFdData.hpp"				// for ASocketData
+# include "ASocketData.hpp"
 # include "FileFd.hpp"
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
@@ -14,7 +15,7 @@ class	FlowBuffer;
 class	Status;
 class	CgiOutArgs;
 
-class CgiOut : public AFdData
+class CgiOut : public ASocketData
 {
 private:
 	enum	CgiOutState

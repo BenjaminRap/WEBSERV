@@ -69,3 +69,10 @@ void	ASocketData::removeFromEPollHandler(void)
 	_isActive = false;
 	_ePollHandler->addFdToRemoveList(*this);
 }
+
+void	ASocketData::removeFromEPollHandler(AFdData* fdData)
+{
+	ASocketData*	socketData = static_cast<ASocketData*>(fdData);
+
+	socketData->removeFromEPollHandler();
+}

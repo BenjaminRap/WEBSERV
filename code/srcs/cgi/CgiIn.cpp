@@ -32,7 +32,7 @@ CgiIn::CgiIn
 	const char* env[23],
 	const CgiOutArgs * cgiOutArgs
 ) :
-	AFdData(ePollHandler, CGI_IN),
+	ASocketData(ePollHandler, CGI_IN),
 	_flowBuf(requestFlowBuffer),
 	_body(chunkedBody),
 	_connectedSocketData(connectedSocketData),
@@ -59,7 +59,7 @@ CgiIn::CgiIn
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
-	AFdData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
+	ASocketData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
 	_flowBuf(requestFlowBuffer),
 	_body(sizedBody),
 	_connectedSocketData(connectedSocketData),
@@ -124,6 +124,7 @@ void	CgiIn::execCgi(void)
 void	CgiIn::setFinished(uint16_t code)
 {
 	_isActive = false;
+	_state = CgiIn::DONE;
 	if (code != 0)
 		_response.setResponse(code);
 	_connectedSocketData.ignoreBodyAndReadRequests(_response);

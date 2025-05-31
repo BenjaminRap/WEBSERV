@@ -36,6 +36,12 @@ protected:
 		EPollHandler &ePollHandler,
 		AFdDataChilds type
 	);
+
+	/**
+	 * @brief Remove this ASocketData from the EPollHandler list of sockets.
+	 * @note Calling this function will destroy this instance.
+	 */
+	void										removeFromEPollHandler(void);
 private:
 	ASocketData(void);
 	ASocketData(const ASocketData &ref);
@@ -44,6 +50,7 @@ private:
 public:
 	virtual ~ASocketData(void);
 
+	static void									removeFromEPollHandler(AFdData* fdData);
 	/**
 	 * @brief Return the iterator pointing to this object in the SocketHandler _socketsData
 	 * list.
@@ -60,11 +67,6 @@ public:
 	 * @param iterator The iterator that points to this FdData.
 	 */
 	void										setIterator(const std::list<ASocketData *>::iterator &iterator);
-	/**
-	 * @brief Remove this ASocketData from the EPollHandler list of sockets.
-	 * @note Calling this function will destroy this instance.
-	 */
-	void										removeFromEPollHandler(void);
 };
 
 #endif // !A_SOCKET_DATA_HPP

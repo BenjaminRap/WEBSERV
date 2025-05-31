@@ -19,6 +19,7 @@
 #include "Status.hpp"
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_INTERNAL_S...
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
+#include "EPollHandler.hpp"
 
 class ABody;
 class AFdData;  // lines 20-20
@@ -144,8 +145,11 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 				argv,
 				env,
 				cgiOutArgs
-			), freePointer);
-			return (HTTP_OK);
+			), ASocketData::removeFromEPollHandler);
+			ASocketData*	cgiIn = static_cast<ASocketData*>(_inFd.getValue());
+
+			requestContext._ePollHandler.addFdToList(*cgiIn);
+		return (HTTP_OK);
 		}
 
 		pid = execCGI(argv, env, inFd, outFd);
@@ -160,7 +164,11 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 				(SizedBody&)*body,
 				requestContext._connectedSocketData,
 				requestContext._response
-			), freePointer);
+			), ASocketData::removeFromEPollHandler);
+
+			ASocketData*	cgiIn = static_cast<ASocketData*>(_inFd.getValue());
+
+			requestContext._ePollHandler.addFdToList(*cgiIn);
 		}
 		else
 			closeFdAndPrintError(inFd);
@@ -170,7 +178,11 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 			requestContext._ePollHandler,
 			pid,
 			*cgiOutArgs
-		), freePointer);
+		), ASocketData::removeFromEPollHandler);
+
+		ASocketData*	cgiOut = static_cast<ASocketData*>(_outFd.getValue());
+
+		requestContext._ePollHandler.addFdToList(*cgiOut);
 		outFd = -1;
 		pid = -1;
 
