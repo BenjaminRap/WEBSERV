@@ -29,6 +29,7 @@ private:
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
 	std::list<ASocketData*>		_socketsData;
+	std::list<ASocketData*>		_socketsToRemove;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -119,6 +120,7 @@ public:
 	 * the destructor shouldn't remove the unix sockets.
 	 */
 	void	clearUnixSocketsList(void);
+	void	addFdToRemoveList(ASocketData& fdData);
 };
 
 #endif // !EPOLL_HANDLER_HPP

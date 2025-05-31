@@ -98,8 +98,12 @@ bool	EPollHandler::callSocketsCallback(void)
 	}
 	for (std::list<ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
 	{
-	
+		const ASocketData*	socket = *it;
+
+		_socketsData.erase(socket->getIterator());
+		delete socket;
 	}
+	_socketsToRemove.clear();
 	return (true);
 }
 
@@ -168,4 +172,9 @@ void	EPollHandler::removeFdDataFromList(std::list<ASocketData*>::iterator pos)
 void	EPollHandler::clearUnixSocketsList(void)
 {
 	_unixSocketsToRemove.clear();
+}
+
+void	EPollHandler::addFdToRemoveList(ASocketData& fdData)
+{
+	_socketsToRemove.push_back(&fdData);
 }
