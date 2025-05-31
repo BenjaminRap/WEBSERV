@@ -14,7 +14,6 @@ AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
 	_type(type),
-	_eventIndex(-1),
 	_addedToEPoll(false)
 {
 	if (events == 0)
@@ -27,7 +26,6 @@ AFdData::AFdData(EPollHandler& ePollHandler, AFdDataChilds type) :
 	_ePollHandler(&ePollHandler),
 	_isActive(true),
 	_type(type),
-	_eventIndex(-1),
 	_addedToEPoll(false)
 {
 }
@@ -36,7 +34,6 @@ AFdData::AFdData(int fd, AFdDataChilds type) :
 	_fd(-1),
 	_ePollHandler(NULL),
 	_type(type),
-	_eventIndex(-1),
 	_addedToEPoll(false)
 {
 	setFd(fd, 0);
@@ -47,7 +44,7 @@ AFdData::~AFdData(void)
 	if (_fd < 0)
 		return ;
 	if (_addedToEPoll)
-		_ePollHandler->closeFdAndRemoveFromEpoll(_fd, _eventIndex);
+		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
 	else
 		closeFdAndPrintError(_fd);
 }
@@ -70,11 +67,6 @@ bool	AFdData::getIsActive(void) const
 AFdData::AFdDataChilds	AFdData::getType(void) const
 {
 	return (_type);
-}
-
-void	AFdData::setEventIndex(ssize_t eventIndex)
-{
-	_eventIndex = eventIndex;
 }
 
 void	AFdData::setFd(int fd, uint32_t events)

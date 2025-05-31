@@ -43,10 +43,6 @@ private:
 	 */
 	unsigned int				_maxEvents;
 	/**
-	 * @brief The count of events detected by the epoll_wait function.
-	 */
-	size_t						_eventsCount;
-	/**
 	 * @brief When creating a socket unix connection, a socket unix file is
 	 * created in the file system. This vector stores all the sockets path that
 	 * have been created.
@@ -75,11 +71,6 @@ public:
 	 */
 	~EPollHandler();
 
-	/**
-	 * @brief Call epoll_wait with the SocketHandler variables and return its result;
-	 * @return The number of events, or -1 on error;
-	 */
-	int		epollWaitForEvent();
 	/**
 	 * @brief Add the FdData the the _socketsdata list.
 	 * If the function fails, the FdData won't be destroyed.
@@ -114,7 +105,7 @@ public:
 	 * remove it from The _socketsData list.
 	 * @param fd The fd of the socket to close.
 	 */
-	void	closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex);
+	void	closeFdAndRemoveFromEpoll(int fd);
 	/**
 	 * @brief Removes an AFdData from the _socketsData list and delete it.
 	 * @note The function doesn't have to removed it from the interest list

@@ -39,7 +39,6 @@ public:
 	bool			getIsBlocking(void) const;
 	bool			getIsActive(void) const;
 	AFdDataChilds	getType(void) const;
-	void			setEventIndex(ssize_t eventIndex);
 protected:
 	/**
 	 * @brief The file descriptor on a file, socket, pipe ...
@@ -58,7 +57,6 @@ protected:
 	 */
 	bool			_isActive;
 	AFdDataChilds	_type;
-	ssize_t			_eventIndex;
 	bool			_addedToEPoll;
 
 	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);

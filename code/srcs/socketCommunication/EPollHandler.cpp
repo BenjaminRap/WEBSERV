@@ -41,8 +41,11 @@ static size_t getUnixSocketCount(const Configuration &conf)
 }
 
 EPollHandler::EPollHandler(const Configuration &conf) :
+	_socketsData(),
+	_socketsToRemove(),
+	_epfd(-1),
+	_events(NULL),
 	_maxEvents(conf.getMaxEvents()),
-	_eventsCount(0),
 	_unixSocketsToRemove(getUnixSocketCount(conf))
 {
 	if (EPollHandler::_instanciated == true)
@@ -73,36 +76,19 @@ EPollHandler::~EPollHandler()
 	}
 }
 
-void	EPollHandler::closeFdAndRemoveFromEpoll(int fd, ssize_t eventIndex)
+void	EPollHandler::closeFdAndRemoveFromEpoll(int fd)
 {
 	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 	closeFdAndPrintError(fd);
-	if (eventIndex != -1)
-		_events[eventIndex].data.ptr = NULL;
-}
-
-int	EPollHandler::epollWaitForEvent()
-{
-	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
-
-	if (checkError(nfds, -1, "epoll_wait() : "))
-		_eventsCount = 0;
-	else
-		_eventsCount = nfds;
-	return (nfds);
 }
 
 bool	EPollHandler::callSocketsCallback(void)
 {
-	const ssize_t	nfds = epollWaitForEvent();
+	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
 
-	if (nfds == -1)
+	if (checkError(nfds, -1, "epoll_wait() : "))
 		return (false);
 
-	for (ssize_t i = 0; i < nfds; i++)
-	{
-		static_cast<AFdData *>(_events[i].data.ptr)->setEventIndex(i);
-	}
 	for (ssize_t i = 0; i < nfds; i++)
 	{
 		const epoll_event&	fdEvent = _events[i];
@@ -110,12 +96,9 @@ bool	EPollHandler::callSocketsCallback(void)
 			continue ;
 		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
 	}
-	for (ssize_t i = 0; i < nfds; i++)
+	for (std::list<ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
 	{
-		const epoll_event&	fdEvent = _events[i];
-		if (fdEvent.data.ptr == NULL)
-			continue ;
-		static_cast<AFdData *>(fdEvent.data.ptr)->setEventIndex(-1);
+	
 	}
 	return (true);
 }
