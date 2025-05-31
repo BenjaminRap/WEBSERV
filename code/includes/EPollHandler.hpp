@@ -23,33 +23,33 @@ private:
 	/**
 	 * @brief True if there is an instance of this class.
 	 */
-	static bool					_instanciated;
+	static bool						_instanciated;
 
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<ASocketData*>		_socketsData;
-	std::list<ASocketData*>		_socketsToRemove;
+	std::list<ASocketData*>			_socketsData;
+	std::list<const ASocketData*>	_socketsToRemove;
 	/**
 	 * @brief The epoll fd.
 	 */
-	int							_epfd;
+	int								_epfd;
 	/**
 	 * @brief The events array that will be passed at epoll_wait. It stores all
 	 * the events that the epoll_wait function has detected.
 	 */
-	epoll_event					*_events;
+	epoll_event						*_events;
 	/**
 	 * @brief The length of the _events array.
 	 */
-	unsigned int				_maxEvents;
+	unsigned int					_maxEvents;
 	/**
 	 * @brief When creating a socket unix connection, a socket unix file is
 	 * created in the file system. This vector stores all the sockets path that
 	 * have been created.
 	 * It should be used to removed them in the destructor.
 	 */
-	std::vector<std::string>	_unixSocketsToRemove;
+	std::vector<std::string>		_unixSocketsToRemove;
 
 	EPollHandler(const EPollHandler& ref);
 	EPollHandler(void);
@@ -120,7 +120,7 @@ public:
 	 * the destructor shouldn't remove the unix sockets.
 	 */
 	void	clearUnixSocketsList(void);
-	void	addFdToRemoveList(ASocketData& fdData);
+	void	addFdToRemoveList(const ASocketData& fdData);
 };
 
 #endif // !EPOLL_HANDLER_HPP

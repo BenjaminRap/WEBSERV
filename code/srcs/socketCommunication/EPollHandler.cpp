@@ -96,7 +96,7 @@ bool	EPollHandler::callSocketsCallback(void)
 			continue ;
 		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
 	}
-	for (std::list<ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
+	for (std::list<const ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
 	{
 		const ASocketData*	socket = *it;
 
@@ -174,7 +174,7 @@ void	EPollHandler::clearUnixSocketsList(void)
 	_unixSocketsToRemove.clear();
 }
 
-void	EPollHandler::addFdToRemoveList(ASocketData& fdData)
+void	EPollHandler::addFdToRemoveList(const ASocketData& fdData)
 {
 	_socketsToRemove.push_back(&fdData);
 }
