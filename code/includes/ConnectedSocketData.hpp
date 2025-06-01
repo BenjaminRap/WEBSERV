@@ -18,7 +18,7 @@ class	Host;
  * @brief This class stores all the data needed by a connected Socket. This fd
  * process the request of a single client.
  */
-class ConnectedSocketData : public ASocketData
+class ConnectedSocketData : public AEPollFd
 {
 private:
 	/**
@@ -46,9 +46,9 @@ private:
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ConnectedSocketData(void);
-	ConnectedSocketData(const ASocketData &ref);
+	ConnectedSocketData(const AEPollFd &ref);
 
-	ConnectedSocketData&	operator=(const ASocketData& ref);
+	ConnectedSocketData&	operator=(const AEPollFd& ref);
 	
 	/**
 	 * @brief It redirect the data into the first part or the body, then call

@@ -21,7 +21,7 @@ CgiOut::CgiOut
 	pid_t pid,
 	const CgiOutArgs& cgiOutArgs
 ) :
-	ASocketData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
+	AEPollFd(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
 	_flowBuf(cgiOutArgs._responsesFlowBuffer),
 	_firstPart(),
 	_charsWritten(0),

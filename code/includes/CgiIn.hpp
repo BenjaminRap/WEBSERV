@@ -20,7 +20,7 @@ class	CgiOut;
 class	FlowBuffer;
 class	ABody;
 
-class CgiIn : public ASocketData
+class CgiIn : public AEPollFd
 {
 private:
 	enum	CgiInState

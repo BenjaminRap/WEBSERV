@@ -64,7 +64,7 @@ EPollHandler::EPollHandler(const Configuration &conf) :
 EPollHandler::~EPollHandler()
 {
 	EPollHandler::_instanciated = false;
-	for (std::list<ASocketData *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<AEPollFd *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
 	{
 		delete (*ci);
 	}
@@ -78,9 +78,9 @@ EPollHandler::~EPollHandler()
 
 void	EPollHandler::removeSocketsFromRemoveList(void)
 {
-	for (std::list<const ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
+	for (std::list<const AEPollFd*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
 	{
-		const ASocketData*	socket = *it;
+		const AEPollFd*	socket = *it;
 		if (socket == NULL)
 			throw std::logic_error("socket is NULL in the _socketsToRemove list !");
 		const int			fd = socket->getFd();
@@ -151,7 +151,7 @@ bool	EPollHandler::addFdToEpoll(AFdData& fdData, uint32_t events)
 	return (true);
 }
 
-bool	EPollHandler::addFdToList(ASocketData &fdData)
+bool	EPollHandler::addFdToList(AEPollFd &fdData)
 {
 	try
 	{
@@ -171,7 +171,7 @@ void	EPollHandler::clearUnixSocketsList(void)
 	_unixSocketsToRemove.clear();
 }
 
-void	EPollHandler::addFdToRemoveList(const ASocketData& fdData)
+void	EPollHandler::addFdToRemoveList(const AEPollFd& fdData)
 {
 	_socketsToRemove.push_back(&fdData);
 }

@@ -11,14 +11,14 @@
  * receive an events (EPOLLIN/EPOLLOUT/...).
  * This class is abstract, so it can only be used through its childs.
  */
-class ASocketData : public AFdData
+class AEPollFd : public AFdData
 {
 protected:
 	/**
 	 * @brief The iterator of this instance in the EPollHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
-	std::list<ASocketData *>::iterator	_iterator;
+	std::list<AEPollFd *>::iterator	_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a valid argument.
 	 */
@@ -30,14 +30,14 @@ protected:
 	 */
 	EPollHandler&						_ePollHandler;
 
-	ASocketData
+	AEPollFd
 	(
 		int fd,
 		EPollHandler &ePollHandler,
 		AFdDataChilds type,
 		uint32_t events
 	);
-	ASocketData
+	AEPollFd
 	(
 		EPollHandler &ePollHandler,
 		AFdDataChilds type
@@ -52,12 +52,12 @@ private:
 
 	void										initFd(uint32_t events);
 
-	ASocketData(void);
-	ASocketData(const ASocketData &ref);
+	AEPollFd(void);
+	AEPollFd(const AEPollFd &ref);
 
-	ASocketData&	operator=(const ASocketData& ref);
+	AEPollFd&	operator=(const AEPollFd& ref);
 public:
-	virtual ~ASocketData(void);
+	virtual ~AEPollFd(void);
 
 	static void									removeFromEPollHandler(AFdData* fdData);
 	/**
@@ -67,7 +67,7 @@ public:
 	 * a std::logic_error.
 	 * @return A const reference on the iterator pointing to this object.
 	 */
-	const std::list<ASocketData *>::iterator&	getIterator() const;
+	const std::list<AEPollFd *>::iterator&	getIterator() const;
 	/**
 	 * @brief Set the _iterator of this FdData to a copy of the iterator passed
 	 * as argument.
@@ -75,7 +75,7 @@ public:
 	 * If the FdData pointed by the iterator isn't this class, print an error.
 	 * @param iterator The iterator that points to this FdData.
 	 */
-	void										setIterator(const std::list<ASocketData *>::iterator &iterator);
+	void										setIterator(const std::list<AEPollFd *>::iterator &iterator);
 	void										setFd(int fd, uint32_t events);
 };
 

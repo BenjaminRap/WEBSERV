@@ -10,7 +10,7 @@
 
 class	Configuration;
 class	Host;
-class	ASocketData;
+class	AEPollFd;
 class	AFdData;
 
 /**
@@ -28,8 +28,8 @@ private:
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<ASocketData*>			_socketsData;
-	std::list<const ASocketData*>	_socketsToRemove;
+	std::list<AEPollFd*>			_socketsData;
+	std::list<const AEPollFd*>	_socketsToRemove;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -78,7 +78,7 @@ public:
 	 *
 	 * @return -1 on error, otherwise 0.
 	 */
-	bool	addFdToList(ASocketData &fdData);
+	bool	addFdToList(AEPollFd &fdData);
 	/**
 	 * @brief Adds the fdData to the epoll interest list.
 	 * If the function fails, the FdData won't be destroyed.
@@ -112,7 +112,7 @@ public:
 	 * the destructor shouldn't remove the unix sockets.
 	 */
 	void	clearUnixSocketsList(void);
-	void	addFdToRemoveList(const ASocketData& fdData);
+	void	addFdToRemoveList(const AEPollFd& fdData);
 };
 
 #endif // !EPOLL_HANDLER_HPP

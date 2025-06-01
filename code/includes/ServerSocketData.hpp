@@ -12,7 +12,7 @@ class	Host;
  * is a socket that listens on a specific host, and when it receives a request, 
  * creates another fd connected to that client.
  */
-class ServerSocketData : public ASocketData
+class ServerSocketData : public AEPollFd
 {
 private:
 	/**
@@ -22,9 +22,9 @@ private:
 	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ServerSocketData(void);
-	ServerSocketData(const ASocketData &ref);
+	ServerSocketData(const AEPollFd &ref);
 
-	ServerSocketData&	operator=(const ASocketData& ref);
+	ServerSocketData&	operator=(const AEPollFd& ref);
 	
 	/**
 	 * @brief Accept a connection request, create a new fd, add it to the epoll interest

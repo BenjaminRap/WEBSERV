@@ -11,7 +11,7 @@
 
 class ServerConfiguration;  // lines 10-10
 
-ASocketData::ASocketData
+AEPollFd::AEPollFd
 (
 	int fd, 
 	EPollHandler& ePollHandler,
@@ -26,7 +26,7 @@ ASocketData::ASocketData
 	initFd(events);
 }
 
-ASocketData::ASocketData
+AEPollFd::AEPollFd
 (
 	EPollHandler &ePollHandler,
 	AFdDataChilds type
@@ -38,11 +38,11 @@ ASocketData::ASocketData
 {
 }
 
-ASocketData::~ASocketData(void)
+AEPollFd::~AEPollFd(void)
 {
 }
 
-const std::list<ASocketData *>::iterator	&ASocketData::getIterator() const
+const std::list<AEPollFd *>::iterator	&AEPollFd::getIterator() const
 {
 	if (_isIteratorSet)
 		return (this->_iterator);
@@ -50,7 +50,7 @@ const std::list<ASocketData *>::iterator	&ASocketData::getIterator() const
 		throw std::logic_error("FdData getIterator() function with a unitialized iterator");
 }
 
-void	ASocketData::setIterator(const std::list<ASocketData *>::iterator &iterator)
+void	AEPollFd::setIterator(const std::list<AEPollFd *>::iterator &iterator)
 {
 	if (_isIteratorSet)
 	{
@@ -66,7 +66,7 @@ void	ASocketData::setIterator(const std::list<ASocketData *>::iterator &iterator
 	this->_iterator = iterator;
 }
 
-void	ASocketData::removeFromEPollHandler(void)
+void	AEPollFd::removeFromEPollHandler(void)
 {
 	if (_isIteratorSet == false)
 		return ;
@@ -74,14 +74,14 @@ void	ASocketData::removeFromEPollHandler(void)
 	_ePollHandler.addFdToRemoveList(*this);
 }
 
-void	ASocketData::removeFromEPollHandler(AFdData* fdData)
+void	AEPollFd::removeFromEPollHandler(AFdData* fdData)
 {
-	ASocketData*	socketData = static_cast<ASocketData*>(fdData);
+	AEPollFd*	socketData = static_cast<AEPollFd*>(fdData);
 
 	socketData->removeFromEPollHandler();
 }
 
-void	ASocketData::initFd(uint32_t events)
+void	AEPollFd::initFd(uint32_t events)
 {
 	if (events == 0)
 		throw std::logic_error("events set to 0 in a ASocketData !");
@@ -92,7 +92,7 @@ void	ASocketData::initFd(uint32_t events)
 		throw std::runtime_error("Can't add the fd to epoll !");
 }
 
-void	ASocketData::setFd(int fd, uint32_t events)
+void	AEPollFd::setFd(int fd, uint32_t events)
 {
 	AFdData::setFd(fd);
 	initFd(events);

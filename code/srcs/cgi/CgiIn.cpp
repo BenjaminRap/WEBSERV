@@ -33,7 +33,7 @@ CgiIn::CgiIn
 	const char* env[23],
 	const CgiOutArgs * cgiOutArgs
 ) :
-	ASocketData(ePollHandler, CGI_IN),
+	AEPollFd(ePollHandler, CGI_IN),
 	_flowBuf(requestFlowBuffer),
 	_body(chunkedBody),
 	_connectedSocketData(connectedSocketData),
@@ -59,7 +59,7 @@ CgiIn::CgiIn
 	ConnectedSocketData& connectedSocketData,
 	Response& currentResponse
 ) :
-	ASocketData(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
+	AEPollFd(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
 	_flowBuf(requestFlowBuffer),
 	_body(sizedBody),
 	_connectedSocketData(connectedSocketData),
@@ -114,7 +114,7 @@ void	CgiIn::execCgi(void)
 			delete cgiOut;
 			throw std::exception();
 		}
-		_response.setFdData(*cgiOut, ASocketData::removeFromEPollHandler);
+		_response.setFdData(*cgiOut, AEPollFd::removeFromEPollHandler);
 		_state = CgiIn::TEMP_TO_CGI;
 	}
 	catch (const std::exception& e)

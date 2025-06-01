@@ -30,7 +30,7 @@ ConnectedSocketData::ConnectedSocketData
 	const Host& host,
 	const sockaddr_in_u clientAddr
 ) :
-	ASocketData
+	AEPollFd
 	(
 		fd,
 		ePollHandler,

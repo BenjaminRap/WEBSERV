@@ -151,7 +151,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 				delete cgiIn ;
 				throw std::exception();
 			}
-			_inFd.setManagedResource(cgiIn, ASocketData::removeFromEPollHandler);
+			_inFd.setManagedResource(cgiIn, AEPollFd::removeFromEPollHandler);
 			return (HTTP_OK);
 		}
 
@@ -173,7 +173,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 				delete cgiIn;
 				throw std::exception();
 			}
-			_inFd.setManagedResource(cgiIn, ASocketData::removeFromEPollHandler);
+			_inFd.setManagedResource(cgiIn, AEPollFd::removeFromEPollHandler);
 		}
 		else
 			closeFdAndPrintError(inFd);
@@ -189,7 +189,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 			delete cgiOut;
 			throw std::exception();
 		}
-		_outFd.setManagedResource(cgiOut, ASocketData::removeFromEPollHandler);
+		_outFd.setManagedResource(cgiOut, AEPollFd::removeFromEPollHandler);
 		outFd = -1;
 		pid = -1;
 
