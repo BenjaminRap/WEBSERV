@@ -1,14 +1,11 @@
 #include <stdint.h>                 // for uint16_t
 #include <sys/types.h>              // for pid_t
 #include <cstring>                  // for NULL, memset
-#include <exception>                // for exception
 #include <map>                      // for map
 #include <string>                   // for allocator, string, basic_string
 #include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType
-#include "ABody.hpp"
-#include "CgiIn.hpp"                // for CgiIn
 #include "CgiOut.hpp"               // for CgiOut
 #include "EMethods.hpp"             // for EMethods
 #include "Request.hpp"              // for Request
@@ -18,7 +15,6 @@
 #include "SharedResource.hpp"       // for freePointer, SharedResource
 #include "Status.hpp"
 #include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_INTERNAL_S...
-#include "socketCommunication.hpp"  // for closeFdAndPrintError
 #include "EPollHandler.hpp"
 
 class ABody;
@@ -31,15 +27,11 @@ void		replaceUrl(const std::string &location, const std::string &root, std::stri
 void		fixPath(std::string &path);
 bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
-int			execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd);
 void		extractQueryString(std::string& url, std::string& queryString);
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
-void		setArgv(const char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
-void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
 uint16_t	isDirOrFile(const std::string& path);
 bool		isExtension(const std::string& file, const std::string& extension);
-int			getCGIStatus(pid_t pid);
 
 
 ARequestType::ARequestType
@@ -117,100 +109,6 @@ bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
 	_path = path;
 	return (true);
 }
-
-uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
-{
-	const char*			env[23];
-	const char*			argv[3];
-	ABody * const		body = requestContext._request.getBody();
-	const CgiOutArgs*	cgiOutArgs = NULL;
-	int					inFd = -1;
-	int					outFd = -1;
-	pid_t				pid = -1;
-
-	std::memset(env, 0, sizeof(env));
-	std::memset(argv, 0, sizeof(argv));
-	try
-	{
-		setEnv(env, requestContext);
-		setArgv(argv, getCgiInterpreter(), _path);
-		cgiOutArgs = new CgiOutArgs(_config, requestContext._responseBuff, getAddHeader());
-		if (body != NULL && body->getType() == ABody::CHUNKED)
-		{
-			CgiIn * const	cgiIn = new CgiIn(requestContext._ePollHandler,
-				requestContext._requestBuff,
-				(ChunkedBody&)*body,
-				requestContext._connectedSocketData,
-				requestContext._response,
-				argv,
-				env,
-				cgiOutArgs
-			);
-			if (!requestContext._ePollHandler.addFdToList(*cgiIn))
-			{
-				delete cgiIn ;
-				throw std::exception();
-			}
-			_inFd.setManagedResource(cgiIn, AEPollFd::removeFromEPollHandler);
-			return (HTTP_OK);
-		}
-
-		pid = execCGI(argv, env, inFd, outFd);
-		if (pid == -1)
-			throw std::exception();
-		if (body != NULL)
-		{
-			CgiIn * const	cgiIn = new CgiIn(
-				inFd,
-				requestContext._ePollHandler,
-				requestContext._requestBuff,
-				(SizedBody&)*body,
-				requestContext._connectedSocketData,
-				requestContext._response
-			);
-			if (!requestContext._ePollHandler.addFdToList(*cgiIn))
-			{
-				delete cgiIn;
-				throw std::exception();
-			}
-			_inFd.setManagedResource(cgiIn, AEPollFd::removeFromEPollHandler);
-		}
-		else
-			closeFdAndPrintError(inFd);
-		inFd = -1;
-		CgiOut * const	cgiOut = new CgiOut(
-			outFd,
-			requestContext._ePollHandler,
-			pid,
-			*cgiOutArgs
-		);
-		if (!requestContext._ePollHandler.addFdToList(*cgiOut))
-		{
-			delete cgiOut;
-			throw std::exception();
-		}
-		_outFd.setManagedResource(cgiOut, AEPollFd::removeFromEPollHandler);
-		outFd = -1;
-		pid = -1;
-
-		delete cgiOutArgs;
-		deleteArray((const char**)env);
-		deleteArray((const char**)argv);
-	}
-	catch (const std::exception& e)
-	{
-		deleteArray((const char**)env);
-		deleteArray((const char**)argv);
-		delete cgiOutArgs;
-		if (pid != -1)
-			getCGIStatus(pid);
-		closeFdAndPrintError(inFd);
-		closeFdAndPrintError(outFd);
-		throw ;
-	}
-	_isCgi = true;
-	return (HTTP_OK);
-};
 
 ARequestType::~ARequestType()
 {

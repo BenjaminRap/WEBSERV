@@ -41,13 +41,13 @@ ServerSocketData::~ServerSocketData(void)
 
 void	ServerSocketData::acceptConnection(uint32_t events)
 {
+	if (!(events & EPOLLIN))
+		return ;
 	sockaddr_in_u	addr;
 	socklen_t		addrLength;
 
-	if (!(events & EPOLLIN))
-		return ;
 	addrLength = sizeof(addr);
-	const int 		newFd = accept(_fd, (sockaddr *)&addr, &addrLength);
+	int 			newFd = accept(_fd, (sockaddr *)&addr, &addrLength);
 
 	if (checkError(newFd, -1, "accept() : "))
 		return ;
@@ -58,7 +58,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 		{
 			std::cerr << "Can't accept new connection" << std::endl;
 			delete connectedSocketData;
-			closeFdAndPrintError(newFd);
+			newFd = -1;
 		}
 		else
 			std::cout << "Accepted a new connection, fd : " << newFd << std::endl;

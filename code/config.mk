@@ -55,6 +55,7 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							PutRequest.cpp			\
 							PostRequest.cpp			\
 							ARequestType.cpp		\
+							ARequestTypeCGI.cpp		\
 							ARequestUtils.cpp		\
 							statuses.cpp			\
 							Status.cpp

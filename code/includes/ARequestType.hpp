@@ -13,6 +13,9 @@
 
 class	AFdData;
 class	EPollHandler;
+class	CgiOutArgs;
+class	SizedBody;
+class	ChunkedBody;
 
 /**
  * @class ARequestType
@@ -84,7 +87,24 @@ class ARequestType
 		const std::string&						getPathInfo(void) const;
 		bool									getIsCgi(void) const;
 		std::string&							getUrl(void);
+
 		uint16_t								setCgiAFdData(RequestContext& requestContext);
+		void									setCgiInChunked
+												(
+													RequestContext& requestContext,
+													const char* (&env)[23],
+													const char* (&argv)[3],
+													const CgiOutArgs*& cgiOutArgs,
+													ChunkedBody& body
+												);
+		void									setCgiInSized(RequestContext& requestContext, int& fd, SizedBody& body);
+		void									setCgiOut
+												(
+													EPollHandler& ePollHandler,
+													int& fd,
+													pid_t& pid,
+													const CgiOutArgs& cgiOutArgs
+												);
 		bool									setPathInfo(const std::string& extension, std::string path);
 		void									setEnv(const char *(&env)[23], RequestContext& requestContext);
 };
