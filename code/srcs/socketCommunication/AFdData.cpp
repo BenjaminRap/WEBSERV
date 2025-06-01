@@ -48,6 +48,11 @@ AFdData::AFdDataChilds	AFdData::getType(void) const
 	return (_type);
 }
 
+void	AFdData::setFinished(void)
+{
+	_isActive = false;
+}
+
 void	AFdData::setFd(int newFd)
 {
 	if (_fd > 0)

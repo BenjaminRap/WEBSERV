@@ -66,7 +66,7 @@ void	AEPollFd::setIterator(const std::list<AEPollFd *>::iterator &iterator)
 
 void	AEPollFd::removeFromEPollHandler(void)
 {
-	_isActive = false;
+	AFdData::setFinished();
 	if (_isIteratorSet == false)
 		return ;
 	_ePollHandler.addFdToRemoveList(*this);
@@ -84,7 +84,7 @@ void	AEPollFd::initFd(uint32_t events)
 	if (events == 0)
 		throw std::logic_error("events set to 0 in a AEPollFd !");
 
-	if (!addFlagsToFd(_fd, O_NONBLOCK, 0))
+	if (!addFlagsToFd(getFd(), O_NONBLOCK, 0))
 		throw std::runtime_error("AEPollFd: Can't apply flags to fd");
 	if (!_ePollHandler.addFdToEpoll(*this, events))
 		throw std::runtime_error("Can't add the fd to epoll !");

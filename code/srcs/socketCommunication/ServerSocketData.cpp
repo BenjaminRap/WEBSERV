@@ -45,7 +45,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 	socklen_t		addrLength;
 
 	addrLength = sizeof(addr);
-	int 			newFd = accept(_fd, (sockaddr *)&addr, &addrLength);
+	int 			newFd = accept(getFd(), (sockaddr *)&addr, &addrLength);
 
 	if (checkError(newFd, -1, "accept() : "))
 		return ;
@@ -70,7 +70,7 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 
 void	ServerSocketData::callback(uint32_t events)
 {
-	if (!_isActive)
+	if (!getIsActive())
 		return ;
 	if (events & EPOLLERR)
 		removeFromEPollHandler();

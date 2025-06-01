@@ -140,7 +140,7 @@ void	CgiIn::execCgi(void)
 
 void	CgiIn::setFinished(uint16_t code)
 {
-	_isActive = false;
+	AFdData::setFinished();
 	_state = CgiIn::DONE;
 	if (code != 0)
 		_response.setResponse(code);
@@ -151,7 +151,7 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiIn::callback(uint32_t events)
 {
-	if (!_isActive || _state == CgiIn::DONE)
+	if (!getIsActive() || _state == CgiIn::DONE)
 		return ;
 	if (events & (EPOLLERR | EPOLLHUP))
 	{

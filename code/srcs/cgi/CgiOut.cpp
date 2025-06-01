@@ -50,7 +50,7 @@ CgiOut::~CgiOut()
 
 void	CgiOut::setFinished(void)
 {
-	_isActive = false;
+	AFdData::setFinished();
 	_state = CgiOut::DONE;
 }
 
@@ -78,7 +78,7 @@ void	CgiOut::callback(uint32_t events)
 {
 	if (!_canWrite && !events)
 		_canWrite = true;
-	if (!_isActive || !_canWrite)
+	if (!getIsActive() || !_canWrite)
 		return ;
 	if (events & (EPOLLHUP | EPOLLRDHUP))
 		_cgiReadFinished = true;

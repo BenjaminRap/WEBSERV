@@ -65,14 +65,15 @@ RequestState	ConnectedSocketData::processRequest(void)
 {
 	RequestState	requestState;
 	Response		&currentResponse = _responsesHandler.getCurrentResponse();
+	const int		fd = getFd();
 
 	if (_requestHandler.isStateRequestBody())
 	{
-		requestState = _requestHandler.redirectBody(&_fd, currentResponse);
+		requestState = _requestHandler.redirectBody(&fd, currentResponse);
 	}
 	else
 	{
-		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
+		requestState = _requestHandler.redirectFirstPart(fd, currentResponse);
 		
 		if (requestState != REQUEST_DONE)
 			requestState = _requestHandler.readRequest(_requestContext, currentResponse);
@@ -113,7 +114,7 @@ void	ConnectedSocketData::ignoreBodyAndReadRequests(Response& response)
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	if (!_isActive)
+	if (!getIsActive())
 		return ;
 	bool	shouldRemoveFromEPoll = false;
 
@@ -129,7 +130,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 			}
 			if (events & EPOLLOUT)
 			{
-				const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
+				const FlowState	flowState = _responsesHandler.sendResponseToSocket(getFd());
 				if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
 					shouldRemoveFromEPoll = true;
 			}

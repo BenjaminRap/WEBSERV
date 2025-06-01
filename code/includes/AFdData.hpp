@@ -32,27 +32,6 @@ public:
 	};
 	virtual ~AFdData(void);
 
-	/**
-	 * @brief The file descriptor on a file, socket, pipe ...
-	 */
-	int				_fd;
-	/**
-	 * @brief A boolean indicating if this fd can still receive/send
-	 * data. For example, if the other end of the fd has been closed,
-	 * this variable is set to false.
-	 */
-	bool			_isActive;
-	/**
-	 * @brief Is this fd blocking (true for a pipe or a socket, false
-	 * for a file).
-	 * Even if the O_NONBLOCK flags has been added to the fd, it does not
-	 * changes this variable.
-	 */
-	bool			_isBlocking;
-	/**
-	 * @brief The child class.
-	 */
-	AFdDataChilds	_type;
 
 	/**
 	 * @brief This function is called when the _fd receives and events, the
@@ -82,11 +61,38 @@ protected:
 	 */
 	void			setFd(int newFd);
 	/**
+	 * @brief Set the _isActive variable to false.
+	 */
+	void			setFinished(void);
+
+	/**
 	 * @throw Same as setFd.
 	 */
 	AFdData(int fd, AFdDataChilds type, bool isBlocking);
 	AFdData(AFdDataChilds type);
 private:
+	/**
+	 * @brief The file descriptor on a file, socket, pipe ...
+	 */
+	int				_fd;
+	/**
+	 * @brief A boolean indicating if this fd can still receive/send
+	 * data. For example, if the other end of the fd has been closed,
+	 * this variable is set to false.
+	 */
+	bool			_isActive;
+	/**
+	 * @brief Is this fd blocking (true for a pipe or a socket, false
+	 * for a file).
+	 * Even if the O_NONBLOCK flags has been added to the fd, it does not
+	 * changes this variable.
+	 */
+	bool			_isBlocking;
+	/**
+	 * @brief The child class.
+	 */
+	AFdDataChilds	_type;
+
 	AFdData(void);
 	AFdData(const AFdData &ref);
 
