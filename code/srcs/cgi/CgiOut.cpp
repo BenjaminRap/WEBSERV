@@ -75,6 +75,7 @@ bool	CgiOut::isResponseReady(void) const
 
 void	CgiOut::callback(uint32_t events)
 {
+	checkTime(events);
 	if (!_canWrite && !events)
 		_canWrite = true;
 	if (!_isActive || !_canWrite)

@@ -153,14 +153,11 @@ void			ConnectedSocketData::checkTime(void)
 {
 	time_t	now = time(NULL);
 	if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
-	{
-		this->_ePollHandler->closeFdAndRemoveFromEpoll(this->_fd, this->_eventIndex);
-		this->_ePollHandler->removeFdDataFromList(this->getIterator());
-	}
+		_isActive = false;
 	else if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC)
 	{
 		_closing = true;
 		_responsesHandler.getCurrentResponse().setResponse(408);
-		_responsesHandler.sendResponseToSocket(_fd);
+		_responsesHandler.addCurrentResponseToQueue();
 	}
 }

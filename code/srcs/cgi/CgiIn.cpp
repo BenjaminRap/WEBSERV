@@ -7,6 +7,8 @@
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
+#include "requestStatusCode.hpp"	// for HTTP codes
+#include "Status.hpp"				// for Status
 
 class EPollHandler;  // lines 14-14
 
@@ -51,6 +53,9 @@ void	CgiIn::callback(uint32_t events)
 		return ;
 	}
 	checkTime();
+	const Status *status = _response.getStatus();
+	if (status != NULL && status->getCode() == HTTP_REQUEST_TIMEOUT)
+		return ;
 	if (!(events & EPOLLOUT))
 		return ;
 	const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
@@ -64,8 +69,8 @@ void	CgiIn::callback(uint32_t events)
 void			CgiIn::checkTime(void)
 {
 	time_t	now = time(NULL);
-	if (difftime(now, _lastEPollIn) > TIMEOUT_VALUE_SEC || difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
+	if (difftime(now, _lastEpollOut) > TIMEOUT_VALUE_SEC)
 	{
-		setFinished(408);
+		setFinished(HTTP_REQUEST_TIMEOUT);
 	}
 }
