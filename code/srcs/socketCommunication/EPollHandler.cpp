@@ -76,10 +76,21 @@ EPollHandler::~EPollHandler()
 	}
 }
 
-void	EPollHandler::closeFdAndRemoveFromEpoll(int fd)
+void	EPollHandler::removeSocketsFromRemoveList(void)
 {
-	checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
-	closeFdAndPrintError(fd);
+	for (std::list<const ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
+	{
+		const ASocketData*	socket = *it;
+		if (socket == NULL)
+			throw std::logic_error("socket is NULL in the _socketsToRemove list !");
+		const int			fd = socket->getFd();
+
+		_socketsData.erase(socket->getIterator());
+		if (fd > 0)
+			checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
+		delete socket;
+	}
+	_socketsToRemove.clear();
 }
 
 bool	EPollHandler::callSocketsCallback(void)
@@ -96,14 +107,7 @@ bool	EPollHandler::callSocketsCallback(void)
 			continue ;
 		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
 	}
-	for (std::list<const ASocketData*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
-	{
-		const ASocketData*	socket = *it;
-
-		_socketsData.erase(socket->getIterator());
-		delete socket;
-	}
-	_socketsToRemove.clear();
+	removeSocketsFromRemoveList();
 	return (true);
 }
 
@@ -129,24 +133,25 @@ int	EPollHandler::bindFdToHost(int fd, const Host& host)
 }
 
 
-int	EPollHandler::addFdToEpoll(AFdData& FdData, uint32_t events)
+bool	EPollHandler::addFdToEpoll(AFdData& fdData, uint32_t events)
 {
+	const int	fd = fdData.getFd();
+
+	if (fd < 0)
+		return (false);
 	epoll_event	event;
 
-	event.data.ptr = &FdData;
+	event.data.ptr = &fdData;
 	event.events = events;
-	if (checkError(epoll_ctl(_epfd, EPOLL_CTL_ADD, FdData.getFd(), &event), -1, "epoll_ctl() :"))
-	{
-		_socketsData.pop_front();
-		return (-1);
-	}
-	return (0);
+
+	const int ret = epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &event);
+
+	if (checkError(ret, -1, "epoll_ctl() :"))
+		return (false);
+	return (true);
 }
 
-int	EPollHandler::addFdToList
-(
-	ASocketData &fdData
-)
+bool	EPollHandler::addFdToList(ASocketData &fdData)
 {
 	try
 	{
@@ -155,18 +160,10 @@ int	EPollHandler::addFdToList
 	catch(const std::exception& e)
 	{
 		std::cerr << "push_front() : " << e.what() << std::endl;
-		return (-1);
+		return (false);
 	}
 	fdData.setIterator(_socketsData.begin());
-	return (0);
-}
-
-void	EPollHandler::removeFdDataFromList(std::list<ASocketData*>::iterator pos)
-{
-	const ASocketData*	socket = *pos;
-
-	_socketsData.erase(pos);
-	delete socket;
+	return (true);
 }
 
 void	EPollHandler::clearUnixSocketsList(void)

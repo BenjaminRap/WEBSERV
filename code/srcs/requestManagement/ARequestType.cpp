@@ -137,7 +137,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 		cgiOutArgs = new CgiOutArgs(_config, requestContext._responseBuff, getAddHeader());
 		if (body != NULL && body->getType() == ABody::CHUNKED)
 		{
-			_inFd.setManagedResource(new CgiIn(requestContext._ePollHandler,
+			CgiIn * const	cgiIn = new CgiIn(requestContext._ePollHandler,
 				requestContext._requestBuff,
 				(ChunkedBody&)*body,
 				requestContext._connectedSocketData,
@@ -145,44 +145,51 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 				argv,
 				env,
 				cgiOutArgs
-			), ASocketData::removeFromEPollHandler);
-			ASocketData*	cgiIn = static_cast<ASocketData*>(_inFd.getValue());
-
-			requestContext._ePollHandler.addFdToList(*cgiIn);
-		return (HTTP_OK);
+			);
+			if (!requestContext._ePollHandler.addFdToList(*cgiIn))
+			{
+				delete cgiIn ;
+				throw std::exception();
+			}
+			_inFd.setManagedResource(cgiIn, ASocketData::removeFromEPollHandler);
+			return (HTTP_OK);
 		}
 
 		pid = execCGI(argv, env, inFd, outFd);
 		if (pid == -1)
-			throw ;
+			throw std::exception();
 		if (body != NULL)
 		{
-			_inFd.setManagedResource(new CgiIn(
+			CgiIn * const	cgiIn = new CgiIn(
 				inFd,
 				requestContext._ePollHandler,
 				requestContext._requestBuff,
 				(SizedBody&)*body,
 				requestContext._connectedSocketData,
 				requestContext._response
-			), ASocketData::removeFromEPollHandler);
-
-			ASocketData*	cgiIn = static_cast<ASocketData*>(_inFd.getValue());
-
-			requestContext._ePollHandler.addFdToList(*cgiIn);
+			);
+			if (!requestContext._ePollHandler.addFdToList(*cgiIn))
+			{
+				delete cgiIn;
+				throw std::exception();
+			}
+			_inFd.setManagedResource(cgiIn, ASocketData::removeFromEPollHandler);
 		}
 		else
 			closeFdAndPrintError(inFd);
 		inFd = -1;
-		_outFd.setManagedResource(new CgiOut(
+		CgiOut * const	cgiOut = new CgiOut(
 			outFd,
 			requestContext._ePollHandler,
 			pid,
 			*cgiOutArgs
-		), ASocketData::removeFromEPollHandler);
-
-		ASocketData*	cgiOut = static_cast<ASocketData*>(_outFd.getValue());
-
-		requestContext._ePollHandler.addFdToList(*cgiOut);
+		);
+		if (!requestContext._ePollHandler.addFdToList(*cgiOut))
+		{
+			delete cgiOut;
+			throw std::exception();
+		}
+		_outFd.setManagedResource(cgiOut, ASocketData::removeFromEPollHandler);
 		outFd = -1;
 		pid = -1;
 

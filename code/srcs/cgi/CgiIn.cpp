@@ -13,6 +13,7 @@
 #include "ChunkedBody.hpp"
 #include "SizedBody.hpp"
 #include "socketCommunication.hpp"
+#include "EPollHandler.hpp"
 
 class EPollHandler;  // lines 14-14
 
@@ -47,7 +48,6 @@ CgiIn::CgiIn
 	if (_tmpFile == NULL)
 		throw std::runtime_error("Can't open a temporary file !");
 	_state = CgiIn::BUFFER_TO_TEMP;
-	setFd(_tmpFile->getFd(), 0);
 }
 
 CgiIn::CgiIn
@@ -98,17 +98,23 @@ void	CgiIn::execCgi(void)
 		
 		pid = execCGI(_argv, _env, inFd, outFd);
 		if (pid == -1)
-			throw ;
+			throw std::exception();
 
 		setFd(inFd, CGI_IN_EVENTS);
 		_body.setFd(inFd);
 		inFd = -1;
-		_response.setFdData(*new CgiOut(
+		CgiOut * const	cgiOut = new CgiOut(
 			outFd,
-			*_ePollHandler,
+			_ePollHandler,
 			pid,
 			*_cgiOutArgs
-		), freePointer);
+		);
+		if (!_ePollHandler.addFdToList(*cgiOut))
+		{
+			delete cgiOut;
+			throw std::exception();
+		}
+		_response.setFdData(*cgiOut, ASocketData::removeFromEPollHandler);
 		_state = CgiIn::TEMP_TO_CGI;
 	}
 	catch (const std::exception& e)

@@ -78,14 +78,14 @@ public:
 	 *
 	 * @return -1 on error, otherwise 0.
 	 */
-	int		addFdToList(ASocketData &fdData);
+	bool	addFdToList(ASocketData &fdData);
 	/**
 	 * @brief Adds the fdData to the epoll interest list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
 	 * @return -1 on error, 0 otherwise
 	 */
-	int		addFdToEpoll(AFdData& fdData, uint32_t events);
+	bool	addFdToEpoll(AFdData& fdData, uint32_t events);
 	/**
 	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
@@ -106,15 +106,7 @@ public:
 	 * remove it from The _socketsData list.
 	 * @param fd The fd of the socket to close.
 	 */
-	void	closeFdAndRemoveFromEpoll(int fd);
-	/**
-	 * @brief Removes an AFdData from the _socketsData list and delete it.
-	 * @note The function doesn't have to removed it from the interest list
-	 * as the AFdData destructor already call closeFdAndRemovedFromEpoll.
-	 *
-	 * @param pos 
-	 */
-	void	removeFdDataFromList(std::list<ASocketData*>::iterator pos);
+	void	removeSocketsFromRemoveList(void);
 	/**
 	 * @note it is usefull for  the ExecveException. Because in this case,
 	 * the destructor shouldn't remove the unix sockets.

@@ -18,11 +18,17 @@ protected:
 	 * @brief The iterator of this instance in the EPollHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
-	std::list<ASocketData *>::iterator		_iterator;
+	std::list<ASocketData *>::iterator	_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a valid argument.
 	 */
-	bool									_isIteratorSet;
+	bool								_isIteratorSet;
+	/**
+	 * @brief The class managing all fds in epoll, including this one,
+	 * if it is blocking.
+	 * If the fd is non blocking, this variable is set to NULL.
+	 */
+	EPollHandler&						_ePollHandler;
 
 	ASocketData
 	(
@@ -43,6 +49,9 @@ protected:
 	 */
 	void										removeFromEPollHandler(void);
 private:
+
+	void										initFd(uint32_t events);
+
 	ASocketData(void);
 	ASocketData(const ASocketData &ref);
 
@@ -67,6 +76,7 @@ public:
 	 * @param iterator The iterator that points to this FdData.
 	 */
 	void										setIterator(const std::list<ASocketData *>::iterator &iterator);
+	void										setFd(int fd, uint32_t events);
 };
 
 #endif // !A_SOCKET_DATA_HPP

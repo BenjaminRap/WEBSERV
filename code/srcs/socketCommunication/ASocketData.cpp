@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <stdint.h>          // for uint32_t
 #include <iostream>          // for basic_ostream, operator<<, cerr, endl
 #include <list>              // for list
@@ -17,10 +18,12 @@ ASocketData::ASocketData
 	AFdDataChilds type,
 	uint32_t events
 ) :
-	AFdData(fd, ePollHandler, type, events),
+	AFdData(fd, type, true),
 	_iterator(),
-	_isIteratorSet(false)
+	_isIteratorSet(false),
+	_ePollHandler(ePollHandler)
 {
+	initFd(events);
 }
 
 ASocketData::ASocketData
@@ -28,9 +31,10 @@ ASocketData::ASocketData
 	EPollHandler &ePollHandler,
 	AFdDataChilds type
 ) :
-	AFdData(ePollHandler, type),
+	AFdData(type),
 	_iterator(),
-	_isIteratorSet(false)
+	_isIteratorSet(false),
+	_ePollHandler(ePollHandler)
 {
 }
 
@@ -67,7 +71,7 @@ void	ASocketData::removeFromEPollHandler(void)
 	if (_isIteratorSet == false)
 		return ;
 	_isActive = false;
-	_ePollHandler->addFdToRemoveList(*this);
+	_ePollHandler.addFdToRemoveList(*this);
 }
 
 void	ASocketData::removeFromEPollHandler(AFdData* fdData)
@@ -75,4 +79,21 @@ void	ASocketData::removeFromEPollHandler(AFdData* fdData)
 	ASocketData*	socketData = static_cast<ASocketData*>(fdData);
 
 	socketData->removeFromEPollHandler();
+}
+
+void	ASocketData::initFd(uint32_t events)
+{
+	if (events == 0)
+		throw std::logic_error("events set to 0 in a ASocketData !");
+
+	if (!addFlagsToFd(_fd, O_NONBLOCK, 0))
+		throw std::runtime_error("ASocketData: Can't apply flags to fd");
+	if (!_ePollHandler.addFdToEpoll(*this, events))
+		throw std::runtime_error("Can't add the fd to epoll !");
+}
+
+void	ASocketData::setFd(int fd, uint32_t events)
+{
+	AFdData::setFd(fd);
+	initFd(events);
 }

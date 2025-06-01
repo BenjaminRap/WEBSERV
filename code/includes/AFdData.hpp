@@ -27,6 +27,18 @@ public:
 	virtual ~AFdData(void);
 
 	/**
+	 * @brief The file descriptor on a file, socket, pipe ...
+	 */
+	int				_fd;
+	/**
+	 * @brief A boolean indicating if this fd can still receive/send
+	 * data. For example, if the other end of the fd has been closed,
+	 * this variable is set to false.
+	 */
+	bool			_isActive;
+	bool			_isBlocking;
+	AFdDataChilds	_type;
+	/**
 	 * @brief This function is called when the _fd receives and events, the
 	 * implementation depends on the child : a ServerSocketData will create
 	 * a new connection, the ConnectedSocketData will manage a request ...
@@ -40,30 +52,10 @@ public:
 	bool			getIsActive(void) const;
 	AFdDataChilds	getType(void) const;
 protected:
-	/**
-	 * @brief The file descriptor on a file, socket, pipe ...
-	 */
-	int				_fd;
-	/**
-	 * @brief The class managing all fds in epoll, including this one,
-	 * if it is blocking.
-	 * If the fd is non blocking, this variable is set to NULL.
-	 */
-	EPollHandler*	_ePollHandler;
-	/**
-	 * @brief A boolean indicating if this fd can still receive/send
-	 * data. For example, if the other end of the fd has been closed,
-	 * this variable is set to false.
-	 */
-	bool			_isActive;
-	AFdDataChilds	_type;
-	bool			_addedToEPoll;
 
-	AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events);
-	AFdData(EPollHandler& ePollHandler, AFdDataChilds type);
-	AFdData(int fd, AFdDataChilds type);
-
-	void			setFd(int fd, uint32_t events);
+	void			setFd(int fd);
+	AFdData(int fd, AFdDataChilds type, bool isBlocking);
+	AFdData(AFdDataChilds type);
 private:
 	AFdData(void);
 	AFdData(const AFdData &ref);
