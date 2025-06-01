@@ -76,7 +76,7 @@ RequestState	ConnectedSocketData::processRequest(void)
 	{
 		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
 		
-		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
+		if (requestState != REQUEST_DONE)
 			requestState = _requestHandler.readRequest(_requestContext, currentResponse);
 	}
 	requestState = readNextRequests(currentResponse, requestState);
@@ -123,8 +123,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 			throw std::runtime_error("Client closed the connection");
 		if (!_closing && events & EPOLLIN)
 		{
-			if (processRequest() == CONNECTION_CLOSED)
-				throw std::runtime_error("client closed the connection");
+			processRequest();
 		}
 		if (events & EPOLLOUT)
 		{
