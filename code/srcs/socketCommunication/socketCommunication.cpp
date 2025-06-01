@@ -19,7 +19,7 @@ void	handleIOEvents(const Configuration &conf)
 	{
 		while (getSignalStatus() == NO_SIGNAL)
 		{
-			if (!ePollHandler.callSocketsCallback())
+			if (!ePollHandler.handleIOEvents())
 				break ;
 		}
 	}

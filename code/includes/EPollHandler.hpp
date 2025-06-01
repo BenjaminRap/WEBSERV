@@ -28,8 +28,8 @@ private:
 	/**
 	 * @brief A list of the FdData that are in the epoll interest list.
 	 */
-	std::list<AEPollFd*>			_socketsData;
-	std::list<const AEPollFd*>	_socketsToRemove;
+	std::list<AEPollFd*>			_ePollFds;
+	std::list<const AEPollFd*>		_ePollFdsToRemove;
 	/**
 	 * @brief The epoll fd.
 	 */
@@ -91,7 +91,7 @@ public:
 	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
 	 * is the result of epoll_wait or epollWaitForEvent function.
 	 */
-	bool	callSocketsCallback(void);
+	bool	handleIOEvents(void);
 	/**
 	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
 	 * delete the socket at the host.sun_path, recreate a socket and add the socket

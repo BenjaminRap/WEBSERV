@@ -41,8 +41,8 @@ static size_t getUnixSocketCount(const Configuration &conf)
 }
 
 EPollHandler::EPollHandler(const Configuration &conf) :
-	_socketsData(),
-	_socketsToRemove(),
+	_ePollFds(),
+	_ePollFdsToRemove(),
 	_epfd(-1),
 	_events(NULL),
 	_maxEvents(conf.getMaxEvents()),
@@ -64,7 +64,7 @@ EPollHandler::EPollHandler(const Configuration &conf) :
 EPollHandler::~EPollHandler()
 {
 	EPollHandler::_instanciated = false;
-	for (std::list<AEPollFd *>::const_iterator ci = _socketsData.begin(); ci != _socketsData.end(); ci++)
+	for (std::list<AEPollFd *>::const_iterator ci = _ePollFds.begin(); ci != _ePollFds.end(); ci++)
 	{
 		delete (*ci);
 	}
@@ -78,22 +78,22 @@ EPollHandler::~EPollHandler()
 
 void	EPollHandler::removeSocketsFromRemoveList(void)
 {
-	for (std::list<const AEPollFd*>::const_iterator it = _socketsToRemove.begin(); it != _socketsToRemove.end(); it++)
+	for (std::list<const AEPollFd*>::const_iterator it = _ePollFdsToRemove.begin(); it != _ePollFdsToRemove.end(); it++)
 	{
 		const AEPollFd*	socket = *it;
 		if (socket == NULL)
 			throw std::logic_error("socket is NULL in the _socketsToRemove list !");
 		const int			fd = socket->getFd();
 
-		_socketsData.erase(socket->getIterator());
+		_ePollFds.erase(socket->getIterator());
 		if (fd > 0)
 			checkError(epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL), -1, "epoll_ctl() : ");
 		delete socket;
 	}
-	_socketsToRemove.clear();
+	_ePollFdsToRemove.clear();
 }
 
-bool	EPollHandler::callSocketsCallback(void)
+bool	EPollHandler::handleIOEvents(void)
 {
 	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
 
@@ -155,14 +155,14 @@ bool	EPollHandler::addFdToList(AEPollFd &fdData)
 {
 	try
 	{
-		_socketsData.push_front(&fdData);
+		_ePollFds.push_front(&fdData);
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << "push_front() : " << e.what() << std::endl;
 		return (false);
 	}
-	fdData.setIterator(_socketsData.begin());
+	fdData.setIterator(_ePollFds.begin());
 	return (true);
 }
 
@@ -173,5 +173,5 @@ void	EPollHandler::clearUnixSocketsList(void)
 
 void	EPollHandler::addFdToRemoveList(const AEPollFd& fdData)
 {
-	_socketsToRemove.push_back(&fdData);
+	_ePollFdsToRemove.push_back(&fdData);
 }
