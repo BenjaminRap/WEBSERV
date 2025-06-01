@@ -52,14 +52,19 @@ private:
 	
 	/**
 	 * @brief It redirect the data into the first part or the body, then call
-	 * the requestHandler readRequest. It can reads multiples request so that
-	 * if the client send multiples request in a single message, thhey can all
+	 * readNextRequests. It can reads multiples request so that
+	 * if the client send multiples request in a single message, they can all
 	 * be processed at the same time.
 	 *
-	 * @param response The result of the request will be written in it
 	 * @return The state of the request. It can be any of the enum values.
 	 */
 	RequestState			processRequest(void);
+	/**
+	 * @brief Parse the data sent by the client and execute the
+	 * requests.
+	 *
+	 * @return The state of the request. It can be any of the enum values.
+	 */
 	RequestState			readNextRequests
 	(
 		Response& currentResponse,
@@ -80,9 +85,13 @@ public:
 	 * @brief If we receive an EPOLLIN, it reads the request.
 	 * If we receive an EPOLLOUT, it write a response.
 	 *
-	 * @param events 
 	 */
 	void			callback(uint32_t events);
+	/**
+	 * @brief Remove the request fdData, redirect the body.
+	 * And, if the body is DONE, read the nexts requests.
+	 *
+	 */
 	void			ignoreBodyAndReadRequests(Response& response);
 };
 

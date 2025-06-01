@@ -108,6 +108,11 @@ public:
 	const Headers&		getHeaders() const;
 	EMethods			getMethod(void) const;
 	const std::string&	getRequestTarget(void) const;
+	/**
+	 * @brief Set the _fdData managed resource to the fdData managed resource
+	 * passed as argument. If it is NUll, we juste unset the _fdData.
+	 *
+	 */
 	void				setFdData(const SharedResource<AFdData*>* fdData);
 };
 

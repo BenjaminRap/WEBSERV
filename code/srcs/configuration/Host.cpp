@@ -11,10 +11,6 @@
 
 std::string uint16toString(u_int16_t nb);
 
-/**
- * @brief Compare two host, first by their family, then by their addr value.
- * @return True if this Host is inferior, false if it is equal or superior.
- */
 bool	Host::operator<(const Host& host) const
 {
 	if (this->_family == host._family)
@@ -22,11 +18,6 @@ bool	Host::operator<(const Host& host) const
 	return (this->_family < host._family);
 }
 
-/**
- * @brief Create an Host object, with an IPV4 family.
- * @param addrIPV4 The address to listen to, in an IPV4 format
- * @param port The port to listen to.
- */
 Host::Host(in_addr_t addrIPV4, in_port_t port) :
 	_family(AF_INET),
 	_addr(),
@@ -40,11 +31,6 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
 	addr.sin_port = htons(port);
 }
 
-/**
- * @brief Create an host object, with an IPV6 family.
- * @param addrIPV4 The address to listen to, in an IPV6 format
- * @param port The port to listen to.
- */
 Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
 	_family(AF_INET6),
 	_addr(),
@@ -63,10 +49,6 @@ Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
 	addr.sin6_scope_id = 0;
 }
 
-/**
- * @brief Create an host object, with an unix family.
- * @param path The path to the unix endpoint.
- */
 Host::Host(const std::string &path) :
 	_family(AF_UNIX),
 	_addr(),
@@ -92,16 +74,6 @@ Host::~Host(void)
 {
 }
 
-/**
- * @brief Get the sockaddr and length of the sockaddr structure. It is useful
- * for bind().
- * @param outAddr The variable in which to store the address (const sockaddr *).
- * @throw If outAddr is pointing to NULL or if this Host family is unsupported,
- * throw a std::logic_error.
- * @return The length of the sockaddr structure. It can
- * be sizeof(sockaddr_in), sizeof(sockaddr_in6) or sizeof(sockaddr_un), depending
- * on this Host family.
- */
 socklen_t	Host::getAddrInfo(const sockaddr ** outAddr) const
 {
 	if (outAddr == NULL)
@@ -122,9 +94,6 @@ socklen_t	Host::getAddrInfo(const sockaddr ** outAddr) const
 	}
 }
 
-/**
- * @brief Return the family of this socket, it can be AF_INET, AF_INET6 or AF_UNIX.
- */
 sa_family_t	Host::getFamily(void) const
 {
 	return (_family);

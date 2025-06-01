@@ -96,6 +96,10 @@ private :
 	 * and returns the results of the cgi, instead of returning the file.
 	 */
 	std::string								_cgiFileExtension;
+	/**
+	 * @brief The program interpreting the cgi file. If it is empty, the cgiFile
+	 * will be called as the program.
+	 */
 	std::string								_cgiInterpreter;
 
 

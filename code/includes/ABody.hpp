@@ -8,9 +8,9 @@
 /**
  * @class ABody
  * @brief A purely abtrasct class representing a Body.
- * A body is the content of a request or response.
+ * A body is the content of a request.
  * This class can write the content of that body into
- * another fd.
+ * another fd. (ex : A file or the cgi)
  * Depending on the Body type, the writing process
  * can be different (from a chunked body to a sized body).
  *
@@ -18,6 +18,11 @@
 class ABody
 {
 public:
+	/**
+	 * @brief The child class of the ABody:
+	 * 	- SIZED : a body with a known size.
+	 * 	- CHUNKED : a chunk body, whose size is unknown.
+	 */
 	enum	ABodyChilds
 	{
 		SIZED,
@@ -26,19 +31,29 @@ public:
 
 	virtual ~ABody();
 
+	/************************* Getters *********************************/
+
 	bool		getFinished() const;
 	uint16_t	getStatus() const;
 	size_t		getWritten(void) const;
 	ABodyChilds	getType(void) const;
+
+	/*********************** Setters ***********************************/
+
 	void		setFd(int fd);
+
+	/*********************** Public Methods ***************************/
+
 	/**
-	 * @brief Write bufferSize bytes from the buffer to the _fd.
-	 * If the _fd is set to -1, it justs ignores them.
+	 * @brief Write bufferCapacity bytes from the buffer to the _fd.
+	 * If the _fd is negative, it justs ignores them.
 	 *
 	 * @param buffer The buffer whose characters will be written.
 	 * @param bufferCapacity The number of characters to write.
-	 * @return The number of characters written, or, if _fd is set to
-	 * -1 : bufferCapacity.
+	 * @return The number of characters written, or, if _fd is negative : bufferCapacity.
+	 * If write fails, it reutns -1;
+	 * @note It add the number of characters written in _written private attribute.
+	 * @ref getWritten
 	 */
 	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
 
@@ -46,7 +61,8 @@ public:
 	 * @brief Call the ABody child class writeToFd
 	 *
 	 * @param body The instance whose writeToFd method will called.
-	 * @throw It should not throw
+	 * @throw It should not throw, unless the instancec's writeToFd throws.
+	 * This behaviour shouldn't happend.
 	 * @ref writeToFd The rest of the parameters and return value corresponds.
 	 */
 	static ssize_t	writeToFd(ABody &body, const void *buffer, size_t bufferCapacity);
@@ -73,6 +89,9 @@ private:
 	 * if the fd is invalid, this attribute is always 0.
 	 */
 	size_t		_written;
+	/**
+	 * @brief An enum representing the child class.
+	 */
 	ABodyChilds	_type;
 
 	ABody(const ABody& ref);
@@ -81,9 +100,15 @@ private:
 	
 protected:
 	ABody(int fd, ABodyChilds type);
+	/**
+	 * @brief @note This constructor set teh fd to -1.
+	 *
+	 * @param type 
+	 */
 	ABody(ABodyChilds type);
 	/**
 	 * @brief Tag this instance has finished.
+	 * It sets _finished to true and set the _status.
 	 * @note It isn't reversible !
 	 */
 	void	setFinished(uint16_t status);

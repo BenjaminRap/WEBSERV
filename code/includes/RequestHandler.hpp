@@ -147,6 +147,10 @@ public:
 	 *
 	 */
 	void						setNewRequest(void);
+	/**
+	 * @brief Remove the request fdData and redirect the body.
+	 *
+	 */
 	RequestState				ignoreBody(Response& response);
 	Request&					getRequest(void);
 	FlowBuffer&					getFlowBuffer(void);

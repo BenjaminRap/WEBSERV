@@ -57,7 +57,7 @@ void	AFdData::setFd(int newFd)
 	if (_fd > 0)
 		throw std::logic_error("AFdData::setFd called with a fd already set !");
 	if (newFd < 0)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
+		throw std::invalid_argument("File descriptor is invalid in the AFdData constructor");
 
 	if (!addFlagsToFd(newFd, 0, FD_CLOEXEC))
 		throw std::runtime_error("AFdData: Can't apply FD_CLOEXEC to fd");

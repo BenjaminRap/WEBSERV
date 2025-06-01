@@ -46,8 +46,7 @@ const std::list<AEPollFd *>::iterator	&AEPollFd::getIterator() const
 {
 	if (_isIteratorSet)
 		return (this->_iterator);
-	else
-		throw std::logic_error("FdData getIterator() function with a unitialized iterator");
+	throw std::logic_error("AEPollFd getIterator() function with a unitialized iterator");
 }
 
 void	AEPollFd::setIterator(const std::list<AEPollFd *>::iterator &iterator)
@@ -68,9 +67,9 @@ void	AEPollFd::setIterator(const std::list<AEPollFd *>::iterator &iterator)
 
 void	AEPollFd::removeFromEPollHandler(void)
 {
+	_isActive = false;
 	if (_isIteratorSet == false)
 		return ;
-	_isActive = false;
 	_ePollHandler.addFdToRemoveList(*this);
 }
 

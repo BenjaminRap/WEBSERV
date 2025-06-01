@@ -8,14 +8,20 @@ class EPollHandler;
 
 
 /**
- * @brief Every FDs that are in the listeners of epoll has a corresponding FdData
- * instance. This class store everything that the programs needs when the fd
- * receive an events (EPOLLIN/EPOLLOUT/...).
+ * @brief A class wrapping a fd.
  * This class is abstract, so it can only be used through its childs.
  */
 class AFdData
 {
 public:
+	/**
+	 * @brief The child class :
+	 * 	- FILE_FD : a file
+	 * 	- CGI_OUT : the cgi ouput
+	 * 	- CGI_IN : the cgi input
+	 * 	- SERVER_SOCKET_DATA : a server
+	 * 	- CONNECTED_SOCKET_DATA : a connection client/server
+	 */
 	enum	AFdDataChilds
 	{
 		FILE_FD,
@@ -36,16 +42,28 @@ public:
 	 * this variable is set to false.
 	 */
 	bool			_isActive;
+	/**
+	 * @brief Is this fd blocking (true for a pipe or a socket, false
+	 * for a file).
+	 * Even if the O_NONBLOCK flags has been added to the fd, it does not
+	 * changes this variable.
+	 */
 	bool			_isBlocking;
+	/**
+	 * @brief The child class.
+	 */
 	AFdDataChilds	_type;
+
 	/**
 	 * @brief This function is called when the _fd receives and events, the
 	 * implementation depends on the child : a ServerSocketData will create
 	 * a new connection, the ConnectedSocketData will manage a request ...
 	 *
-	 * @param events 
+	 * @param events The events on which epoll will notify us.
 	 */
 	virtual void	callback(uint32_t events) = 0;
+
+	/***************************** Getters ******************************/
 
 	int				getFd(void) const;
 	bool			getIsBlocking(void) const;
@@ -53,7 +71,19 @@ public:
 	AFdDataChilds	getType(void) const;
 protected:
 
-	void			setFd(int fd);
+	/**
+	 * @brief set the fd and add the FD_CLOEXEC flag to it.
+	 * @throw :
+	 * 	- a std::logic_error if fd is already set
+	 * 	- a std::invalid_argument if the newFd is negative.
+	 * 	- a std::runtime_error if we can't add the flag.
+	 * 	If itt throws, _fd isn't changed.
+	 *
+	 */
+	void			setFd(int newFd);
+	/**
+	 * @throw Same as setFd.
+	 */
 	AFdData(int fd, AFdDataChilds type, bool isBlocking);
 	AFdData(AFdDataChilds type);
 private:

@@ -15,7 +15,7 @@ class	AFdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
- * execute the socket callback on events.
+ * execute the AEPollFd callback on events.
  */
 class EPollHandler
 {
@@ -26,9 +26,13 @@ private:
 	static bool						_instanciated;
 
 	/**
-	 * @brief A list of the FdData that are in the epoll interest list.
+	 * @brief A list of the AEPollFd that are in the epoll interest list.
 	 */
 	std::list<AEPollFd*>			_ePollFds;
+	/**
+	 * @brief A list of the AEPollFd that needs to be removed from the
+	 * interest list.
+	 */
 	std::list<const AEPollFd*>		_ePollFdsToRemove;
 	/**
 	 * @brief The epoll fd.
@@ -73,23 +77,25 @@ public:
 	~EPollHandler();
 
 	/**
-	 * @brief Add the FdData the the _socketsdata list.
+	 * @brief Add the FdData the the _ePollFds list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
-	 * @return -1 on error, otherwise 0.
+	 * @return A boolean indicating if the fonction succeed.
 	 */
 	bool	addFdToList(AEPollFd &fdData);
 	/**
 	 * @brief Adds the fdData to the epoll interest list.
+	 * with the events passed as arguments.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
-	 * @return -1 on error, 0 otherwise
+	 * @return A boolean indicating if the fonction succeed.
 	 */
 	bool	addFdToEpoll(AFdData& fdData, uint32_t events);
 	/**
-	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
-	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
-	 * is the result of epoll_wait or epollWaitForEvent function.
+	 * @brief Call epoll_wait, call the callbacks of every AEPollFd
+	 * notified by epoll and callremoveSocketsFromRemoveList.
+	 *
+	 * @return A boolean indicating if the fonction succeed.
 	 */
 	bool	handleIOEvents(void);
 	/**
@@ -102,9 +108,9 @@ public:
 	 */
 	int		bindFdToHost(int fd, const Host &host);
 	/**
-	 * @brief Close a socket and remove if from the epoll interest list. It does not
-	 * remove it from The _socketsData list.
-	 * @param fd The fd of the socket to close.
+	 * @brief For all the AEPollFd in the _ePollFdsToRemove, remove them
+	 * from the _ePollFds list, removed them from epoll and delete them.
+	 * Then clear the _ePollFdsToRemove list.
 	 */
 	void	removeSocketsFromRemoveList(void);
 	/**

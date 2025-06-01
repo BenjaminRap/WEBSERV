@@ -56,12 +56,32 @@ private:
 	 */
 	FileFd*							_srcFile;
 	CgiOutState						_state;
+	/**
+	 * @brief The code of the response that will be send to the client.
+	 */
 	uint16_t						_code;
+	/**
+	 * @brief A boolean indicating if there was an error parsing the response.
+	 */
 	bool							_error;
 	const ServerConfiguration&		_serverConf;
+	/**
+	 * @brief Can the CgiOut write to the buffer. if the callback is called, this
+	 * variable is set to true.
+	 */
 	bool							_canWrite;
+	/**
+	 * @brief A boolean indicating if we can Receive nwe EPOLLIN. If we can't
+	 * that means that we won't get EAGAIN after a read.
+	 */
 	bool							_cgiReadFinished;
+	/**
+	 * @brief The pid of the cgi, it will be used in the destructor to kill the program.
+	 */
 	pid_t							_pid;
+	/**
+	 * @brief The headers that will be added to the cgi response headers.
+	 */
 	const std::list<ConfigHeaders>	_addHeader;
 
 	CgiOut(void);

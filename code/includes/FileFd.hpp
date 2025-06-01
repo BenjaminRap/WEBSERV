@@ -17,6 +17,9 @@
 class FileFd : public AFdData
 {
 private:
+	/**
+	 * @brief The size of the file when opening it.
+	 */
 	size_t	_fileSize;
 
 	FileFd(void);
@@ -36,7 +39,15 @@ public:
 	 */
 	void			callback(uint32_t events);
 
+	/**
+	 * @return The Size when opening the file.
+	 */
 	size_t			getSize(void) const;
+	/**
+	 * @brief Returns a new file, or NULL if it fails.
+	 * The path of the file is written in the name array.
+	 *
+	 */
 	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam]);
 
 	class FileOpeningError : public std::exception
