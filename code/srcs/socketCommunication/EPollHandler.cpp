@@ -52,9 +52,10 @@ EPollHandler::EPollHandler(const Configuration &conf) :
 		throw std::logic_error("Error : trying to instantiate a EPollHandler multiple times");
 	_events = new epoll_event[conf.getMaxEvents()]();
 	_epfd = epoll_create(1);
-	if (!addFlagsToFd(_epfd, 0, FD_CLOEXEC)
-		&& checkError(_epfd, -1, "epoll_create() :"))
+	if (checkError(_epfd, -1, "epoll_create() :")
+		|| !addFlagsToFd(_epfd, 0, FD_CLOEXEC))
 	{
+		closeFdAndPrintError(_epfd);
 		delete [] _events;
 		throw std::exception();
 	}
