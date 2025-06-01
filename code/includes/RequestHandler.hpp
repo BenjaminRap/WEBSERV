@@ -124,9 +124,9 @@ public:
 	/**
 	 * @brief Redirect the body.
 	 *
-	 * @param socketFd The fd of the client.
-	 * @param response The response that will be set if an error happend.
-	 * @param canRead Can this function read from the socketFd.
+	 * @param socketFd A pointer on the client/server communication fd, or NULL, if we
+	 * can't read from it.
+	 * @param response The currentResponse, its code will be set if an error occured.
 	 * @return 
 	 */
 	RequestState				redirectBody(const int* socketFd, Response &response);
