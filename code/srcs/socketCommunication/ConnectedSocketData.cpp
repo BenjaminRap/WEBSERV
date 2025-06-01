@@ -117,19 +117,24 @@ void	ConnectedSocketData::callback(uint32_t events)
 {
 	if (!_isActive)
 		return ;
+	bool	shouldRemoveFromEPoll = false;
+
 	try
 	{
 		if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-			throw std::runtime_error("Client closed the connection");
-		if (!_closing && events & EPOLLIN)
+			shouldRemoveFromEPoll = true;
+		else
 		{
-			processRequest();
-		}
-		if (events & EPOLLOUT)
-		{
-			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
-			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
-				throw std::runtime_error("Error sending the response !");
+			if (!_closing && events & EPOLLIN)
+			{
+				processRequest();
+			}
+			if (events & EPOLLOUT)
+			{
+				const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
+				if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
+					shouldRemoveFromEPoll = true;
+			}
 		}
 	}
 	catch(const ExecveException& e)
@@ -139,6 +144,8 @@ void	ConnectedSocketData::callback(uint32_t events)
 	catch (const std::exception& exception)
 	{
 		std::cerr << exception.what() << std::endl;
-		removeFromEPollHandler();
+		shouldRemoveFromEPoll = true;
 	}
+	if (shouldRemoveFromEPoll == true)
+		removeFromEPollHandler();
 }
