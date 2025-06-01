@@ -26,6 +26,7 @@ CgiOut::CgiOut
 	_firstPart(),
 	_charsWritten(0),
 	_headers(),
+	_tempName(),
 	_srcFile(NULL),
 	_state(CgiOut::READ_HEADER),
 	_code(0),

@@ -54,6 +54,7 @@ ARequestType::ARequestType
 	_pathInfo(),
 	_inFd(),
 	_outFd(),
+	_targetType(0),
 	_isCgi(false)
 {
 	extractQueryString(_url, _queryString);

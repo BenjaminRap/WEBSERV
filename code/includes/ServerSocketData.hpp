@@ -2,6 +2,9 @@
 # define SERVER_SOCKET_DATA_HPP
 
 # include "AEPollFd.hpp"	// for ASocketData
+# include "ServerConfiguration.hpp"
+
+# include <vector>
 
 # define SERVER_EVENTS (EPOLLIN | EPOLLERR)
 

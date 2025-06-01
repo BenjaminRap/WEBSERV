@@ -18,7 +18,7 @@ protected:
 	 * @brief The iterator of this instance in the EPollHandler list. It is used
 	 * to remove this instance from the list in O(1).
 	 */
-	std::list<AEPollFd *>::iterator	_iterator;
+	std::list<AEPollFd *>::iterator		_iterator;
 	/**
 	 * @brief True if the setIterator has been called with a valid argument.
 	 */

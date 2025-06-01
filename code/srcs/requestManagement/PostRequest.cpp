@@ -18,7 +18,7 @@ PostRequest::PostRequest
 	const std::string& domain,
 	RequestContext& requestContext
 ) :
-ARequestType(url, config, POST, domain, requestContext)
+	ARequestType(url, config, POST, domain, requestContext)
 {
 	if (this->_code != 0)
 		return ;

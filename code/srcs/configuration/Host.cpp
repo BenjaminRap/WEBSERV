@@ -29,6 +29,7 @@ bool	Host::operator<(const Host& host) const
  */
 Host::Host(in_addr_t addrIPV4, in_port_t port) :
 	_family(AF_INET),
+	_addr(),
 	_port(uint16toString(port))
 {
 	sockaddr_in	&addr = this->_addr.ipv4;
@@ -46,6 +47,7 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
  */
 Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
 	_family(AF_INET6),
+	_addr(),
 	_port(uint16toString(port))
 {
 	sockaddr_in6	&addr = this->_addr.ipv6;
@@ -67,6 +69,7 @@ Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
  */
 Host::Host(const std::string &path) :
 	_family(AF_UNIX),
+	_addr(),
 	_port()
 {
 	sockaddr_un	&addr = this->_addr.unixAddr;

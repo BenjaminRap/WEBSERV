@@ -38,7 +38,11 @@ CgiIn::CgiIn
 	_body(chunkedBody),
 	_connectedSocketData(connectedSocketData),
 	_response(currentResponse),
+	_state(CgiIn::BUFFER_TO_TEMP),
+	_tempName(),
 	_tmpFile(NULL),
+	_argv(),
+	_env(),
 	_cgiOutArgs(cgiOutArgs)
 {
 	std::memcpy(_argv, argv, sizeof(_argv));
@@ -47,7 +51,6 @@ CgiIn::CgiIn
 	_tmpFile = FileFd::getTemporaryFile(_tempName);
 	if (_tmpFile == NULL)
 		throw std::runtime_error("Can't open a temporary file !");
-	_state = CgiIn::BUFFER_TO_TEMP;
 }
 
 CgiIn::CgiIn
@@ -64,13 +67,15 @@ CgiIn::CgiIn
 	_body(sizedBody),
 	_connectedSocketData(connectedSocketData),
 	_response(currentResponse),
+	_state(CgiIn::BUFFER_TO_CGI),
 	_tmpFile(NULL),
+	_argv(),
+	_env(),
 	_cgiOutArgs(NULL)
 {
 	std::memset(_argv, 0, sizeof(_argv));
 	std::memset(_env, 0, sizeof(_env));
 	_tempName[0] = '\0';
-	_state = CgiIn::BUFFER_TO_CGI;
 }
 
 CgiIn::~CgiIn()
