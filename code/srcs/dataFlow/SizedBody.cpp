@@ -7,8 +7,8 @@
 #include "requestStatusCode.hpp"    // for HTTP_OK, HTTP_INTERNAL_SERVER_ERROR
 #include "socketCommunication.hpp"  // for checkError
 
-SizedBody::SizedBody(int fd, size_t size) :
-	ABody(fd, ABody::SIZED),
+SizedBody::SizedBody(int fd, size_t size, bool isFdBlocking) :
+	ABody(fd, ABody::SIZED, isFdBlocking),
 	_size(size),
 	_numCharsWritten(0)
 {

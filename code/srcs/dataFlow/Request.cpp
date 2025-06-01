@@ -111,7 +111,7 @@ void	Request::setFdData(const SharedResource<AFdData*>* fdData)
 	if (fdData == NULL)
 	{
 		_fdData.stopManagingResource();
-		body->setFd(-1);
+		body->setFd(-1, false);
 		return ;
 	}
 	if (!fdData->isManagingValue())
@@ -120,7 +120,7 @@ void	Request::setFdData(const SharedResource<AFdData*>* fdData)
 
 	const int fd =  _fdData.getValue()->getFd();
 
-	body->setFd(fd);
+	body->setFd(fd, _fdData.getValue()->getIsBlocking());
 }
 
 /******************************Operator Overload*****************************************/

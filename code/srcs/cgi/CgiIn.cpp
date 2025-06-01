@@ -57,6 +57,7 @@ CgiIn::CgiIn
 	_tmpFile = FileFd::getTemporaryFile(_tempName);
 	if (_tmpFile == NULL)
 		throw std::runtime_error("Can't open a temporary file !");
+	_body.setFd(_tmpFile->getFd(), false);
 }
 
 CgiIn::CgiIn
@@ -112,7 +113,6 @@ void	CgiIn::execCgi(void)
 			throw std::exception();
 
 		setFd(inFd, CGI_IN_EVENTS);
-		_body.setFd(inFd);
 		inFd = -1;
 		CgiOut * const	cgiOut = new CgiOut(
 			outFd,

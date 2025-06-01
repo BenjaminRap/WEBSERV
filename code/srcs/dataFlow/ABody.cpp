@@ -10,8 +10,9 @@
 #include "SizedBody.hpp"          // for SizedBody
 #include "requestStatusCode.hpp"  // for HTTP_OK
 
-ABody::ABody(int fd, ABodyChilds type) :
+ABody::ABody(int fd, ABodyChilds type, bool isFdBlocking) :
 	_fd(fd),
+	_isFdBlocking(isFdBlocking),
 	_finished(false),
 	_status(HTTP_OK),
 	_written(0),
@@ -22,6 +23,7 @@ ABody::ABody(int fd, ABodyChilds type) :
 
 ABody::ABody(ABodyChilds type) :
 	_fd(-1),
+	_isFdBlocking(false),
 	_finished(false),
 	_status(HTTP_OK),
 	_written(0),
@@ -65,16 +67,20 @@ bool	ABody::getHasWritten(void) const
 	return (_hasWritten);
 }
 
-void	ABody::setFd(int fd)
+void	ABody::setFd(int fd, bool isFdBlocking)
 {
 	_fd = fd;
+	if (fd < 0)
+		_isFdBlocking = false;
+	else
+		_isFdBlocking = isFdBlocking;
 }
 
 ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 {
 	if (_fd > 0)
 	{
-		if (_hasWritten)
+		if (_isFdBlocking && _hasWritten)
 			return (0);
 		_hasWritten = true;
 

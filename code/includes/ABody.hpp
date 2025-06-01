@@ -40,22 +40,10 @@ public:
 
 	/*********************** Setters ***********************************/
 
-	void		setFd(int fd);
+	void		setFd(int fd, bool isFdBlocking);
 
 	/*********************** Public Methods ***************************/
 
-	/**
-	 * @brief Write bufferCapacity bytes from the buffer to the _fd.
-	 * If the _fd is negative, it justs ignores them.
-	 *
-	 * @param buffer The buffer whose characters will be written.
-	 * @param bufferCapacity The number of characters to write.
-	 * @return The number of characters written, or, if _fd is negative : bufferCapacity.
-	 * If write fails, it reutns -1;
-	 * @note It add the number of characters written in _written private attribute.
-	 * @ref getWritten
-	 */
-	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
 
 	/**
 	 * @brief Call the ABody child class writeToFd
@@ -74,6 +62,11 @@ private:
 	 * check for the body end.
 	 */
 	int			_fd;
+	/**
+	 * @brief A boolean indicating if the fd is blocking (a pipe or socket).
+	 * If it is set to true, the body can only write once in a writeToFd.
+	 */
+	bool		_isFdBlocking;
 	/**
 	 * @brief True if this body has been entirely written.
 	 */
@@ -96,7 +89,8 @@ private:
 	/**
 	 * @brief A boolean indicating if this ABody has written in
 	 * fd. This variable is set to false at the start of the writeToFd
-	 * method, and set to true when writeOrIgnore is called and the fd is positive.
+	 * method, and set to true when writeOrIgnore is called if the fd is positive
+	 * and _isFdBlocking is set to true.
 	 */
 	bool		_hasWritten;
 
@@ -105,7 +99,7 @@ private:
 	ABody&	operator=(const ABody& ref);
 	
 protected:
-	ABody(int fd, ABodyChilds type);
+	ABody(int fd, ABodyChilds type, bool isFdBlocking);
 	/**
 	 * @brief @note This constructor set teh fd to -1.
 	 *
@@ -121,6 +115,20 @@ protected:
 
 	bool	getHasWritten(void) const;
 
+	/**
+	 * @brief Write bufferCapacity bytes from the buffer to the _fd.
+	 * If the _fd is negative, it justs ignores them.
+	 * If the fd is blocking, this function can only be called once in
+	 * a writeToFd.
+	 *
+	 * @param buffer The buffer whose characters will be written.
+	 * @param bufferCapacity The number of characters to write.
+	 * @return The number of characters written, or, if _fd is negative : bufferCapacity.
+	 * If write fails, it reutns -1;
+	 * @note It add the number of characters written in _written private attribute.
+	 * @ref getWritten
+	 */
+	ssize_t		writeOrIgnore(const void* buffer, size_t bufferCapacity);
 	/**
 	 * @brief Write the buffer content to the _fd.
 	 *

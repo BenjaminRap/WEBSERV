@@ -17,8 +17,8 @@ const std::string	ChunkedBody::_lineEnd("\r\n");
 
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
-	ABody(fd, ABody::CHUNKED),
+ChunkedBody::ChunkedBody(int fd,  size_t maxSize, bool isFdBlocking) :
+	ABody(fd, ABody::CHUNKED, isFdBlocking),
 	_maxSize(maxSize),
 	_chunkSize(-1),
 	_state(ChunkedBody::SIZE)

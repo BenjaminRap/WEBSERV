@@ -118,7 +118,7 @@ private:
 	 */
 	void	setFinished(uint16_t status);
 public:
-	ChunkedBody(int fd, size_t maxSize);
+	ChunkedBody(int fd, size_t maxSize, bool isFdBlocking);
 	ChunkedBody(size_t maxSize);
 	~ChunkedBody();
 	
