@@ -6,7 +6,7 @@
 #include <string>            // for char_traits, basic_string
 
 #include "AFdData.hpp"       // for AFdData, AFdDataChilds
-#include "ASocketData.hpp"   // for ASocketData
+#include "AEPollFd.hpp"   // for ASocketData
 #include "EPollHandler.hpp"  // for EPollHandler
 
 class ServerConfiguration;  // lines 10-10
@@ -84,10 +84,10 @@ void	AEPollFd::removeFromEPollHandler(AFdData* fdData)
 void	AEPollFd::initFd(uint32_t events)
 {
 	if (events == 0)
-		throw std::logic_error("events set to 0 in a ASocketData !");
+		throw std::logic_error("events set to 0 in a AEPollFd !");
 
 	if (!addFlagsToFd(_fd, O_NONBLOCK, 0))
-		throw std::runtime_error("ASocketData: Can't apply flags to fd");
+		throw std::runtime_error("AEPollFd: Can't apply flags to fd");
 	if (!_ePollHandler.addFdToEpoll(*this, events))
 		throw std::runtime_error("Can't add the fd to epoll !");
 }

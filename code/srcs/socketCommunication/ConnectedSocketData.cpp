@@ -7,7 +7,7 @@
 #include <vector>                   // for vector
 
 #include "AFdData.hpp"              // for AFdDataChilds
-#include "ASocketData.hpp"          // for ASocketData
+#include "AEPollFd.hpp"          // for ASocketData
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState

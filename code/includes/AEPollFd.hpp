@@ -44,7 +44,7 @@ protected:
 	);
 
 	/**
-	 * @brief Remove this ASocketData from the EPollHandler list of sockets.
+	 * @brief Remove this AEPollFd from the EPollHandler list of sockets.
 	 * @note Calling this function will destroy this instance.
 	 */
 	void										removeFromEPollHandler(void);

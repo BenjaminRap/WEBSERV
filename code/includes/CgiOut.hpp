@@ -3,8 +3,7 @@
 
 # include <cstdio>					// for L_tmpnam
 
-# include "AFdData.hpp"				// for ASocketData
-# include "ASocketData.hpp"
+# include "AEPollFd.hpp"
 # include "FileFd.hpp"
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration

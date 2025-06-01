@@ -15,7 +15,7 @@
 #include <vector>                   // for vector
 
 #include "AFdData.hpp"              // for AFdData
-#include "ASocketData.hpp"          // for ASocketData
+#include "AEPollFd.hpp"          // for ASocketData
 #include "Configuration.hpp"        // for Configuration
 #include "EPollHandler.hpp"         // for EPollHandler
 #include "Host.hpp"                 // for Host

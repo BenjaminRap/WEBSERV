@@ -2,7 +2,7 @@ SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							AFdData.cpp				\
-							ASocketData.cpp			\
+							AEPollFd.cpp			\
 							FileFd.cpp				\
 							signals.cpp				\
 							EPollHandler.cpp		\

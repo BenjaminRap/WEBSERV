@@ -1,7 +1,7 @@
 #ifndef SERVER_SOCKET_DATA_HPP
 # define SERVER_SOCKET_DATA_HPP
 
-# include "ASocketData.hpp"	// for ASocketData
+# include "AEPollFd.hpp"	// for ASocketData
 
 # define SERVER_EVENTS (EPOLLIN | EPOLLERR)
 

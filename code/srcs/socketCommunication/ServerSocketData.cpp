@@ -7,7 +7,7 @@
 #include <vector>                   // for vector
 
 #include "AFdData.hpp"              // for AFdDataChilds
-#include "ASocketData.hpp"          // for ASocketData
+#include "AEPollFd.hpp"          // for ASocketData
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "EPollHandler.hpp"         // for EPollHandler
 #include "ServerSocketData.hpp"     // for ServerSocketData, SERVER_EVENTS

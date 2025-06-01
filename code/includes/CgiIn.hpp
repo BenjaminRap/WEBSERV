@@ -1,7 +1,7 @@
 #ifndef CGI_IN_HPP
 # define CGI_IN_HPP
 
-# include "ASocketData.hpp"
+# include "AEPollFd.hpp"
 # include "CgiOutArgs.hpp"
 # include "FileFd.hpp"
 # include "FlowBuffer.hpp"
