@@ -206,7 +206,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 			getCGIStatus(pid);
 		closeFdAndPrintError(inFd);
 		closeFdAndPrintError(outFd);
-		return (HTTP_INTERNAL_SERVER_ERROR);
+		throw ;
 	}
 	_isCgi = true;
 	return (HTTP_OK);
