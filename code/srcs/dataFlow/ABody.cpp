@@ -15,7 +15,8 @@ ABody::ABody(int fd, ABodyChilds type) :
 	_finished(false),
 	_status(HTTP_OK),
 	_written(0),
-	_type(type)
+	_type(type),
+	_hasWritten(false)
 {
 }
 
@@ -24,7 +25,8 @@ ABody::ABody(ABodyChilds type) :
 	_finished(false),
 	_status(HTTP_OK),
 	_written(0),
-	_type(type)
+	_type(type),
+	_hasWritten(false)
 {
 }
 
@@ -58,6 +60,11 @@ ABody::ABodyChilds	ABody::getType(void) const
 	return (_type);
 }
 
+bool	ABody::getHasWritten(void) const
+{
+	return (_hasWritten);
+}
+
 void	ABody::setFd(int fd)
 {
 	_fd = fd;
@@ -67,6 +74,10 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 {
 	if (_fd > 0)
 	{
+		if (_hasWritten)
+			return (0);
+		_hasWritten = true;
+
 		const ssize_t	written = write(_fd, buffer, bufferCapacity);
 
 		if (written != -1)
@@ -79,6 +90,7 @@ ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 
 ssize_t	ABody::writeToFd(ABody &body, const void *buffer, size_t bufferCapacity)
 {
+	body._hasWritten = false;
 	switch (body.getType()) {
 		case ABody::SIZED:
 		{

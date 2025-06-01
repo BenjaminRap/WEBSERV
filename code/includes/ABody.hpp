@@ -93,6 +93,12 @@ private:
 	 * @brief An enum representing the child class.
 	 */
 	ABodyChilds	_type;
+	/**
+	 * @brief A boolean indicating if this ABody has written in
+	 * fd. This variable is set to false at the start of the writeToFd
+	 * method, and set to true when writeOrIgnore is called and the fd is positive.
+	 */
+	bool		_hasWritten;
 
 	ABody(const ABody& ref);
 	
@@ -112,6 +118,8 @@ protected:
 	 * @note It isn't reversible !
 	 */
 	void	setFinished(uint16_t status);
+
+	bool	getHasWritten(void) const;
 
 	/**
 	 * @brief Write the buffer content to the _fd.
