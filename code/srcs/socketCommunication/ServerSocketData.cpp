@@ -1,4 +1,3 @@
-#include <netinet/in.h>             // for sockaddr_in
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLIN
 #include <sys/socket.h>             // for accept, sockaddr, socklen_t
@@ -6,15 +5,14 @@
 #include <iostream>                 // for basic_ostream, char_traits, opera...
 #include <vector>                   // for vector
 
-#include "AFdData.hpp"              // for AFdDataChilds
-#include "AEPollFd.hpp"          // for ASocketData
+#include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "EPollHandler.hpp"         // for EPollHandler
+#include "Host.hpp"                 // for sockaddr_in_u, Host (ptr only)
 #include "ServerSocketData.hpp"     // for ServerSocketData, SERVER_EVENTS
-#include "socketCommunication.hpp"  // for closeFdAndPrintError, checkError
+#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
 
-class Host;
-class ServerConfiguration;  // lines 16-16
+class ServerConfiguration;  // lines 17-17
 
 //***********************Cosntructors / Destructors****************************/
 

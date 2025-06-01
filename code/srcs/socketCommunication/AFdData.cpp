@@ -1,12 +1,8 @@
-#include <fcntl.h>                  // for FD_CLOEXEC, O_NONBLOCK
-#include <stddef.h>                 // for NULL
-#include <stdint.h>                 // for uint32_t
-#include <sys/types.h>              // for ssize_t
-#include <stdexcept>                // for runtime_error, invalid_argument
+#include <fcntl.h>                  // for FD_CLOEXEC
+#include <stdexcept>                // for invalid_argument, logic_error
 #include <string>                   // for basic_string
 
-#include "AFdData.hpp"              // for AFdData, AFdDataChilds
-#include "EPollHandler.hpp"         // for EPollHandler
+#include "AFdData.hpp"              // for AFdData
 #include "socketCommunication.hpp"  // for addFlagsToFd, closeFdAndPrintError
 
 AFdData::AFdData(int fd, AFdDataChilds type, bool isBlocking) :

@@ -3,10 +3,11 @@
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
 #include <iostream>                 // for basic_ostream, operator<<, ostream
+#include <list>                     // for list
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, operator<<, string
 
-#include "AFdData.hpp"              // for AFdData, AFdDataChilds
+#include "AFdData.hpp"              // for AFdData
 #include "ARequestType.hpp"         // for ARequestType
 #include "FileFd.hpp"               // for FileFd
 #include "Headers.hpp"              // for Headers, operator<<
@@ -15,6 +16,8 @@
 #include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_CREATED, HTTP_FORBIDDEN, HTT...
+
+class ConfigHeaders;
 
 /*********************************Constructors/Destructors*************************************/
 

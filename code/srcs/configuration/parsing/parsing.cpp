@@ -1,17 +1,19 @@
-#include <algorithm>
-#include <cctype>                   // for isdigit
-#include <cstdlib>                  // for size_t, atol
-#include <map>                      // for map, _Rb_tree_iterator, operator==
+#include <algorithm>                // for transform
+#include <cctype>                   // for isdigit, tolower
+#include <cstdlib>                  // for size_t, atol, NULL
+#include <list>                     // for list
+#include <map>                      // for map, _Rb_tree_iterator, _Rb_tree_...
 #include <string>                   // for basic_string, string, operator==
-#include <utility>                  // for make_pair, pair
+#include <utility>                  // for pair, make_pair
 #include <vector>                   // for vector
 
 #include "Configuration.hpp"        // for Configuration
+#include "EMethods.hpp"             // for EMethods
 #include "Host.hpp"                 // for Host
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "exception.hpp"            // for CustomLineException, CustomKeyWor...
-#include "parsing.hpp"              // for skip_wspace, ip_s, SEP_WSPACE, ip_t
+#include "exception.hpp"            // for ParsingLineException, ParsingKeyW...
+#include "parsing.hpp"              // for skipWSpace, ConfigHeaders, ip_s
 
 void	parseFile(Configuration &config, std::string &file)
 {

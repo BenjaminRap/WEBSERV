@@ -1,13 +1,14 @@
 #include <arpa/inet.h>   // for htons, htonl
 #include <netinet/in.h>  // for sockaddr_in6, sockaddr_in, in_port_t, in6_addr
-#include <sys/socket.h>  // for AF_INET, AF_INET6, AF_UNIX, socklen_t
-#include <sys/un.h>      // for sockaddr_un, sa_family_t
 #include <stdint.h>      // for uint8_t
-#include <cstring>       // for memcmp, memcpy, NULL, size_t, memset
+#include <sys/socket.h>  // for AF_UNIX, AF_INET, AF_INET6, socklen_t
+#include <sys/types.h>   // for u_int16_t
+#include <sys/un.h>      // for sockaddr_un, sa_family_t
+#include <cstring>       // for memset, memcmp, memcpy, NULL, size_t
 #include <stdexcept>     // for logic_error, invalid_argument
 #include <string>        // for basic_string, string
 
-#include "Host.hpp"      // for Host
+#include "Host.hpp"      // for Host, sockaddr_in_u
 
 std::string uint16toString(u_int16_t nb);
 

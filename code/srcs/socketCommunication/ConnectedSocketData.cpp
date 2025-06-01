@@ -1,15 +1,14 @@
-#include <netinet/in.h>             // for sockaddr_in
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
-#include <vector>                   // for vector
 
-#include "AFdData.hpp"              // for AFdDataChilds
-#include "AEPollFd.hpp"          // for ASocketData
+#include <vector>                   // for vector
+#include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
+#include "Host.hpp"                 // for sockaddr_in_u, Host (ptr only)
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
@@ -17,8 +16,7 @@
 #include "Status.hpp"               // for Status, StatusType
 #include "exception.hpp"            // for ExecveException
 
-class EPollHandler;  // lines 19-19
-class Host;
+class EPollHandler;  // lines 20-20
 
 /*************************Constructors / Destructors***************************/
 

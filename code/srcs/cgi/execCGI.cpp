@@ -1,9 +1,8 @@
 #include <sys/types.h>              // for pid_t
-#include <sys/wait.h>               // for waitpid, WNOHANG
+#include <sys/wait.h>               // for waitpid, WEXITSTATUS, WNOHANG
 #include <unistd.h>                 // for dup2, pipe, execve, fork, STDIN_F...
 #include <csignal>                  // for signal, SIG_DFL, SIG_ERR, kill
-#include <cstdlib>                  // for WEXITSTATUS
-#include <iostream>                 // for char_traits, basic_ostream, basic...
+#include <iostream>                 // for char_traits, basic_ostream, opera...
 
 #include "exception.hpp"            // for ExecveException
 #include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError

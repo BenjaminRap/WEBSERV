@@ -1,14 +1,24 @@
-#include "ABody.hpp"
-#include "CgiIn.hpp"                // for CgiIn
+#include <stdint.h>                 // for uint16_t
+#include <sys/types.h>              // for pid_t
+#include <cstring>                  // for NULL, memset
 #include <exception>                // for exception
-#include "ARequestType.hpp"
-#include "CgiOut.hpp"
-#include "ChunkedBody.hpp"
-#include "Request.hpp"
-#include "requestStatusCode.hpp"
+#include <iostream>                 // for basic_ostream, basic_ios, basic_o...
+#include <string>                   // for char_traits, string
+
+#include "ABody.hpp"                // for ABody
+#include "AEPollFd.hpp"             // for AEPollFd
+#include "ARequestType.hpp"         // for ARequestType
+#include "CgiIn.hpp"                // for CgiIn
+#include "CgiOut.hpp"               // for CgiOut
+#include "CgiOutArgs.hpp"           // for CgiOutArgs
+#include "ChunkedBody.hpp"          // for ChunkedBody
+#include "EPollHandler.hpp"         // for EPollHandler
+#include "Request.hpp"              // for Request
+#include "RequestContext.hpp"       // for RequestContext
+#include "SharedResource.hpp"       // for SharedResource
+#include "SizedBody.hpp"            // for SizedBody
+#include "requestStatusCode.hpp"    // for HTTP_OK
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
-#include "EPollHandler.hpp"
-#include "SizedBody.hpp"
 
 void		deleteArray(const char** array);
 void		setArgv(const char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);

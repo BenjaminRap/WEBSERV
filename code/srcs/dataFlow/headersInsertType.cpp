@@ -1,4 +1,7 @@
-#include "Headers.hpp"
+#include <map>          // for map
+#include <string>       // for basic_string, operator<, string
+
+#include "Headers.hpp"  // for InsertType, Headers
 
 const std::map<std::string, InsertType>	getHeadersInsertType(void);
 

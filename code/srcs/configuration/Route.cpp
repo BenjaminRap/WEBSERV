@@ -1,10 +1,12 @@
 #include <stddef.h>      // for size_t
-#include <iostream>      // for basic_ostream, operator<<, char_traits, endl
-#include <string>        // for basic_string, string, operator<<
+#include <iostream>      // for basic_ostream, operator<<, endl, ostream
+#include <list>          // for list
+#include <string>        // for char_traits, string, operator<<, basic_string
 #include <vector>        // for vector
 
-#include "EMethods.hpp"  // for EMethods
+#include "EMethods.hpp"  // for EMethods, getStringRepresentation
 #include "Route.hpp"     // for Route, SRedirection, operator<<
+#include "parsing.hpp"   // for ConfigHeaders
 
 Route::Route
 (

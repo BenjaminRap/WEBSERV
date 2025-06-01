@@ -1,15 +1,19 @@
-#include <cstring>       // for size_t, memset, strcpy, NULL
-#include <stdexcept>     // for logic_error
-#include <string>        // for basic_string, string, operator+
-#include <sstream>
+#include <netinet/in.h>        // for sockaddr_in6
+#include <sys/socket.h>        // for AF_INET, AF_UNIX
+#include <sys/types.h>         // for u_int16_t
+#include <sys/un.h>            // for sa_family_t
+#include <cstring>             // for memset, size_t, strcpy, NULL
+#include <sstream>             // for basic_ostream, basic_ostringstream
+#include <stdexcept>           // for logic_error
+#include <string>              // for basic_string, allocator, char_traits
 
-#include "ARequestType.hpp"
-#include "EMethods.hpp"  // for getStringRepresentation, EMethods
-#include "Headers.hpp"   // for Headers
-#include "Request.hpp"   // for Request
-#include "protocol.hpp"  // for PROTOCOL
+#include "ARequestType.hpp"    // for ARequestType
+#include "EMethods.hpp"        // for getStringRepresentation, EMethods
+#include "Headers.hpp"         // for Headers
+#include "Host.hpp"            // for Host, sockaddr_in_u
+#include "Request.hpp"         // for Request
 #include "RequestContext.hpp"  // for RequestContext
-#include "Host.hpp"  // for Host
+#include "protocol.hpp"        // for GATEWAY_INTERFACE, PROTOCOL, SERVER_SO...
 
 std::string	sizeTToString(size_t value);
 std::string uint16toString(u_int16_t nb);

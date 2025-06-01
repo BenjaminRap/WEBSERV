@@ -1,21 +1,27 @@
-#include <fcntl.h>
+#include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t, uint32_t
-#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLOUT
+#include <sys/types.h>              // for pid_t
+#include <cstdio>                   // for NULL, remove, size_t
+#include <cstring>                  // for memcpy, memset
+#include <exception>                // for exception
+#include <stdexcept>                // for runtime_error
+#include <string>                   // for basic_string
 
 #include "ABody.hpp"                // for ABody
-#include "AFdData.hpp"              // for AFdData, AFdDataChilds
+#include "AEPollFd.hpp"             // for AEPollFd
 #include "CgiIn.hpp"                // for CgiIn, CGI_IN_EVENTS
+#include "CgiOut.hpp"               // for CgiOut
+#include "CgiOutArgs.hpp"           // for CgiOutArgs
+#include "ChunkedBody.hpp"          // for ChunkedBody
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
+#include "EPollHandler.hpp"         // for EPollHandler
+#include "FileFd.hpp"               // for FileFd
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
-#include "requestStatusCode.hpp"
-#include "CgiOut.hpp"
-#include "ChunkedBody.hpp"
-#include "SizedBody.hpp"
-#include "socketCommunication.hpp"
-#include "EPollHandler.hpp"
-
-class EPollHandler;  // lines 14-14
+#include "SizedBody.hpp"            // for SizedBody
+#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
+#include "socketCommunication.hpp"  // for closeFdAndPrintError
 
 bool	addContentLengthToEnv(const char *(&env)[23], size_t contentLength);
 int		execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd);

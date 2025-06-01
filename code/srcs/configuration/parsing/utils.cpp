@@ -2,16 +2,18 @@
 #include <stddef.h>                 // for size_t
 #include <stdint.h>                 // for uint8_t
 #include <cctype>                   // for isdigit, isspace
-#include <fstream>                  // for basic_ifstream, basic_ios, basic_...
+#include <fstream>                  // for basic_ifstream, ifstream, operator|
+#include <list>                     // for list
 #include <map>                      // for map, _Rb_tree_iterator, operator!=
 #include <string>                   // for basic_string, string, getline
 #include <utility>                  // for pair, make_pair
 #include <vector>                   // for vector
 
+#include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "exception.hpp"            // for CustomLineException, CustomException
-#include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ft_hextoint
+#include "exception.hpp"            // for ParsingLineException
+#include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ConfigHeaders...
 
 void	readfile(const char *path, std::string &buff)
 {

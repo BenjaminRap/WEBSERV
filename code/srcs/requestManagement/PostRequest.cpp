@@ -1,12 +1,13 @@
-#include <string>                 // for basic_string, string
+#include <string>                 // for string, basic_string
+#include <vector>                 // for vector
 
 #include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"           // for EMethods
-#include "PostRequest.hpp"         // for PostRequest
-#include "requestStatusCode.hpp"  // for HTTP_CONFLICT, HTTP_CREATED, HTTP_F...
+#include "PostRequest.hpp"        // for PostRequest
+#include "requestStatusCode.hpp"  // for HTTP_METHOD_NOT_ALLOWED, HTTP_FORBI...
 
-class RequestContext;
-class ServerConfiguration;
+class RequestContext;  // lines 8-8
+class ServerConfiguration;  // lines 9-9
 
 bool		findIndex(ARequestType& req, const std::vector<std::string> &indexs);
 void		directoryCase(PostRequest &post);

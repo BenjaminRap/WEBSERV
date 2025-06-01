@@ -2,9 +2,10 @@
 #include <stddef.h>               // for NULL, size_t
 #include <string>                 // for basic_string, string
 
-#include "CgiOut.hpp"             // for CgiOut, CgiOutState
+#include "CgiOut.hpp"             // for CgiOut
 #include "FileFd.hpp"             // for FileFd
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
+#include "Headers.hpp"            // for Headers
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
 
 std::string	sizeTToString(size_t value);

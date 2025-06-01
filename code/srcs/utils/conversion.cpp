@@ -1,4 +1,5 @@
 #include <netinet/in.h>  // for in_addr, sockaddr_in, in6_addr
+#include <stdint.h>      // for uint16_t
 #include <sys/types.h>   // for u_int16_t
 #include <cerrno>        // for errno, ERANGE
 #include <cstdlib>       // for strtoul, size_t

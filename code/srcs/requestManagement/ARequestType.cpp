@@ -1,24 +1,22 @@
 #include <stdint.h>                 // for uint16_t
-#include <sys/types.h>              // for pid_t
-#include <cstring>                  // for NULL, memset
+#include <cstring>                  // for NULL, size_t
+#include <list>                     // for list
 #include <map>                      // for map
-#include <string>                   // for allocator, string, basic_string
+#include <string>                   // for string, basic_string, operator==
 #include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType
-#include "CgiOut.hpp"               // for CgiOut
 #include "EMethods.hpp"             // for EMethods
 #include "Request.hpp"              // for Request
 #include "RequestContext.hpp"       // for RequestContext
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for freePointer, SharedResource
-#include "Status.hpp"
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_INTERNAL_S...
-#include "EPollHandler.hpp"
+#include "Status.hpp"               // for Status, StatusType
+#include "parsing.hpp"              // for ConfigHeaders
+#include "requestStatusCode.hpp"    // for HTTP_NOT_FOUND
 
-class ABody;
-class AFdData;  // lines 20-20
+class AFdData;  // lines 21-21
+template <typename T> class SharedResource;
 
 bool		checkAllowMeth(ARequestType& req, EMethods meth);
 void		delString(const std::string &toDel, std::string &str);

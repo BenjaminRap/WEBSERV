@@ -3,11 +3,13 @@
 #include <cctype>                 // for tolower
 #include <iostream>               // for ostream, basic_ostream
 #include <iterator>               // for distance
+#include <list>                   // for list, operator!=, _List_const_iterator
 #include <map>                    // for operator!=, _Rb_tree_const_iterator
+#include <stdexcept>              // for logic_error
 #include <string>                 // for basic_string, string, operator<<
-#include <utility>                // for pair
+#include <utility>                // for pair, make_pair
 
-#include "Headers.hpp"            // for Headers, LINE_END, LINE_END_LENGTH
+#include "Headers.hpp"            // for Headers, InsertType, LINE_END, LINE...
 #include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_OK
 
 /*******************************Constructors / Destructors**********************/

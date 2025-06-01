@@ -3,14 +3,14 @@
 #include <sys/types.h>            // for pid_t
 #include <cstdio>                 // for remove, NULL
 
-#include "AFdData.hpp"            // for AFdData, AFdDataChilds
-#include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
-#include "CgiOutArgs.hpp"
+#include "AEPollFd.hpp"           // for AEPollFd
+#include "CgiOut.hpp"             // for CgiOut, CGI_OUT_EVENTS
+#include "CgiOutArgs.hpp"         // for CgiOutArgs
+#include "FileFd.hpp"             // for FileFd
+#include "parsing.hpp"            // for ConfigHeaders
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
-class EPollHandler;  // lines 15-15
-class FlowBuffer;  // lines 16-16
-class ServerConfiguration;  // lines 17-17
+class EPollHandler;  // lines 11-11
 
 int	getCGIStatus(pid_t pid);
 

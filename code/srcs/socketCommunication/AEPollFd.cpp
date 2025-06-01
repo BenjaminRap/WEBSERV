@@ -1,15 +1,14 @@
-#include <fcntl.h>
-#include <stdint.h>          // for uint32_t
-#include <iostream>          // for basic_ostream, operator<<, cerr, endl
-#include <list>              // for list
-#include <stdexcept>         // for logic_error
-#include <string>            // for char_traits, basic_string
+#include <fcntl.h>                  // for O_NONBLOCK
+#include <stdint.h>                 // for uint32_t
+#include <iostream>                 // for basic_ostream, operator<<, cerr
+#include <list>                     // for list
+#include <stdexcept>                // for logic_error, runtime_error
+#include <string>                   // for char_traits, basic_string
 
-#include "AFdData.hpp"       // for AFdData, AFdDataChilds
-#include "AEPollFd.hpp"   // for ASocketData
-#include "EPollHandler.hpp"  // for EPollHandler
-
-class ServerConfiguration;  // lines 10-10
+#include "AEPollFd.hpp"             // for AEPollFd
+#include "AFdData.hpp"              // for AFdData
+#include "EPollHandler.hpp"         // for EPollHandler
+#include "socketCommunication.hpp"  // for addFlagsToFd
 
 AEPollFd::AEPollFd
 (

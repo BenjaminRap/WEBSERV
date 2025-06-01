@@ -1,19 +1,18 @@
-#include <cctype>                   // for isdigit
-#include <cstring>                  // for NULL, size_t
-#include <iostream>                 // for operator<<, basic_ostream, ostream
-#include <string>                   // for char_traits, basic_string, operat...
+#include <cctype>                 // for isdigit
+#include <cstring>                // for NULL, size_t
+#include <iostream>               // for operator<<, basic_ostream, ostream
+#include <string>                 // for char_traits, basic_string, operator<<
 
-#include "ABody.hpp"                // for ABody
-#include "AFdData.hpp"              // for AFdData
-#include "ChunkedBody.hpp"          // for ChunkedBody
-#include "EMethods.hpp"             // for EMethods, getStringRepresentation
-#include "Headers.hpp"              // for Headers, operator<<
-#include "Request.hpp"              // for Request, operator<<
-#include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for SharedResource, freePointer
-#include "SizedBody.hpp"            // for SizedBody
-#include "protocol.hpp"             // for PROTOCOL
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_CONTENT_TO...
+#include "ABody.hpp"              // for ABody
+#include "AFdData.hpp"            // for AFdData
+#include "ChunkedBody.hpp"        // for ChunkedBody
+#include "EMethods.hpp"           // for EMethods, getStringRepresentation
+#include "Headers.hpp"            // for Headers, operator<<
+#include "Request.hpp"            // for Request, operator<<
+#include "SharedResource.hpp"     // for SharedResource, freePointer
+#include "SizedBody.hpp"          // for SizedBody
+#include "protocol.hpp"           // for PROTOCOL
+#include "requestStatusCode.hpp"  // for HTTP_BAD_REQUEST, HTTP_CONTENT_TOO_...
 
 unsigned long	stringToULongBase(const std::string& str, int (&isInBase)(int character), int base);
 
