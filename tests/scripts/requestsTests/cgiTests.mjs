@@ -4,9 +4,9 @@ import { COLOR_GREEN, COLOR_RED, COLOR_RESET, createChunkedRequest } from "./uti
 
 let	failedTests = [];
 
-async function	runGoodCgiTest(target, method, body, headers, statusCode, statusText)
+async function	runGoodCgiTest(target, method, body, headers, statusCode, statusText, expectedHeaders)
 {
-	const result = await compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText);
+	const result = await compareGoodRequestWithValues(target, method, body, headers, statusCode, statusText, expectedHeaders);
 
 	if (result == true)
 		console.log(COLOR_GREEN + "[OK] " + COLOR_RESET);
@@ -137,6 +137,12 @@ async function runTests()
 
 	printHeader("Cgi Check Unique Headers Duplicata");
 	await runGoodCgiTest("/cgi/cgiCheckUniqueHeaders.cgi", "GET", null, {},  502, "Bad Gateway");
+
+	printHeader("Cgi Chunked check received set-cookie");
+	await runGoodCgiTest("/cgi/cgiTestCookies.cgi", "GET", null, {},  200, "OK", { "set-cookie": "awe78xe" });
+
+	printHeader("Cgi Chunked check Cookie passed");
+	await runGoodCgiTest("/cgi/cgiTestCookies.cgi", "GET", null, { "cookie": "awe78xe" },  204, "No Content");
 
 
 	if (failedTests.length == 0)
