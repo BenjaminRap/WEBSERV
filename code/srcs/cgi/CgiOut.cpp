@@ -9,7 +9,7 @@
 #include "CgiOutArgs.hpp"         // for CgiOutArgs
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
-class EPollHandler;  // lines 11-11
+class EPollHandler;  // lines 12-12
 
 int	getCGIStatus(pid_t pid);
 

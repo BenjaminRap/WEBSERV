@@ -3,7 +3,7 @@
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLOUT
 #include <sys/types.h>              // for pid_t
 #include <cstdio>                   // for NULL, remove, size_t
-#include <cstring>                  // for memcpy, memset
+#include <cstring>                  // for memcpy
 #include <exception>                // for exception
 #include <stdexcept>                // for runtime_error
 #include <string>                   // for basic_string
@@ -11,7 +11,7 @@
 #include "ABody.hpp"                // for ABody
 #include "AEPollFd.hpp"             // for AEPollFd
 #include "AFdData.hpp"              // for AFdData
-#include "CgiIn.hpp"                // for CgiIn, CGI_IN_EVENTS
+#include "CgiInChunked.hpp"         // for CgiInChunked, CGI_IN_EVENTS, CGI_...
 #include "CgiOut.hpp"               // for CgiOut
 #include "CgiOutArgs.hpp"           // for CgiOutArgs
 #include "ChunkedBody.hpp"          // for ChunkedBody
@@ -20,7 +20,6 @@
 #include "FileFd.hpp"               // for FileFd
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
-#include "SizedBody.hpp"            // for SizedBody
 #include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
 
@@ -29,7 +28,7 @@ int		execCGI(const char * const argv[3], const char * const env[23], int& inFd, 
 int		getCGIStatus(pid_t pid);
 void	deleteArray(const char** array);
 
-CgiIn::CgiIn
+CgiInChunked::CgiInChunked
 (
 	EPollHandler& ePollHandler,
 	FlowBuffer& requestFlowBuffer,
@@ -40,17 +39,19 @@ CgiIn::CgiIn
 	const char* env[23],
 	const CgiOutArgs * cgiOutArgs
 ) :
-	AEPollFd(ePollHandler, CGI_IN),
-	_flowBuf(requestFlowBuffer),
+	AEPollFd(ePollHandler, CGI_IN_CHUNKED),
+	_requestBuf(requestFlowBuffer),
 	_body(chunkedBody),
 	_connectedSocketData(connectedSocketData),
 	_response(currentResponse),
-	_state(CgiIn::BUFFER_TO_TEMP),
+	_state(CgiInChunked::BUFFER_TO_TEMP),
 	_tempName(),
 	_tmpFile(NULL),
 	_argv(),
 	_env(),
-	_cgiOutArgs(cgiOutArgs)
+	_cgiOutArgs(cgiOutArgs),
+	_tempBuf(),
+	_tempFlowBuf(_tempBuf, CGI_TEMP_BUFFER_CAPACITY, 0)
 {
 	std::memcpy(_argv, argv, sizeof(_argv));
 	std::memcpy(_env, env, sizeof(_env));
@@ -61,32 +62,7 @@ CgiIn::CgiIn
 	_body.setFd(_tmpFile->getFd(), false);
 }
 
-CgiIn::CgiIn
-(
-	int fd,
-	EPollHandler& ePollHandler,
-	FlowBuffer& requestFlowBuffer,
-	SizedBody& sizedBody,
-	ConnectedSocketData& connectedSocketData,
-	Response& currentResponse
-) :
-	AEPollFd(fd, ePollHandler, CGI_IN, CGI_IN_EVENTS),
-	_flowBuf(requestFlowBuffer),
-	_body(sizedBody),
-	_connectedSocketData(connectedSocketData),
-	_response(currentResponse),
-	_state(CgiIn::BUFFER_TO_CGI),
-	_tmpFile(NULL),
-	_argv(),
-	_env(),
-	_cgiOutArgs(NULL)
-{
-	std::memset(_argv, 0, sizeof(_argv));
-	std::memset(_env, 0, sizeof(_env));
-	_tempName[0] = '\0';
-}
-
-CgiIn::~CgiIn()
+CgiInChunked::~CgiInChunked()
 {
 	if (_tempName[0] != '\0')
 		std::remove(_tempName);
@@ -96,7 +72,7 @@ CgiIn::~CgiIn()
 	deleteArray((const char**)_argv);
 }
 
-void	CgiIn::execCgi(void)
+void	CgiInChunked::execCgi(void)
 {
 	int		inFd = -1;
 	int		outFd = -1;
@@ -129,7 +105,7 @@ void	CgiIn::execCgi(void)
 			throw std::exception();
 		}
 		_response.setFdData(*cgiOut, AEPollFd::removeFromEPollHandler);
-		_state = CgiIn::TEMP_TO_CGI;
+		_state = CgiInChunked::TEMP_TO_CGI;
 	}
 	catch (const std::exception& e)
 	{
@@ -141,10 +117,10 @@ void	CgiIn::execCgi(void)
 	}
 }
 
-void	CgiIn::setFinished(uint16_t code)
+void	CgiInChunked::setFinished(uint16_t code)
 {
 	AFdData::setFinished();
-	_state = CgiIn::DONE;
+	_state = CgiInChunked::DONE;
 	if (code != 0)
 		_response.setResponse(code);
 	_connectedSocketData.ignoreBodyAndReadRequests(_response);
@@ -152,43 +128,31 @@ void	CgiIn::setFinished(uint16_t code)
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
 
-void	CgiIn::callback(uint32_t events)
+void	CgiInChunked::callback(uint32_t events)
 {
-	if (!getIsActive() || _state == CgiIn::DONE)
+	if (!getIsActive() || _state == CgiInChunked::DONE)
 		return ;
 	if (events & (EPOLLERR | EPOLLHUP))
 	{
 		setFinished(0);
 		return ;
 	}
-	if (_state == CgiIn::BUFFER_TO_TEMP)
+	if (_state == CgiInChunked::BUFFER_TO_TEMP)
 	{
-		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+		const FlowState	flowState = _requestBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
 		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
 
 		if (code == HTTP_OK)
 			execCgi();
 		else if (code != 0)
 			setFinished(code);
+	}
+	if (!(events & EPOLLOUT) || _state != CgiInChunked::TEMP_TO_CGI)
 		return ;
-	}
-	if (!(events & EPOLLOUT))
-		return ;
-	if (_state == CgiIn::BUFFER_TO_CGI)
-	{
-		const FlowState	flowState = _flowBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
-		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+	const FlowState	flowState = _tempFlowBuf.redirect(_tmpFile->getFd(), getFd());
 
-		if (code != 0)
-			setFinished(code);
-	}
-	else if (_state == CgiIn::TEMP_TO_CGI)
-	{
-		const FlowState	flowState = _flowBuf.redirect(_tmpFile->getFd(), getFd());
-
-		if (flowState == FLOW_ERROR)
-			setFinished(HTTP_INTERNAL_SERVER_ERROR);
-		else if (flowState == FLOW_DONE)
-			setFinished(0);
-	}
+	if (flowState == FLOW_ERROR)
+		setFinished(HTTP_INTERNAL_SERVER_ERROR);
+	else if (flowState == FLOW_DONE)
+		setFinished(0);
 }

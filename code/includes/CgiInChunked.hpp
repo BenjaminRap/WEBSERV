@@ -1,5 +1,5 @@
-#ifndef CGI_IN_HPP
-# define CGI_IN_HPP
+#ifndef CGI_IN_CHUNKED_HPP
+# define CGI_IN_CHUNKED_HPP
 
 # include "AEPollFd.hpp"
 # include "CgiOutArgs.hpp"
@@ -16,15 +16,15 @@ class	CgiOut;
 class	FlowBuffer;
 
 # define CGI_IN_EVENTS (EPOLLOUT | EPOLLERR | EPOLLHUP)
+# define CGI_TEMP_BUFFER_CAPACITY 1024
 
 
-class CgiIn : public AEPollFd
+class CgiInChunked : public AEPollFd
 {
 private:
 	enum	CgiInState
 	{
 		BUFFER_TO_TEMP,
-		BUFFER_TO_CGI,
 		TEMP_TO_CGI,
 		DONE
 	};
@@ -33,12 +33,12 @@ private:
 	 * @brief The FlowBuffer of the request,
 	 * the body of the client is written in it.
 	 */
-	FlowBuffer&					_flowBuf;
+	FlowBuffer&					_requestBuf;
 	/**
 	 * @brief The body that will manages the writing
 	 * of the client body.
 	 */
-	ABody&						_body;
+	ChunkedBody&				_body;
 	/**
 	 * @brief The socket managing the client requests.
 	 * It is needed because this class has to call a method
@@ -75,11 +75,20 @@ private:
 	 * is chunked, otherwise, it is NULL.
 	 */
 	const CgiOutArgs * const	_cgiOutArgs;
+	/**
+	 * @brief The buffer passed to the _tempFlowBuf.
+	 */
+	char						_tempBuf[CGI_TEMP_BUFFER_CAPACITY];
+	/**
+	 * @brief The FlowBuffer used to redirect the data
+	 * from the temporary file to the cgi.
+	 */
+	FlowBuffer					_tempFlowBuf;
 
-	CgiIn(void);
-	CgiIn(const CgiIn &ref);
+	CgiInChunked(void);
+	CgiInChunked(const CgiInChunked &ref);
 
-	CgiIn&	operator=(const CgiIn &ref);
+	CgiInChunked&	operator=(const CgiInChunked &ref);
 
 	/**
 	 * @brief Set the response status, set _isActive to false
@@ -100,7 +109,7 @@ public:
 	 * @throw Throw a std::runtime_error if we can't create the temporary file.
 	 *
 	 */
-	CgiIn
+	CgiInChunked
 	(
 		EPollHandler& ePollHandler,
 		FlowBuffer& requestFlowBuffer,
@@ -111,16 +120,7 @@ public:
 		const char* env[23],
 		const CgiOutArgs * cgiOutArgs
 	);
-	CgiIn
-	(
-		int fd,
-		EPollHandler& ePollHandler,
-		FlowBuffer& requestFlowBuffer,
-		SizedBody& sizedBody,
-		ConnectedSocketData& connectedSocketData,
-		Response& currentResponse
-	);
-	~CgiIn();
+	~CgiInChunked();
 
 	/**
 	 * @brief The method called when a events occured.
@@ -130,4 +130,4 @@ public:
 	void		callback(uint32_t events);
 };
 
-#endif // !CGI_IN_HPP
+#endif // !CGI_IN_CHUNKED_HPP

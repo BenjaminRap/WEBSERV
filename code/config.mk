@@ -62,7 +62,8 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
 
 CGI_DIR					:=	cgi/
-CGI_FILES				:=	CgiIn.cpp				\
+CGI_FILES				:=	CgiInChunked.cpp		\
+							CgiInSized.cpp			\
 							CgiOut.cpp				\
 							CgiOutRedirection.cpp	\
 							CgiOutParsing.cpp		\

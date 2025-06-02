@@ -7,7 +7,8 @@
 #include "ABody.hpp"                // for ABody
 #include "AEPollFd.hpp"             // for AEPollFd
 #include "ARequestType.hpp"         // for ARequestType
-#include "CgiIn.hpp"                // for CgiIn
+#include "CgiInSized.hpp"           // for CgiInSized
+#include "CgiInChunked.hpp"         // for CgiInChunked
 #include "CgiOut.hpp"               // for CgiOut
 #include "CgiOutArgs.hpp"           // for CgiOutArgs
 #include "ChunkedBody.hpp"          // for ChunkedBody
@@ -89,7 +90,7 @@ void	ARequestType::setCgiInChunked
 )
 {
 
-	CgiIn * const	cgiIn = new CgiIn(requestContext._ePollHandler,
+	CgiInChunked * const	cgiIn = new CgiInChunked(requestContext._ePollHandler,
 		requestContext._requestBuff,
 		body,
 		requestContext._connectedSocketData,
@@ -116,7 +117,7 @@ void	ARequestType::setCgiInSized
 	SizedBody& body
 )
 {
-	CgiIn * const	cgiIn = new CgiIn(
+	CgiInSized * const	cgiIn = new CgiInSized(
 		fd,
 		requestContext._ePollHandler,
 		requestContext._requestBuff,

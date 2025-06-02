@@ -9,7 +9,6 @@
 # include "Headers.hpp"			// for Headers
 # include "SharedResource.hpp"	// for SharedResource
 
-class	CgiIn;
 class	ABody;
 class	ServerConfiguration;
 class	AFdData;
