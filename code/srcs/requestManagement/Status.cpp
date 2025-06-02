@@ -11,7 +11,6 @@
 
 /*******************************Constructors/Destructors*********************************/
 
-std::string	getUInt16TInString(uint16_t value);
 std::string	buildPage(uint16_t code, const std::string& text);
 
 Status::Status(uint16_t code, const std::string &text) :

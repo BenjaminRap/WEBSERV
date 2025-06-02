@@ -2,7 +2,6 @@
 #include <sys/types.h>              // for pid_t
 #include <cstring>                  // for NULL, memset
 #include <exception>                // for exception
-#include <iostream>                 // for basic_ostream, basic_ios, basic_o...
 #include <string>                   // for char_traits, string
 
 #include "ABody.hpp"                // for ABody

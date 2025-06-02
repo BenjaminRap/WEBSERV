@@ -3,8 +3,6 @@
 
 char *duplicateString(const std::string &str);
 
-void	deleteArray(const char** array);
-
 void	setArgv(const char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile)
 {
 	std::memset(argv, 0, sizeof(argv));

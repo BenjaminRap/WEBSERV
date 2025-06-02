@@ -1,7 +1,6 @@
 #include <fcntl.h>                // for O_RDONLY
 #include <stdint.h>               // for uint16_t
-#include <sys/types.h>            // for ssize_t
-#include <string>                 // for string, basic_string
+#include <string>                 // for basic_string, string
 
 #include "ARequestType.hpp"       // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"           // for EMethods
@@ -10,11 +9,10 @@
 #include "SharedResource.hpp"     // for freePointer, SharedResource
 #include "requestStatusCode.hpp"  // for HTTP_OK
 
-class RequestContext;
-class ServerConfiguration;  // lines 15-15
+class RequestContext;  // lines 13-13
+class ServerConfiguration;  // lines 14-14
 
 void		directoryCase(GetRequest& get);
-ssize_t		getFileSize(const std::string &filePath);
 
 GetRequest::GetRequest
 (

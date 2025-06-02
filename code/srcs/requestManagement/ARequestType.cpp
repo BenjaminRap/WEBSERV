@@ -19,10 +19,6 @@ class AFdData;  // lines 21-21
 template <typename T> class SharedResource;
 
 bool		checkAllowMeth(ARequestType& req, EMethods meth);
-void		delString(const std::string &toDel, std::string &str);
-void		buildNewURl(std::string root, std::string &url);
-void		replaceUrl(const std::string &location, const std::string &root, std::string &url);
-void		fixPath(std::string &path);
 bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
 void		extractQueryString(std::string& url, std::string& queryString);

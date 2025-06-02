@@ -10,6 +10,7 @@
 
 #include "ABody.hpp"                // for ABody
 #include "AEPollFd.hpp"             // for AEPollFd
+#include "AFdData.hpp"              // for AFdData
 #include "CgiIn.hpp"                // for CgiIn, CGI_IN_EVENTS
 #include "CgiOut.hpp"               // for CgiOut
 #include "CgiOutArgs.hpp"           // for CgiOutArgs

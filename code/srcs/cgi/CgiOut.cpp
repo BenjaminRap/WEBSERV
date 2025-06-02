@@ -4,10 +4,9 @@
 #include <cstdio>                 // for remove, NULL
 
 #include "AEPollFd.hpp"           // for AEPollFd
+#include "AFdData.hpp"            // for AFdData
 #include "CgiOut.hpp"             // for CgiOut, CGI_OUT_EVENTS
 #include "CgiOutArgs.hpp"         // for CgiOutArgs
-#include "FileFd.hpp"             // for FileFd
-#include "parsing.hpp"            // for ConfigHeaders
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
 class EPollHandler;  // lines 11-11
