@@ -169,16 +169,4 @@ void	insertHost
 		temp.unix_adrr.push_back(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}
-	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
-	{
-		for (std::vector<ServerConfiguration>::iterator itt = it->second.begin(); itt != it->second.end(); ++itt)
-		{
-			for (std::map<std::string, Route>::const_iterator ittt = itt->getRoutes().begin(); ittt != itt->getRoutes().end(); ++ittt)
-			{
-				Route& route = const_cast<Route&>(ittt->second);
-    			if (route.getIndex().empty())
-        			route.setIndex(itt->getIndex());
-			}
-		}
-	}
 }
