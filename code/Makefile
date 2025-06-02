@@ -7,8 +7,8 @@ endif
 MAKEFILE		:=	Makefile
 CONFIG			:=	config.mk
 ifndef NOFLAGS
-	FLAGS		:=	-Wall -Werror -Wextra -Wuninitialized -g -std=c++98
-	# FLAGS		:=	-Wall -Werror -Wextra -Wuninitialized -O3 -march=native -flto -std=c++98
+	# FLAGS		:=	-Wall -Werror -Wextra -Wuninitialized -g -std=c++98
+	FLAGS		:=	-Wall -Werror -Wextra -Wuninitialized -O2 -flto -std=c++98
 endif
 
 include $(CONFIG)
