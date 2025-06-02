@@ -11,25 +11,24 @@
 
 static FlowState	redirect
 (
-	int srcFd,
-	ABody& destBody,
-	AFdData& fdData,
-	bool canRead,
+	const int* srcFd,
+	ABody* destBody,
 	bool canWrite,
 	FlowBuffer &flowBuf
 )
 {
+	const bool	canRead = (srcFd != NULL);
+
 	FlowState	flowState;
 
 	if (canRead && !canWrite)
-		flowState = flowBuf.srcToBuff<int>(srcFd);
+		flowState = flowBuf.srcToBuff<int>(*srcFd);
 	else if (!canRead && canWrite)
-		flowState = flowBuf.buffToDest<ABody&>(destBody, ABody::writeToFd);
+		flowState = flowBuf.buffToDest<ABody&>(*destBody, ABody::writeToFd);
 	else if (canRead && canWrite)
-		flowState = flowBuf.redirect<int, ABody&>(srcFd, destBody, ABody::writeToFd);
+		flowState = flowBuf.redirect<int, ABody&>(*srcFd, *destBody, ABody::writeToFd);
 	else
 		flowState = FLOW_MORE;
-	fdData.callback(0);
 	return (flowState);
 }
 
@@ -48,21 +47,23 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 	return (0);
 }
 
-RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool canRead)
+RequestState	RequestHandler::redirectBody(const int* socketFd, Response &response)
 {
 	if (_state != REQUEST_BODY)
 		return (_state);
 	ABody * const	body = _request.getBody();
 	AFdData * const	fdData = _request.getFdData();
 	
-	if (body == NULL || fdData == NULL)
+	if (body == NULL)
 	{
 		_state = REQUEST_DONE;
 		return (REQUEST_DONE);
 	}
 
-	const bool		canWrite = fdData->getIsBlocking() == false;
-	const FlowState	flowState = redirect(socketFd, *body, *fdData, canRead, canWrite, _flowBuf);
+	const bool		canWrite = (!fdData || !fdData->getIsBlocking());
+	if (fdData)
+		fdData->callback(0);
+	const FlowState	flowState = redirect(socketFd, body, canWrite, _requestBuf);
 	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
 
 	if (code == 0)
@@ -73,9 +74,15 @@ RequestState	RequestHandler::redirectBody(int socketFd, Response &response, bool
 	return (REQUEST_DONE);
 }
 
+RequestState	RequestHandler::ignoreBody(Response& response)
+{
+	_request.setFdData(NULL);
+	return (redirectBody(NULL, response));
+}
+
 RequestState	RequestHandler::redirectFirstPart(int socketFd, Response &response)
 {
-	const FlowState flowState = _flowBuf.srcToBuff<int>(socketFd);
+	const FlowState flowState = _requestBuf.srcToBuff<int>(socketFd);
 
 	if (flowState == FLOW_ERROR)
 	{

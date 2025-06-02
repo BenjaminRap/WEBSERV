@@ -2,14 +2,12 @@
 #include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
-#include <exception>                // for exception
 #include <iostream>                 // for basic_ostream, operator<<, ostream
-#include <map>                      // for map
+#include <list>                     // for list
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, operator<<, string
-#include <utility>                  // for make_pair
 
-#include "AFdData.hpp"              // for AFdData, AFdDataChilds
+#include "AFdData.hpp"              // for AFdData
 #include "ARequestType.hpp"         // for ARequestType
 #include "FileFd.hpp"               // for FileFd
 #include "Headers.hpp"              // for Headers, operator<<
@@ -17,7 +15,9 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
+#include "requestStatusCode.hpp"    // for HTTP_CREATED, HTTP_FORBIDDEN, HTT...
+
+class ConfigHeaders;
 
 /*********************************Constructors/Destructors*************************************/
 
@@ -43,9 +43,9 @@ void	addDefaultHeaders(Headers& headers, const Status* status)
 	const std::time_t	now = std::time(NULL);
 
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
-	headers["date"] = timeBuffer;
-	headers["server"] = "WebServ de bg";
-	headers["connection"] = (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive");
+	headers.addHeader("date", timeBuffer);
+	headers.addHeader("server", "WebServ de bg");
+	headers.addHeader("connection", (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive"));
 
 }
 
@@ -59,7 +59,7 @@ void	Response::setBody()
 	{
 		AFdData*	fdData = _fdData.getValue();
 
-		if (fdData->getType() == FILE_FD)
+		if (fdData->getType() == AFdData::FILE_FD)
 			bodySize = static_cast<FileFd*>(fdData)->getSize();
 		else
 		{
@@ -67,11 +67,11 @@ void	Response::setBody()
 			throw std::logic_error("The AFdData is not a FileFd !");
 		}
 	}
-	else if (_status->getErrorPage().size() != 0)
-		bodySize = _status->getErrorPage().size();
+	else if (_status->getPage().size() != 0)
+		bodySize = _status->getPage().size();
 	else
 		bodySize = _autoIndexPage.size();
-	this->_headers.insert(std::make_pair("content-length", sizeTToString(bodySize)));
+	_headers.addHeader("content-length", sizeTToString(bodySize));
 }
 
 
@@ -110,7 +110,7 @@ FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& se
 		if (errorPage == NULL)
 			return (NULL);
 
-		return (new FileFd(*errorPage, O_RDONLY));
+		return (new FileFd(errorPage->c_str(), O_RDONLY));
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{
@@ -143,10 +143,13 @@ void	Response::initValues(int code, const ServerConfiguration& serverConfigurati
 
 /*********************************Public Methods********************************************/
 
+void	processAddHeader(Headers &responseHeaders, const std::list<ConfigHeaders>& addHeader, uint16_t code);
+
 void	Response::setResponse(uint16_t code)
 {
 	reset();
 	initValues(code, _defaultConfig);
+	processAddHeader(_headers, _defaultConfig.getAddHeader(), code);
 }
 
 void	Response::setResponse(ARequestType& requestResult)
@@ -154,21 +157,17 @@ void	Response::setResponse(ARequestType& requestResult)
 	reset();
 
 	_fdData = requestResult.getOutFd();
-	if (_fdData.isManagingValue())
-	{
-		AFdData* fdData = _fdData.getValue();
-
-		if (fdData->getType() == CGI_OUT)
-			return ;
-	}
+	if (requestResult.getIsCgi())
+		return ;
 
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig());
 	if (requestResult.getRedirection().empty() == false
-		&& _status->isOfType(STATUS_REDIRECTION))
+		&& (_status->isOfType(STATUS_REDIRECTION) || _status->getCode() == HTTP_CREATED))
 	{
-		this->_headers.insert(std::make_pair("Location", requestResult.getRedirection()));
+		_headers.addHeader("location", requestResult.getRedirection());
 	}
+	processAddHeader(_headers, requestResult.getAddHeader(), requestResult.getCode());
 }
 
 void	Response::reset()
@@ -206,6 +205,11 @@ const std::string&	Response::getAutoIndexPage(void) const
 	return (_autoIndexPage);
 }
 
+void	Response::setFdData(AFdData& fdData, void (&free)(AFdData*))
+{
+	_fdData.setManagedResource(&fdData, free);
+}
+
 /*********************************Operator Overload**********************************************/
 
 std::ostream & operator<<(std::ostream & o, Response const & response)
@@ -220,8 +224,8 @@ std::ostream & operator<<(std::ostream & o, Response const & response)
 	o << response.getHeaders();
 	if (status != NULL)
 	{
-		if (status->isOfType(STATUS_ERROR))
-			o << status->getErrorPage();
+		if (status->isOfType((StatusType(STATUS_ERROR | STATUS_REDIRECTION))))
+			o << status->getPage();
 		else if (status->isOfType(STATUS_SUCESSFULL))
 			o << response.getAutoIndexPage();
 	}

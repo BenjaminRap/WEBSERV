@@ -1,12 +1,12 @@
-#include <iostream>              // for basic_ostream, char_traits, operator<<
+#include <exception>             // for exception
 #include <queue>                 // for queue
 
-#include "FlowBuffer.hpp"        // for FlowState
+#include "FlowBuffer.hpp"        // for FlowState, FlowBuffer (ptr only)
 #include "RawResponse.hpp"       // for RawResponse
-#include "Response.hpp"          // for operator<<, Response
+#include "Response.hpp"          // for Response
 #include "ResponsesHandler.hpp"  // for ResponsesHandler, RESPONSE_BUFFER_SIZE
 
-class ServerConfiguration;
+class ServerConfiguration;  // lines 10-10
 
 /*************************Constructors / Destructors **************************/
 
@@ -41,7 +41,6 @@ FlowState	ResponsesHandler::sendResponseToSocket(int socketFd)
 
 	if (flowState == FLOW_DONE)
 	{
-		std::cout << "Raw Response written !" << std::endl;
 		_responses.pop();
 		delete response;
 		return ((_responses.size() == 0) ? FLOW_DONE : FLOW_MORE);
@@ -52,8 +51,15 @@ FlowState	ResponsesHandler::sendResponseToSocket(int socketFd)
 
 void		ResponsesHandler::addCurrentResponseToQueue()
 {
-	_responses.push(new RawResponse(_currentResponse, _responseBuffer));
-	std::cout << "Add response to queue : \n" << _currentResponse << std::endl;
+	RawResponse*	rawResponse = new RawResponse(_currentResponse, _responseBuffer);
+	try
+	{
+		_responses.push(rawResponse);
+	}
+	catch (std::exception& exception)
+	{
+		delete rawResponse;
+	}
 	_currentResponse.reset();
 }
 
@@ -61,4 +67,9 @@ void		ResponsesHandler::addCurrentResponseToQueue()
 Response&	ResponsesHandler::getCurrentResponse()
 {
 	return (_currentResponse);
+}
+
+FlowBuffer&	ResponsesHandler::getFlowBuffer(void)
+{
+	return (_responseBuffer);
 }

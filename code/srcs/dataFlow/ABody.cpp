@@ -10,19 +10,25 @@
 #include "SizedBody.hpp"          // for SizedBody
 #include "requestStatusCode.hpp"  // for HTTP_OK
 
-ABody::ABody(int fd, ABodyChilds type) :
+ABody::ABody(int fd, ABodyChilds type, bool isFdBlocking) :
 	_fd(fd),
+	_isFdBlocking(isFdBlocking),
 	_finished(false),
 	_status(HTTP_OK),
-	_type(type)
+	_written(0),
+	_type(type),
+	_hasWritten(false)
 {
 }
 
 ABody::ABody(ABodyChilds type) :
 	_fd(-1),
+	_isFdBlocking(false),
 	_finished(false),
 	_status(HTTP_OK),
-	_type(type)
+	_written(0),
+	_type(type),
+	_hasWritten(false)
 {
 }
 
@@ -51,44 +57,54 @@ size_t	ABody::getWritten(void) const
 	return (_written);
 }
 
-ABodyChilds	ABody::getType(void) const
+ABody::ABodyChilds	ABody::getType(void) const
 {
 	return (_type);
 }
 
-void	ABody::setFd(int fd)
+bool	ABody::getHasWritten(void) const
 {
-	if (!_finished && _written != 0)
-		throw std::logic_error("Tried to change the fd of a body that has began to write data but not finished !");
+	return (_hasWritten);
+}
 
-	_finished = false;
-	_written = 0;
+void	ABody::setFd(int fd, bool isFdBlocking)
+{
 	_fd = fd;
+	if (fd < 0)
+		_isFdBlocking = false;
+	else
+		_isFdBlocking = isFdBlocking;
 }
 
 ssize_t	ABody::writeOrIgnore(const void* buffer, size_t bufferCapacity)
 {
-	if (_fd < 0)
+	if (_fd > 0)
 	{
+		if (_isFdBlocking && _hasWritten)
+			return (0);
+		_hasWritten = true;
+
 		const ssize_t	written = write(_fd, buffer, bufferCapacity);
 
 		if (written != -1)
 			_written += written;
 		return (written);
 	}
+	_written += bufferCapacity;
 	return (bufferCapacity);
 }
 
 ssize_t	ABody::writeToFd(ABody &body, const void *buffer, size_t bufferCapacity)
 {
+	body._hasWritten = false;
 	switch (body.getType()) {
-		case SIZED_BODY:
+		case ABody::SIZED:
 		{
 			SizedBody*	sizedBody = static_cast<SizedBody*>(&body);
 
 			return (sizedBody->writeToFd(buffer, bufferCapacity));
 		}
-		case CHUNKED_REQUEST:
+		case ABody::CHUNKED:
 		{
 			ChunkedBody*	chunkedBody = static_cast<ChunkedBody*>(&body);
 

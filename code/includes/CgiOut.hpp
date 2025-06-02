@@ -3,7 +3,7 @@
 
 # include <cstdio>					// for L_tmpnam
 
-# include "AFdData.hpp"				// for ASocketData
+# include "AEPollFd.hpp"
 # include "FileFd.hpp"
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
@@ -12,52 +12,77 @@
 
 class	FlowBuffer;
 class	Status;
+class	CgiOutArgs;
 
-enum	CgiOutState
-{
-	READ_HEADER,
-	CGI_TO_TEMP,
-	WRITE_FIRST_PART,
-	FILE_TO_BUFFER,
-	CGI_TO_BUFFER,
-	DONE
-};
-
-class CgiOut : public AFdData
+class CgiOut : public AEPollFd
 {
 private:
+	enum	CgiOutState
+	{
+		READ_HEADER,
+		CGI_TO_TEMP,
+		WRITE_FIRST_PART,
+		FILE_TO_BUFFER,
+		CGI_TO_BUFFER,
+		DONE
+	};
+
 	/**
 	 * @brief The FlowBuffer of the RawResponse, what is written to
 	 * it will be written to the client.
 	 */
-	FlowBuffer&					_flowBuf;
+	FlowBuffer&						_flowBuf;
 	/**
 	 * @brief The first part of the response.
 	 */
-	std::string					_firstPart;
+	std::string						_firstPart;
 	/**
 	 * @brief The number of character from the firstPart that
 	 * has been written to the flowBuf
 	 */
-	size_t						_charsWritten;
+	size_t							_charsWritten;
 	/**
 	 * @brief The headers parsed from the cgi.
 	 */
-	Headers						_headers;
+	Headers							_headers;
 	/**
 	 * @brief The name of the temporary file, or "\0" if no
 	 * temporary file has been created.
 	 */
-	char						_tempName[L_tmpnam];
+	char							_tempName[L_tmpnam];
 	/**
 	 * @brief The source file, it can be the temporary file or the
 	 * error page.
 	 */
-	FileFd*						_srcFile;
-	CgiOutState					_state;
-	uint16_t					_code;
-	bool						_error;
-	const ServerConfiguration&	_serverConf;
+	FileFd*							_srcFile;
+	CgiOutState						_state;
+	/**
+	 * @brief The code of the response that will be send to the client.
+	 */
+	uint16_t						_code;
+	/**
+	 * @brief A boolean indicating if there was an error parsing the response.
+	 */
+	bool							_error;
+	const ServerConfiguration&		_serverConf;
+	/**
+	 * @brief Can the CgiOut write to the buffer. if the callback is called, this
+	 * variable is set to true.
+	 */
+	bool							_canWrite;
+	/**
+	 * @brief A boolean indicating if we can Receive nwe EPOLLIN. If we can't
+	 * that means that we won't get EAGAIN after a read.
+	 */
+	bool							_cgiReadFinished;
+	/**
+	 * @brief The pid of the cgi, it will be used in the destructor to kill the program.
+	 */
+	pid_t							_pid;
+	/**
+	 * @brief The headers that will be added to the cgi response headers.
+	 */
+	const std::list<ConfigHeaders>	_addHeader;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
@@ -102,11 +127,11 @@ private:
 	 */
 	void		setErrorPage(const Status** currentStatus);
 	/**
-	 * @brief This method shhould be called when we can't read
-	 * from the cgi anymore. Depending on the state of this
+	 * @brief This method should be called when we can't read
+	 * from the cgi anymore because of an error. Depending on the state of this
 	 * instance, the behaviour changes.
 	 */
-	void		handleClosingCgi(void);
+	void		handleCgiError(uint16_t code);
 	/**
 	 * @brief Read from the cgi and write it into the _flowBuf.
 	 * This method should only be called if a EPOLLIN  events has
@@ -141,12 +166,14 @@ public:
 	(
 		int fd,
 		EPollHandler& ePollHandler,
-		FlowBuffer& responseFlowBuffer,
-		const ServerConfiguration& serverConfiguration
+		pid_t pid,
+		const CgiOutArgs& cgiOutArgs
 	);
 	~CgiOut();
 
-	void	callback(uint32_t events);
+	void		callback(uint32_t events);
+	bool		isResponseReady(void) const;
+	void		checkTime(void);
 };
 
 #endif // !CGI_OUT_HPP

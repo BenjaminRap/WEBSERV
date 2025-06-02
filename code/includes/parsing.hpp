@@ -1,6 +1,7 @@
 #ifndef	PARSING_HPP
 # define PARSING_HPP
 
+#include <list>
 # include <netinet/in.h>  // for in_port_t, in_addr_t
 # include <stdint.h>      // for uint8_t
 # include <cstring>       // for size_t, memcmp
@@ -20,8 +21,24 @@ struct SRedirection;
 # define SEP_WSPACE_ARG "\t\n\v\f\r ;{}"
 # define DIGITS "0123456789"
 
+class	ConfigHeaders
+{
+public:
+	const std::string	key;
+	const std::string	value;
+	const bool			always;
+
+	ConfigHeaders(const std::string& key, const std::string& value, bool always) :
+		key(key),
+		value(value),
+		always(always)
+	{
+	}
+};
+
 typedef struct ipv6_s {
-    uint8_t ipv6[16];
+    uint8_t		ipv6[16];
+	uint32_t	scopeId;
 
 	bool operator<(const ipv6_s& other) const {
         return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;
@@ -62,6 +79,7 @@ uint8_t	hexToInt(std::string &file, size_t &i, size_t &line);
 void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip);
 void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip);
 void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip);
+void	parseScopeId(std::string &file, size_t &i, size_t &line, uint32_t &scope_id);
 void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip);
 void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port);
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
@@ -73,10 +91,24 @@ void	parseRouteAutoIndex(std::string &file, size_t &i, size_t &line, bool &auto_
 void	parseRouteIndex(std::string &file, size_t &i, size_t &line, std::vector<std::string> &index);
 void	parseRouteAcceptedMethod(std::string &file, size_t &i, size_t &line, std::vector<EMethods> &acceptedMethods);
 void	parseRouteRedirection(std::string &file, size_t &i, size_t &line, SRedirection &redirection);
+void	parseRouteCgiInterpreter(std::string &file, size_t &i, size_t &line, std::string &cgiInterpreter);
 void	parseRouteCgiFileExtension(std::string &file, size_t &i, size_t &line, std::string &cgiFileExtention);
+void	parseAddHeader(std::string &file, size_t &i, size_t &line, std::list<ConfigHeaders> &addHeader);
 void	readfile(const char *path, std::string &buff);
-void	insertHost(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::vector<std::string> \
-&serverNames, std::map<unsigned short, std::string> &errorPages, size_t &maxClientBodySize, \
-std::map<std::string, Route> &routes, std::string &root, ip_t &ip, std::vector<std::string> &index);
+void	insertHost
+(
+	std::map<ip_t, std::vector<ServerConfiguration> > &conf,
+	std::vector<std::string> &serverNames,
+	std::map<unsigned short, std::string> &errorPages,
+	size_t maxClientBodySize,
+	std::vector<EMethods>& acceptedMethods,
+	std::map<std::string, Route> &routes,
+	std::string &root,
+	ip_t &ip,
+	std::vector<std::string> &index,
+	std::list<ConfigHeaders> &addHeader,
+	std::string& cgiFileExtension,
+	std::string& cgiInterpreter
+);
 
 #endif

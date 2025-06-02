@@ -1,98 +1,106 @@
-#include <fcntl.h>                // for O_RDONLY
 #include <stdint.h>               // for uint32_t
 #include <sys/epoll.h>            // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOLLR...
-#include <cstdio>                 // for NULL, remove, size_t
-#include <map>                    // for map
-#include <string>                 // for basic_string, string
+#include <sys/types.h>            // for pid_t
+#include <cstdio>                 // for remove, NULL
 
-#include "AFdData.hpp"            // for AFdData, AFdDataChilds
-#include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
-#include "FileFd.hpp"             // for FileFd
-#include "Headers.hpp"            // for Headers
-#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY, HTTP_INTERNAL_SER...
+#include "AEPollFd.hpp"           // for AEPollFd
+#include "AFdData.hpp"            // for AFdData
+#include "CgiOut.hpp"             // for CgiOut, CGI_OUT_EVENTS
+#include "CgiOutArgs.hpp"         // for CgiOutArgs
+#include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
-class EPollHandler;
-class FlowBuffer;
-class ServerConfiguration;
+class EPollHandler;  // lines 12-12
+
+int	getCGIStatus(pid_t pid);
 
 CgiOut::CgiOut
 (
 	int fd,
 	EPollHandler& ePollHandler,
-	FlowBuffer&	responseFlowBuffer,
-	const ServerConfiguration& serverConfiguration
+	pid_t pid,
+	const CgiOutArgs& cgiOutArgs
 ) :
-	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
-	_flowBuf(responseFlowBuffer),
+	AEPollFd(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
+	_flowBuf(cgiOutArgs._responsesFlowBuffer),
 	_firstPart(),
 	_charsWritten(0),
 	_headers(),
+	_tempName(),
 	_srcFile(NULL),
-	_state(READ_HEADER),
+	_state(CgiOut::READ_HEADER),
 	_code(0),
 	_error(false),
-	_serverConf(serverConfiguration)
+	_serverConf(cgiOutArgs._serverConfiguration),
+	_canWrite(false),
+	_cgiReadFinished(false),
+	_pid(pid),
+	_addHeader(cgiOutArgs._addHeader)
 {
 	_tempName[0] = '\0';
 }
 
 CgiOut::~CgiOut()
 {
-	if (_srcFile != NULL)
-	{
-		if (_tempName[0] != '\0')
-			std::remove(_tempName);
-		delete _srcFile;
-	}
+	if (_tempName[0] != '\0')
+		std::remove(_tempName);
+	delete _srcFile;
+	getCGIStatus(_pid);
 }
 
 void	CgiOut::setFinished(void)
 {
-	_isActive = false;
-	_state = DONE;
+	AFdData::setFinished();
+	_state = CgiOut::DONE;
 }
 
-std::string	sizeTToString(size_t value);
-
-void	CgiOut::handleClosingCgi()
+void	CgiOut::handleCgiError(uint16_t code)
 {
-	if (_state == READ_HEADER)
+	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 	{
-		_code = HTTP_BAD_GATEWAY;
+		_code = code;
 		_error = true;
-		generateFirstPart();
-	}
-	else if (_state == CGI_TO_TEMP)
-	{
-		delete _srcFile;
-		_srcFile = FileFd::getTemporaryFile(_tempName, O_RDONLY);
-		if (_srcFile == NULL)
-		{
-			_code = HTTP_INTERNAL_SERVER_ERROR;
-			_error = true;
-		}
-		else
-			_headers["content-length"] = sizeTToString(_srcFile->getSize());
 		generateFirstPart();
 	}
 	else
 		setFinished();
 }
 
+bool	CgiOut::isResponseReady(void) const
+{
+	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
+		return (false);
+	return (true);
+}
+
 void	CgiOut::callback(uint32_t events)
 {
-	if (!_isActive || _state == DONE)
+	setTime(events);
+	if (!_canWrite && !events)
+		_canWrite = true;
+	if (!getIsActive() || !_canWrite)
 		return ;
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-		handleClosingCgi();
-	if (events & EPOLLIN)
+	if (events & (EPOLLHUP | EPOLLRDHUP))
+		_cgiReadFinished = true;
+	if (events & EPOLLERR)
+	{
+		handleCgiError(HTTP_BAD_REQUEST);
+		events = 0;
+	}
+	if (events & EPOLLIN || _cgiReadFinished)
 		readFromCgi();
-	if (_state == READ_HEADER)
+	if (_state == CgiOut::READ_HEADER)
 		readHeaders();
-	if (_state == CGI_TO_TEMP)
+	if (_state == CgiOut::CGI_TO_TEMP)
 		writeToTemp();
-	if (_state == WRITE_FIRST_PART)
+	if (_state == CgiOut::WRITE_FIRST_PART)
 		writeFirstPart();
-	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
+	if (_state == CgiOut::FILE_TO_BUFFER || _state == CgiOut::CGI_TO_BUFFER)
 		writeToBuff();
+}
+
+void	CgiOut::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
+		handleCgiError(HTTP_GATEWAY_TIMEOUT);
 }

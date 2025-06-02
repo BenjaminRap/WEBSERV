@@ -1,22 +1,33 @@
 #ifndef SERVER_SOCKET_DATA_HPP
 # define SERVER_SOCKET_DATA_HPP
 
-# include "ASocketData.hpp"	// for ASocketData
+# include "AEPollFd.hpp"	// for ASocketData
+# include "ServerConfiguration.hpp"
+
+# include <vector>
 
 # define SERVER_EVENTS (EPOLLIN | EPOLLERR)
+
+class	Host;
 
 /**
  * @brief This class stores all the data needed by a server socket. A server socket
  * is a socket that listens on a specific host, and when it receives a request, 
  * creates another fd connected to that client.
  */
-class ServerSocketData : public ASocketData
+class ServerSocketData : public AEPollFd
 {
 private:
-	ServerSocketData(void);
-	ServerSocketData(const ASocketData &ref);
+	/**
+	 * @brief On which host does this socket listen.
+	 */
+	const Host&								_host;
+	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
-	ServerSocketData&	operator=(const ASocketData& ref);
+	ServerSocketData(void);
+	ServerSocketData(const AEPollFd &ref);
+
+	ServerSocketData&	operator=(const AEPollFd& ref);
 	
 	/**
 	 * @brief Accept a connection request, create a new fd, add it to the epoll interest
@@ -25,7 +36,7 @@ private:
 	 */
 	void	acceptConnection(uint32_t events);
 public:
-	ServerSocketData(int fd , EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations);
+	ServerSocketData(int fd, EPollHandler &ePollHandler, const std::vector<ServerConfiguration> &serverConfigurations, const Host& host);
 	~ServerSocketData(void);
 
 	/**
@@ -35,6 +46,7 @@ public:
 	 * @param events 
 	 */
 	void	callback(uint32_t events);
+	void	checkTime(void){};
 };
 
 #endif // !SERVER_SOCKET_DATA_HPP

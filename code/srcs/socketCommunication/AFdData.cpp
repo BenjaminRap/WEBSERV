@@ -1,47 +1,31 @@
-#include <fcntl.h>                  // for FD_CLOEXEC, O_NONBLOCK
-#include <stddef.h>                 // for NULL
-#include <stdint.h>                 // for uint32_t
-#include <stdexcept>                // for runtime_error, invalid_argument
+#include <fcntl.h>                  // for FD_CLOEXEC
+#include <stdexcept>                // for invalid_argument, logic_error
 #include <string>                   // for basic_string
 
-#include "AFdData.hpp"              // for AFdData, AFdDataChilds
-#include "EPollHandler.hpp"         // for EPollHandler
+#include "AFdData.hpp"              // for AFdData
 #include "socketCommunication.hpp"  // for addFlagsToFd, closeFdAndPrintError
 
-AFdData::AFdData(int fd, EPollHandler& ePollHandler, AFdDataChilds type, uint32_t events) :
-	_fd(fd),
-	_ePollHandler(&ePollHandler),
+AFdData::AFdData(int fd, AFdDataChilds type, bool isBlocking) :
+	_fd(-1),
 	_isActive(true),
+	_isBlocking(isBlocking),
 	_type(type)
 {
-	if (fd <= 3)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
-
-	if (addFlagsToFd(_fd, O_NONBLOCK | FD_CLOEXEC) == -1)
-		throw std::runtime_error("AFdData: Can't apply flags to fd");
-	if (_ePollHandler->addFdToEpoll(*this, events) == -1)
-		throw std::runtime_error("Can't add the fd to epoll !");
-
+	setFd(fd);
 }
 
-AFdData::AFdData(int fd, AFdDataChilds type) :
-	_fd(fd),
-	_ePollHandler(NULL),
+AFdData::AFdData(AFdDataChilds type) :
+	_fd(-1),
+	_isActive(true),
+	_isBlocking(true),
 	_type(type)
 {
-	if (fd <= 3)
-		throw std::invalid_argument("File descriptor is invalid in the SocketData constructor");
-
-	if (addFlagsToFd(_fd, FD_CLOEXEC) == -1)
-		throw std::runtime_error("AFdData: Can't apply flags to fd");
 }
-
 AFdData::~AFdData(void)
 {
-	if (_ePollHandler != NULL)
-		_ePollHandler->closeFdAndRemoveFromEpoll(_fd);
-	else if (_fd > 0)
-		closeFdAndPrintError(_fd);
+	if (_fd < 0)
+		return ;
+	closeFdAndPrintError(_fd);
 }
 
 int	AFdData::getFd() const
@@ -51,7 +35,7 @@ int	AFdData::getFd() const
 
 bool	AFdData::getIsBlocking(void) const
 {
-	return (_ePollHandler != NULL);
+	return (_isBlocking);
 }
 
 bool	AFdData::getIsActive(void) const
@@ -59,7 +43,24 @@ bool	AFdData::getIsActive(void) const
 	return (_isActive);
 }
 
-AFdDataChilds	AFdData::getType(void) const
+AFdData::AFdDataChilds	AFdData::getType(void) const
 {
 	return (_type);
+}
+
+void	AFdData::setFinished(void)
+{
+	_isActive = false;
+}
+
+void	AFdData::setFd(int newFd)
+{
+	if (_fd > 0)
+		throw std::logic_error("AFdData::setFd called with a fd already set !");
+	if (newFd < 0)
+		throw std::invalid_argument("File descriptor is invalid in the AFdData constructor");
+
+	if (!addFlagsToFd(newFd, 0, FD_CLOEXEC))
+		throw std::runtime_error("AFdData: Can't apply FD_CLOEXEC to fd");
+	_fd = newFd;
 }

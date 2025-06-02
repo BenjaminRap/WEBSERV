@@ -2,16 +2,18 @@
 #include <stddef.h>                 // for size_t
 #include <stdint.h>                 // for uint8_t
 #include <cctype>                   // for isdigit, isspace
-#include <fstream>                  // for basic_ifstream, basic_ios, basic_...
+#include <fstream>                  // for basic_ifstream, ifstream, operator|
+#include <list>                     // for list
 #include <map>                      // for map, _Rb_tree_iterator, operator!=
 #include <string>                   // for basic_string, string, getline
 #include <utility>                  // for pair, make_pair
 #include <vector>                   // for vector
 
+#include "EMethods.hpp"             // for EMethods
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "exception.hpp"            // for CustomLineException, CustomException
-#include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ft_hextoint
+#include "exception.hpp"            // for ParsingLineException
+#include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ConfigHeaders...
 
 void	readfile(const char *path, std::string &buff)
 {
@@ -26,7 +28,7 @@ void	skipLine(std::string &file, size_t &i, size_t &line)
 {
 	i = file.find('\n', i);
 	if (i == std::string::npos)
-		throw (CustomLineException("Unexpected error", line));
+		throw (ParsingLineException("Unexpected error", line));
 	if (i != file.size())
 		line++;
 	i++;
@@ -35,7 +37,7 @@ void	skipLine(std::string &file, size_t &i, size_t &line)
 void	skipWSpace(std::string &file, size_t &i, size_t &line)
 {
 	if (i == std::string::npos)
-		throw (CustomLineException("Unexpected error", line));
+		throw (ParsingLineException("Unexpected error", line));
 	while (std::isspace(static_cast<unsigned char>(file[i])))
 	{
 		if (file[i] == '\n')
@@ -55,7 +57,7 @@ short	realAtoi(std::string &file, size_t &i, size_t &line, short max, short len)
 		len++;
 	}
 	if (nb > max || nb < 0)
-		throw (CustomLineException("Wrong number format", line));
+		throw (ParsingLineException("Wrong number format", line));
 	return (nb);
 }
 
@@ -72,7 +74,7 @@ uint8_t	hexToInt(std::string &file, size_t &i, size_t &line)
 		j--;
 	}
 	if (j != 0)
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	return (nb);
 }
 
@@ -81,11 +83,15 @@ void	insertHost
 	std::map<ip_t, std::vector<ServerConfiguration> > &conf,
 	std::vector<std::string> &serverNames,
 	std::map<unsigned short, std::string> &errorPages,
-	size_t &maxClientBodySize,
+	size_t maxClientBodySize,
+	std::vector<EMethods> &acceptedMethods,
 	std::map<std::string, Route> &routes,
 	std::string &root,
 	ip_t &ip,
-	std::vector<std::string> &index
+	std::vector<std::string> &index,
+	std::list<ConfigHeaders> &addHeader,
+	std::string &cgiFileExtension,
+	std::string &cgiInterpreter
 )
 {
 	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
@@ -96,7 +102,7 @@ void	insertHost
 			{
 				if (it->first.ipv4.begin()->first == itt->first && it->first.ipv4.begin()->second == itt->second)
 				{
-					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 					std::map<in_addr_t, in_port_t>::iterator temp = itt;
 					++itt;
 					ip.ipv4.erase(temp);
@@ -111,7 +117,7 @@ void	insertHost
 			{
 				if (it->first.ipv6.begin()->first == itt->first && it->first.ipv6.begin()->second == itt->second)
 				{
-					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 					std::map<ipv6_t, in_port_t>::iterator temp = itt;
 					++itt;
 					ip.ipv6.erase(temp);
@@ -122,11 +128,11 @@ void	insertHost
 		}
 		else if (!it->first.unix_adrr.empty())
 		{
-			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end(); ++itt)
+			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end();)
 			{
 				if (it->first.unix_adrr[0] == *itt)
 				{
-					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 					std::vector<std::string>::iterator temp = itt;
 					++itt;
 					ip.unix_adrr.erase(temp);
@@ -141,7 +147,7 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
-		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 		temp.ipv4.insert(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}
@@ -150,7 +156,7 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
-		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 		temp.ipv6.insert(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}
@@ -159,20 +165,8 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
-		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, routes, root, index));
+		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 		temp.unix_adrr.push_back(*it);
 		conf.insert(std::make_pair(temp, serv));
-	}
-	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
-	{
-		for (std::vector<ServerConfiguration>::iterator itt = it->second.begin(); itt != it->second.end(); ++itt)
-		{
-			for (std::map<std::string, Route>::const_iterator ittt = itt->getRoutes().begin(); ittt != itt->getRoutes().end(); ++ittt)
-			{
-				Route& route = const_cast<Route&>(ittt->second);
-    			if (route.getIndex().empty())
-        			route.setIndex(itt->getIndex());
-			}
-		}
 	}
 }

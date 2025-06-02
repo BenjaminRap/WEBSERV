@@ -1,18 +1,17 @@
 #include <arpa/inet.h>   // for htons, htonl
 #include <netinet/in.h>  // for sockaddr_in6, sockaddr_in, in_port_t, in6_addr
-#include <sys/socket.h>  // for AF_INET, AF_INET6, AF_UNIX, socklen_t
-#include <sys/un.h>      // for sockaddr_un, sa_family_t
 #include <stdint.h>      // for uint8_t
-#include <cstring>       // for memcmp, memcpy, NULL, size_t, memset
+#include <sys/socket.h>  // for AF_UNIX, AF_INET, AF_INET6, socklen_t
+#include <sys/types.h>   // for u_int16_t
+#include <sys/un.h>      // for sockaddr_un, sa_family_t
+#include <cstring>       // for memset, memcmp, memcpy, NULL, size_t
 #include <stdexcept>     // for logic_error, invalid_argument
 #include <string>        // for basic_string, string
 
-#include "Host.hpp"      // for Host
+#include "Host.hpp"      // for Host, sockaddr_in_u
 
-/**
- * @brief Compare two host, first by their family, then by their addr value.
- * @return True if this Host is inferior, false if it is equal or superior.
- */
+std::string uint16toString(u_int16_t nb);
+
 bool	Host::operator<(const Host& host) const
 {
 	if (this->_family == host._family)
@@ -20,13 +19,10 @@ bool	Host::operator<(const Host& host) const
 	return (this->_family < host._family);
 }
 
-/**
- * @brief Create an Host object, with an IPV4 family.
- * @param addrIPV4 The address to listen to, in an IPV4 format
- * @param port The port to listen to.
- */
 Host::Host(in_addr_t addrIPV4, in_port_t port) :
-	_family(AF_INET)
+	_family(AF_INET),
+	_addr(),
+	_port(uint16toString(port))
 {
 	sockaddr_in	&addr = this->_addr.ipv4;
 
@@ -36,13 +32,10 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
 	addr.sin_port = htons(port);
 }
 
-/**
- * @brief Create an host object, with an IPV6 family.
- * @param addrIPV4 The address to listen to, in an IPV6 format
- * @param port The port to listen to.
- */
-Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
-	_family(AF_INET6)
+Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port, uint32_t scopeId)  :
+	_family(AF_INET6),
+	_addr(),
+	_port(uint16toString(port))
 {
 	sockaddr_in6	&addr = this->_addr.ipv6;
 
@@ -54,15 +47,13 @@ Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port) :
 	addr.sin6_family = AF_INET6;
 	addr.sin6_port = htons(port);
 	addr.sin6_flowinfo = 0;
-	addr.sin6_scope_id = 0;
+	addr.sin6_scope_id = scopeId;
 }
 
-/**
- * @brief Create an host object, with an unix family.
- * @param path The path to the unix endpoint.
- */
 Host::Host(const std::string &path) :
-	_family(AF_UNIX)
+	_family(AF_UNIX),
+	_addr(),
+	_port()
 {
 	sockaddr_un	&addr = this->_addr.unixAddr;
 
@@ -73,7 +64,10 @@ Host::Host(const std::string &path) :
 	std::memcpy(addr.sun_path, path.c_str(), path.size());
 }
 
-Host::Host(const Host& ref) : _family(ref._family), _addr(ref._addr)
+Host::Host(const Host& ref) :
+	_family(ref._family),
+	_addr(ref._addr),
+	_port(ref._port)
 {
 }
 
@@ -81,16 +75,6 @@ Host::~Host(void)
 {
 }
 
-/**
- * @brief Get the sockaddr and length of the sockaddr structure. It is useful
- * for bind().
- * @param outAddr The variable in which to store the address (const sockaddr *).
- * @throw If outAddr is pointing to NULL or if this Host family is unsupported,
- * throw a std::logic_error.
- * @return The length of the sockaddr structure. It can
- * be sizeof(sockaddr_in), sizeof(sockaddr_in6) or sizeof(sockaddr_un), depending
- * on this Host family.
- */
 socklen_t	Host::getAddrInfo(const sockaddr ** outAddr) const
 {
 	if (outAddr == NULL)
@@ -111,10 +95,35 @@ socklen_t	Host::getAddrInfo(const sockaddr ** outAddr) const
 	}
 }
 
-/**
- * @brief Return the family of this socket, it can be AF_INET, AF_INET6 or AF_UNIX.
- */
 sa_family_t	Host::getFamily(void) const
 {
 	return (_family);
+}
+
+sockaddr_in Host::getipv4Addr(void) const
+{
+	if (_family != AF_INET)
+		throw std::logic_error("Host::getipv4Addr called on a non IPV4 host");
+	return (_addr.ipv4);
+}
+
+sockaddr_in6 Host::getipv6Addr(void) const
+{
+	if (_family != AF_INET6)
+		throw std::logic_error("Host::getipv6Addr called on a non IPV6 host");
+	return (_addr.ipv6);
+}
+
+sockaddr_un Host::getunixAddr(void) const
+{
+	if (_family != AF_UNIX)
+		throw std::logic_error("Host::getunixAddr called on a non UNIX host");
+	return (_addr.unixAddr);
+}
+
+const std::string&	Host::getPort(void) const
+{
+	if (_family == AF_UNIX)
+		throw std::logic_error("Host:getPort calleed with a unix socket");
+	return (_port);
 }

@@ -5,6 +5,8 @@
 #include <string>         // for basic_string, string, operator==
 #include <utility>        // for make_pair, pair
 #include <vector>         // for vector
+#include <sstream>
+#include <iostream>
 
 #include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
 #include "parsing.hpp"    // for real_atoi, ipv6_s, skip_wspace, ft_hextoint
@@ -19,16 +21,16 @@ void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip)
 		i++;
 		parseIpv6(file, i, line, ip.ipv6);
 	}
-	else if (file.substr(i, 5) == "unix:")
+	else if (file.compare(i, 5, "unix:") == 0)
 	{
 		i += 5;
 		parseIpUnix(file, i, line, ip.unix_adrr);
 	}
 	else
-		throw (CustomKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
+		throw (ParsingKeyWordAndLineException("Unexpected keyword", line, file.substr(i, file.find_first_of(WSPACE, i) - i)));
 	skipWSpace(file, i, line);
 	if (file[i] != ';')
-		throw (CustomLineException("Missing semi-colon", line));
+		throw (ParsingLineException("Missing semi-colon", line));
 	i++;
 }
 
@@ -39,15 +41,15 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 
 	ipv4 = realAtoi(file, i, line, 255, 3) << 24;
 	if (file[i] != '.')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IPv4 format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3) << 16;
 	if (file[i] != '.')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IPv4 format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3) << 8;
 	if (file[i] != '.')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IPv4 format", line));
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3);
 	parsePort(file, i, line, port);
@@ -59,25 +61,94 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 	ip.insert(std::make_pair(ipv4, port));
 }
 
+bool convertIpv6(const std::string &ip, uint8_t ipv6[16])
+{
+	std::vector<std::string>	parts;
+	bool						begin = true;
+	size_t						pos = 0;
+	size_t						prev = 0;
+	ssize_t						compressionPos = -1;
+
+	// storing all the ip parts and saving the position of '::' if existing into a vecotr
+	if (ip[0] == ':' && (ip[1] != ':' || ip[2] == ':'))
+		return (false);
+	while ((pos = ip.find(':', prev)) != std::string::npos)
+	{
+		if (pos > prev)
+		{
+			parts.push_back(ip.substr(prev, pos - prev));
+			begin = false;
+		}
+		else if (pos == prev)
+		{
+			if (compressionPos != -1 && begin == false)
+				return (false);
+			compressionPos = parts.size();
+		}
+		prev = pos + 1;
+	}
+	parts.push_back(ip.substr(prev));
+
+	// expanding the :: 
+	if (compressionPos != -1)
+	{
+		int needed = 8 - (int)parts.size();
+		if (needed < 1)
+			return (false);
+		std::vector<std::string> expanded;
+
+		for (int i = 0; i < compressionPos; ++i)
+			expanded.push_back(parts[i]);
+		for (int i = 0; i < needed; ++i)
+			expanded.push_back("0");
+		for (size_t i = compressionPos; i < parts.size(); ++i)
+			expanded.push_back(parts[i]);
+		parts = expanded;
+	}
+
+	// converting the string vector of ip parts into a uint8_t[16]
+	if (parts.size() != 8) 
+		return (false);
+	for (int i = 0; i < 8; ++i)
+	{
+		if (parts[i].empty())
+		{
+			ipv6[2*i] = 0;
+			ipv6[2*i + 1] = 0;
+			continue ;
+		}
+		if (parts[i].size() > 4)
+			return (false);
+		for (size_t j = 0; j < parts[i].size(); ++j)
+		{
+			if (!isxdigit(parts[i][j]))
+				return (false);
+		}
+		std::istringstream iss(parts[i]);
+		unsigned long val = 0;
+		iss >> std::hex >> val;
+		if (val > 0xFFFF)
+			return (false);
+		ipv6[2*i] = (uint8_t)(val >> 8);
+		ipv6[2*i+1] = (uint8_t)(val & 0xFF);
+	}
+	return (true);
+}
+
 void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip)
 {
 	ipv6_t		ipv6;
 	in_port_t	port;
 
-	for (int j = 0; j < 16; j++)
-	{
-		ipv6.ipv6[j] = hexToInt(file, i, line);
-		j++;
-		ipv6.ipv6[j] = hexToInt(file, i, line);
-		if (file[i] != ':' && j != 15)
-			throw (CustomLineException("Wrong IP format", line));
-		if (j != 15)
-			i++;
-	}
-	if (file[i] != ']')
-		throw (CustomLineException("Wrong IP format", line));
-	i++;
+	const size_t end = file.find(']', i);
+	if (end == std::string::npos)
+		throw (ParsingLineException("Expected a ']' to close ip adress", line));
+	const std::string	ipString = file.substr(i, end - i);
+	if (!convertIpv6(ipString, ipv6.ipv6))
+		throw (ParsingKeyWordAndLineException("Wrong IPv6 format", line, ipString));
+	i = end + 1;
 	parsePort(file, i, line, port);
+	parseScopeId(file, i, line, ipv6.scopeId);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
 		if (ipv6 == it->first && port == it->second)
@@ -96,7 +167,16 @@ void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::st
 void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port)
 {
 	if (file[i] != ':')
-		throw (CustomLineException("Wrong IP format", line));
+		throw (ParsingLineException("Wrong IP format", line));
 	i++;
 	port = realAtoi(file, i, line, 9999, 4);
+}
+
+void	parseScopeId(std::string &file, size_t &i, size_t &line, uint32_t &scopeId)
+{
+	if (file[i] != '%' || !std::isdigit(file[i + 1]))
+		throw ParsingLineException("No scopeId in the ipv6 address", line);
+
+	i++;
+	scopeId = realAtoi(file, i, line, 9999, 4);
 }

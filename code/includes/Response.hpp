@@ -5,7 +5,6 @@
 # include <iostream>  				// for ostream
 # include <string>    				// for string, basic_string
 
-# include "ABody.hpp"				// for ABody
 # include "AFdData.hpp"				// for AFdData
 # include "Headers.hpp"				// for Headers
 # include "ServerConfiguration.hpp"	// for ServerConfiguration
@@ -86,6 +85,7 @@ public:
 
 	void							setResponse(uint16_t code);
 	void							setResponse(ARequestType& ARequestType);
+	void							setFdData(AFdData& fdData, void (&free)(AFdData*));
 	/**
 	 * @brief Reset this instance as it was after construction.
 	 */

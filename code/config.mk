@@ -2,7 +2,7 @@ SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							AFdData.cpp				\
-							ASocketData.cpp			\
+							AEPollFd.cpp			\
 							FileFd.cpp				\
 							signals.cpp				\
 							EPollHandler.cpp		\
@@ -29,7 +29,8 @@ DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							ChunkedBody.cpp			\
 							RequestParsing.cpp		\
 							Response.cpp			\
-							Headers.cpp
+							Headers.cpp				\
+							headersInsertType.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
 CONFIGURATION_DIR		:=	configuration/
@@ -52,21 +53,33 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							DeleteRequest.cpp		\
 							DeleteRequestUtils.cpp	\
 							PutRequest.cpp			\
+							PostRequest.cpp			\
 							ARequestType.cpp		\
+							ARequestTypeCGI.cpp		\
 							ARequestUtils.cpp		\
 							statuses.cpp			\
 							Status.cpp
 REQUEST					:=	$(addprefix $(REQUEST_DIR), $(REQUEST_FILES))
 
 CGI_DIR					:=	cgi/
-CGI_FILES				:=	CgiIn.cpp				\
+CGI_FILES				:=	CgiInChunked.cpp		\
+							CgiInSized.cpp			\
 							CgiOut.cpp				\
 							CgiOutRedirection.cpp	\
-							CgiOutParsing.cpp
+							CgiOutParsing.cpp		\
+							execCGI.cpp
 CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 
 UTILS_DIR				:=	utils/
 UTILS_FILES				:=	conversion.cpp			\
 							EMethods.cpp			\
-							closeAndPrintError.cpp
+							closeAndPrintError.cpp	\
+							processAddHeader.cpp	\
+							deleteArray.cpp
 UTILS					:=	$(addprefix $(UTILS_DIR), $(UTILS_FILES))
+
+
+CGI_ENV_DIR			:=	cgiEnv/
+CGI_ENV_FILES		:=	setEnv.cpp	\
+						setArgv.cpp
+CGI_ENV			:=	$(addprefix $(CGI_ENV_DIR), $(CGI_ENV_FILES))

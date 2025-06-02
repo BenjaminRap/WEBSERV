@@ -1,20 +1,48 @@
+#include <fcntl.h>                // for O_RDONLY
 #include <stddef.h>               // for NULL, size_t
-#include <string>                 // for basic_string
+#include <string>                 // for basic_string, string
 
-#include "CgiOut.hpp"             // for CgiOut, CgiOutState
+#include "CgiOut.hpp"             // for CgiOut
 #include "FileFd.hpp"             // for FileFd
 #include "FlowBuffer.hpp"         // for FlowState, FlowBuffer
-#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
+#include "Headers.hpp"            // for Headers
+#include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR, HTTP_BA...
+
+std::string	sizeTToString(size_t value);
 
 void	CgiOut::readFromCgi()
 {
-	if (_error || _state == FILE_TO_BUFFER || !_isActive || _state == DONE)
+	if (_error || _state == CgiOut::FILE_TO_BUFFER || _state == CgiOut::DONE)
 		return ;
 	const FlowState flowState = _flowBuf.srcToBuff(getFd());
 
 	if (flowState == FLOW_BUFFER_FULL || flowState == FLOW_MORE)
 		return ;
-	setFinished();
+
+	delete _srcFile;
+	_srcFile = NULL;
+	if (_state == CgiOut::CGI_TO_TEMP && flowState == FLOW_DONE)
+	{
+		try
+		{
+			_srcFile = new FileFd(_tempName, O_RDONLY);
+			_headers.addHeader("content-length", sizeTToString(_srcFile->getSize()));
+		}
+		catch (FileFd::FileOpeningError& e)
+		{
+			_code = HTTP_INTERNAL_SERVER_ERROR;
+			_error = true;
+		}
+		generateFirstPart();
+	}
+	else if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
+	{
+		_code = HTTP_BAD_GATEWAY;
+		_error = true;
+		generateFirstPart();
+	}
+	else
+		setFinished();
 }
 
 void	CgiOut::writeToTemp(void)
@@ -38,11 +66,11 @@ void	CgiOut::writeFirstPart(void)
 	if (_charsWritten != _firstPart.size())
 		return ;
 	if (_srcFile != NULL)
-		_state = FILE_TO_BUFFER;
+		_state = CgiOut::FILE_TO_BUFFER;
 	else if (_error)
 		setFinished();
 	else
-		_state = CGI_TO_BUFFER;
+		_state = CgiOut::CGI_TO_BUFFER;
 }
 
 void	CgiOut::writeToBuff(void)

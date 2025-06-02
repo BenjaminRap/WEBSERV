@@ -1,4 +1,3 @@
-#include <netinet/in.h>             // for sockaddr_in
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLIN
 #include <sys/socket.h>             // for accept, sockaddr, socklen_t
@@ -6,12 +5,12 @@
 #include <iostream>                 // for basic_ostream, char_traits, opera...
 #include <vector>                   // for vector
 
-#include "AFdData.hpp"              // for AFdDataChilds
-#include "ASocketData.hpp"          // for ASocketData
+#include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData
 #include "EPollHandler.hpp"         // for EPollHandler
+#include "Host.hpp"                 // for sockaddr_in_u, Host (ptr only)
 #include "ServerSocketData.hpp"     // for ServerSocketData, SERVER_EVENTS
-#include "socketCommunication.hpp"  // for closeFdAndPrintError, checkError
+#include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
 
 class ServerConfiguration;  // lines 17-17
 
@@ -21,16 +20,17 @@ ServerSocketData::ServerSocketData
 (
 	int fd ,
 	EPollHandler &ePollHandler,
-	const std::vector<ServerConfiguration> &serverConfiguration
+	const std::vector<ServerConfiguration> &serverConfiguration,
+	const Host& host
 ) :
-	ASocketData(fd, ePollHandler, serverConfiguration, SERVER_SOCKET_DATA, SERVER_EVENTS)
+	AEPollFd(fd, ePollHandler, SERVER_SOCKET_DATA, SERVER_EVENTS),
+	_host(host),
+	_serverConfigurations(serverConfiguration)
 {
-
 }
 
 ServerSocketData::~ServerSocketData(void)
 {
-	std::cout << "ServerSocketData removed !" << std::endl;
 }
 
 
@@ -38,27 +38,25 @@ ServerSocketData::~ServerSocketData(void)
 
 void	ServerSocketData::acceptConnection(uint32_t events)
 {
-	sockaddr_in		addr;
-	socklen_t		addrLength;
-
 	if (!(events & EPOLLIN))
 		return ;
+	sockaddr_in_u	addr;
+	socklen_t		addrLength;
+
 	addrLength = sizeof(addr);
-	const int 		newFd = accept(_fd, (sockaddr *)&addr, &addrLength);
+	int 			newFd = accept(getFd(), (sockaddr *)&addr, &addrLength);
 
 	if (checkError(newFd, -1, "accept() : "))
 		return ;
 	try
 	{
-		ConnectedSocketData& connectedSocketData = *(new ConnectedSocketData(newFd, *_ePollHandler, _serverConfigurations));
-		if (_ePollHandler->addFdToList(connectedSocketData) == -1)
+		ConnectedSocketData* connectedSocketData = new ConnectedSocketData(newFd, _ePollHandler, _serverConfigurations, _host, addr);
+		if (!_ePollHandler.addFdToList(*connectedSocketData))
 		{
 			std::cerr << "Can't accept new connection" << std::endl;
-			delete &connectedSocketData;
-			closeFdAndPrintError(newFd);
+			delete connectedSocketData;
+			newFd = -1;
 		}
-		else
-			std::cout << "Accepted a new connection, fd : " << newFd << std::endl;
 	}
 	catch(const std::exception& e)
 	{
@@ -69,6 +67,8 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 
 void	ServerSocketData::callback(uint32_t events)
 {
+	if (!getIsActive())
+		return ;
 	if (events & EPOLLERR)
 		removeFromEPollHandler();
 	else

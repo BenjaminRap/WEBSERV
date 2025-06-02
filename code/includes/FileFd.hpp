@@ -6,7 +6,6 @@
 # include <cerrno>       // for errno
 # include <cstdio>       // for size_t, L_tmpnam
 # include <exception>    // for exception
-# include <string>       // for string
 
 # include "AFdData.hpp"  // for AFdData
 
@@ -18,6 +17,9 @@
 class FileFd : public AFdData
 {
 private:
+	/**
+	 * @brief The size of the file when opening it.
+	 */
 	size_t	_fileSize;
 
 	FileFd(void);
@@ -25,8 +27,8 @@ private:
 
 	FileFd&	operator=(const FileFd& ref);
 public:
-	FileFd(const std::string& path, int flags, mode_t mode);
-	FileFd(const std::string& path, int flags);
+	FileFd(const char* path, int flags, mode_t mode);
+	FileFd(const char* path, int flags);
 	~FileFd(void);
 
 	/**
@@ -37,8 +39,16 @@ public:
 	 */
 	void			callback(uint32_t events);
 
+	/**
+	 * @return The Size when opening the file.
+	 */
 	size_t			getSize(void) const;
-	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam], int rights);
+	/**
+	 * @brief Returns a new file, or NULL if it fails.
+	 * The path of the file is written in the name array.
+	 *
+	 */
+	static FileFd*	getTemporaryFile(char (&name)[L_tmpnam]);
 
 	class FileOpeningError : public std::exception
 	{

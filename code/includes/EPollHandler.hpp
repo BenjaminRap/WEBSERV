@@ -10,12 +10,12 @@
 
 class	Configuration;
 class	Host;
-class	ASocketData;
+class	AEPollFd;
 class	AFdData;
 
 /**
  * @brief Manage the epoll functions : add or remove fd to the interest list and
- * execute the socket callback on events.
+ * execute the AEPollFd callback on events.
  */
 class EPollHandler
 {
@@ -23,36 +23,37 @@ private:
 	/**
 	 * @brief True if there is an instance of this class.
 	 */
-	static bool					_instanciated;
+	static bool						_instanciated;
 
 	/**
-	 * @brief A list of the FdData that are in the epoll interest list.
+	 * @brief A list of the AEPollFd that are in the epoll interest list.
 	 */
-	std::list<ASocketData*>		_socketsData;
+	std::list<AEPollFd*>			_ePollFds;
+	/**
+	 * @brief A list of the AEPollFd that needs to be removed from the
+	 * interest list.
+	 */
+	std::list<const AEPollFd*>		_ePollFdsToRemove;
 	/**
 	 * @brief The epoll fd.
 	 */
-	int							_epfd;
+	int								_epfd;
 	/**
 	 * @brief The events array that will be passed at epoll_wait. It stores all
 	 * the events that the epoll_wait function has detected.
 	 */
-	epoll_event					*_events;
+	epoll_event						*_events;
 	/**
 	 * @brief The length of the _events array.
 	 */
-	unsigned int				_maxEvents;
-	/**
-	 * @brief The count of events detected by the epoll_wait function.
-	 */
-	size_t						_eventsCount;
+	unsigned int					_maxEvents;
 	/**
 	 * @brief When creating a socket unix connection, a socket unix file is
 	 * created in the file system. This vector stores all the sockets path that
 	 * have been created.
 	 * It should be used to removed them in the destructor.
 	 */
-	std::vector<std::string>	_unixSocketsToRemove;
+	std::vector<std::string>		_unixSocketsToRemove;
 
 	EPollHandler(const EPollHandler& ref);
 	EPollHandler(void);
@@ -76,30 +77,27 @@ public:
 	~EPollHandler();
 
 	/**
-	 * @brief Call epoll_wait with the SocketHandler variables and return its result;
-	 * @return The number of events, or -1 on error;
-	 */
-	int		epollWaitForEvent();
-	/**
-	 * @brief Add the FdData the the _socketsdata list.
+	 * @brief Add the FdData the the _ePollFds list.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
-	 * @return -1 on error, otherwise 0.
+	 * @return A boolean indicating if the fonction succeed.
 	 */
-	int		addFdToList(ASocketData &fdData);
+	bool	addFdToList(AEPollFd &fdData);
 	/**
 	 * @brief Adds the fdData to the epoll interest list.
+	 * with the events passed as arguments.
 	 * If the function fails, the FdData won't be destroyed.
 	 *
-	 * @return -1 on error, 0 otherwise
+	 * @return A boolean indicating if the fonction succeed.
 	 */
-	int		addFdToEpoll(AFdData& fdData, uint32_t events);
+	bool	addFdToEpoll(AFdData& fdData, uint32_t events);
 	/**
-	 * @brief Call the callback of the socket, in the epoll events at eventIndex.
-	 * @param eventIndex The index of the event to check, [0, eventCount] where eventCount 
-	 * is the result of epoll_wait or epollWaitForEvent function.
+	 * @brief Call epoll_wait, call the callbacks of every AEPollFd
+	 * notified by epoll and callremoveSocketsFromRemoveList.
+	 *
+	 * @return A boolean indicating if the fonction succeed.
 	 */
-	void	callSocketCallback(size_t eventIndex) const;
+	bool	handleIOEvents(void);
 	/**
 	 * @brief Bind the fd with the host variables. If the host family is AF_UNIX, 
 	 * delete the socket at the host.sun_path, recreate a socket and add the socket
@@ -110,19 +108,17 @@ public:
 	 */
 	int		bindFdToHost(int fd, const Host &host);
 	/**
-	 * @brief Close a socket and remove if from the epoll interest list. It does not
-	 * remove it from The _socketsData list.
-	 * @param fd The fd of the socket to close.
+	 * @brief For all the AEPollFd in the _ePollFdsToRemove, remove them
+	 * from the _ePollFds list, removed them from epoll and delete them.
+	 * Then clear the _ePollFdsToRemove list.
 	 */
-	void	closeFdAndRemoveFromEpoll(int fd);
+	void	removeSocketsFromRemoveList(void);
 	/**
-	 * @brief Removes an AFdData from the _socketsData list and delete it.
-	 * @note The function doesn't have to removed it from the interest list
-	 * as the AFdData destructor already call closeFdAndRemovedFromEpoll.
-	 *
-	 * @param pos 
+	 * @note it is usefull for  the ExecveException. Because in this case,
+	 * the destructor shouldn't remove the unix sockets.
 	 */
-	void	removeFdDataFromList(std::list<ASocketData*>::iterator pos);
+	void	clearUnixSocketsList(void);
+	void	addFdToRemoveList(const AEPollFd& fdData);
 };
 
 #endif // !EPOLL_HANDLER_HPP

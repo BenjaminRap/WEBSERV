@@ -28,11 +28,11 @@ enum	RequestState
 	REQUEST_HEADERS,
 	REQUEST_EMPTY_LINE,
 	REQUEST_BODY,
-	REQUEST_DONE,
-	CONNECTION_CLOSED
+	REQUEST_DONE
 };
 
-class ARequestType;
+class	RequestContext;
+class	ARequestType;
 
 /**
  * @class RequestHandler
@@ -55,7 +55,7 @@ private:
 	/**
 	 * @brief The FlowBuffer managing the read of the request into the _buffer.
 	 */
-	FlowBuffer								_flowBuf;
+	FlowBuffer								_requestBuf;
 	/**
 	 * @brief It keeps track of where the request is. (reading the status line, a header ...)
 	 */
@@ -102,13 +102,7 @@ private:
 	 *
 	 * @param socketFd the socket fd of the client.
 	 */
-	void						executeRequest(Response &response, EPollHandler& ePollHandler);
-	/**
-	 * @brief Write the request body from the _buffer to the body fd.
-	 * If there is an error, it sets the response values.
-	 *
-	 */
-	void						writeBodyFromBuffer(Response &response);
+	void						executeRequest(Response &response, RequestContext& requestContext);
 	/**
 	 * @brief Returns the ServerConfiguration corresponding to the Host header.
 	 * If no ServerConfiguration corresponds or if there is no Host header,
@@ -116,16 +110,6 @@ private:
 	 *
 	 */
 	const ServerConfiguration	&getServerConfiguration(const std::string& host) const;
-	/**
-	 * @brief Set  the response values depending on the results of the
-	 * request.
-	 *
-	 */
-	void						processRequestResult
-	(
-		ARequestType& request,
-		Response &response
-	);
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();
@@ -140,28 +124,35 @@ public:
 	/**
 	 * @brief Redirect the body.
 	 *
-	 * @param socketFd The fd of the client.
-	 * @param response The response that will be set if an error happend.
-	 * @param canRead Can this function read from the socketFd.
+	 * @param socketFd A pointer on the client/server communication fd, or NULL, if we
+	 * can't read from it.
+	 * @param response The currentResponse, its code will be set if an error occured.
 	 * @return 
 	 */
-	RequestState				redirectBody(int socketFd, Response &response, bool canRead);
+	RequestState				redirectBody(const int* socketFd, Response &response);
 	/**
 	 * @brief Read and handle the execution of the request
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(Response &response, int socketFd, EPollHandler& ePollHandler);
+	RequestState				readRequest(RequestContext& requestContext, Response& response);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *
 	 */
 	bool						isStateRequestBody(void);
 	/**
-	 * @brief reset the response and set teh _state to READ_STATUS_LINE
+	 * @brief reset the response and set the _state to READ_STATUS_LINE
 	 *
 	 */
 	void						setNewRequest(void);
+	/**
+	 * @brief Remove the request fdData and redirect the body.
+	 *
+	 */
+	RequestState				ignoreBody(Response& response);
+	Request&					getRequest(void);
+	FlowBuffer&					getFlowBuffer(void);
 };
 
 #endif // !REQUEST_HANDLER_HPP

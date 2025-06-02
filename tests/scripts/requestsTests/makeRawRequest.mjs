@@ -1,5 +1,7 @@
 import { HTTPParser } from "/usr/local/lib/node_modules/http-parser-js/http-parser.js";
 import * as net from "net";
+import { showDuration } from "./testOptions.mjs"
+import { COLOR_BLUE, COLOR_RESET } from "./utils.mjs"
 
 
 let headers;
@@ -36,12 +38,13 @@ function	createResponse()
 
 export async function	makeRawRequest(host, port, requestData)
 {
-	const start = performance.now();
+	const	start = performance.now();
 	reset();
 	const	httpParser = getHTTPParser();
 	const	response = await sendRawRequest(host, port, requestData, httpParser);
-	const end = performance.now();
-	console.log("duree : " +  (end - start).toFixed(3) + "ms");
+	const	end = performance.now();
+	if (showDuration)
+		console.log(COLOR_BLUE + "duree : " +  (end - start).toFixed(3) + "ms" + COLOR_RESET);
 	return (response);
 }
 
@@ -71,7 +74,9 @@ function sendRawRequest(host, port, requestData, httpParser)
 
         client.on('error', (err) => {
 			httpParser.finish();
-			return (resolve(createResponse()));
+			if (complete == true)
+				return (resolve(createResponse()));
+			return (reject("Could not finished"));
 		});
     });
 }
@@ -82,6 +87,8 @@ function getHTTPParser()
 
     // Callback pour récupérer les headers et les convertir d'un array a une map
     parser[HTTPParser.kOnHeadersComplete] = (response) => {
+		if (complete == true)
+			return ;
         headers = response.headers.reduce((map, key, index, array) => {
             if (index % 2 === 0)
 				map[key] = array[index + 1];
@@ -92,11 +99,15 @@ function getHTTPParser()
     };
 
 	parser[HTTPParser.kOnMessageComplete] = () => {
+		if (complete == true)
+			return ;
 		complete = true;
 	}
 
     // Callback pour récupérer le corps
     parser[HTTPParser.kOnBody] = (chunk, start, len) => {
+		if (complete == true)
+			return ;
         body += chunk.toString('utf-8', start, start + len);
     };
 

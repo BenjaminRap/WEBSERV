@@ -57,17 +57,17 @@ const Configuration &conf,
 	{
 		const Host								&host = ci->first;
 		const std::vector<ServerConfiguration>	&serverConfigurations = ci->second;
-		const int								fd = createServerSocket(host, conf, ePollHandler);
+		int										fd = createServerSocket(host, conf, ePollHandler);
 
 		if (fd == -1)
 			continue ;
 		try
 		{
-			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations));
-			if (ePollHandler.addFdToList(serverSocketData) == -1)
+			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations, host));
+			if (!ePollHandler.addFdToList(serverSocketData))
 			{
 				delete &serverSocketData;
-	  			closeFdAndPrintError(fd);
+				fd = -1;
 			}
 		}
 		catch(const std::exception& e)

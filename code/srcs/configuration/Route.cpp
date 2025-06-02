@@ -1,37 +1,48 @@
 #include <stddef.h>      // for size_t
-#include <iostream>      // for basic_ostream, operator<<, char_traits, endl
-#include <string>        // for basic_string, string, operator<<
+#include <iostream>      // for basic_ostream, operator<<, endl, ostream
+#include <list>          // for list
+#include <string>        // for char_traits, string, operator<<, basic_string
 #include <vector>        // for vector
 
-#include "EMethods.hpp"  // for EMethods
+#include "EMethods.hpp"  // for EMethods, getStringRepresentation
 #include "Route.hpp"     // for Route, SRedirection, operator<<
+#include "parsing.hpp"   // for ConfigHeaders
 
 Route::Route
 (
 	const std::vector<EMethods> &acceptedMethods,
 	const SRedirection &redirection,
+	size_t maxClientBodySize,
 	const std::vector<std::string> &index,
 	const bool &auto_index,
 	const std::string &root,
-	const std::string &cgiFileExtension
+	const std::list<ConfigHeaders> &addHeader,
+	const std::string &cgiFileExtension,
+	const std::string &cgiInterpreter
 ) :
-	acceptedMethods(acceptedMethods),
-	redirection(redirection),
-	index(index),
-	autoIndex(auto_index),
-	root(root),
-	cgiFileExtension(cgiFileExtension)
+	_acceptedMethods(acceptedMethods),
+	_redirection(redirection),
+	_maxClientBodySize(maxClientBodySize),
+	_index(index),
+	_autoIndex(auto_index),
+	_root(root),
+	_addHeader(addHeader),
+	_cgiFileExtension(cgiFileExtension),
+	_cgiInterpreter(cgiInterpreter)
 {
 }
 
-Route::Route(Route const &src)
+Route::Route(Route const &src) :
+	_acceptedMethods(src._acceptedMethods),
+	_redirection(src._redirection),
+	_maxClientBodySize(src._maxClientBodySize),
+	_index(src._index),
+	_autoIndex(src._autoIndex),
+	_root(src._root),
+	_addHeader(src._addHeader),
+	_cgiFileExtension(src._cgiFileExtension),
+	_cgiInterpreter(src._cgiInterpreter)
 {
-	this->acceptedMethods = src.acceptedMethods;
-	this->redirection = src.redirection;
-	this->index = src.index;
-	this->autoIndex = src.autoIndex;
-	this->root = src.root;
-	this->cgiFileExtension = src.cgiFileExtension;
 }
 
 Route::~Route(void)
@@ -41,37 +52,52 @@ Route::~Route(void)
 
 const std::vector<EMethods>		&Route::getAcceptedMethods(void) const
 {
-	return (acceptedMethods);
+	return (_acceptedMethods);
 }
 
 const SRedirection				&Route::getRedirection(void) const
 {
-	return (redirection);
+	return (_redirection);
 }
 
 const std::vector<std::string>	&Route::getIndex(void) const
 {
-	return (index);
+	return (_index);
 }
 
 bool	Route::getAutoIndex(void) const
 {
-	return (autoIndex);
+	return (_autoIndex);
 }
 
 const std::string				&Route::getRoot(void) const
 {
-	return (root);
+	return (_root);
+}
+
+const size_t					&Route::getMaxClientBodySize(void) const
+{
+	return (_maxClientBodySize);
 }
 
 const std::string				&Route::getCgiFileExtension(void) const
 {
-	return (cgiFileExtension);
+	return (_cgiFileExtension);
+}
+
+const std::string&				Route::getCgiInterpreter(void) const
+{
+	return (_cgiInterpreter);
+}
+
+const std::list<ConfigHeaders>&	Route::getAddHeader(void) const
+{
+	return (this->_addHeader);
 }
 
 void							Route::setIndex(const std::vector<std::string> &v)
 {
-	this->index = v;
+	this->_index = v;
 }
 
 std::ostream & operator<<(std::ostream & o, Route const & rhs)
@@ -104,5 +130,5 @@ std::ostream & operator<<(std::ostream & o, Route const & rhs)
 	}
 	if (!cgiFileExtension.empty())
 		o << "cgiFileExtension:" << cgiFileExtension << std::endl;
-  return (o);
+	return (o);
 }
