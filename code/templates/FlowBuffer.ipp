@@ -19,7 +19,7 @@ FlowState	FlowBuffer::redirect
 	const FlowState writeState = buffToDest<WriteData>(writeData, customWrite);
 
 	if (writeState == FLOW_DONE)
-		return (readState);
+		return ((readState == FLOW_BUFFER_FULL) ? FLOW_MORE : readState);
 	return (writeState);
 }
 

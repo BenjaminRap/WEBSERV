@@ -1,7 +1,10 @@
 #ifndef SERVER_SOCKET_DATA_HPP
 # define SERVER_SOCKET_DATA_HPP
 
-# include "ASocketData.hpp"	// for ASocketData
+# include "AEPollFd.hpp"	// for ASocketData
+# include "ServerConfiguration.hpp"
+
+# include <vector>
 
 # define SERVER_EVENTS (EPOLLIN | EPOLLERR)
 
@@ -12,18 +15,19 @@ class	Host;
  * is a socket that listens on a specific host, and when it receives a request, 
  * creates another fd connected to that client.
  */
-class ServerSocketData : public ASocketData
+class ServerSocketData : public AEPollFd
 {
 private:
 	/**
 	 * @brief On which host does this socket listen.
 	 */
-	const Host&	_host;
+	const Host&								_host;
+	const std::vector<ServerConfiguration>	&_serverConfigurations;
 
 	ServerSocketData(void);
-	ServerSocketData(const ASocketData &ref);
+	ServerSocketData(const AEPollFd &ref);
 
-	ServerSocketData&	operator=(const ASocketData& ref);
+	ServerSocketData&	operator=(const AEPollFd& ref);
 	
 	/**
 	 * @brief Accept a connection request, create a new fd, add it to the epoll interest

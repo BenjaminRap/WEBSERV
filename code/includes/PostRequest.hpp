@@ -9,8 +9,6 @@ class ServerConfiguration;
 class PostRequest : public ARequestType
 {
 private :
-	std::string _fileName;
-
 	PostRequest();
 	PostRequest(const PostRequest& src);
 	PostRequest& operator=(const PostRequest& src);

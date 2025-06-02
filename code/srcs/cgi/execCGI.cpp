@@ -1,9 +1,8 @@
 #include <sys/types.h>              // for pid_t
-#include <sys/wait.h>               // for waitpid, WNOHANG
+#include <sys/wait.h>               // for waitpid, WEXITSTATUS, WNOHANG
 #include <unistd.h>                 // for dup2, pipe, execve, fork, STDIN_F...
 #include <csignal>                  // for signal, SIG_DFL, SIG_ERR, kill
-#include <cstdlib>                  // for WEXITSTATUS
-#include <iostream>                 // for char_traits, basic_ostream, basic...
+#include <iostream>                 // for char_traits, basic_ostream, opera...
 
 #include "exception.hpp"            // for ExecveException
 #include "socketCommunication.hpp"  // for checkError, closeFdAndPrintError
@@ -20,7 +19,9 @@ void	closeFds(int fdA, int fdB)
 	closeFdAndPrintError(fdB);
 }
 
-void	replaceByProgram(const char *path, char *const * argv, char *const * env, int inFd, int outFd)
+void	replaceByProgram(
+	const char * const argv[3], const char * const env[23], int inFd, int outFd
+)
 {
 	// Reset the signals handler.
 	if (checkError(std::signal(SIGINT, SIG_DFL), SIG_ERR, "signal() : ")
@@ -48,10 +49,10 @@ void	replaceByProgram(const char *path, char *const * argv, char *const * env, i
 	closeFdAndPrintError(inFd);
 
 	//execute cgi
-	execve(path, argv, env);
+	execve(argv[0], (char**)argv, (char**)env);
 }
 
-int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd)
+int	execCGI(const char * const argv[3], const char * const env[23], int& inFd, int& outFd)
 {
 	int	tubeIn[2];
 	int	tubeOut[2];
@@ -75,7 +76,7 @@ int	execCGI(const char *path, char * const * argv, char * const * env, int& inFd
 	if (pid == 0)
 	{
 		closeFds(tubeIn[1], tubeOut[0]);
-		replaceByProgram(path, argv, env, tubeIn[0], tubeOut[1]);
+		replaceByProgram(argv, env, tubeIn[0], tubeOut[1]);
 		throw ExecveException();
 	}
 	else

@@ -28,7 +28,7 @@ SharedResource<T>::SharedResource(T value, void (&free)(T value)) :
 	catch (const std::exception& exception)
 	{
 		free(value);
-		throw exception;
+		throw ;
 	}
 }
 

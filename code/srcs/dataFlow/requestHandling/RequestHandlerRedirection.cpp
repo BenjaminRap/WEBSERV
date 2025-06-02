@@ -54,13 +54,15 @@ RequestState	RequestHandler::redirectBody(const int* socketFd, Response &respons
 	ABody * const	body = _request.getBody();
 	AFdData * const	fdData = _request.getFdData();
 	
-	if (body == NULL || body->getFinished())
+	if (body == NULL)
 	{
 		_state = REQUEST_DONE;
 		return (REQUEST_DONE);
 	}
 
 	const bool		canWrite = (!fdData || !fdData->getIsBlocking());
+	if (fdData)
+		fdData->callback(0);
 	const FlowState	flowState = redirect(socketFd, body, canWrite, _requestBuf);
 	const uint16_t	code = getCodeIfFinished(canWrite, flowState, *body);
 

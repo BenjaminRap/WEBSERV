@@ -44,7 +44,8 @@ PutRequest::PutRequest
 	const std::string& domain,
 	RequestContext& requestContext
 ) :
-	ARequestType(url, config, PUT, domain, requestContext)
+	ARequestType(url, config, PUT, domain, requestContext),
+	_fileName()
 {
 	std::string path;
 

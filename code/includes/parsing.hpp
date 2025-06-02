@@ -21,8 +21,9 @@ struct SRedirection;
 # define SEP_WSPACE_ARG "\t\n\v\f\r ;{}"
 # define DIGITS "0123456789"
 
-struct	ConfigHeaders
+class	ConfigHeaders
 {
+public:
 	const std::string	key;
 	const std::string	value;
 	const bool			always;

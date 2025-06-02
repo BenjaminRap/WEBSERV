@@ -1,4 +1,5 @@
 #include <stddef.h>       // for size_t
+#include <list>           // for list
 #include <map>            // for map
 #include <string>         // for basic_string, string, operator<
 #include <utility>        // for make_pair
@@ -6,8 +7,8 @@
 
 #include "EMethods.hpp"   // for EMethods
 #include "Route.hpp"      // for Route, SRedirection
-#include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
-#include "parsing.hpp"    // for skip_wspace, WSPACE, SEP_WSPACE, SEP_WSPACE...
+#include "exception.hpp"  // for ParsingLineException, ParsingKeyWordAndLine...
+#include "parsing.hpp"    // for skipWSpace, SEP_WSPACE, ConfigHeaders, WSPACE
 
 void	parseRoute(std::string &file, size_t &i, size_t &line, std::map<std::string, Route> &routes)
 {

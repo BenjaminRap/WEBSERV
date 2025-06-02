@@ -17,19 +17,19 @@ const std::string	ChunkedBody::_lineEnd("\r\n");
 
 /**********************Constructors/Destructors********************************/
 
-ChunkedBody::ChunkedBody(int fd,  size_t maxSize) :
-	ABody(fd, CHUNKED_REQUEST),
+ChunkedBody::ChunkedBody(int fd,  size_t maxSize, bool isFdBlocking) :
+	ABody(fd, ABody::CHUNKED, isFdBlocking),
 	_maxSize(maxSize),
 	_chunkSize(-1),
-	_state(CHUNKED_SIZE)
+	_state(ChunkedBody::SIZE)
 {
 }
 
 ChunkedBody::ChunkedBody(size_t maxSize) :
-	ABody(CHUNKED_REQUEST),
+	ABody(ABody::CHUNKED),
 	_maxSize(maxSize),
 	_chunkSize(-1),
-	_state(CHUNKED_SIZE)
+	_state(ChunkedBody::SIZE)
 {
 }
 
@@ -42,7 +42,7 @@ ChunkedBody::~ChunkedBody()
 
 void	ChunkedBody::setFinished(uint16_t status)
 {
-	_state = CHUNKED_DONE;
+	_state = ChunkedBody::DONE;
 	ABody::setFinished(status);
 }
 
@@ -70,9 +70,9 @@ ssize_t	ChunkedBody::readSize(const char* begin, const char* end)
 		return (-1);
 	}
 	if (_chunkSize == 0)
-		_state = CHUNKED_TRAILERS;
+		_state = ChunkedBody::TRAILERS;
 	else
-		_state = CHUNKED_DATA;
+		_state = ChunkedBody::DATA;
 	return (std::distance(begin, lineBreak + _lineEnd.size()));
 }
 
@@ -89,7 +89,7 @@ ssize_t	ChunkedBody::writeData(const char* begin, const char* end)
 	}
 	_chunkSize -= written;
 	if (_chunkSize == 0)
-		_state = CHUNKED_ENDLINE;
+		_state = ChunkedBody::ENDLINE;
 	return (written);
 }
 
@@ -103,7 +103,7 @@ ssize_t	ChunkedBody::readEndLine(const char* begin, const char* end)
 		setFinished(HTTP_BAD_REQUEST);
 		return (-1);
 	}
-	_state = CHUNKED_SIZE;
+	_state = ChunkedBody::SIZE;
 	return (_lineEnd.size());
 }
 
@@ -135,7 +135,7 @@ ssize_t	ChunkedBody::writeChunkedRequestToFd(const char* begin, const char* end)
 
 	ssize_t	totalWritten = 0;
 
-	while (_state != CHUNKED_DONE)
+	while (_state != ChunkedBody::DONE)
 	{
 		const ParserFunc	parser = parsers[_state];
 		const ssize_t 		written = (this->*parser)(begin + totalWritten, end);

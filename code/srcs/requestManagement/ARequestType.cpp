@@ -1,26 +1,22 @@
 #include <stdint.h>                 // for uint16_t
-#include <sys/types.h>              // for pid_t
-#include <cstring>                  // for NULL, memset
-#include <exception>                // for exception
+#include <cstring>                  // for NULL, size_t
+#include <list>                     // for list
 #include <map>                      // for map
-#include <string>                   // for allocator, string, basic_string
+#include <string>                   // for string, basic_string, operator==
 #include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType
-#include "CgiIn.hpp"                // for CgiIn
-#include "CgiOut.hpp"               // for CgiOut
 #include "EMethods.hpp"             // for EMethods
 #include "Request.hpp"              // for Request
 #include "RequestContext.hpp"       // for RequestContext
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
-#include "SharedResource.hpp"       // for freePointer, SharedResource
-#include "Status.hpp"
-#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_INTERNAL_S...
-#include "socketCommunication.hpp"  // for closeFdAndPrintError
+#include "Status.hpp"               // for Status, StatusType
+#include "parsing.hpp"              // for ConfigHeaders
+#include "requestStatusCode.hpp"    // for HTTP_NOT_FOUND
 
-class ABody;
-class AFdData;  // lines 20-20
+class AFdData;  // lines 21-21
+template <typename T> class SharedResource;
 
 bool		checkAllowMeth(ARequestType& req, EMethods meth);
 void		delString(const std::string &toDel, std::string &str);
@@ -29,15 +25,12 @@ void		replaceUrl(const std::string &location, const std::string &root, std::stri
 void		fixPath(std::string &path);
 bool		fixUrl(ARequestType &req, std::string &url);
 void		addRoot(ARequestType &req, const ServerConfiguration &config);
-int			execCGI(const char *path, char * const * argv, char * const * env, int& inFd, int& outFd);
 void		extractQueryString(std::string& url, std::string& queryString);
 uint16_t	isCgiExecutable(const std::string& path, uint16_t targetType);
-bool		setEnv(char *(&env)[20], const ARequestType& req, RequestContext& requestContext);
-bool		setArgv(char* (&argv)[3], const std::string& interpreter, const std::string& cgiFile);
-void		deleteArray(const char** array);
 bool		setRedirection(ARequestType& req);
 uint16_t	isDirOrFile(const std::string& path);
 bool		isExtension(const std::string& file, const std::string& extension);
+
 
 ARequestType::ARequestType
 (
@@ -58,13 +51,15 @@ ARequestType::ARequestType
 	_queryString(),
 	_pathInfo(),
 	_inFd(),
-	_outFd()
+	_outFd(),
+	_targetType(0),
+	_isCgi(false)
 {
 	extractQueryString(_url, _queryString);
 	if (!fixUrl(*this, _url))
 		return ;
 	addRoot(*this, config);
-	this->_code = requestContext.request.setBodyFromHeaders(getMaxClientBodySize());
+	this->_code = requestContext._request.setBodyFromHeaders(getMaxClientBodySize());
 	if (_code != 0)
 		return ;
 	if (!checkAllowMeth(*this, method))
@@ -113,58 +108,6 @@ bool	ARequestType::setPathInfo(const std::string& extension, std::string path)
 	_path = path;
 	return (true);
 }
-
-uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
-{
-	Request&	request = requestContext.request;
-	ABody*		body = request.getBody();
-	int			inFd;
-	int			outFd;
-	char*		env[20];
-	char*		argv[3];
-	pid_t		pid;
-
-	std::memset(env, 0, sizeof(env));
-	std::memset(argv, 0, sizeof(argv));
-	try
-	{
-		const bool	error = (!setEnv(env, *this, requestContext)
-			|| !setArgv(argv, getCgiInterpreter(), _path)
-			|| (pid = execCGI(argv[0], argv, env, inFd, outFd)) == -1);
-		deleteArray((const char**)env);
-		deleteArray((const char**)argv);
-		if (error)
-			return (HTTP_INTERNAL_SERVER_ERROR);
-	}
-	catch (const std::exception& e)
-	{
-		deleteArray((const char**)env);
-		deleteArray((const char**)argv);
-		throw;
-	}
-	if (body != NULL)
-	{
-		this->_inFd.setManagedResource(new CgiIn(
-			inFd,
-			requestContext.ePollHandler,
-			requestContext.requestBuff,
-			*body,
-			requestContext.connectedSocketData,
-			requestContext.response
-		), freePointer);
-	}
-	else
-		closeFdAndPrintError(inFd);
-	this->_outFd.setManagedResource(new CgiOut(
-		outFd,
-		requestContext.ePollHandler,
-		requestContext.responseBuff,
-		_config,
-		pid,
-		getAddHeader()
-	), freePointer);
-	return (HTTP_OK);
-};
 
 ARequestType::~ARequestType()
 {
@@ -236,6 +179,11 @@ const SharedResource<AFdData*>&	ARequestType::getInFd() const
 const SharedResource<AFdData*>&	ARequestType::getOutFd() const
 {
 	return (_outFd);
+}
+
+bool	ARequestType::getIsCgi(void) const
+{
+	return (_isCgi);
 }
 
 const std::map<uint16_t, std::string>&	ARequestType::getErrorPages(void) const

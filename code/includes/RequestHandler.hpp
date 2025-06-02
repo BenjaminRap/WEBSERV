@@ -28,8 +28,7 @@ enum	RequestState
 	REQUEST_HEADERS,
 	REQUEST_EMPTY_LINE,
 	REQUEST_BODY,
-	REQUEST_DONE,
-	CONNECTION_CLOSED
+	REQUEST_DONE
 };
 
 class	RequestContext;
@@ -125,9 +124,9 @@ public:
 	/**
 	 * @brief Redirect the body.
 	 *
-	 * @param socketFd The fd of the client.
-	 * @param response The response that will be set if an error happend.
-	 * @param canRead Can this function read from the socketFd.
+	 * @param socketFd A pointer on the client/server communication fd, or NULL, if we
+	 * can't read from it.
+	 * @param response The currentResponse, its code will be set if an error occured.
 	 * @return 
 	 */
 	RequestState				redirectBody(const int* socketFd, Response &response);
@@ -136,7 +135,7 @@ public:
 	 *
 	 * @return The state of the request
 	 */
-	RequestState				readRequest(RequestContext& requestContext);
+	RequestState				readRequest(RequestContext& requestContext, Response& response);
 	/**
 	 * @brief Returns if the _state is REQUEST_BODY
 	 *
@@ -147,6 +146,10 @@ public:
 	 *
 	 */
 	void						setNewRequest(void);
+	/**
+	 * @brief Remove the request fdData and redirect the body.
+	 *
+	 */
 	RequestState				ignoreBody(Response& response);
 	Request&					getRequest(void);
 	FlowBuffer&					getFlowBuffer(void);

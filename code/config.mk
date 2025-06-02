@@ -2,7 +2,7 @@ SOCKET_DIR				:=	socketCommunication/
 SOCKET_FILES			:=	createServerSockets.cpp	\
 							socketCommunication.cpp	\
 							AFdData.cpp				\
-							ASocketData.cpp			\
+							AEPollFd.cpp			\
 							FileFd.cpp				\
 							signals.cpp				\
 							EPollHandler.cpp		\
@@ -55,6 +55,7 @@ REQUEST_FILES			:=	GetRequestUtils.cpp		\
 							PutRequest.cpp			\
 							PostRequest.cpp			\
 							ARequestType.cpp		\
+							ARequestTypeCGI.cpp		\
 							ARequestUtils.cpp		\
 							statuses.cpp			\
 							Status.cpp
@@ -65,7 +66,6 @@ CGI_FILES				:=	CgiIn.cpp				\
 							CgiOut.cpp				\
 							CgiOutRedirection.cpp	\
 							CgiOutParsing.cpp		\
-							RequestContext.cpp		\
 							execCGI.cpp
 CGI						:=	$(addprefix $(CGI_DIR), $(CGI_FILES))
 

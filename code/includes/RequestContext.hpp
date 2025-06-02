@@ -17,18 +17,23 @@ private:
 	RequestContext(const RequestContext &ref);
 	RequestContext &operator=(const RequestContext &ref);
 	
+	const Host&					_host;
+	const union sockaddr_in_u	_clientAddr;
+
+	Request&					_request;
+	Response&					_response;
+	EPollHandler&				_ePollHandler;
+	FlowBuffer&					_requestBuff;
+	FlowBuffer&					_responseBuff;
+	ConnectedSocketData&		_connectedSocketData;
+
+	friend class	ARequestType;
 public:
-	const Host&					host;
-	const union sockaddr_in_u	clientAddr;
 
-	Request&					request;
-	Response&					response;
-	EPollHandler&				ePollHandler;
-	FlowBuffer&					requestBuff;
-	FlowBuffer&					responseBuff;
-	ConnectedSocketData&		connectedSocketData;
+	~RequestContext(void)
+	{
+	}
 
-	~RequestContext(void);
 	RequestContext
 	(
 		const Host& host,
@@ -39,7 +44,18 @@ public:
 		FlowBuffer& requestBuffer,
 		FlowBuffer& responseBuffer,
 		ConnectedSocketData& connectedSocketData
-	);
+	) :
+		_host(host),
+		_clientAddr(clientAddr),
+		_request(request),
+		_response(response),
+		_ePollHandler(ePollHandler),
+		_requestBuff(requestBuffer),
+		_responseBuff(responseBuffer),
+		_connectedSocketData(connectedSocketData)
+	{
+
+	}
 };
 
 #endif // !REQUEST_CONTEXT_HPP

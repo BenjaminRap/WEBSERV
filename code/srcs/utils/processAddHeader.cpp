@@ -1,7 +1,9 @@
+#include <stdint.h>     // for uint16_t
+#include <list>         // for list, _List_const_iterator, operator!=
 
-#include "Headers.hpp"
-#include "Status.hpp"
-#include "parsing.hpp"
+#include "Headers.hpp"  // for Headers
+#include "Status.hpp"   // for StatusType, Status
+#include "parsing.hpp"  // for ConfigHeaders
 
 void	processAddHeader(Headers &responseHeaders, const std::list<ConfigHeaders>& addHeader, uint16_t code)
 {

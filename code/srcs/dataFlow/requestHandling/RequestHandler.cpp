@@ -4,14 +4,14 @@
 #include <vector>                 // for vector
 
 #include "Request.hpp"            // for Request
-#include "RequestContext.hpp"     // for RequestContext
 #include "RequestHandler.hpp"     // for RequestHandler, RequestState, REQUE...
 #include "Response.hpp"           // for Response
 #include "exception.hpp"          // for ExecveException
 #include "requestStatusCode.hpp"  // for HTTP_INTERNAL_SERVER_ERROR
 
-class FlowBuffer;
-class ServerConfiguration;  // lines 13-13
+class FlowBuffer;  // lines 13-13
+class RequestContext;
+class ServerConfiguration;  // lines 14-14
 
 /************************Constructors/Destructors******************************/
 
@@ -30,10 +30,8 @@ RequestHandler::~RequestHandler()
 
 /************************private Member function*******************************/
 
-RequestState			RequestHandler::readRequest(RequestContext& requestContext)
+RequestState			RequestHandler::readRequest(RequestContext& requestContext, Response& response)
 {
-	Response&	response = requestContext.response;
-
 	try
 	{
 		readStatusLine(response);

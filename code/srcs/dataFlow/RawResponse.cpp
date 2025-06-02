@@ -1,10 +1,9 @@
 #include <stddef.h>            // for NULL, size_t
-#include <iostream>            // for basic_ostream, basic_ios, cout, endl
+#include <iostream>            // for basic_ostream, cout, endl
 #include <iterator>            // for distance
-#include <stdexcept>           // for logic_error
 #include <string>              // for basic_string, char_traits, string, ope...
 
-#include "AFdData.hpp"         // for AFdData, AFdDataChilds
+#include "AFdData.hpp"         // for AFdData
 #include "CgiOut.hpp"          // for CgiOut
 #include "FlowBuffer.hpp"      // for FlowState, FlowBuffer
 #include "Headers.hpp"         // for operator+=, Headers, LINE_END, LINE_EN...
@@ -24,15 +23,10 @@ RawResponse::RawResponse(Response &response, FlowBuffer &bodyBuffer) :
 	_fdData(response.getFdData()),
 	_flowBuf(bodyBuffer)
 {
-	if (_fdData.isManagingValue()
-		&& _fdData.getValue()->getType() == CGI_OUT)
-	{
-		return ;
-	}
 	const Status * const		status = response.getStatus();
 
 	if (status == NULL)
-		throw std::logic_error("RawResponse constructor called with an unset response !");
+		return ;
 	const char*	bodyBegin;
 	const char*	bodyEnd;
 
@@ -109,7 +103,7 @@ std::string&	getFirstPart
 
 bool	canWriteFromBuffer(const AFdData* fdData)
 {
-	if (fdData->getType() != CGI_OUT)
+	if (fdData->getType() != AFdData::CGI_OUT)
 		return (true);
 	const CgiOut * const	cgiOut = static_cast<const CgiOut*>(fdData);
 

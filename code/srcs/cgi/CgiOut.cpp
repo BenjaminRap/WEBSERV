@@ -3,13 +3,14 @@
 #include <sys/types.h>            // for pid_t
 #include <cstdio>                 // for remove, NULL
 
-#include "AFdData.hpp"            // for AFdData, AFdDataChilds
-#include "CgiOut.hpp"             // for CgiOut, CgiOutState, CGI_OUT_EVENTS
+#include "AEPollFd.hpp"           // for AEPollFd
+#include "CgiOut.hpp"             // for CgiOut, CGI_OUT_EVENTS
+#include "CgiOutArgs.hpp"         // for CgiOutArgs
+#include "FileFd.hpp"             // for FileFd
+#include "parsing.hpp"            // for ConfigHeaders
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
-class EPollHandler;  // lines 15-15
-class FlowBuffer;  // lines 16-16
-class ServerConfiguration;  // lines 17-17
+class EPollHandler;  // lines 11-11
 
 int	getCGIStatus(pid_t pid);
 
@@ -17,25 +18,24 @@ CgiOut::CgiOut
 (
 	int fd,
 	EPollHandler& ePollHandler,
-	FlowBuffer&	responseFlowBuffer,
-	const ServerConfiguration& serverConfiguration,
 	pid_t pid,
-	const std::list<ConfigHeaders>& addHeader
+	const CgiOutArgs& cgiOutArgs
 ) :
-	AFdData(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
-	_flowBuf(responseFlowBuffer),
+	AEPollFd(fd, ePollHandler, CGI_OUT, CGI_OUT_EVENTS),
+	_flowBuf(cgiOutArgs._responsesFlowBuffer),
 	_firstPart(),
 	_charsWritten(0),
 	_headers(),
+	_tempName(),
 	_srcFile(NULL),
-	_state(READ_HEADER),
+	_state(CgiOut::READ_HEADER),
 	_code(0),
 	_error(false),
-	_serverConf(serverConfiguration),
+	_serverConf(cgiOutArgs._serverConfiguration),
 	_canWrite(false),
 	_cgiReadFinished(false),
 	_pid(pid),
-	_addHeader(addHeader)
+	_addHeader(cgiOutArgs._addHeader)
 {
 	_tempName[0] = '\0';
 }
@@ -44,21 +44,20 @@ CgiOut::~CgiOut()
 {
 	if (_tempName[0] != '\0')
 		std::remove(_tempName);
-	if (_srcFile != NULL)
-		delete _srcFile;
+	delete _srcFile;
 	getCGIStatus(_pid);
 }
 
 void	CgiOut::setFinished(void)
 {
-	_isActive = false;
-	_state = DONE;
+	AFdData::setFinished();
+	_state = CgiOut::DONE;
 }
 
 void	CgiOut::handleCgiError(uint32_t& events)
 {
 	events = 0;
-	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 	{
 		_code = HTTP_BAD_GATEWAY;
 		_error = true;
@@ -70,7 +69,7 @@ void	CgiOut::handleCgiError(uint32_t& events)
 
 bool	CgiOut::isResponseReady(void) const
 {
-	if (_state == READ_HEADER || _state == CGI_TO_TEMP)
+	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 		return (false);
 	return (true);
 }
@@ -79,7 +78,7 @@ void	CgiOut::callback(uint32_t events)
 {
 	if (!_canWrite && !events)
 		_canWrite = true;
-	if (!_isActive || !_canWrite)
+	if (!getIsActive() || !_canWrite)
 		return ;
 	if (events & (EPOLLHUP | EPOLLRDHUP))
 		_cgiReadFinished = true;
@@ -87,12 +86,12 @@ void	CgiOut::callback(uint32_t events)
 		handleCgiError(events);
 	if (events & EPOLLIN || _cgiReadFinished)
 		readFromCgi();
-	if (_state == READ_HEADER)
+	if (_state == CgiOut::READ_HEADER)
 		readHeaders();
-	if (_state == CGI_TO_TEMP)
+	if (_state == CgiOut::CGI_TO_TEMP)
 		writeToTemp();
-	if (_state == WRITE_FIRST_PART)
+	if (_state == CgiOut::WRITE_FIRST_PART)
 		writeFirstPart();
-	if (_state == FILE_TO_BUFFER || _state == CGI_TO_BUFFER)
+	if (_state == CgiOut::FILE_TO_BUFFER || _state == CgiOut::CGI_TO_BUFFER)
 		writeToBuff();
 }

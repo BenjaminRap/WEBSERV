@@ -3,12 +3,11 @@
 #include <stdint.h>                 // for uint16_t
 #include <ctime>                    // for NULL, gmtime, strftime, time, size_t
 #include <iostream>                 // for basic_ostream, operator<<, ostream
-#include <map>                      // for map
+#include <list>                     // for list
 #include <stdexcept>                // for logic_error
 #include <string>                   // for basic_string, operator<<, string
-#include <utility>                  // for make_pair
 
-#include "AFdData.hpp"              // for AFdData, AFdDataChilds
+#include "AFdData.hpp"              // for AFdData
 #include "ARequestType.hpp"         // for ARequestType
 #include "FileFd.hpp"               // for FileFd
 #include "Headers.hpp"              // for Headers, operator<<
@@ -17,6 +16,8 @@
 #include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_CREATED, HTTP_FORBIDDEN, HTT...
+
+class ConfigHeaders;
 
 /*********************************Constructors/Destructors*************************************/
 
@@ -58,7 +59,7 @@ void	Response::setBody()
 	{
 		AFdData*	fdData = _fdData.getValue();
 
-		if (fdData->getType() == FILE_FD)
+		if (fdData->getType() == AFdData::FILE_FD)
 			bodySize = static_cast<FileFd*>(fdData)->getSize();
 		else
 		{
@@ -156,11 +157,8 @@ void	Response::setResponse(ARequestType& requestResult)
 	reset();
 
 	_fdData = requestResult.getOutFd();
-	if (_fdData.isManagingValue()
-		&& _fdData.getValue()->getType() == CGI_OUT)
-	{
+	if (requestResult.getIsCgi())
 		return ;
-	}
 
 	_autoIndexPage = requestResult.getAutoIndexPage();
 	initValues(requestResult.getCode(), requestResult.getConfig());
@@ -205,6 +203,11 @@ const Status*	Response::getStatus(void) const
 const std::string&	Response::getAutoIndexPage(void) const
 {
 	return (_autoIndexPage);
+}
+
+void	Response::setFdData(AFdData& fdData, void (&free)(AFdData*))
+{
+	_fdData.setManagedResource(&fdData, free);
 }
 
 /*********************************Operator Overload**********************************************/

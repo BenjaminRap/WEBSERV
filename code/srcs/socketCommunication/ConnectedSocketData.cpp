@@ -1,15 +1,14 @@
-#include <netinet/in.h>             // for sockaddr_in
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
-#include <vector>                   // for vector
 
-#include "AFdData.hpp"              // for AFdDataChilds
-#include "ASocketData.hpp"          // for ASocketData
+#include <vector>                   // for vector
+#include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
+#include "Host.hpp"                 // for sockaddr_in_u, Host (ptr only)
 #include "RequestHandler.hpp"       // for RequestHandler, RequestState
 #include "Response.hpp"             // for Response
 #include "ResponsesHandler.hpp"     // for ResponsesHandler
@@ -17,8 +16,7 @@
 #include "Status.hpp"               // for Status, StatusType
 #include "exception.hpp"            // for ExecveException
 
-class EPollHandler;  // lines 19-19
-class Host;
+class EPollHandler;  // lines 20-20
 
 /*************************Constructors / Destructors***************************/
 
@@ -30,11 +28,10 @@ ConnectedSocketData::ConnectedSocketData
 	const Host& host,
 	const sockaddr_in_u clientAddr
 ) :
-	ASocketData
+	AEPollFd
 	(
 		fd,
 		ePollHandler,
-		serverConfiguration,
 		CONNECTED_SOCKET_DATA,
 		CONNECTED_EVENTS
 	),
@@ -51,7 +48,8 @@ ConnectedSocketData::ConnectedSocketData
 		_requestHandler.getFlowBuffer(),
 		_responsesHandler.getFlowBuffer(),
 		*this
-	)
+	),
+	_serverConfigurations(serverConfiguration)
 {
 
 }
@@ -67,17 +65,18 @@ RequestState	ConnectedSocketData::processRequest(void)
 {
 	RequestState	requestState;
 	Response		&currentResponse = _responsesHandler.getCurrentResponse();
+	const int		fd = getFd();
 
 	if (_requestHandler.isStateRequestBody())
 	{
-		requestState = _requestHandler.redirectBody(&_fd, currentResponse);
+		requestState = _requestHandler.redirectBody(&fd, currentResponse);
 	}
 	else
 	{
-		requestState = _requestHandler.redirectFirstPart(_fd, currentResponse);
+		requestState = _requestHandler.redirectFirstPart(fd, currentResponse);
 		
-		if (requestState != CONNECTION_CLOSED && requestState != REQUEST_DONE)
-			requestState = _requestHandler.readRequest(_requestContext);
+		if (requestState != REQUEST_DONE)
+			requestState = _requestHandler.readRequest(_requestContext, currentResponse);
 	}
 	requestState = readNextRequests(currentResponse, requestState);
 	return (requestState);
@@ -101,7 +100,7 @@ RequestState	ConnectedSocketData::readNextRequests
 			_closing = true;
 			return (requestState);
 		}
-		requestState = _requestHandler.readRequest(_requestContext);
+		requestState = _requestHandler.readRequest(_requestContext, currentResponse);
 	}
 	return (requestState);
 }
@@ -115,20 +114,26 @@ void	ConnectedSocketData::ignoreBodyAndReadRequests(Response& response)
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
-	if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
-		_isActive = false;
+	if (!getIsActive())
+		return ;
+	bool	shouldRemoveFromEPoll = false;
+
 	try
 	{
-		if (_isActive && !_closing && events & EPOLLIN)
+		if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+			shouldRemoveFromEPoll = true;
+		else
 		{
-			if (processRequest() == CONNECTION_CLOSED)
-				_isActive = false;
-		}
-		if (_isActive && events & EPOLLOUT)
-		{
-			const FlowState	flowState = _responsesHandler.sendResponseToSocket(_fd);
-			if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
-				_isActive = false;
+			if (!_closing && events & EPOLLIN)
+			{
+				processRequest();
+			}
+			if (events & EPOLLOUT)
+			{
+				const FlowState	flowState = _responsesHandler.sendResponseToSocket(getFd());
+				if (flowState == FLOW_ERROR || (_closing && flowState == FLOW_DONE))
+					shouldRemoveFromEPoll = true;
+			}
 		}
 	}
 	catch(const ExecveException& e)
@@ -138,8 +143,8 @@ void	ConnectedSocketData::callback(uint32_t events)
 	catch (const std::exception& exception)
 	{
 		std::cerr << exception.what() << std::endl;
-		_isActive = false;
+		shouldRemoveFromEPoll = true;
 	}
-	if (_isActive == false)
+	if (shouldRemoveFromEPoll == true)
 		removeFromEPollHandler();
 }

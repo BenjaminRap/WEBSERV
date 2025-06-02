@@ -1,4 +1,4 @@
-#include <dirent.h>               // for closedir, opendir, readdir, DIR
+#include <dirent.h>               // for closedir, dirent, opendir, readdir
 #include <stdint.h>               // for uint16_t
 #include <sys/stat.h>             // for stat, S_ISDIR, S_ISREG
 #include <cerrno>                 // for errno, EACCES, ENOENT, ENOTDIR
@@ -6,8 +6,9 @@
 #include <list>                   // for list, _List_iterator, operator!=
 #include <new>                    // for bad_alloc
 #include <string>                 // for basic_string, allocator, string
+#include <vector>                 // for vector
 
-#include "ARequestType.hpp"       // for DIRE, LS_FILE
+#include "ARequestType.hpp"       // for ARequestType (ptr only), DIRE, LS_FILE
 #include "GetRequest.hpp"         // for GetRequest
 #include "Status.hpp"             // for Status, StatusType
 #include "requestStatusCode.hpp"  // for HTTP_FORBIDDEN, HTTP_INTERNAL_SERVE...
