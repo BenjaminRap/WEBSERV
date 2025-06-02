@@ -109,6 +109,10 @@ bool	EPollHandler::handleIOEvents(void)
 		static_cast<AFdData *>(fdEvent.data.ptr)->callback(fdEvent.events);
 	}
 	removeSocketsFromRemoveList();
+	for (std::list<AEPollFd *>::iterator it = _ePollFds.begin(); it != _ePollFds.end(); it++)
+	{
+		(*it)->checkTime();
+	}
 	return (true);
 }
 

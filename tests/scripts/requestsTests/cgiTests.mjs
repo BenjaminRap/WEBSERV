@@ -144,6 +144,9 @@ async function runTests()
 	printHeader("Cgi Chunked check Cookie passed");
 	await runGoodCgiTest("/cgi/cgiTestCookies.cgi", "GET", null, { "cookie": "awe78xe" },  204, "No Content");
 
+	printHeader("Cgi Timeout");
+	await runGoodCgiTest("/cgi/cgiTimeout.cgi", "GET", null, {},  504, "Gateway Timeout");
+
 
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);

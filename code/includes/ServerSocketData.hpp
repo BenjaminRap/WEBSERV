@@ -46,6 +46,7 @@ public:
 	 * @param events 
 	 */
 	void	callback(uint32_t events);
+	void	checkTime(void){};
 };
 
 #endif // !SERVER_SOCKET_DATA_HPP

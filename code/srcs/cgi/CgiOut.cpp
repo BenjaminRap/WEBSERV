@@ -53,12 +53,11 @@ void	CgiOut::setFinished(void)
 	_state = CgiOut::DONE;
 }
 
-void	CgiOut::handleCgiError(uint32_t& events)
+void	CgiOut::handleCgiError(uint16_t code)
 {
-	events = 0;
 	if (_state == CgiOut::READ_HEADER || _state == CgiOut::CGI_TO_TEMP)
 	{
-		_code = HTTP_BAD_GATEWAY;
+		_code = code;
 		_error = true;
 		generateFirstPart();
 	}
@@ -75,6 +74,7 @@ bool	CgiOut::isResponseReady(void) const
 
 void	CgiOut::callback(uint32_t events)
 {
+	setTime(events);
 	if (!_canWrite && !events)
 		_canWrite = true;
 	if (!getIsActive() || !_canWrite)
@@ -82,7 +82,10 @@ void	CgiOut::callback(uint32_t events)
 	if (events & (EPOLLHUP | EPOLLRDHUP))
 		_cgiReadFinished = true;
 	if (events & EPOLLERR)
-		handleCgiError(events);
+	{
+		handleCgiError(HTTP_BAD_REQUEST);
+		events = 0;
+	}
 	if (events & EPOLLIN || _cgiReadFinished)
 		readFromCgi();
 	if (_state == CgiOut::READ_HEADER)
@@ -93,4 +96,11 @@ void	CgiOut::callback(uint32_t events)
 		writeFirstPart();
 	if (_state == CgiOut::FILE_TO_BUFFER || _state == CgiOut::CGI_TO_BUFFER)
 		writeToBuff();
+}
+
+void	CgiOut::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
+		handleCgiError(HTTP_GATEWAY_TIMEOUT);
 }

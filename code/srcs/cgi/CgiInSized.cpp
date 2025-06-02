@@ -9,6 +9,7 @@
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
 #include "SizedBody.hpp"            // for SizedBody
+#include "requestStatusCode.hpp"	// for HTTP_REQUEST_TIMEOUT
 
 class EPollHandler;
 
@@ -45,6 +46,7 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiInSized::callback(uint32_t events)
 {
+	setTime(events);
 	if (!getIsActive())
 		return ;
 	if (events & (EPOLLERR | EPOLLHUP))
@@ -59,4 +61,13 @@ void	CgiInSized::callback(uint32_t events)
 
 	if (code != 0)
 		setFinished(code);
+}
+
+void			CgiInSized::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	{
+		setFinished(HTTP_GATEWAY_TIMEOUT);
+	}
 }
