@@ -47,7 +47,7 @@ void	parseFile(Configuration &config, std::string &file)
 		}
 		else if (!it->first.ipv6.empty())
 		{
-			config.insert(std::make_pair(Host(it->first.ipv6.begin()->first.getRef(), it->first.ipv6.begin()->second), it->second));
+			config.insert(std::make_pair(Host(it->first.ipv6.begin()->first.getRef(), it->first.ipv6.begin()->second, it->first.ipv6.begin()->first.scope_id), it->second));
 		}
 		else if (!it->first.unix_adrr.empty())
 		{

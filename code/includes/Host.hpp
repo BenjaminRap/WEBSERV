@@ -52,7 +52,7 @@ public:
 	 * @param addrIPV4 The address to listen to, in an IPV6 format
 	 * @param port The port to listen to.
 	 */
-	Host(const uint8_t	(&addrIPV6)[16], in_port_t port);
+	Host(const uint8_t	(&addrIPV6)[16], in_port_t port, uint32_t scope_id);
 	/**
 	 * @brief Create an host object, with an unix family.
 	 * @param path The path to the unix endpoint.

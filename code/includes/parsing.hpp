@@ -37,7 +37,8 @@ public:
 };
 
 typedef struct ipv6_s {
-    uint8_t ipv6[16];
+    uint8_t		ipv6[16];
+	uint32_t	scope_id;
 
 	bool operator<(const ipv6_s& other) const {
         return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;
@@ -78,6 +79,7 @@ uint8_t	hexToInt(std::string &file, size_t &i, size_t &line);
 void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip);
 void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip);
 void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip);
+void	parseScopeId(std::string &file, size_t &i, size_t &line, uint32_t &scope_id);
 void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip);
 void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port);
 void	parseMaxClientBodySize(std::string &file, size_t &i, size_t &line, size_t &maxClientBodySize);
