@@ -163,6 +163,6 @@ void			CgiInChunked::checkTime(void)
 	time_t	now = time(NULL);
 	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
 	{
-		setFinished(HTTP_REQUEST_TIMEOUT);
+		setFinished(HTTP_GATEWAY_TIMEOUT);
 	}
 }
