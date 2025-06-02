@@ -68,7 +68,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 	bool						begin = true;
 	size_t						pos = 0;
 	size_t						prev = 0;
-	int							compression_pos = -1;
+	int							compressionPos = -1;
 
 	// storing all the ip parts and saving the position of '::' if existing into a vecotr
 	if (ip[0] == ':' && (ip[1] != ':' || ip[2] == ':'))
@@ -82,9 +82,9 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 		}
 		else if (pos == prev)
 		{
-			if (compression_pos != -1 && begin == false)
+			if (compressionPos != -1 && begin == false)
 				return (1);
-			compression_pos = (int)parts.size();
+			compressionPos = (int)parts.size();
 			compression = true;
 		}
 		prev = pos + 1;
@@ -99,11 +99,11 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 			return (1);
 		std::vector<std::string> expanded;
 
-		for (int i = 0; i < compression_pos; ++i)
+		for (int i = 0; i < compressionPos; ++i)
 			expanded.push_back(parts[i]);
 		for (int i = 0; i < needed; ++i)
 			expanded.push_back("0");
-		for (size_t i = compression_pos; i < parts.size(); ++i)
+		for (size_t i = compressionPos; i < parts.size(); ++i)
 			expanded.push_back(parts[i]);
 		parts = expanded;
 	}
