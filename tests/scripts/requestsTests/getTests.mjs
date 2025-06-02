@@ -18,47 +18,47 @@ async function	runGoodGetTest(target, expectedHeaders)
 
 async function runTests()
 {
-	// printHeader("Classic Case");
-	// await runGoodGetTest("/get/main.html");
-	// await runGoodGetTest("/get/fake/main.cpp");
-	// await runGoodGetTest("/get/fake/../main.html");
-	// await runGoodGetTest("/get/fake/../../../../../../../../main.html");
-	// await runGoodGetTest("/get/../main.html");
-	//
-	// printHeader("Index Case");
-	// await runGoodGetTest("/get/srcs/");
-	//
-	// printHeader("Redirection Case");
-	// await runGoodGetTest("/get/srcs");
-	//
-	// printHeader("403 Case");
-	// await runGoodGetTest("/get/fake/");
-	// await runGoodGetTest("/get/nonono/");
-	//
-	// printHeader("405 Case");
-	// await runGoodGetTest("/get/405/");
-	//
-	// printHeader("404 Case");
-	// await runGoodGetTest("/unitTest/uplo/");
-	// await runGoodGetTest("/gknrk");
-	// await runGoodGetTest("/bin/");
-	//
-	// printHeader("Auto Index");
-	// await runGoodGetTest("/get/auto/");
-	// await runGoodGetTest("/get/auto2/");
-	//
-	// printHeader("Folder With File Name");
-	// await runGoodGetTest("/get/truc.txt/");
-	//
-	// printHeader("Index Specials");
-	// await runGoodGetTest("/get/indexIsFolder/");
-	// await runGoodGetTest("/get/indexIsSymlink/");
-	// await runGoodGetTest("/get/indexIsFolderAndFile/");
-	// await runGoodGetTest("/get/indexIsSymlinkAndFile/");
-	//
-	// printHeader("Fix Url Errors");
-	// await runGoodGetTest("/get//main.html");
-	// await runGoodGetTest("/get/endWith./index.html");
+	printHeader("Classic Case");
+	await runGoodGetTest("/get/main.html");
+	await runGoodGetTest("/get/fake/main.cpp");
+	await runGoodGetTest("/get/fake/../main.html");
+	await runGoodGetTest("/get/fake/../../../../../../../../main.html");
+	await runGoodGetTest("/get/../main.html");
+
+	printHeader("Index Case");
+	await runGoodGetTest("/get/srcs/");
+
+	printHeader("Redirection Case");
+	await runGoodGetTest("/get/srcs");
+
+	printHeader("403 Case");
+	await runGoodGetTest("/get/fake/");
+	await runGoodGetTest("/get/nonono/");
+
+	printHeader("405 Case");
+	await runGoodGetTest("/get/405/");
+
+	printHeader("404 Case");
+	await runGoodGetTest("/unitTest/uplo/");
+	await runGoodGetTest("/gknrk");
+	await runGoodGetTest("/bin/");
+
+	printHeader("Auto Index");
+	await runGoodGetTest("/get/auto/");
+	await runGoodGetTest("/get/auto2/");
+
+	printHeader("Folder With File Name");
+	await runGoodGetTest("/get/truc.txt/");
+
+	printHeader("Index Specials");
+	await runGoodGetTest("/get/indexIsFolder/");
+	await runGoodGetTest("/get/indexIsSymlink/");
+	await runGoodGetTest("/get/indexIsFolderAndFile/");
+	await runGoodGetTest("/get/indexIsSymlinkAndFile/");
+
+	printHeader("Fix Url Errors");
+	await runGoodGetTest("/get//main.html");
+	await runGoodGetTest("/get/endWith./index.html");
 
 	printHeader("Add_header Tests Not Always With Error")
 	await runGoodGetTest("/add_header/get/srcs/");
@@ -72,27 +72,27 @@ async function runTests()
 	printHeader("Add_header Tests Always Without Error")
 	await runGoodGetTest("/add_header/always/get/srcs/main.cpp", {"pragma":"truc"});
 
-	// printHeader("Same but with query string");
-	// await runGoodGetTest("/get/main.html?truc=var");
-	// await runGoodGetTest("/get/fake/main.cpp?truc=var");
-	// await runGoodGetTest("/get/fake/../main.html?truc=var");
-	// await runGoodGetTest("/get/fake/../../../../../../../../main.html?truc=var");
-	// await runGoodGetTest("/get/../main.html?truc=var");
-	// await runGoodGetTest("/get/srcs/?truc=var");
-	// await runGoodGetTest("/get/srcs?truc=var");
-	// await runGoodGetTest("/get/fake/?truc=var");
-	// await runGoodGetTest("/get/nonono/?truc=var");
-	// await runGoodGetTest("/get/405/?truc=var");
-	// await runGoodGetTest("/unitTest/uplo/?truc=var");
-	// await runGoodGetTest("/gknrk?truc=var");
-	// await runGoodGetTest("/get/auto2/?truc=var");
-	// await runGoodGetTest("/get/truc.txt/?truc=var");
-	// await runGoodGetTest("/get/indexIsFolder/?truc=var");
-	// await runGoodGetTest("/get/indexIsSymlink/?truc=var");
-	// await runGoodGetTest("/get/indexIsFolderAndFile/?truc=var");
-	// await runGoodGetTest("/get/indexIsSymlinkAndFile/?truc=var");
-	// await runGoodGetTest("/get//main.html?truc=var");
-	// await runGoodGetTest("/get/endWith./index.html?truc=var");
+	printHeader("Same but with query string");
+	await runGoodGetTest("/get/main.html?truc=var");
+	await runGoodGetTest("/get/fake/main.cpp?truc=var");
+	await runGoodGetTest("/get/fake/../main.html?truc=var");
+	await runGoodGetTest("/get/fake/../../../../../../../../main.html?truc=var");
+	await runGoodGetTest("/get/../main.html?truc=var");
+	await runGoodGetTest("/get/srcs/?truc=var");
+	await runGoodGetTest("/get/srcs?truc=var");
+	await runGoodGetTest("/get/fake/?truc=var");
+	await runGoodGetTest("/get/nonono/?truc=var");
+	await runGoodGetTest("/get/405/?truc=var");
+	await runGoodGetTest("/unitTest/uplo/?truc=var");
+	await runGoodGetTest("/gknrk?truc=var");
+	await runGoodGetTest("/get/auto2/?truc=var");
+	await runGoodGetTest("/get/truc.txt/?truc=var");
+	await runGoodGetTest("/get/indexIsFolder/?truc=var");
+	await runGoodGetTest("/get/indexIsSymlink/?truc=var");
+	await runGoodGetTest("/get/indexIsFolderAndFile/?truc=var");
+	await runGoodGetTest("/get/indexIsSymlinkAndFile/?truc=var");
+	await runGoodGetTest("/get//main.html?truc=var");
+	await runGoodGetTest("/get/endWith./index.html?truc=var");
 
 	if (failedTests.length == 0)
 		printHeader("Everything Done : " + COLOR_GREEN + "[OK] " + COLOR_RESET);
