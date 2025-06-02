@@ -64,11 +64,10 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 bool convertIpv6(const std::string &ip, uint8_t ipv6[16])
 {
 	std::vector<std::string>	parts;
-	bool						compression = false;
 	bool						begin = true;
 	size_t						pos = 0;
 	size_t						prev = 0;
-	int							compressionPos = -1;
+	ssize_t						compressionPos = -1;
 
 	// storing all the ip parts and saving the position of '::' if existing into a vecotr
 	if (ip[0] == ':' && (ip[1] != ':' || ip[2] == ':'))
@@ -84,15 +83,14 @@ bool convertIpv6(const std::string &ip, uint8_t ipv6[16])
 		{
 			if (compressionPos != -1 && begin == false)
 				return (false);
-			compressionPos = (int)parts.size();
-			compression = true;
+			compressionPos = parts.size();
 		}
 		prev = pos + 1;
 	}
 	parts.push_back(ip.substr(prev));
 
 	// expanding the :: 
-	if (compression)
+	if (compressionPos != -1)
 	{
 		int needed = 8 - (int)parts.size();
 		if (needed < 1)
