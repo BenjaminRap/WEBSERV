@@ -96,7 +96,7 @@ void	EPollHandler::removeSocketsFromRemoveList(void)
 
 bool	EPollHandler::handleIOEvents(void)
 {
-	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, -1);
+	const int	nfds = epoll_wait(_epfd, _events, _maxEvents, 1000);
 
 	if (checkError(nfds, -1, "epoll_wait() : "))
 		return (false);
