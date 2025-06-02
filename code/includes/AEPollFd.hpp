@@ -5,6 +5,8 @@
 
 # include "AFdData.hpp"				// for AFdData
 
+# define TIMEOUT_VALUE_SEC 3
+
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding AEPollFd
  * instance. This class store everything that the programs needs when the fd
@@ -33,6 +35,9 @@ protected:
 	 * with the events passed as arguments.
 	 * @throw It throws a std::logic_error if the events are set to 0.
 	 */
+	time_t									_lastEpollInTime;
+	time_t									_lastEpollOutTime;
+public:
 	AEPollFd
 	(
 		int fd,
@@ -107,6 +112,8 @@ public:
 	 *
 	 */
 	void										setFd(int fd, uint32_t events);
+	void										setTime(uint32_t events);
+	virtual void								checkTime(void) = 0;
 };
 
 #endif // !A_EPOLL_FD_HPP

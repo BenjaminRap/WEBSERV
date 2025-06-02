@@ -131,7 +131,7 @@ private:
 	 * from the cgi anymore because of an error. Depending on the state of this
 	 * instance, the behaviour changes.
 	 */
-	void		handleCgiError(uint32_t& events);
+	void		handleCgiError(uint16_t code);
 	/**
 	 * @brief Read from the cgi and write it into the _flowBuf.
 	 * This method should only be called if a EPOLLIN  events has
@@ -173,6 +173,7 @@ public:
 
 	void		callback(uint32_t events);
 	bool		isResponseReady(void) const;
+	void		checkTime(void);
 };
 
 #endif // !CGI_OUT_HPP

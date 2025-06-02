@@ -130,6 +130,7 @@ uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& bod
 
 void	CgiInChunked::callback(uint32_t events)
 {
+	setTime(events);
 	if (!getIsActive() || _state == CgiInChunked::DONE)
 		return ;
 	if (events & (EPOLLERR | EPOLLHUP))
@@ -155,4 +156,13 @@ void	CgiInChunked::callback(uint32_t events)
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
 	else if (flowState == FLOW_DONE)
 		setFinished(0);
+}
+
+void			CgiInChunked::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	{
+		setFinished(HTTP_REQUEST_TIMEOUT);
+	}
 }

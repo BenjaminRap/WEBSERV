@@ -128,6 +128,7 @@ public:
 	 * to the temporary file, or the cgi.
 	 */
 	void		callback(uint32_t events);
+	void		checkTime(void);
 };
 
 #endif // !CGI_IN_CHUNKED_HPP

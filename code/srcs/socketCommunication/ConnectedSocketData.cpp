@@ -113,6 +113,7 @@ void	ConnectedSocketData::ignoreBodyAndReadRequests(Response& response)
 
 void	ConnectedSocketData::callback(uint32_t events)
 {
+	setTime(events);
 	if (!getIsActive())
 		return ;
 	bool	shouldRemoveFromEPoll = false;
@@ -146,4 +147,17 @@ void	ConnectedSocketData::callback(uint32_t events)
 	}
 	if (shouldRemoveFromEPoll == true)
 		removeFromEPollHandler();
+}
+
+void			ConnectedSocketData::checkTime(void)
+{
+	time_t	now = time(NULL);
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+		removeFromEPollHandler();
+	else if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
+	{
+		_closing = true;
+		_responsesHandler.getCurrentResponse().setResponse(408);
+		_responsesHandler.addCurrentResponseToQueue();
+	}
 }

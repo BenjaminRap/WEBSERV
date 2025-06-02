@@ -20,7 +20,9 @@ AEPollFd::AEPollFd
 	AFdData(fd, type, true),
 	_iterator(),
 	_isIteratorSet(false),
-	_ePollHandler(ePollHandler)
+	_ePollHandler(ePollHandler),
+	_lastEpollInTime(time(0)),
+	_lastEpollOutTime(_lastEpollInTime)
 {
 	initFd(events);
 }
@@ -33,7 +35,9 @@ AEPollFd::AEPollFd
 	AFdData(type),
 	_iterator(),
 	_isIteratorSet(false),
-	_ePollHandler(ePollHandler)
+	_ePollHandler(ePollHandler),
+	_lastEpollInTime(time(0)),
+	_lastEpollOutTime(_lastEpollInTime)
 {
 }
 
@@ -94,4 +98,12 @@ void	AEPollFd::setFd(int fd, uint32_t events)
 {
 	AFdData::setFd(fd);
 	initFd(events);
+}
+
+void	AEPollFd::setTime(uint32_t events)
+{
+	if (events & EPOLLIN)
+		_lastEpollInTime = time(0);
+	if (events & EPOLLOUT)
+		_lastEpollOutTime = time(0);
 }
