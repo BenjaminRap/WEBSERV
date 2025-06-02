@@ -128,7 +128,7 @@ void	insertHost
 		}
 		else if (!it->first.unix_adrr.empty())
 		{
-			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end(); ++itt)
+			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end();)
 			{
 				if (it->first.unix_adrr[0] == *itt)
 				{
