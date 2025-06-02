@@ -32,7 +32,7 @@ Host::Host(in_addr_t addrIPV4, in_port_t port) :
 	addr.sin_port = htons(port);
 }
 
-Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port, uint32_t scope_id)  :
+Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port, uint32_t scopeId)  :
 	_family(AF_INET6),
 	_addr(),
 	_port(uint16toString(port))
@@ -47,7 +47,7 @@ Host::Host(const uint8_t	(&addrIPV6)[16], in_port_t port, uint32_t scope_id)  :
 	addr.sin6_family = AF_INET6;
 	addr.sin6_port = htons(port);
 	addr.sin6_flowinfo = 0;
-	addr.sin6_scope_id = scope_id;
+	addr.sin6_scope_id = scopeId;
 }
 
 Host::Host(const std::string &path) :
