@@ -15,6 +15,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
 #include "exception.hpp"            // for ExecveException
+#include "requestStatusCode.hpp"	// for HTTP codes
 
 class EPollHandler;  // lines 20-20
 
@@ -157,7 +158,7 @@ void			ConnectedSocketData::checkTime(void)
 	else if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
 	{
 		_closing = true;
-		_responsesHandler.getCurrentResponse().setResponse(408);
+		_responsesHandler.getCurrentResponse().setResponse(HTTP_REQUEST_TIMEOUT);
 		_responsesHandler.addCurrentResponseToQueue();
 	}
 }
