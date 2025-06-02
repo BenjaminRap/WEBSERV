@@ -56,7 +56,6 @@ ConnectedSocketData::ConnectedSocketData
 
 ConnectedSocketData::~ConnectedSocketData(void)
 {
-	std::cout << "ConnectedSocketData removed" << std::endl;
 }
 
 /***************************Member functions***********************************/

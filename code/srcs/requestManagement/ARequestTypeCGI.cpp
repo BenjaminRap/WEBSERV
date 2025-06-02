@@ -99,7 +99,6 @@ void	ARequestType::setCgiInChunked
 		env,
 		cgiOutArgs
 	);
-	std::cout << "TYPE : " << body.getType() << std::endl;
 	env[0] = NULL;
 	argv[0] = NULL;
 	cgiOutArgs = NULL;

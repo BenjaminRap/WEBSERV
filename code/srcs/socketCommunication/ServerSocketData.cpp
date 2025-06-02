@@ -31,7 +31,6 @@ ServerSocketData::ServerSocketData
 
 ServerSocketData::~ServerSocketData(void)
 {
-	std::cout << "ServerSocketData removed !" << std::endl;
 }
 
 
@@ -58,8 +57,6 @@ void	ServerSocketData::acceptConnection(uint32_t events)
 			delete connectedSocketData;
 			newFd = -1;
 		}
-		else
-			std::cout << "Accepted a new connection, fd : " << newFd << std::endl;
 	}
 	catch(const std::exception& e)
 	{
