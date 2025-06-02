@@ -38,7 +38,7 @@ public:
 
 typedef struct ipv6_s {
     uint8_t		ipv6[16];
-	uint32_t	scope_id;
+	uint32_t	scopeId;
 
 	bool operator<(const ipv6_s& other) const {
         return std::memcmp(this->ipv6, other.ipv6, sizeof(uint8_t [16])) < 0;

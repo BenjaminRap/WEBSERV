@@ -148,7 +148,7 @@ void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_p
 		throw (ParsingKeyWordAndLineException("Wrong IPv6 format", line, ipString));
 	i = end + 1;
 	parsePort(file, i, line, port);
-	parseScopeId(file, i, line, ipv6.scope_id);
+	parseScopeId(file, i, line, ipv6.scopeId);
 	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
 		if (ipv6 == it->first && port == it->second)
@@ -172,25 +172,11 @@ void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port)
 	port = realAtoi(file, i, line, 9999, 4);
 }
 
-void	parseScopeId(std::string &file, size_t &i, size_t &line, uint32_t &scope_id)
+void	parseScopeId(std::string &file, size_t &i, size_t &line, uint32_t &scopeId)
 {
-	if (file[i] != '%')
-	{
-		scope_id = 0;
-		return ;
-	}
+	if (file[i] != '%' || !std::isdigit(file[i + 1]))
+		throw ParsingLineException("No scopeId in the ipv6 address", line);
+
 	i++;
-	skipWSpace(file, i, line);
-	if (file[i] == ';')
-	{
-		scope_id = 0;
-		return ;
-	}
-	while (!std::isdigit(file[i]) && file[i] != ';')
-	{
-		if (file[i] == '\0')
-			throw (ParsingLineException("Unexpected end of file", line));
-		i++;
-	}
-	scope_id = realAtoi(file, i, line, 9999, 4);
+	scopeId = realAtoi(file, i, line, 9999, 4);
 }
