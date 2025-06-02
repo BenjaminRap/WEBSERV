@@ -61,7 +61,7 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 	ip.insert(std::make_pair(ipv4, port));
 }
 
-int convertIpv6(const std::string &ip, uint8_t ipv6[16])
+bool convertIpv6(const std::string &ip, uint8_t ipv6[16])
 {
 	std::vector<std::string>	parts;
 	bool						compression = false;
@@ -72,7 +72,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 
 	// storing all the ip parts and saving the position of '::' if existing into a vecotr
 	if (ip[0] == ':' && (ip[1] != ':' || ip[2] == ':'))
-		return (1);
+		return (false);
 	while ((pos = ip.find(':', prev)) != std::string::npos)
 	{
 		if (pos > prev)
@@ -83,7 +83,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 		else if (pos == prev)
 		{
 			if (compressionPos != -1 && begin == false)
-				return (1);
+				return (false);
 			compressionPos = (int)parts.size();
 			compression = true;
 		}
@@ -96,7 +96,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 	{
 		int needed = 8 - (int)parts.size();
 		if (needed < 1)
-			return (1);
+			return (false);
 		std::vector<std::string> expanded;
 
 		for (int i = 0; i < compressionPos; ++i)
@@ -110,7 +110,7 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 
 	// converting the string vector of ip parts into a uint8_t[16]
 	if (parts.size() != 8) 
-		return (1);
+		return (false);
 	for (int i = 0; i < 8; ++i)
 	{
 		if (parts[i].empty())
@@ -120,21 +120,21 @@ int convertIpv6(const std::string &ip, uint8_t ipv6[16])
 			continue ;
 		}
 		if (parts[i].size() > 4)
-			return (1);
+			return (false);
 		for (size_t j = 0; j < parts[i].size(); ++j)
 		{
 			if (!isxdigit(parts[i][j]))
-				return (1);
+				return (false);
 		}
 		std::istringstream iss(parts[i]);
 		unsigned long val = 0;
 		iss >> std::hex >> val;
 		if (val > 0xFFFF)
-			return (1);
+			return (false);
 		ipv6[2*i] = (uint8_t)(val >> 8);
 		ipv6[2*i+1] = (uint8_t)(val & 0xFF);
 	}
-	return (0);
+	return (true);
 }
 
 void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip)
@@ -146,7 +146,7 @@ void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_p
 	if (end == std::string::npos)
 		throw (ParsingLineException("Expected a ']' to close ip adress", line));
 	const std::string	ipString = file.substr(i, end - i);
-	if (convertIpv6(ipString, ipv6.ipv6))
+	if (!convertIpv6(ipString, ipv6.ipv6))
 		throw (ParsingKeyWordAndLineException("Wrong IPv6 format", line, ipString));
 	i = end + 1;
 	parsePort(file, i, line, port);
