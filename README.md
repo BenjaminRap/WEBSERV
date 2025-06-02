@@ -19,6 +19,8 @@ cgi: see cgi.txt
 
 configuration : see configuration.txt
 
+to get the interfaces : ip addr show / ip -6 addr show / ip addr show dev eth0
+
 https://datatracker.ietf.org/doc/html/rfc3986 : URL RFC
 http://abcdrfc.free.fr/rfc-vf/pdf/rfc2616.pdf : http/1.1 RFC
 https://www.geeksforgeeks.org/fork-system-call/ : fork

@@ -128,7 +128,7 @@ void	insertHost
 		}
 		else if (!it->first.unix_adrr.empty())
 		{
-			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end(); ++itt)
+			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end();)
 			{
 				if (it->first.unix_adrr[0] == *itt)
 				{
@@ -168,17 +168,5 @@ void	insertHost
 		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 		temp.unix_adrr.push_back(*it);
 		conf.insert(std::make_pair(temp, serv));
-	}
-	for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it = conf.begin(); it != conf.end(); ++it)
-	{
-		for (std::vector<ServerConfiguration>::iterator itt = it->second.begin(); itt != it->second.end(); ++itt)
-		{
-			for (std::map<std::string, Route>::const_iterator ittt = itt->getRoutes().begin(); ittt != itt->getRoutes().end(); ++ittt)
-			{
-				Route& route = const_cast<Route&>(ittt->second);
-    			if (route.getIndex().empty())
-        			route.setIndex(itt->getIndex());
-			}
-		}
 	}
 }
