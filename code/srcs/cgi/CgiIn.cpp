@@ -120,6 +120,8 @@ void	CgiIn::execCgi(void)
 			pid,
 			*_cgiOutArgs
 		);
+		outFd = -1;
+		pid = -1;
 		if (!_ePollHandler.addFdToList(*cgiOut))
 		{
 			delete cgiOut;
