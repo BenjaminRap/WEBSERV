@@ -1,5 +1,5 @@
-#ifndef A_REQUEST_HPP
-# define A_REQUEST_HPP
+#ifndef A_REQUEST_TYPE_HPP
+# define A_REQUEST_TYPE_HPP
 
 # include <sys/types.h>				// for size_t
 # include <stdint.h>				// for uint16_t
@@ -185,4 +185,4 @@ class ARequestType
 		void									setEnv(const char *(&env)[23], RequestContext& requestContext);
 };
 
-#endif //!A_REQUEST_HPP
+#endif //!A_REQUEST_TYPE_HPP

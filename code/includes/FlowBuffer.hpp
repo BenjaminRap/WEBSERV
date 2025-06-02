@@ -1,4 +1,3 @@
-
 #ifndef FLOW_BUFFER_HPP
 # define FLOW_BUFFER_HPP
 

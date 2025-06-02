@@ -1,5 +1,5 @@
-#ifndef A_SOCKET_DATA_HPP
-# define A_SOCKET_DATA_HPP
+#ifndef A_EPOLL_FD_HPP
+# define A_EPOLL_FD_HPP
 
 # include <list>					// for std::list
 
@@ -109,4 +109,4 @@ public:
 	void										setFd(int fd, uint32_t events);
 };
 
-#endif // !A_SOCKET_DATA_HPP
+#endif // !A_EPOLL_FD_HPP
