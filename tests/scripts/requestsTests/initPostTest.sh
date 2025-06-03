@@ -3,8 +3,8 @@ createRandomFile()
     local path="$1"
 
 	# dd if=/dev/urandom of="$path" bs=1 count=20 &>/dev/null
-	touch path
-	echo "truc" >> path
+	touch $path
+	echo "truc" >> $path
 }
 
 # Create Working Directory
