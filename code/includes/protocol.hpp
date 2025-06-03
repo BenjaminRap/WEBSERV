@@ -8,5 +8,6 @@
 # define SERVER_SOFTWARE "webserv/1.0"
 # define GATEWAY_INTERFACE "CGI/1.1"
 # define TIMEOUT 5
+# define TIMEOUT_STRING "5"
 
 #endif // !PROTOCOL_HPP

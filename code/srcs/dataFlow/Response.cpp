@@ -16,6 +16,7 @@
 #include "SharedResource.hpp"       // for SharedResource, freePointer
 #include "Status.hpp"               // for Status, StatusType
 #include "requestStatusCode.hpp"    // for HTTP_CREATED, HTTP_FORBIDDEN, HTT...
+#include "protocol.hpp"				// for TIMEOUT_STRING
 
 class ConfigHeaders;
 
@@ -45,7 +46,13 @@ void	addDefaultHeaders(Headers& headers, const Status* status)
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
 	headers.addHeader("date", timeBuffer);
 	headers.addHeader("server", "WebServ de bg");
-	headers.addHeader("connection", (status->isOfType(STATUS_ERROR) ? "close" : "keep-alive"));
+	if (status->isOfType(STATUS_ERROR))
+		headers.addHeader("connection", "close");
+	else
+	{
+		headers.addHeader("connection", "keep-alive");
+		headers.addHeader("keep-alive", "timeout=" TIMEOUT_STRING);
+	}
 
 }
 
