@@ -2,7 +2,7 @@ createRandomFile()
 {
     local path="$1"
 
-	dd if=/dev/urandom of="$path" bs=1 count=20 &>/dev/null
+	dd if=/dev/urandom of="$path" bs=1 count=20 status=none
 }
 
 
