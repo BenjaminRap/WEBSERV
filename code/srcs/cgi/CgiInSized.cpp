@@ -78,7 +78,7 @@ void	CgiInSized::callback(uint32_t events)
 		if (code != 0)
 			setFinished(code);
 	}
-	catch (const std::exception)
+	catch (const std::exception& exception)
 	{
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
 	}
