@@ -21,10 +21,8 @@ int	main(int argc, char **argv)
 	try
 	{
 		Configuration	conf((argc == 2) ? argv[1] : DEFAULT_CONFIG_PATH);
-		while(getSignalStatus() == NO_SIGNAL)
-		{
-			handleIOEvents(conf);
-		}
+
+		handleIOEvents(conf);
 		return (getReturnCodeWithSignal());
 	}
 	catch (std::exception& exception)

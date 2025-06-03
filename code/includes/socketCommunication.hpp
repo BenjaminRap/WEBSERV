@@ -16,18 +16,17 @@ typedef struct sockaddr sockaddr;
 
 /**
  * @brief Create a server socket for each host of the conf variable.
- * It does not crash on error, instead print an error message with the function name,
- * a error message depending on errno.
+ *
  * @param conf The configuration, it will not be changed.
  * @param EPollHandler The class that will be used to add sockets to the epoll
  * interest list.
+ * @return A boolean indicating if the function succeed.
  */
-void	createAllServerSockets(const Configuration &conf, EPollHandler &epollHandler);
+bool	createAllServerSockets(const Configuration &conf, EPollHandler &epollHandler);
 /**
  * @brief Create a server socket for hosts, they listen for new connection requests.
  * Then use epoll to check if the fds can be written / read.
- * @throw Can throw a std::bad_alloc, std::logic_error and std::exception, all coming
- * from the EPollHandler constructor.
+ *
  * @param conf The configuration, it won't be changed.
  */
 void	handleIOEvents(const Configuration &conf);
