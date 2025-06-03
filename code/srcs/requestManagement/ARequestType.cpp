@@ -147,6 +147,16 @@ void	ARequestType::setRoute(const Route *route)
 	this->_route = route;
 }
 
+void	ARequestType::setInFd(AFdData* fdData, void (&free)(AFdData*))
+{
+	_inFd.setManagedResource(fdData, free);
+}
+
+void	ARequestType::setOutFd(AFdData* fdData, void (&free)(AFdData*))
+{
+	_outFd.setManagedResource(fdData, free);
+}
+
 std::string	&ARequestType::getPath()
 {
 	return (this->_path);

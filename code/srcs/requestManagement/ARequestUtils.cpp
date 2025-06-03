@@ -1,4 +1,5 @@
 #include <errno.h>                  // for errno, EACCES, EROFS
+#include <fcntl.h>					// for O_RDONLY
 #include <stddef.h>                 // for size_t, NULL
 #include <stdint.h>                 // for uint16_t
 #include <sys/stat.h>               // for stat
@@ -11,6 +12,7 @@
 
 #include "ARequestType.hpp"         // for ARequestType, DIRE, LS_FILE
 #include "EMethods.hpp"             // for EMethods
+#include "FileFd.hpp"				// for FileFd
 #include "Route.hpp"                // for Route, SRedirection
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "requestStatusCode.hpp"    // for HTTP_FORBIDDEN, HTTP_BAD_REQUEST
@@ -175,6 +177,9 @@ bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs)
 			{
 				req.getUrl() += indexs[i];
 				req.setResponseWithLocation(HTTP_OK, "", false);
+
+				FileFd*	fileFd = new FileFd(absolutePath.c_str(), O_RDONLY);
+				req.setOutFd(fileFd, freePointer);
 			}
 			return (true);
 		}
