@@ -159,9 +159,5 @@ void			ConnectedSocketData::checkTime(void)
 	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 		removeFromEPollHandler();
 	else if (difftime(now, _lastEpollInTime) > TIMEOUT)
-	{
 		_closing = true;
-		_responsesHandler.getCurrentResponse().setResponse(HTTP_REQUEST_TIMEOUT);
-		_responsesHandler.addCurrentResponseToQueue();
-	}
 }
