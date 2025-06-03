@@ -15,11 +15,7 @@ int	main(int argc, char **argv)
 		std::cerr << "Too much arguments supplied: webserv (configuration/path)?" << std::endl;
 		return (EXIT_FAILURE);
 	}
-	if (checkError(std::signal(SIGINT, signalHandler), SIG_ERR, "signal() : "))
-		return (EXIT_FAILURE);
-	if (checkError(std::signal(SIGTERM, signalHandler), SIG_ERR, "signal() : "))
-		return (EXIT_FAILURE);
-	if (checkError(std::signal(SIGPIPE, SIG_IGN), SIG_ERR, "signal() : "))
+	if (!addSignals())
 		return (EXIT_FAILURE);
 
 	try

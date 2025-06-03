@@ -43,6 +43,13 @@ void	signalHandler(int signal);
  * @brief Return the program exit status, depending on the signal status.
  */
 int		getReturnCodeWithSignal();
+
+/**
+ * @brief Add the signal handlers .
+ *
+ * @return A boolean indicating if the function succeeded.
+ */
+bool	addSignals(void);
 /**
  * @brief Set the socket SO_REUSEADDR option depending on reuseAddr.
  * @param fd The fd of the socket to set the SO_REUSEADDR option to.
