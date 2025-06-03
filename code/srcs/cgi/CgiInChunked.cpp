@@ -96,7 +96,8 @@ void	CgiInChunked::execCgi(void)
 			outFd,
 			_ePollHandler,
 			pid,
-			*_cgiOutArgs
+			*_cgiOutArgs,
+			_connectedSocketData
 		);
 		outFd = -1;
 		pid = -1;
@@ -120,43 +121,60 @@ void	CgiInChunked::execCgi(void)
 
 void	CgiInChunked::setFinished(uint16_t code)
 {
-	AFdData::setFinished();
-	_state = CgiInChunked::DONE;
-	if (code != 0)
-		_response.setResponse(code);
-	_connectedSocketData.ignoreBodyAndReadRequests(_response);
+	try
+	{
+		AFdData::setFinished();
+		_state = CgiInChunked::DONE;
+		if (code != 0)
+			_response.setResponse(code);
+		_connectedSocketData.ignoreBodyAndReadRequests(_response);
+	}
+	catch (const std::exception& exception)
+	{
+		std::cerr << "can't print response, removing the connected fd !\n";
+		std::cerr << exception.what() << std::endl;
+		AEPollFd::removeFromEPollHandler(&_connectedSocketData);
+		AFdData::setFinished();
+	}
 }
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
 
 void	CgiInChunked::callback(uint32_t events)
 {
-	setTime(events);
-	if (!getIsActive() || _state == CgiInChunked::DONE)
-		return ;
-	if (events & (EPOLLERR | EPOLLHUP))
+	try
 	{
-		setFinished(0);
-		return ;
+		setTime(events);
+		if (!getIsActive() || _state == CgiInChunked::DONE)
+			return ;
+		if (events & (EPOLLERR | EPOLLHUP))
+		{
+			setFinished(0);
+			return ;
+		}
+		if (_state == CgiInChunked::BUFFER_TO_TEMP)
+		{
+			const FlowState	flowState = _requestBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+			const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+
+			if (code == HTTP_OK)
+				execCgi();
+			else if (code != 0)
+				setFinished(code);
+		}
+		if (!(events & EPOLLOUT) || _state != CgiInChunked::TEMP_TO_CGI)
+			return ;
+		const FlowState	flowState = _tempFlowBuf.redirect(_tmpFile->getFd(), getFd());
+
+		if (flowState == FLOW_ERROR)
+			setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		else if (flowState == FLOW_DONE)
+			setFinished(0);
 	}
-	if (_state == CgiInChunked::BUFFER_TO_TEMP)
+	catch (const std::exception& exception)
 	{
-		const FlowState	flowState = _requestBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
-		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
-
-		if (code == HTTP_OK)
-			execCgi();
-		else if (code != 0)
-			setFinished(code);
-	}
-	if (!(events & EPOLLOUT) || _state != CgiInChunked::TEMP_TO_CGI)
-		return ;
-	const FlowState	flowState = _tempFlowBuf.redirect(_tmpFile->getFd(), getFd());
-
-	if (flowState == FLOW_ERROR)
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
-	else if (flowState == FLOW_DONE)
-		setFinished(0);
+	}
 }
 
 void			CgiInChunked::checkTime(time_t now)

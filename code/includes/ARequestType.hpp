@@ -178,7 +178,7 @@ class ARequestType
 		 */
 		void									setCgiOut
 												(
-													EPollHandler& ePollHandler,
+													RequestContext& requestContext,
 													int& fd,
 													pid_t& pid,
 													const CgiOutArgs& cgiOutArgs

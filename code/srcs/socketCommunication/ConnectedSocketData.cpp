@@ -143,6 +143,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 	}
 	catch (const std::exception& exception)
 	{
+		std::cerr << "can't print response, removing the connected fd !\n";
 		std::cerr << exception.what() << std::endl;
 		shouldRemoveFromEPoll = true;
 	}
