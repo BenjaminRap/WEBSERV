@@ -5,8 +5,6 @@
 
 # include "AFdData.hpp"				// for AFdData
 
-# define TIMEOUT_VALUE_SEC 3
-
 /**
  * @brief Every FDs that are in the listeners of epoll has a corresponding AEPollFd
  * instance. This class store everything that the programs needs when the fd

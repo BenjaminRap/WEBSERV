@@ -20,6 +20,7 @@
 #include "FileFd.hpp"               // for FileFd
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
+#include "protocol.hpp"				// for TIMEOUT
 #include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
 
@@ -160,8 +161,11 @@ void	CgiInChunked::callback(uint32_t events)
 
 void			CgiInChunked::checkTime(void)
 {
+	if (!getIsActive())
+		return ;
+
 	time_t	now = time(NULL);
-	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 	{
 		setFinished(HTTP_GATEWAY_TIMEOUT);
 	}

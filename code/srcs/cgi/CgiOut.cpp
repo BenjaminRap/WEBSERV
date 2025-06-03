@@ -7,6 +7,7 @@
 #include "AFdData.hpp"            // for AFdData
 #include "CgiOut.hpp"             // for CgiOut, CGI_OUT_EVENTS
 #include "CgiOutArgs.hpp"         // for CgiOutArgs
+#include "protocol.hpp"			  // for TIMEOUT
 #include "requestStatusCode.hpp"  // for HTTP_BAD_GATEWAY
 
 class EPollHandler;  // lines 12-12
@@ -100,7 +101,10 @@ void	CgiOut::callback(uint32_t events)
 
 void	CgiOut::checkTime(void)
 {
+	if (!getIsActive())
+		return ;
+
 	time_t	now = time(NULL);
-	if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
+	if (difftime(now, _lastEpollInTime) > TIMEOUT)
 		handleCgiError(HTTP_GATEWAY_TIMEOUT);
 }

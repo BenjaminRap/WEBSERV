@@ -4,7 +4,6 @@
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
 
-#include <vector>                   // for vector
 #include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
@@ -16,6 +15,7 @@
 #include "Status.hpp"               // for Status, StatusType
 #include "exception.hpp"            // for ExecveException
 #include "requestStatusCode.hpp"	// for HTTP codes
+#include "protocol.hpp"				// for TIMEOUT
 
 class EPollHandler;  // lines 20-20
 
@@ -152,10 +152,13 @@ void	ConnectedSocketData::callback(uint32_t events)
 
 void			ConnectedSocketData::checkTime(void)
 {
+	if (_closing || !getIsActive())
+		return ;
+
 	time_t	now = time(NULL);
-	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 		removeFromEPollHandler();
-	else if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
+	else if (difftime(now, _lastEpollInTime) > TIMEOUT)
 	{
 		_closing = true;
 		_responsesHandler.getCurrentResponse().setResponse(HTTP_REQUEST_TIMEOUT);

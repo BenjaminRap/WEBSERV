@@ -9,6 +9,7 @@
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
 #include "SizedBody.hpp"            // for SizedBody
+#include "protocol.hpp"				// for TIMEOUT
 #include "requestStatusCode.hpp"	// for HTTP_REQUEST_TIMEOUT
 
 class EPollHandler;
@@ -65,8 +66,11 @@ void	CgiInSized::callback(uint32_t events)
 
 void			CgiInSized::checkTime(void)
 {
+	if (!getIsActive())
+		return ;
+
 	time_t	now = time(NULL);
-	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 	{
 		setFinished(HTTP_GATEWAY_TIMEOUT);
 	}
