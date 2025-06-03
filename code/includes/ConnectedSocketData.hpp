@@ -93,7 +93,7 @@ public:
 	 *
 	 */
 	void			ignoreBodyAndReadRequests(Response& response);
-	void			checkTime(void);
+	void			checkTime(time_t now);
 };
 
 #endif // !CONNECTED_SOCKET_DATA_HPP

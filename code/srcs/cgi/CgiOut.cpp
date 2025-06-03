@@ -99,12 +99,11 @@ void	CgiOut::callback(uint32_t events)
 		writeToBuff();
 }
 
-void	CgiOut::checkTime(void)
+void	CgiOut::checkTime(time_t now)
 {
 	if (!getIsActive())
 		return ;
 
-	time_t	now = time(NULL);
 	if (difftime(now, _lastEpollInTime) > TIMEOUT)
 		handleCgiError(HTTP_GATEWAY_TIMEOUT);
 }

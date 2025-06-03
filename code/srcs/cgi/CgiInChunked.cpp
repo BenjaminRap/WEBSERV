@@ -159,12 +159,11 @@ void	CgiInChunked::callback(uint32_t events)
 		setFinished(0);
 }
 
-void			CgiInChunked::checkTime(void)
+void			CgiInChunked::checkTime(time_t now)
 {
 	if (!getIsActive())
 		return ;
 
-	time_t	now = time(NULL);
 	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 	{
 		setFinished(HTTP_GATEWAY_TIMEOUT);

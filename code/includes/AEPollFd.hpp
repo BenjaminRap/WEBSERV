@@ -111,7 +111,7 @@ public:
 	 */
 	void										setFd(int fd, uint32_t events);
 	void										setTime(uint32_t events);
-	virtual void								checkTime(void) = 0;
+	virtual void								checkTime(time_t now) = 0;
 };
 
 #endif // !A_EPOLL_FD_HPP

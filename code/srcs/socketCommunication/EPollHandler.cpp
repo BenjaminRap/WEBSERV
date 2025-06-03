@@ -111,7 +111,9 @@ bool	EPollHandler::handleIOEvents(void)
 	removeSocketsFromRemoveList();
 	for (std::list<AEPollFd *>::iterator it = _ePollFds.begin(); it != _ePollFds.end(); it++)
 	{
-		(*it)->checkTime();
+		const time_t	now = time(NULL);
+
+		(*it)->checkTime(now);
 	}
 	return (true);
 }

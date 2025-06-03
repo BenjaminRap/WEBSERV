@@ -173,7 +173,7 @@ public:
 
 	void		callback(uint32_t events);
 	bool		isResponseReady(void) const;
-	void		checkTime(void);
+	void		checkTime(time_t now);
 };
 
 #endif // !CGI_OUT_HPP

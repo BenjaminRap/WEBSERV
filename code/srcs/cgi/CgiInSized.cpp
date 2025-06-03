@@ -64,12 +64,11 @@ void	CgiInSized::callback(uint32_t events)
 		setFinished(code);
 }
 
-void			CgiInSized::checkTime(void)
+void			CgiInSized::checkTime(time_t now)
 {
 	if (!getIsActive())
 		return ;
 
-	time_t	now = time(NULL);
 	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 	{
 		setFinished(HTTP_GATEWAY_TIMEOUT);

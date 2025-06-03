@@ -150,12 +150,11 @@ void	ConnectedSocketData::callback(uint32_t events)
 		removeFromEPollHandler();
 }
 
-void			ConnectedSocketData::checkTime(void)
+void			ConnectedSocketData::checkTime(time_t now)
 {
 	if (_closing || !getIsActive())
 		return ;
 
-	time_t	now = time(NULL);
 	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 		removeFromEPollHandler();
 	else if (difftime(now, _lastEpollInTime) > TIMEOUT)
