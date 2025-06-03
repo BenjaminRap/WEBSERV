@@ -1,8 +1,10 @@
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
+#include <time.h>                   // for difftime, time_t
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
+#include <vector>                   // for vector
 
 #include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
@@ -14,8 +16,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
 #include "exception.hpp"            // for ExecveException
-#include "requestStatusCode.hpp"	// for HTTP codes
-#include "protocol.hpp"				// for TIMEOUT
+#include "protocol.hpp"             // for TIMEOUT
 
 class EPollHandler;  // lines 20-20
 

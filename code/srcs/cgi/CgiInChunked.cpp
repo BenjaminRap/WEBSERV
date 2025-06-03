@@ -1,12 +1,14 @@
 #include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t, uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLOUT
-#include <sys/types.h>              // for pid_t
+#include <sys/types.h>              // for pid_t, time_t
+#include <time.h>                   // for difftime
 #include <cstdio>                   // for NULL, remove, size_t
 #include <cstring>                  // for memcpy
 #include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, basic_ios
 #include <stdexcept>                // for runtime_error
-#include <string>                   // for basic_string
+#include <string>                   // for char_traits, basic_string
 
 #include "ABody.hpp"                // for ABody
 #include "AEPollFd.hpp"             // for AEPollFd
@@ -20,8 +22,8 @@
 #include "FileFd.hpp"               // for FileFd
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
-#include "protocol.hpp"				// for TIMEOUT
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
+#include "protocol.hpp"             // for TIMEOUT
+#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
 
 bool	addContentLengthToEnv(const char *(&env)[23], size_t contentLength);

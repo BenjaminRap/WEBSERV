@@ -1,17 +1,20 @@
-#include <stdint.h>               	// for uint32_t
-#include <sys/epoll.h>           	// for EPOLLERR, EPOLLHUP, EPOLLIN, EPOLLR...
-#include <sys/types.h>           	// for pid_t
-#include <cstdio>                 	// for remove, NULL
+#include <stdint.h>                 // for uint16_t, uint32_t
+#include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
+#include <sys/types.h>              // for pid_t, time_t
+#include <time.h>                   // for difftime
+#include <cstdio>                   // for remove, NULL
+#include <exception>                // for exception
+#include <iostream>                 // for char_traits, basic_ostream, opera...
 
-#include "AEPollFd.hpp"           	// for AEPollFd
-#include "AFdData.hpp"            	// for AFdData
-#include "CgiOut.hpp"             	// for CgiOut, CGI_OUT_EVENTS
-#include "CgiOutArgs.hpp"         	// for CgiOutArgs
-#include "protocol.hpp"			  	// for TIMEOUT
-#include "requestStatusCode.hpp"  	// for HTTP_BAD_GATEWAY
-#include "ConnectedSocketData.hpp"	// for ConnectedSocketData
+#include "AEPollFd.hpp"             // for AEPollFd
+#include "AFdData.hpp"              // for AFdData
+#include "CgiOut.hpp"               // for CgiOut, CGI_OUT_EVENTS
+#include "CgiOutArgs.hpp"           // for CgiOutArgs
+#include "ConnectedSocketData.hpp"  // for ConnectedSocketData
+#include "protocol.hpp"             // for TIMEOUT
+#include "requestStatusCode.hpp"    // for HTTP_BAD_REQUEST, HTTP_GATEWAY_TI...
 
-class EPollHandler;  // lines 12-12
+class EPollHandler;  // lines 14-14
 
 int	getCGIStatus(pid_t pid);
 
