@@ -131,7 +131,9 @@ int	EPollHandler::bindFdToHost(int fd, const Host& host)
 	
 		if (family == AF_UNIX)
 			return (bindUnixSocket(fd, addr, addrLen, _unixSocketsToRemove));
-		return (checkError(bind(fd, addr, addrLen), -1, "bind() : "));
+		if (checkError(bind(fd, addr, addrLen), -1, "bind() : "))
+			return (-1);
+		return (0);
 	}
 	catch(const std::exception& e)
 	{
