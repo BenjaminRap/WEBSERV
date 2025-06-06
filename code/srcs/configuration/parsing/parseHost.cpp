@@ -1,15 +1,16 @@
 #include <netinet/in.h>   // for in_port_t, in_addr_t
 #include <stddef.h>       // for size_t
-#include <cctype>         // for isdigit
+#include <stdint.h>       // for uint8_t, uint32_t
+#include <sys/types.h>    // for ssize_t
+#include <cctype>         // for isdigit, isxdigit
 #include <map>            // for map, _Rb_tree_const_iterator, operator!=
-#include <string>         // for basic_string, string, operator==
+#include <sstream>        // for basic_istringstream, basic_istream, hex
+#include <string>         // for basic_string, string, char_traits
 #include <utility>        // for make_pair, pair
 #include <vector>         // for vector
-#include <sstream>
-#include <iostream>
 
-#include "exception.hpp"  // for CustomLineException, CustomKeyWordAndLineEx...
-#include "parsing.hpp"    // for real_atoi, ipv6_s, skip_wspace, ft_hextoint
+#include "exception.hpp"  // for ParsingLineException, ParsingKeyWordAndLine...
+#include "parsing.hpp"    // for realAtoi, ipv6_s, skipWSpace, ipv6_t, SEP_W...
 
 void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip)
 {

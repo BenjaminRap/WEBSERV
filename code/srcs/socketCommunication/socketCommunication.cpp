@@ -14,7 +14,8 @@ void	handleIOEvents(const Configuration &conf)
 {
 	EPollHandler			ePollHandler(conf);
 
-	createAllServerSockets(conf, ePollHandler);
+	if (!createAllServerSockets(conf, ePollHandler))
+		return ;
 	try
 	{
 		while (getSignalStatus() == NO_SIGNAL)

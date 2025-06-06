@@ -57,7 +57,7 @@ uint16_t	ARequestType::setCgiAFdData(RequestContext& requestContext)
 		else
 			closeFdAndPrintError(inFd);
 		inFd = -1;
-		setCgiOut(requestContext._ePollHandler, outFd, pid, *cgiOutArgs);
+		setCgiOut(requestContext, outFd, pid, *cgiOutArgs);
 		outFd = -1;
 		pid = -1;
 
@@ -135,7 +135,7 @@ void	ARequestType::setCgiInSized
 }
 
 void	ARequestType::setCgiOut(
-	EPollHandler& ePollHandler,
+	RequestContext& requestContext,
 	int& fd,
 	pid_t& pid,
 	const CgiOutArgs& cgiOutArgs
@@ -143,13 +143,14 @@ void	ARequestType::setCgiOut(
 {
 	CgiOut * const	cgiOut = new CgiOut(
 		fd,
-		ePollHandler,
+		requestContext._ePollHandler,
 		pid,
-		cgiOutArgs
+		cgiOutArgs,
+		requestContext._connectedSocketData
 	);
 	fd = -1;
 	pid = -1;
-	if (!ePollHandler.addFdToList(*cgiOut))
+	if (!requestContext._ePollHandler.addFdToList(*cgiOut))
 	{
 		delete cgiOut;
 		throw std::exception();

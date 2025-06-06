@@ -1,12 +1,14 @@
 #include <fcntl.h>                  // for O_RDONLY
 #include <stdint.h>                 // for uint16_t, uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLOUT
-#include <sys/types.h>              // for pid_t
+#include <sys/types.h>              // for pid_t, time_t
+#include <time.h>                   // for difftime
 #include <cstdio>                   // for NULL, remove, size_t
 #include <cstring>                  // for memcpy
 #include <exception>                // for exception
+#include <iostream>                 // for basic_ostream, operator<<, basic_ios
 #include <stdexcept>                // for runtime_error
-#include <string>                   // for basic_string
+#include <string>                   // for char_traits, basic_string
 
 #include "ABody.hpp"                // for ABody
 #include "AEPollFd.hpp"             // for AEPollFd
@@ -20,7 +22,8 @@
 #include "FileFd.hpp"               // for FileFd
 #include "FlowBuffer.hpp"           // for FlowState, FlowBuffer
 #include "Response.hpp"             // for Response
-#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_OK
+#include "protocol.hpp"             // for TIMEOUT
+#include "requestStatusCode.hpp"    // for HTTP_INTERNAL_SERVER_ERROR, HTTP_...
 #include "socketCommunication.hpp"  // for closeFdAndPrintError
 
 bool	addContentLengthToEnv(const char *(&env)[23], size_t contentLength);
@@ -95,7 +98,8 @@ void	CgiInChunked::execCgi(void)
 			outFd,
 			_ePollHandler,
 			pid,
-			*_cgiOutArgs
+			*_cgiOutArgs,
+			_connectedSocketData
 		);
 		outFd = -1;
 		pid = -1;
@@ -119,49 +123,68 @@ void	CgiInChunked::execCgi(void)
 
 void	CgiInChunked::setFinished(uint16_t code)
 {
-	AFdData::setFinished();
-	_state = CgiInChunked::DONE;
-	if (code != 0)
-		_response.setResponse(code);
-	_connectedSocketData.ignoreBodyAndReadRequests(_response);
+	try
+	{
+		AFdData::setFinished();
+		_state = CgiInChunked::DONE;
+		if (code != 0)
+			_response.setResponse(code);
+		_connectedSocketData.ignoreBodyAndReadRequests(_response);
+	}
+	catch (const std::exception& exception)
+	{
+		std::cerr << "can't print response, removing the connected fd !\n";
+		std::cerr << exception.what() << std::endl;
+		AEPollFd::removeFromEPollHandler(&_connectedSocketData);
+		AFdData::setFinished();
+	}
 }
 
 uint16_t	getCodeIfFinished(bool canWrite, FlowState flowResult, const ABody& body);
 
 void	CgiInChunked::callback(uint32_t events)
 {
-	setTime(events);
-	if (!getIsActive() || _state == CgiInChunked::DONE)
-		return ;
-	if (events & (EPOLLERR | EPOLLHUP))
+	try
 	{
-		setFinished(0);
-		return ;
+		setTime(events);
+		if (!getIsActive() || _state == CgiInChunked::DONE)
+			return ;
+		if (events & (EPOLLERR | EPOLLHUP))
+		{
+			setFinished(0);
+			return ;
+		}
+		if (_state == CgiInChunked::BUFFER_TO_TEMP)
+		{
+			const FlowState	flowState = _requestBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
+			const uint16_t	code = getCodeIfFinished(true, flowState, _body);
+
+			if (code == HTTP_OK)
+				execCgi();
+			else if (code != 0)
+				setFinished(code);
+		}
+		if (!(events & EPOLLOUT) || _state != CgiInChunked::TEMP_TO_CGI)
+			return ;
+		const FlowState	flowState = _tempFlowBuf.redirect(_tmpFile->getFd(), getFd());
+
+		if (flowState == FLOW_ERROR)
+			setFinished(HTTP_INTERNAL_SERVER_ERROR);
+		else if (flowState == FLOW_DONE)
+			setFinished(0);
 	}
-	if (_state == CgiInChunked::BUFFER_TO_TEMP)
+	catch (const std::exception& exception)
 	{
-		const FlowState	flowState = _requestBuf.buffToDest<ABody&>(_body, ABody::writeToFd);
-		const uint16_t	code = getCodeIfFinished(true, flowState, _body);
-
-		if (code == HTTP_OK)
-			execCgi();
-		else if (code != 0)
-			setFinished(code);
-	}
-	if (!(events & EPOLLOUT) || _state != CgiInChunked::TEMP_TO_CGI)
-		return ;
-	const FlowState	flowState = _tempFlowBuf.redirect(_tmpFile->getFd(), getFd());
-
-	if (flowState == FLOW_ERROR)
 		setFinished(HTTP_INTERNAL_SERVER_ERROR);
-	else if (flowState == FLOW_DONE)
-		setFinished(0);
+	}
 }
 
-void			CgiInChunked::checkTime(void)
+void			CgiInChunked::checkTime(time_t now)
 {
-	time_t	now = time(NULL);
-	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	if (!getIsActive())
+		return ;
+
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 	{
 		setFinished(HTTP_GATEWAY_TIMEOUT);
 	}

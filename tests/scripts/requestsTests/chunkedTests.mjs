@@ -191,12 +191,12 @@ async function	run()
 	verifyServersAreRunning();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/initChunkedTest.sh"); // setup webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/initChunkedTest.sh"); // setup nginx
+	exec("cp -pr ../../webserv/* ../../nginx/"); // setup nginx
 
 	await runTests();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/cleanChunkedTest.sh"); // clean webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/cleanChunkedTest.sh"); // clean nginx
+	exec("rm -rf ../../nginx/*"); // clean nginx
 }
 
 run();

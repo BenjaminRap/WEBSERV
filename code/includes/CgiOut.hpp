@@ -13,6 +13,7 @@
 class	FlowBuffer;
 class	Status;
 class	CgiOutArgs;
+class	ConnectedSocketData;
 
 class CgiOut : public AEPollFd
 {
@@ -83,6 +84,7 @@ private:
 	 * @brief The headers that will be added to the cgi response headers.
 	 */
 	const std::list<ConfigHeaders>	_addHeader;
+	ConnectedSocketData&			_connectedSocketData;
 
 	CgiOut(void);
 	CgiOut(const CgiOut &ref);
@@ -167,13 +169,14 @@ public:
 		int fd,
 		EPollHandler& ePollHandler,
 		pid_t pid,
-		const CgiOutArgs& cgiOutArgs
+		const CgiOutArgs& cgiOutArgs,
+		ConnectedSocketData& connectedSocketData
 	);
 	~CgiOut();
 
 	void		callback(uint32_t events);
 	bool		isResponseReady(void) const;
-	void		checkTime(void);
+	void		checkTime(time_t now);
 };
 
 #endif // !CGI_OUT_HPP

@@ -98,12 +98,12 @@ async function	run()
 	verifyServersAreRunning();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/initPostTest.sh"); // setup webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/initPostTest.sh"); // setup nginx
+	exec("cp -pr ../../webserv/* ../../nginx/"); // setup nginx
 
 	await runTests();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/cleanPostTest.sh"); // clean webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/cleanPostTest.sh"); // clean nginx
+	exec("rm -rf ../../nginx/*"); // clean nginx
 }
 
 run();

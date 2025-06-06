@@ -1,5 +1,7 @@
 #include <fcntl.h>                  // for O_NONBLOCK
 #include <stdint.h>                 // for uint32_t
+#include <sys/epoll.h>              // for EPOLLIN, EPOLLOUT
+#include <time.h>                   // for time
 #include <iostream>                 // for basic_ostream, operator<<, cerr
 #include <list>                     // for list
 #include <stdexcept>                // for logic_error, runtime_error

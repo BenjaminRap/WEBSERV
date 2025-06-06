@@ -47,9 +47,9 @@ static int	createServerSocket
 	return (fd);
 }
 
-void	createAllServerSockets
+bool	createAllServerSockets
 (
-const Configuration &conf,
+	const Configuration &conf,
 	EPollHandler &ePollHandler
 )
 {
@@ -60,7 +60,7 @@ const Configuration &conf,
 		int										fd = createServerSocket(host, conf, ePollHandler);
 
 		if (fd == -1)
-			continue ;
+			return (false);
 		try
 		{
 			ServerSocketData& serverSocketData = *(new ServerSocketData(fd, ePollHandler, serverConfigurations, host));
@@ -74,6 +74,8 @@ const Configuration &conf,
 		{
 			std::cerr << e.what() << '\n';
 	  		closeFdAndPrintError(fd);
+			return (false);
 		}
 	}
+	return (true);
 }

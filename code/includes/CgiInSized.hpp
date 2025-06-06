@@ -73,7 +73,7 @@ public:
 	 * to the temporary file, or the cgi.
 	 */
 	void		callback(uint32_t events);
-	void		checkTime(void);
+	void		checkTime(time_t now);
 };
 
 #endif // !CGI_IN_SIZED_HPP

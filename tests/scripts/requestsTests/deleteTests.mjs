@@ -100,12 +100,12 @@ async function	run()
 	verifyServersAreRunning();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/initDeleteTest.sh"); // setup webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/initDeleteTest.sh"); // setup nginx
+	exec("cp -pr ../../webserv/* ../../nginx/"); // setup nginx
 
 	await runTests();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/cleanDeleteTest.sh"); // clean nginx
+	exec("rm -rf ../../nginx/*"); // clean nginx
 }
 
 run();
