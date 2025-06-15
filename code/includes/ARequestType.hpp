@@ -96,6 +96,8 @@ class ARequestType
 		void									setPath(const std::string &src);
 		void									setRoute(const Route *root);
 		void									setUrl(const std::string &url);
+		void									setOutFd(AFdData* fdData, void (&free)(AFdData*));
+		void									setInFd(AFdData* fdData, void (&free)(AFdData*));
 
 		/************************** Getters *************************************/
 
@@ -176,7 +178,7 @@ class ARequestType
 		 */
 		void									setCgiOut
 												(
-													EPollHandler& ePollHandler,
+													RequestContext& requestContext,
 													int& fd,
 													pid_t& pid,
 													const CgiOutArgs& cgiOutArgs

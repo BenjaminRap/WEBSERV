@@ -10,10 +10,11 @@
 #include <vector>                   // for vector
 
 #include "EMethods.hpp"             // for EMethods
-#include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "exception.hpp"            // for ParsingLineException
 #include "parsing.hpp"              // for ip_s, ip_t, ipv6_t, ConfigHeaders...
+
+class Route;
 
 void	readfile(const char *path, std::string &buff)
 {

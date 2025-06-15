@@ -56,9 +56,10 @@ async function runTests()
 
 
 	exec("cd ../../webserv && ../scripts/requestsTests/cleanPutTest.sh"); // clean webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/cleanPutTest.sh"); // clean nginx
+	exec("rm -rf ../../nginx/*"); // clean nginx
+
 	exec("cd ../../webserv && ../scripts/requestsTests/initPutTest.sh"); // setup webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/initPutTest.sh"); // setup nginx
+	exec("cp -pr ../../webserv/* ../../nginx/"); // setup nginx
 
 	printHeader("Same But With Query String");
 	await runGoodPutTest("/put/allowed/main.html?truc=var");
@@ -88,12 +89,12 @@ async function	run()
 	verifyServersAreRunning();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/initPutTest.sh"); // setup webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/initPutTest.sh"); // setup nginx
+	exec("cp -pr ../../webserv/* ../../nginx/"); // setup nginx
 
 	await runTests();
 
 	exec("cd ../../webserv && ../scripts/requestsTests/cleanPutTest.sh"); // clean webserv
-	exec("cd ../../nginx && ../scripts/requestsTests/cleanPutTest.sh"); // clean nginx
+	exec("rm -rf ../../nginx/*"); // clean nginx
 }
 
 run();

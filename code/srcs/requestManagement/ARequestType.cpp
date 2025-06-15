@@ -2,7 +2,7 @@
 #include <cstring>                  // for NULL, size_t
 #include <list>                     // for list
 #include <map>                      // for map
-#include <string>                   // for string, basic_string, operator==
+#include <string>                   // for basic_string, string, operator==
 #include <vector>                   // for vector
 
 #include "ARequestType.hpp"         // for ARequestType
@@ -11,12 +11,12 @@
 #include "RequestContext.hpp"       // for RequestContext
 #include "Route.hpp"                // for Route
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
+#include "SharedResource.hpp"       // for SharedResource
 #include "Status.hpp"               // for Status, StatusType
 #include "parsing.hpp"              // for ConfigHeaders
 #include "requestStatusCode.hpp"    // for HTTP_NOT_FOUND
 
-class AFdData;  // lines 21-21
-template <typename T> class SharedResource;
+class AFdData;  // lines 18-18
 
 bool		checkAllowMeth(ARequestType& req, EMethods meth);
 bool		fixUrl(ARequestType &req, std::string &url);
@@ -145,6 +145,16 @@ void	ARequestType::setPath(const std::string &src)
 void	ARequestType::setRoute(const Route *route)
 {
 	this->_route = route;
+}
+
+void	ARequestType::setInFd(AFdData* fdData, void (&free)(AFdData*))
+{
+	_inFd.setManagedResource(fdData, free);
+}
+
+void	ARequestType::setOutFd(AFdData* fdData, void (&free)(AFdData*))
+{
+	_outFd.setManagedResource(fdData, free);
 }
 
 std::string	&ARequestType::getPath()

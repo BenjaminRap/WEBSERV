@@ -1,10 +1,11 @@
 #include <stddef.h>                 // for NULL
 #include <stdint.h>                 // for uint32_t
 #include <sys/epoll.h>              // for EPOLLERR, EPOLLHUP, EPOLLIN, EPOL...
+#include <time.h>                   // for difftime, time_t
 #include <exception>                // for exception
 #include <iostream>                 // for char_traits, basic_ostream, opera...
-
 #include <vector>                   // for vector
+
 #include "AEPollFd.hpp"             // for AEPollFd
 #include "ConnectedSocketData.hpp"  // for ConnectedSocketData, CONNECTED_EV...
 #include "FlowBuffer.hpp"           // for FlowState
@@ -15,7 +16,7 @@
 #include "ServerConfiguration.hpp"  // for ServerConfiguration
 #include "Status.hpp"               // for Status, StatusType
 #include "exception.hpp"            // for ExecveException
-#include "requestStatusCode.hpp"	// for HTTP codes
+#include "protocol.hpp"             // for TIMEOUT
 
 class EPollHandler;  // lines 20-20
 
@@ -143,6 +144,7 @@ void	ConnectedSocketData::callback(uint32_t events)
 	}
 	catch (const std::exception& exception)
 	{
+		std::cerr << "can't print response, removing the connected fd !\n";
 		std::cerr << exception.what() << std::endl;
 		shouldRemoveFromEPoll = true;
 	}
@@ -150,15 +152,13 @@ void	ConnectedSocketData::callback(uint32_t events)
 		removeFromEPollHandler();
 }
 
-void			ConnectedSocketData::checkTime(void)
+void			ConnectedSocketData::checkTime(time_t now)
 {
-	time_t	now = time(NULL);
-	if (difftime(now, _lastEpollOutTime) > TIMEOUT_VALUE_SEC)
+	if (_closing || !getIsActive())
+		return ;
+
+	if (difftime(now, _lastEpollOutTime) > TIMEOUT)
 		removeFromEPollHandler();
-	else if (difftime(now, _lastEpollInTime) > TIMEOUT_VALUE_SEC)
-	{
+	else if (difftime(now, _lastEpollInTime) > TIMEOUT)
 		_closing = true;
-		_responsesHandler.getCurrentResponse().setResponse(HTTP_REQUEST_TIMEOUT);
-		_responsesHandler.addCurrentResponseToQueue();
-	}
 }

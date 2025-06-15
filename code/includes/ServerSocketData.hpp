@@ -46,7 +46,15 @@ public:
 	 * @param events 
 	 */
 	void	callback(uint32_t events);
-	void	checkTime(void){};
+	/**
+	 * @brief Does nothing because the ServerSocketData should not timeout.
+	 *
+	 * @param now 
+	 */
+	void	checkTime(time_t now)
+	{
+		(void)now;
+	};
 };
 
 #endif // !SERVER_SOCKET_DATA_HPP
