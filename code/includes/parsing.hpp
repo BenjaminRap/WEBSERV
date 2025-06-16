@@ -61,8 +61,8 @@ typedef struct ipv6_s {
 typedef struct ip_s
 {
 	std::vector<std::string>		unix_adrr;
-	std::map<in_addr_t, in_port_t>	ipv4;
-	std::map<ipv6_t, in_port_t>		ipv6;
+	std::map<in_port_t, in_addr_t>	ipv4;
+	std::map<in_port_t, ipv6_t>		ipv6;
 
 	bool	operator<(const ip_s &other) const
 	{
@@ -76,9 +76,9 @@ void	skipLine(std::string &file, size_t &i, size_t &line);
 void	skipWSpace(std::string &file, size_t &i, size_t &line);
 short	realAtoi(std::string &file, size_t &i, size_t &line, short max, short len);
 uint8_t	hexToInt(std::string &file, size_t &i, size_t &line);
-void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip);
+void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_port_t, in_addr_t> &ip);
 void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip);
-void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip);
+void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<in_port_t, ipv6_t> &ip);
 void	parseScopeId(std::string &file, size_t &i, size_t &line, uint32_t &scope_id);
 void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip);
 void	parsePort(std::string &file, size_t &i, size_t &line, in_port_t &port);

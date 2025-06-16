@@ -99,12 +99,12 @@ void	insertHost
 	{
 		if (!it->first.ipv4.empty())
 		{
-			for (std::map<in_addr_t, in_port_t>::iterator itt = ip.ipv4.begin(); itt != ip.ipv4.end();)
+			for (std::map<in_port_t, in_addr_t>::iterator itt = ip.ipv4.begin(); itt != ip.ipv4.end();)
 			{
-				if (it->first.ipv4.begin()->first == itt->first && it->first.ipv4.begin()->second == itt->second)
+				if (it->first.ipv4.begin()->second == itt->second && it->first.ipv4.begin()->first == itt->first)
 				{
 					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
-					std::map<in_addr_t, in_port_t>::iterator temp = itt;
+					std::map<in_port_t, in_addr_t>::iterator temp = itt;
 					++itt;
 					ip.ipv4.erase(temp);
 				}
@@ -114,12 +114,12 @@ void	insertHost
 		}
 		else if (!it->first.ipv6.empty())
 		{
-			for (std::map<ipv6_t, in_port_t>::iterator itt = ip.ipv6.begin(); itt != ip.ipv6.end();)
+			for (std::map<in_port_t, ipv6_t>::iterator itt = ip.ipv6.begin(); itt != ip.ipv6.end();)
 			{
-				if (it->first.ipv6.begin()->first == itt->first && it->first.ipv6.begin()->second == itt->second)
+				if (it->first.ipv6.begin()->second == itt->second && it->first.ipv6.begin()->first == itt->first)
 				{
 					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
-					std::map<ipv6_t, in_port_t>::iterator temp = itt;
+					std::map<in_port_t, ipv6_t>::iterator temp = itt;
 					++itt;
 					ip.ipv6.erase(temp);
 				}
@@ -141,7 +141,7 @@ void	insertHost
 			}
 		}
 	}
-	for (std::map<in_addr_t, in_port_t>::iterator it = ip.ipv4.begin(); it != ip.ipv4.end(); ++it)
+	for (std::map<in_port_t, in_addr_t>::iterator it = ip.ipv4.begin(); it != ip.ipv4.end(); ++it)
 	{
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
@@ -150,7 +150,7 @@ void	insertHost
 		temp.ipv4.insert(*it);
 		conf.insert(std::make_pair(temp, serv));
 	}
-	for (std::map<ipv6_t, in_port_t>::iterator it = ip.ipv6.begin(); it != ip.ipv6.end(); ++it)
+	for (std::map<in_port_t, ipv6_t>::iterator it = ip.ipv6.begin(); it != ip.ipv6.end(); ++it)
 	{
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;

@@ -35,7 +35,7 @@ void	parseHost(std::string &file, size_t &i, size_t &line, ip_t &ip)
 	i++;
 }
 
-void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, in_port_t> &ip)
+void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_port_t, in_addr_t> &ip)
 {
 	in_addr_t	ipv4;
 	in_port_t	port;
@@ -54,12 +54,12 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_addr_t, i
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3);
 	parsePort(file, i, line, port);
-	for (std::map<in_addr_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
+	for (std::map<in_port_t, in_addr_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
-		if (ipv4 == it->first && port == it->second)
+		if (ipv4 == it->second && port == it->first)
 			return ;
 	}
-	ip.insert(std::make_pair(ipv4, port));
+	ip.insert(std::make_pair(port, ipv4));
 }
 
 bool convertIpv6(const std::string &ip, uint8_t ipv6[16])
@@ -136,7 +136,7 @@ bool convertIpv6(const std::string &ip, uint8_t ipv6[16])
 	return (true);
 }
 
-void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_port_t> &ip)
+void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<in_port_t, ipv6_t> &ip)
 {
 	ipv6_t		ipv6;
 	in_port_t	port;
@@ -150,12 +150,12 @@ void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_p
 	i = end + 1;
 	parsePort(file, i, line, port);
 	parseScopeId(file, i, line, ipv6.scopeId);
-	for (std::map<ipv6_t, in_port_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
+	for (std::map<in_port_t, ipv6_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
-		if (ipv6 == it->first && port == it->second)
+		if (ipv6 == it->second && port == it->first)
 			return ;
 	}
-	ip.insert(std::make_pair(ipv6, port));
+	ip.insert(std::make_pair(port, ipv6));
 }
 
 void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip)
