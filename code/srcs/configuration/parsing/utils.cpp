@@ -131,7 +131,7 @@ void	insertHost
 		{
 			for (std::vector<std::string>::iterator itt = ip.unix_adrr.begin(); itt != ip.unix_adrr.end();)
 			{
-				if (it->first.unix_adrr[0] == *itt)
+				if (it->first.unix_adrr.front() == *itt)
 				{
 					it->second.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 					std::vector<std::string>::iterator temp = itt;
