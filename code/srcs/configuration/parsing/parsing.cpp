@@ -68,6 +68,7 @@ void	setErrorPagesAbsolutePath(std::map<unsigned short, std::string>& errorPages
 			continue ;
 
 		replaceUrl(route->first, route->second.getRoot(), it->second);
+		it->second.insert(0, ".");
 	}
 }
 
