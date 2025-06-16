@@ -164,6 +164,11 @@ void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::st
 
 	if (end == std::string::npos)
 		throw (ParsingLineException("No character to end the ip unix", line));
+	for (std::vector<std::string>::const_iterator it = ip.begin(); it != ip.end(); ++it)
+	{
+		if (file.substr(i, end - i) == *it)
+			throw (ParsingKeyWordAndLineException("Duplicate unix address", line, file.substr(i, end - i)));
+	}
 	ip.push_back(file.substr(i, end - i));
 	i = end;
 	skipWSpace(file, i, line);
