@@ -20,6 +20,7 @@ build-webserv:
 	cd ../code && make all -j16
 
 build-containers:
+	mkdir -p website
 	$(DOCKER_EXEC) build
 
 up:
@@ -41,6 +42,7 @@ clean: stop
 	-docker rmi -f $(docker images -qa) 2>/dev/null
 	-docker volume rm $(docker volume ls -q) 2>/dev/null
 	-docker network rm $(docker network ls -q) 2>/dev/null
+	-rm -rf ./website/
 
 fclean: clean
 	docker system prune -af
