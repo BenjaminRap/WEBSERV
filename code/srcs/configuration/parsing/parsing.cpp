@@ -157,6 +157,16 @@ void	parseServer(std::map<ip_t, std::vector<ServerConfiguration> > &conf, std::s
 	i++;
 	if (ip.ipv4.empty() && ip.ipv6.empty() && ip.unix_adrr.empty())
 		throw (ParsingException("Missing host"));
+	for (std::map<in_port_t, in_addr_t>::iterator it = ip.ipv4.begin(); it != ip.ipv4.end(); ++it)
+	{
+		if (ip.ipv6.find(it->first) != ip.ipv6.end())
+			throw ParsingException("Duplicate port with different IP");
+	}
+	for (std::map<in_port_t, ipv6_t>::iterator it = ip.ipv6.begin(); it != ip.ipv6.end(); ++it)
+	{
+		if (ip.ipv4.find(it->first) != ip.ipv4.end())
+			throw ParsingException("Duplicate port with different IP");
+	}
 	setErrorPagesAbsolutePath(errorPages, routes);
 	if (acceptedMethods.empty())
 	{

@@ -54,6 +54,8 @@ void	parseIpv4(std::string &file, size_t &i, size_t &line, std::map<in_port_t, i
 	i++;
 	ipv4 = ipv4 | realAtoi(file, i, line, 255, 3);
 	parsePort(file, i, line, port);
+	if (ip.find(port) != ip.end())
+		throw (ParsingLineException("Duplicate port with different IP", line));
 	for (std::map<in_port_t, in_addr_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{
 		if (ipv4 == it->second && port == it->first)
@@ -149,6 +151,8 @@ void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<in_port_t, i
 		throw (ParsingKeyWordAndLineException("Wrong IPv6 format", line, ipString));
 	i = end + 1;
 	parsePort(file, i, line, port);
+	if (ip.find(port) != ip.end())
+		throw (ParsingLineException("Duplicate port with different IP", line));
 	parseScopeId(file, i, line, ipv6.scopeId);
 	for (std::map<in_port_t, ipv6_t>::const_iterator it = ip.begin(); it != ip.end(); ++it)
 	{

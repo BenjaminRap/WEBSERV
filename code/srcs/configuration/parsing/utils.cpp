@@ -146,6 +146,11 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
+		for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it2 = conf.begin(); it2 != conf.end(); ++it2)
+		{
+			if (it2->first.ipv4.find(it->first) != it2->first.ipv4.end() || it2->first.ipv6.find(it->first) != it2->first.ipv6.end())
+				throw ParsingException("Duplicate port with different IP");
+		}
 		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 		temp.ipv4.insert(*it);
 		conf.insert(std::make_pair(temp, serv));
@@ -155,8 +160,15 @@ void	insertHost
 		ip_t	temp;
 		std::vector<ServerConfiguration> serv;
 
+		for (std::map<ip_t, std::vector<ServerConfiguration> >::iterator it2 = conf.begin(); it2 != conf.end(); ++it2)
+		{
+			if (it2->first.ipv6.find(it->first) != it2->first.ipv6.end() || it2->first.ipv4.find(it->first) != it2->first.ipv4.end())
+				throw ParsingException("Duplicate port with different IP");
+		}
 		serv.push_back(ServerConfiguration(serverNames, errorPages, maxClientBodySize, acceptedMethods, routes, root, index, addHeader, cgiFileExtension, cgiInterpreter));
 		temp.ipv6.insert(*it);
+		if (conf.find(temp) != conf.end())
+			throw ParsingException("Duplicate port with different IP");
 		conf.insert(std::make_pair(temp, serv));
 	}
 	for (std::vector<std::string>::iterator it = ip.unix_adrr.begin(); it != ip.unix_adrr.end(); ++it)
