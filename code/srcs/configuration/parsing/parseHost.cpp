@@ -160,8 +160,12 @@ void	parseIpv6(std::string &file, size_t &i, size_t &line, std::map<ipv6_t, in_p
 
 void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::string> &ip)
 {
-	ip.push_back(file.substr(i, file.find_first_of(SEP_WSPACE, i) - i));
-	i = file.find_first_of(SEP_WSPACE, i);
+	const size_t	end = file.find_first_of(SEP_WSPACE, i);
+
+	if (end == std::string::npos)
+		throw (ParsingLineException("No character to end the ip unix", line));
+	ip.push_back(file.substr(i, end - i));
+	i = end;
 	skipWSpace(file, i, line);
 }
 
