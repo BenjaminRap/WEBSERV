@@ -8,6 +8,7 @@
 #include <string>         // for basic_string, string, char_traits
 #include <utility>        // for make_pair, pair
 #include <vector>         // for vector
+#include <algorithm>	  // for std::find
 
 #include "exception.hpp"  // for ParsingLineException, ParsingKeyWordAndLine...
 #include "parsing.hpp"    // for realAtoi, ipv6_s, skipWSpace, ipv6_t, SEP_W...
@@ -168,12 +169,11 @@ void	parseIpUnix(std::string &file, size_t &i, size_t &line, std::vector<std::st
 
 	if (end == std::string::npos)
 		throw (ParsingLineException("No character to end the ip unix", line));
-	for (std::vector<std::string>::const_iterator it = ip.begin(); it != ip.end(); ++it)
-	{
-		if (file.substr(i, end - i) == *it)
-			throw (ParsingKeyWordAndLineException("Duplicate unix address", line, file.substr(i, end - i)));
-	}
-	ip.push_back(file.substr(i, end - i));
+	const std::string	unixAddr = file.substr(i, end - i);
+
+	if (std::find(ip.begin(), ip.end(), unixAddr) != ip.end())
+		throw (ParsingKeyWordAndLineException("Duplicate unix address", line, file.substr(i, end - i)));
+	ip.push_back(unixAddr);
 	i = end;
 	skipWSpace(file, i, line);
 }
