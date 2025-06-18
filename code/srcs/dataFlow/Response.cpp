@@ -45,7 +45,7 @@ void	addDefaultHeaders(Headers& headers, const Status* status)
 
 	std::strftime(timeBuffer, 100, "%c", std::gmtime(&now));
 	headers.addHeader("date", timeBuffer);
-	headers.addHeader("server", "WebServ de bg");
+	headers.addHeader("server", SERVER_SOFTWARE);
 	if (status->isOfType(STATUS_ERROR))
 		headers.addHeader("connection", "close");
 	else
