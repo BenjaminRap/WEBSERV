@@ -109,7 +109,7 @@ private:
 	 * it returns the first ServerConfiguration of the vector.
 	 *
 	 */
-	const ServerConfiguration	&getServerConfiguration(const std::string& host) const;
+	const ServerConfiguration	&getServerConfiguration(std::string host) const;
 public:
 	RequestHandler(const std::vector<ServerConfiguration> &serverConfs);
 	~RequestHandler();

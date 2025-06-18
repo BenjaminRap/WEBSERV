@@ -19,13 +19,17 @@
 
 class RequestContext;
 
-const ServerConfiguration&	RequestHandler::getServerConfiguration(const std::string& host) const
+const ServerConfiguration&	RequestHandler::getServerConfiguration(std::string host) const
 {
 	if (_serverConfs.size() == 0)
 		throw std::logic_error("The ServerConfiguration vector is empty !");
 
-	std::vector<ServerConfiguration>::const_iterator serverIt;
+	const ssize_t	ipv6EndPos = host.find_last_of(']');
+	const ssize_t	portPos = host.find_last_of(':');
+	if (portPos != -1 && portPos > ipv6EndPos)
+		host.erase(portPos);
 
+	std::vector<ServerConfiguration>::const_iterator serverIt;
 	for (serverIt = _serverConfs.begin(); serverIt != _serverConfs.end(); serverIt++)
 	{
 		const std::vector<std::string>	serverNames = serverIt->getServerNames();
