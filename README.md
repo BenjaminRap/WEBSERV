@@ -1,30 +1,261 @@
 # WEBSERV
-42 project - WebServ
 
-see flow-chart.png
-![Alt text](./documentation/flow-chart.png "Flow Chart")
+**Webserv** is a fully-featured HTTP server written in **C**, implementing a subset of **Nginx-like behavior**.
+It supports multiple HTTP methods, CGI execution, advanced request handling, and a flexible configuration system.
 
-HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
-ex : HTTP/1.1
+---
 
-url : see url.txt
+## 🚀 Installation
 
-http message : see message.txt
+<details>
+<summary>🐳 Option 1: Docker (all platforms)</summary>
 
-methods :
-	GET and POST : https://www.w3schools.com/tags/ref_httpmethods.asp
-	DELETE : https://developer.mozilla.org/fr/docs/Web/HTTP/Methods/DELETE
+```bash
+docker run --rm -it -p 8080:8080 benjaminrap/webserv:latest
+```
 
-cgi: see cgi.txt
+The server will start using its default configuration and listen on the defined ports.
 
-configuration : see configuration.txt
+</details>
 
-to get the interfaces : ip addr show / ip -6 addr show / ip addr show dev eth0
+<details>
+<summary>💻 Option 2: Linux (Debian/Ubuntu)</summary>
 
-https://datatracker.ietf.org/doc/html/rfc3986 : URL RFC
-http://abcdrfc.free.fr/rfc-vf/pdf/rfc2616.pdf : http/1.1 RFC
-https://www.geeksforgeeks.org/fork-system-call/ : fork
-https://broux.developpez.com/articles/c/sockets/#:~:text=Les%20sockets%20sont%20des%20flux,protocole%20dit%20«%20non%20connecté%20». : sockets in c
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages : HTTP messages
-https://m4nnb3ll.medium.com/webserv-building-a-non-blocking-web-server-in-c-98-a-42-project-04c7365e4ec7 : general info on project
-https://www.browserling.com/tools/ip-to-dec : string ip to int (for testing)
+### 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/BenjaminRap/WEBSERV.git
+cd WEBSERV
+```
+
+### 2️⃣ Install dependencies
+
+```bash
+sudo apt update
+sudo apt install -y make gcc
+```
+
+### 3️⃣ Build the project
+
+```bash
+make all
+```
+
+### 4️⃣ Run the server
+
+```bash
+./webserv path/to/config/file.conf
+```
+
+</details>
+
+---
+
+## ⚙️ Features
+
+<details>
+<summary>🌐 HTTP Methods</summary>
+
+* **GET** → retrieve files and directories
+* **POST** → receive data from clients
+* **PUT** → create or update files
+* **DELETE** → remove files
+
+> ⚠️ Automatically returns **405 Method Not Allowed** when a method is forbidden.
+
+</details>
+
+<details>
+<summary>📂 File & Directory Handling</summary>
+
+* Support for **index files** (`index.html`, `main.html`, etc.)
+* Support for **symbolic links**
+* **Autoindex** → automatic directory listing
+* `root` directive works like **Nginx alias**
+* Behavior varies depending on **location and method**
+
+</details>
+
+<details>
+<summary>📝 Request Body Handling</summary>
+
+* **Fixed-size bodies** using `Content-Length`
+* **Chunked transfer encoding** support
+* Configurable **client_max_body_size**
+
+</details>
+
+<details>
+<summary>⚡ CGI Support</summary>
+
+* Execution based on file **extension** (`cgi_extension`)
+* Optional **cgi_interpreter**:
+
+  * If defined → executed with interpreter
+  * Otherwise → executed as a binary
+* Works with any interpreter (Python, PHP, etc.)
+* Can be restricted to specific HTTP methods
+
+</details>
+
+<details>
+<summary>📄 Error Handling & Responses</summary>
+
+* Custom **error pages** for any HTTP status code
+* Supports all **error codes implemented similarly to Nginx**
+* Proper HTTP responses with headers and status codes
+
+</details>
+
+<details>
+<summary>🔗 Multi-Server & Routing</summary>
+
+* Multiple **server blocks** in one configuration
+* Each server supports multiple **hosts/domains**
+* Multiple **listen directives**:
+
+  * IPv4
+  * IPv6
+  * Unix sockets
+* Multiple **locations per server**
+* Method restrictions per location (`request_method`)
+
+</details>
+
+<details>
+<summary>🏗️ Additional Features</summary>
+
+* Custom headers via `add_header`
+* Unix socket support
+* Combined support for:
+
+  * autoindex
+  * index files
+  * symlinks
+* Full handling of **chunked and fixed-size requests**
+
+</details>
+
+---
+
+## 🧪 Examples
+
+<details>
+<summary>📥 GET request</summary>
+
+```bash
+curl http://localhost:8080/index.html
+```
+
+Retrieve a file from the server.
+
+</details>
+
+<details>
+<summary>📤 POST request</summary>
+
+```bash
+curl -X POST -d "hello=world" http://localhost:8080/post/
+```
+
+Send data to the server.
+
+</details>
+
+<details>
+<summary>📝 PUT request</summary>
+
+```bash
+curl -X PUT --data-binary @file.txt http://localhost:8080/put/file.txt
+```
+
+Upload or replace a file.
+
+</details>
+
+<details>
+<summary>🗑️ DELETE request</summary>
+
+```bash
+curl -X DELETE http://localhost:8080/delete/file.txt
+```
+
+Delete a file from the server.
+
+</details>
+
+<details>
+<summary>⚡ CGI execution</summary>
+
+```bash
+curl http://localhost:8080/cgi/script.py
+```
+
+Execute a CGI script using the configured interpreter.
+
+</details>
+
+<details>
+<summary>📂 Autoindex</summary>
+
+```bash
+curl http://localhost:8080/get/auto/
+```
+
+Display a directory listing generated by the server.
+
+</details>
+
+<details>
+<summary>❌ Error handling</summary>
+
+```bash
+curl http://localhost:8080/unknown
+```
+
+Returns a custom **404 error page**.
+
+</details>
+
+</details>
+
+---
+
+## 📝 Configuration Example
+
+<details>
+<summary>Example server configuration</summary>
+
+```nginx
+server {
+    listen 0.0.0.0:8080;
+    listen 127.0.0.1:8383;
+    listen [::1]:8484%1;
+    listen unix:/tmp/main.sock;
+
+    server_name www.shadow.com shadow.com;
+    root /unitTest/;
+    client_max_body_size 11000;
+
+    error_page 404 /custom_404.html;
+    error_page 500 502 503 504 /custom_50x.html;
+
+    location /cgi/ {
+        root /unitTest/cgi/;
+        cgi_extension py;
+        cgi_interpreter /usr/bin/python3;
+    }
+
+    location /get/auto/ {
+        root /unitTest/get/auto/;
+        autoindex on;
+    }
+
+    location /delete/ {
+        root /unitTest/delete/;
+        request_method DELETE GET;
+    }
+}
+```
+
+</details>
