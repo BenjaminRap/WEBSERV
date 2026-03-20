@@ -9,12 +9,18 @@ It supports multiple HTTP methods, CGI execution, advanced request handling, and
 
 <details>
 <summary>🐳 Option 1: Docker (all platforms)</summary>
+ 
+1. Install Docker: https://docs.docker.com/get-docker/
 
+4. Launch the container
 ```bash
-docker run --rm -it -p 8080:8080 benjaminrap/webserv:latest
+docker run --rm -it -p 8080:8080 -v ./configuration.conf:/app/webserv/configuration.conf -v ./website:/app/webserv/website benjaminrap/webserv:latest
 ```
 
-The server will start using its default configuration and listen on the defined ports.
+> Note<br>
+> Change ./configuration.conf to the path of your configuration file<br>
+> Change ./website to the path of the files you want to serve<br>
+> Replace 8080 by the port you defined in your configuration file<br>
 
 </details>
 
@@ -44,8 +50,11 @@ make all
 ### 4️⃣ Run the server
 
 ```bash
-./webserv path/to/config/file.conf
+./WebServ ./configuration.conf
 ```
+
+> Note
+> Change ./configuration.conf to the path of your configuration file
 
 </details>
 
@@ -57,7 +66,7 @@ make all
 <summary>🌐 HTTP Methods</summary>
 
 * **GET** → retrieve files and directories
-* **POST** → receive data from clients
+* **POST** → Only used with cgi
 * **PUT** → create or update files
 * **DELETE** → remove files
 
@@ -122,20 +131,6 @@ make all
 
 </details>
 
-<details>
-<summary>🏗️ Additional Features</summary>
-
-* Custom headers via `add_header`
-* Unix socket support
-* Combined support for:
-
-  * autoindex
-  * index files
-  * symlinks
-* Full handling of **chunked and fixed-size requests**
-
-</details>
-
 ---
 
 ## 🧪 Examples
@@ -148,17 +143,6 @@ curl http://localhost:8080/index.html
 ```
 
 Retrieve a file from the server.
-
-</details>
-
-<details>
-<summary>📤 POST request</summary>
-
-```bash
-curl -X POST -d "hello=world" http://localhost:8080/post/
-```
-
-Send data to the server.
 
 </details>
 
