@@ -13,4 +13,4 @@ WORKDIR /app/webserv
 
 RUN [ "make", "all" ]
 
-ENTRYPOINT [ "./webserv", "./configuration.conf"]
+ENTRYPOINT [ "./WebServ", "./configuration.conf" ]
