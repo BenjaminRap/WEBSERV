@@ -66,7 +66,7 @@ make all
 <summary>🌐 HTTP Methods</summary>
 
 * **GET** → retrieve files and directories
-* **POST** → receive data from clients
+* **POST** → Only used with cgi
 * **PUT** → create or update files
 * **DELETE** → remove files
 
@@ -131,20 +131,6 @@ make all
 
 </details>
 
-<details>
-<summary>🏗️ Additional Features</summary>
-
-* Custom headers via `add_header`
-* Unix socket support
-* Combined support for:
-
-  * autoindex
-  * index files
-  * symlinks
-* Full handling of **chunked and fixed-size requests**
-
-</details>
-
 ---
 
 ## 🧪 Examples
@@ -157,17 +143,6 @@ curl http://localhost:8080/index.html
 ```
 
 Retrieve a file from the server.
-
-</details>
-
-<details>
-<summary>📤 POST request</summary>
-
-```bash
-curl -X POST -d "hello=world" http://localhost:8080/post/
-```
-
-Send data to the server.
 
 </details>
 
