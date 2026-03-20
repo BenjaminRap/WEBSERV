@@ -17,6 +17,10 @@ FROM debian:bookworm-slim
 
 WORKDIR /app
 
+RUN [ "apt-get", "update" ]
+RUN [ "apt-get", "install", "-y", "python3" ]
+RUN [ "apt-get", "install", "-y", "php-cli" ]
+
 COPY --from=0 /app/webserv/WebServ /app/WebServ
 
 ENTRYPOINT [ "./WebServ", "./configuration.conf" ]
