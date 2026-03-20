@@ -17,10 +17,10 @@ It supports multiple HTTP methods, CGI execution, advanced request handling, and
 docker run --rm -it -p 8080:8080 -v ./configuration.conf:/app/webserv/configuration.conf -v ./website:/app/webserv/website benjaminrap/webserv:latest
 ```
 
-> Note
-> Change ./configuration.conf to the path of your configuration file
-> Change ./website to the path of the files you want to serve
-> Replace 8080 by the port you defined in your configuration file
+> Note<br>
+> Change ./configuration.conf to the path of your configuration file<br>
+> Change ./website to the path of the files you want to serve<br>
+> Replace 8080 by the port you defined in your configuration file<br>
 
 </details>
 
