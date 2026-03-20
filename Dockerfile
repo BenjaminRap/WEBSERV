@@ -13,4 +13,10 @@ WORKDIR /app/webserv
 
 RUN [ "make", "all" ]
 
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+COPY --from=0 /app/webserv/WebServ /app/WebServ
+
 ENTRYPOINT [ "./WebServ", "./configuration.conf" ]
