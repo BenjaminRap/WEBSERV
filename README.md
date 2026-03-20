@@ -9,12 +9,18 @@ It supports multiple HTTP methods, CGI execution, advanced request handling, and
 
 <details>
 <summary>🐳 Option 1: Docker (all platforms)</summary>
+ 
+1. Install Docker: https://docs.docker.com/get-docker/
 
+4. Launch the container
 ```bash
-docker run --rm -it -p 8080:8080 benjaminrap/webserv:latest
+docker run --rm -it -p 8080:8080 -v ./configuration.conf:/app/webserv/configuration.conf -v ./website:/app/webserv/website benjaminrap/webserv:latest
 ```
 
-The server will start using its default configuration and listen on the defined ports.
+> Note
+> Change ./configuration.conf to the path of your configuration file
+> Change ./website to the path of the files you want to serve
+> Replace 8080 by the port you defined in your configuration file
 
 </details>
 
@@ -44,8 +50,11 @@ make all
 ### 4️⃣ Run the server
 
 ```bash
-./webserv path/to/config/file.conf
+./WebServ ./configuration.conf
 ```
+
+> Note
+> Change ./configuration.conf to the path of your configuration file
 
 </details>
 
