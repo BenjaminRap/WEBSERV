@@ -14,7 +14,7 @@ It supports multiple HTTP methods, CGI execution, advanced request handling, and
 
 4. Launch the container
 ```bash
-docker run --rm -it -p 8080:8080 -v ./configuration.conf:/app/webserv/configuration.conf -v ./website:/app/webserv/website benjaminrap/webserv:latest
+docker run --rm -it -p 8080:8080 -v ./configuration.conf:/app/configuration.conf -v ./website:/app/website benjaminrap/webserv:latest
 ```
 
 > Note<br>
