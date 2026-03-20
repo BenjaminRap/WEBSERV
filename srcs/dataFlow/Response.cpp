@@ -60,25 +60,36 @@ std::string	sizeTToString(size_t value);
 
 void	Response::setBody()
 {
-	size_t	bodySize = 0;
+	size_t		bodySize = 0;
+	std::string	contentType = "";
 
 	if (_fdData.isManagingValue())
 	{
 		AFdData*	fdData = _fdData.getValue();
 
-		if (fdData->getType() == AFdData::FILE_FD)
-			bodySize = static_cast<FileFd*>(fdData)->getSize();
-		else
+		if (fdData->getType() != AFdData::FILE_FD)
 		{
 			_fdData.stopManagingResource();
 			throw std::logic_error("The AFdData is not a FileFd !");
 		}
+		FileFd*	fileFd = static_cast<FileFd*>(fdData);
+
+		bodySize = fileFd->getSize();
+		contentType = fileFd->getContentType();
 	}
 	else if (_status->getPage().size() != 0)
+	{
 		bodySize = _status->getPage().size();
-	else
+		contentType = "text/html";
+	}
+	else if (_autoIndexPage.size() != 0)
+	{
 		bodySize = _autoIndexPage.size();
+		contentType = "text/html";
+	}
 	_headers.addHeader("content-length", sizeTToString(bodySize));
+	if (contentType != "")
+		_headers.addHeader("content-type", contentType);
 }
 
 
@@ -117,7 +128,7 @@ FileFd*	getErrorPage(const Status** currentStatus, const ServerConfiguration& se
 		if (errorPage == NULL)
 			return (NULL);
 
-		return (new FileFd(errorPage->c_str(), O_RDONLY));
+		return (new FileFd(*errorPage, O_RDONLY));
 	}
 	catch (const FileFd::FileOpeningError& openError)
 	{

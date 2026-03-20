@@ -1,11 +1,12 @@
-#include <fcntl.h>      // for open, O_CREAT, O_EXCL, O_WRONLY
-#include <stdint.h>     // for uint32_t
-#include <sys/types.h>  // for ssize_t, mode_t
-#include <cstdio>       // for tmpnam, NULL, L_tmpnam, size_t
-#include <string>       // for basic_string, string
+#include <fcntl.h>      	// for open, O_CREAT, O_EXCL, O_WRONLY
+#include <stdint.h>     	// for uint32_t
+#include <sys/types.h>  	// for ssize_t, mode_t
+#include <cstdio>       	// for tmpnam, NULL, L_tmpnam, size_t
+#include <string>       	// for basic_string, string
 
-#include "AFdData.hpp"  // for AFdData, AFdDataChilds
-#include "FileFd.hpp"   // for FileFd
+#include "AFdData.hpp"  	// for AFdData, AFdDataChilds
+#include "FileFd.hpp"   	// for FileFd
+#include "ContentTypes.hpp" // for ContentTypes
 
 static int	openFile(const char* path, int flags, mode_t mode)
 {
@@ -27,9 +28,10 @@ static int	openFile(const char* path, int flags)
 
 ssize_t		getFileSize(const std::string &filePath);
 
-FileFd::FileFd(const char* path, int flags, mode_t mode) :
-	AFdData(openFile(path, flags, mode), FILE_FD, false),
-	_fileSize(0)
+FileFd::FileFd(const std::string& path, int flags, mode_t mode) :
+	AFdData(openFile(path.c_str(), flags, mode), FILE_FD, false),
+	_fileSize(0),
+	_contentType(ContentTypes::getFileContentType(path))
 {
 	if (flags & O_CREAT & O_EXCL)
 		return ;
@@ -40,9 +42,10 @@ FileFd::FileFd(const char* path, int flags, mode_t mode) :
 	_fileSize = fileSize;
 }
 
-FileFd::FileFd(const char* path, int flags) :
-	AFdData(openFile(path, flags), FILE_FD, false),
-	_fileSize(0)
+FileFd::FileFd(const std::string& path, int flags) :
+	AFdData(openFile(path.c_str(), flags), FILE_FD, false),
+	_fileSize(0),
+	_contentType(ContentTypes::getFileContentType(path))
 {
 	if (flags & O_CREAT & O_EXCL)
 		return ;
@@ -67,6 +70,11 @@ size_t	FileFd::getSize(void) const
 	return (_fileSize);
 }
 
+
+const std::string&	FileFd::getContentType() const
+{
+	return (_contentType);
+}
 
 FileFd*	FileFd::getTemporaryFile(char (&name)[L_tmpnam])
 {

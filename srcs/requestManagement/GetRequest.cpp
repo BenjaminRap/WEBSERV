@@ -46,7 +46,7 @@ void	GetRequest::openFile(void)
 {
 	try
 	{
-		FileFd*	fileFd = new FileFd(_path.c_str(), O_RDONLY);
+		FileFd*	fileFd = new FileFd(_path, O_RDONLY);
 
 		this->_outFd.setManagedResource(fileFd, freePointer);
 	}

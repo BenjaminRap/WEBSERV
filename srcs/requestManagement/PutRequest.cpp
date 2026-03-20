@@ -64,7 +64,7 @@ PutRequest::PutRequest
 	{
 		try
 		{
-			FileFd*	fileFd = new FileFd(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0666);
+			FileFd*	fileFd = new FileFd(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
 			this->_inFd.setManagedResource(fileFd, freePointer);
 			if (_targetType == LS_FILE)
