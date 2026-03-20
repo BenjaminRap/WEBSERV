@@ -79,7 +79,12 @@ void	CgiOut::setErrorPage(const Status** currentStatus)
 		? _srcFile->getSize() :
 		(*currentStatus)->getPage().size();
 
+	const std::string&	contentType = (_srcFile)
+		? _srcFile->getContentType() :
+		"text/html";
+
 	_headers.addHeader("content-length", sizeTToString(size));
+	_headers.addHeader("content-typd", contentType);
 }
 
 void	CgiOut::generateFirstPart(void)

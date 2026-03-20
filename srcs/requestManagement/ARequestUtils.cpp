@@ -179,7 +179,7 @@ bool	findIndex(ARequestType& req, const std::vector<std::string> &indexs)
 				req.getUrl() += indexs[i];
 				req.setResponseWithLocation(HTTP_OK, "", false);
 
-				FileFd*	fileFd = new FileFd(absolutePath.c_str(), O_RDONLY);
+				FileFd*	fileFd = new FileFd(absolutePath, O_RDONLY);
 				req.setOutFd(fileFd, freePointer);
 			}
 			return (true);

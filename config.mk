@@ -30,6 +30,7 @@ DATA_FLOW_FILES			:=	RawResponse.cpp			\
 							RequestParsing.cpp		\
 							Response.cpp			\
 							Headers.cpp				\
+							ContentTypes.cpp			\
 							headersInsertType.cpp
 DATA_FLOW				:=	$(addprefix $(DATA_FLOW_DIR), $(DATA_FLOW_FILES))
 
