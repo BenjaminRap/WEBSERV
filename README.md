@@ -1,6 +1,6 @@
 # WEBSERV
 
-**Webserv** is a fully-featured HTTP server written in **C++**, implementing a subset of **Nginx-like behavior**.
+**Webserv** is a fully functional HTTP server written in **C++**, implementing a subset of **Nginx-like behavior**.
 It supports multiple HTTP methods, CGI execution, advanced request handling, and a flexible configuration system.
 
 ---
